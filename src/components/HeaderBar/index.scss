@@ -1,0 +1,107 @@
+.app-bar {
+    .MuiContainer-root {
+        background-color: black;
+    }
+
+    &.main {
+        &.MuiAppBar-root {
+            background-color: transparent;
+            box-shadow: none;
+        }
+        .MuiContainer-root {
+            background-color: transparent;
+            background-image: linear-gradient(black 0%, #000000dd 20%, #000000aa 50%, #00000000 100%);
+        }
+
+        .app-bar-icon {
+            display: none;
+        }
+    }
+
+    .app-bar-icon{
+        &:after {
+            content:'';
+            top: 0%;
+            left: 0;
+            width: 0;
+            height: 0;
+            border-left: solid 32px #e15915;
+            border-top: solid 32px transparent;
+            border-bottom: solid 32px transparent;
+        }
+
+        .app-bar-icon-svg {
+            cursor: pointer;
+        }
+    }
+
+    .app-bar-header {
+        font-family: "tagesschrift";
+        font-weight: "bold";
+        text-decoration: none;
+
+        &:after {
+            transition: .2s width linear, .2s border-color ease-in;
+            content: '';
+            display: flex;
+            position: relative;
+            top: -10%;
+            left: 0%;
+            width: 0;
+            height: 0;
+            margin: 0 auto;
+            border: solid 1px;
+            border-color: transparent;
+        }
+
+        &:hover {
+            &:after {
+                width: 96%;
+                border: solid 1px;
+            }
+        }
+    }
+
+    .app-bar-quick-search {
+        .MuiInput-root {
+            color: white;
+
+            .MuiInputBase-input {
+                width: 90%;
+            }
+
+            &::after {
+                border-bottom: 2px solid white;
+                transform: scaleX(1) translateX(0);
+            }
+        }
+    }
+
+    .app-bar-login {
+        font-family: "tagesschrift";
+        font-weight: "bold";
+        border-width: 2px;
+        border-style: solid;
+        transition: .2s all ease-in-out;
+    }
+
+    .app-bar-header,
+    .app-bar-login {
+        cursor: pointer;
+    }
+}
+
+.app-bar-user-menu {
+    .MuiPaper-root {
+        display: "flex";
+        flex-direction: "column";
+        background-color: transparent;
+        color: white;
+        box-shadow: none;
+        overflow: visible;
+    }
+
+    .app-bar-user-menu-item {
+        font-family: "tagesschrift";
+    }
+}
