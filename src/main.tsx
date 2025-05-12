@@ -6,6 +6,8 @@ import "./index.css";
 import App from "./App.tsx";
 import { ThemeProvider } from "@mui/material";
 import theme from "./theme.tsx";
+import { Provider } from "react-redux";
+import { store } from "@redux/store";
 
 let domain = import.meta.env.VITE_AUTH0_DOMAIN;
 let clientId = import.meta.env.VITE_AUTH0_CLIENT_ID;
@@ -14,7 +16,12 @@ let audience = import.meta.env.VITE_AUTH0_AUDIENCE;
 const Auth0Layer = (): JSX.Element => {
 
   const onRedirectCallback = (appState?: AppState) => {
-    window.location.href = appState?.returnTo || "/";
+    // window.location.href = appState?.returnTo || "/";
+    window.history.replaceState(
+      {},
+      document.title,
+      appState?.returnTo || window.location.pathname
+    );
   };
 
   return (
@@ -22,18 +29,20 @@ const Auth0Layer = (): JSX.Element => {
       domain={domain}
       clientId={clientId}
       authorizationParams={{
-        redirect_uri: window.location.origin + window.location.pathname,
+        redirect_uri: window.location.origin,
         audience: audience,
       }}
       onRedirectCallback={onRedirectCallback}
       useRefreshTokens={true}
       cacheLocation="localstorage"
     >
-      <Router>
-        <ThemeProvider theme={theme}>
-          <App />
-        </ThemeProvider>
-      </Router>
+      <Provider store={store}>
+        <Router>
+          <ThemeProvider theme={theme}>
+            <App />
+          </ThemeProvider>
+        </Router>
+      </Provider>
     </Auth0Provider>
   );
 };

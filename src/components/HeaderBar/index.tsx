@@ -10,12 +10,14 @@ import {
 import "./index.css";
 import Header from "./Header";
 import { useAuth0 } from "@auth0/auth0-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import UserMenu from "./UserMenu";
 import UserMenuItem from "./UserMenu/UserMenuItem";
 import { useLocation } from "react-router";
-import Pages from "../../constants/Pages";
-import Search from "../Search";
+import Pages from "@constants/Pages";
+import Search from "@components/Search";
+import TLogo from "@assets/T.svg";
+import TBoard from "@assets/TT_Board.svg";
 
 const HeaderBar = () => {
   const { isLoading, isAuthenticated, user, loginWithRedirect, logout } =
@@ -23,6 +25,9 @@ const HeaderBar = () => {
   const [anchorElUser, setAnchorElUser] = useState<HTMLElement | null>();
   const location = useLocation();
   const onPage = location.pathname === "/" ? Pages.Main : Pages.Undefined;
+
+  // render on mount
+  useEffect(() => {}, []);
 
   const headers = [
     {
@@ -67,53 +72,53 @@ const HeaderBar = () => {
     loginWithRedirect({
       authorizationParams: {
         audience: import.meta.env.VITE_AUTH0_AUDIENCE,
-        redirect_uri: window.location.origin + window.location.pathname,
+        redirect_uri: window.location.origin,
       },
       appState: { returnTo: window.location.pathname },
     });
 
   return (
     <AppBar
+      key="app-bar"
       className={`app-bar ${onPage}`}
       position="sticky"
       sx={{ width: "100vw" }}
     >
-      <Container maxWidth="xl" disableGutters>
+      <Container maxWidth={false} disableGutters>
         <Toolbar disableGutters sx={{ height: 64 }}>
-
           {/* main page - board */}
           {onPage === Pages.Main && (
             <Box mt={20} ml={-5} mr={-20}>
-              <img src="src/assets/TT_Board.svg" height={200} />
+              <img src={TBoard} height={200} />
             </Box>
           )}
 
           {/* not main page - icon */}
           {onPage !== Pages.Main && (
             <Box
-            className="app-bar-icon"
-            height="inherit"
-            alignItems="center"
-            display="flex"
-          >
-            <Box
-              bgcolor="primary.main"
+              className="app-bar-icon"
               height="inherit"
               alignItems="center"
               display="flex"
-              px={0.5}
             >
-              <Link href={"/"}>
-                <img
-                  className="app-bar-icon-svg"
-                  src="src/assets/T.svg"
-                  alt="TravelTips"
-                  height={60}
-                  width={60}
-                />
-              </Link>
+              <Box
+                bgcolor="primary.main"
+                height="inherit"
+                alignItems="center"
+                display="flex"
+                px={0.5}
+              >
+                <Link href={"/"}>
+                  <img
+                    className="app-bar-icon-svg"
+                    src={TLogo}
+                    alt="TravelTips"
+                    height={60}
+                    width={60}
+                  />
+                </Link>
+              </Box>
             </Box>
-          </Box>
           )}
 
           {/* headers */}
@@ -133,7 +138,11 @@ const HeaderBar = () => {
           {/* main page - quick search */}
           {onPage === Pages.Main && (
             <Box m={2}>
-              <Search className="app-bar-quick-search" autoFocus={true} />
+              <Search
+                className="app-bar-quick-search"
+                color="white"
+                autoFocus={true}
+              />
             </Box>
           )}
 

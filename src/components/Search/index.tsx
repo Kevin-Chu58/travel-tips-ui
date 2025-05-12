@@ -1,16 +1,27 @@
 // import { TextField } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import { useEffect, useRef, useState } from "react";
-import IconButton from "../IconButton";
-import TextField from "../TextField";
-import { Box } from "@mui/material";
+import IconButton from "@components/IconButton";
+import TextField from "@components/TextField";
+import { Box, type SxProps, type Theme } from "@mui/material";
 
 type SearchProps = {
   className: string;
-  autoFocus: boolean;
+  color: string;
+  placeholder?: string;
+  autoFocus?: boolean;
+  fullWidth?: boolean;
+  sx?: SxProps<Theme>;
 };
 
-const Search = ({ className, autoFocus = false }: SearchProps) => {
+const Search = ({
+  className,
+  color,
+  placeholder,
+  autoFocus = false,
+  fullWidth = false,
+  sx,
+}: SearchProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [input, setInput] = useState<string>("");
 
@@ -39,12 +50,14 @@ const Search = ({ className, autoFocus = false }: SearchProps) => {
   };
 
   return (
-    <Box display="flex">
+    <Box display="flex" flexDirection="row" maxWidth={400} sx={sx}>
       <TextField
-        id="quick-search"
+        id="search"
         className={className}
+        placeholder={placeholder}
         autoFocus={autoFocus}
-        color="white"
+        fullWidth={fullWidth}
+        color={color}
         inputRef={inputRef}
         input={input}
         onChange={handleChangeInput}
@@ -54,8 +67,8 @@ const Search = ({ className, autoFocus = false }: SearchProps) => {
       <IconButton
         onClick={handleSearch}
         sx={{
-          color: "white",
           ml: -1,
+          color: color,
           ":hover": {
             color: "primary.main",
           },

@@ -1,12 +1,40 @@
 import { Avatar, Box, Chip, Grid, Typography } from "@mui/material";
-import { green, grey } from "@mui/material/colors";
+import { grey } from "@mui/material/colors";
+import type { Trip } from "@services/trips";
+import { useNavigate } from "react-router";
+import { TripDurationColors } from "@constants/Colors";
 
-const TripView = () => {
+type TripViewProps = {
+  trip?: Trip;
+}
+
+const TripView = ({trip}: TripViewProps) => {
   const tags = ["historical", "national park"];
+  const navigate = useNavigate();
+
+  const getTripDurationColor = (duration: number) => {
+    if (duration === 0)
+      return TripDurationColors.none;
+    if (duration < 7)
+      return TripDurationColors.days;
+    if (duration < 30)
+      return TripDurationColors.weeks;
+    if (duration < 120)
+      return TripDurationColors.months;
+    else
+      return TripDurationColors.seasons;
+  }
+
+  const formatTripDuration = (duration: number) => {
+    if (duration === 0)
+      return "- -";
+    else
+      return duration + "D";
+  }
 
   return (
     <Grid
-      size={{lg: 3, xl: 4}}
+      size={{xs: 12, sm: 6, md: 4, lg: 3}}
       display="flex"
       flexDirection="column"
       maxHeight={350}
@@ -26,6 +54,7 @@ const TripView = () => {
           width: "100%",
           height: 150,
           objectFit: "cover",
+          objectPosition: "50% 40%",
           border: "0 solid transparent",
           borderRadius: 2,
         }}
@@ -35,9 +64,10 @@ const TripView = () => {
       <Box height={30} ml={1} mt={-4.5} display="flex">
         <Avatar
           alt="creator"
+          src="src/assets/alone.png"
           sx={{ width: 30, height: 30, cursor: "pointer" }}
         />
-        <Typography
+          <Typography
           fontFamily="noto serif"
           variant="body2"
           my={0.5}
@@ -49,7 +79,7 @@ const TripView = () => {
             borderRadius: 1,
             borderTopRightRadius: 0,
             borderBottomRightRadius: 0,
-            bgcolor: green[800],
+            bgcolor: getTripDurationColor(trip?.numDays ?? 0),
             color: "white",
             px: 1,
             ":hover": {
@@ -57,7 +87,7 @@ const TripView = () => {
             },
           }}
         >
-          1D
+          {formatTripDuration(trip?.numDays ?? 0)}
         </Typography>
       </Box>
 
@@ -74,8 +104,9 @@ const TripView = () => {
               color: "primary.main",
             },
           }}
+          onClick={() => {navigate("/trip/"+trip?.id)}}
         >
-          Lincoln Memorial Hall
+          {trip?.name}
         </Typography>
 
         {/* address */}

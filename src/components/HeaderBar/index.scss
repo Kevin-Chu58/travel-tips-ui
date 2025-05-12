@@ -1,4 +1,8 @@
 .app-bar {
+    &.MuiPaper-root {
+        z-index: 1200;
+    }
+
     .MuiContainer-root {
         background-color: black;
     }
@@ -32,33 +36,6 @@
 
         .app-bar-icon-svg {
             cursor: pointer;
-        }
-    }
-
-    .app-bar-header {
-        font-family: "tagesschrift";
-        font-weight: "bold";
-        text-decoration: none;
-
-        &:after {
-            transition: .2s width linear, .2s border-color ease-in;
-            content: '';
-            display: flex;
-            position: relative;
-            top: -10%;
-            left: 0%;
-            width: 0;
-            height: 0;
-            margin: 0 auto;
-            border: solid 1px;
-            border-color: transparent;
-        }
-
-        &:hover {
-            &:after {
-                width: 96%;
-                border: solid 1px;
-            }
         }
     }
 

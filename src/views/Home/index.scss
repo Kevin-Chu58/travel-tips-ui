@@ -1,0 +1,16 @@
+.home-page {
+    .home-page-search {
+        .MuiInput-root {
+            color: black;
+
+            .MuiInputBase-input {
+                width: 90%;
+            }
+
+            &::after {
+                border-bottom: 2px solid black;
+                transform: scaleX(1) translateX(0);
+            }
+        }
+    }
+}

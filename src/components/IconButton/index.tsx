@@ -3,7 +3,7 @@ import { IconButton as MuiIconButton, type SxProps } from '@mui/material';
 
 type IconButtonProps = {
     children: React.ReactNode,
-    sx?: SxProps<Theme>
+    sx?: SxProps<Theme>,
     onClick?: () => void,
 }
 
