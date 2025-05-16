@@ -43,12 +43,6 @@ const Search = ({
     clearInput();
   };
 
-  const handleKeyDown = (event: React.KeyboardEvent) => {
-    if (event.key === "Enter") {
-      handleSearch();
-    }
-  };
-
   return (
     <Box display="flex" flexDirection="row" maxWidth={400} sx={sx}>
       <TextField
@@ -62,7 +56,7 @@ const Search = ({
         input={input}
         onChange={handleChangeInput}
         clearInput={clearInput}
-        onKeyDown={handleKeyDown}
+        onEnterDown={handleSearch}
       />
       <IconButton
         onClick={handleSearch}

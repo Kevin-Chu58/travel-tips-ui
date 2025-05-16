@@ -9,74 +9,92 @@ import ClearIcon from "@mui/icons-material/Clear";
 import { getHex } from "@constants/Colors";
 
 type TextFieldProps = {
-  id: string;
-  className: string;
-  autoFocus: boolean;
+  id?: string;
+  className?: string;
+  autoFocus?: boolean;
   fullWidth?: boolean;
-  color: string;
-  inputRef: React.RefObject<HTMLElement | null>;
-  input: string;
+  multiline?: boolean;
+  color?: string;
+  inputRef?: React.RefObject<HTMLElement | null>;
+  label?: string;
+  input?: string;
   placeholder?: string;
-  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  clearInput: () => void;
-  onKeyDown: (event: React.KeyboardEvent) => void;
-  sx?: SxProps<Theme>;
+  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  clearInput?: () => void;
+  onEnterDown?: () => void;
+  inputSx?: SxProps<Theme>;
 };
 
 const TextField = ({
   id,
   className,
-  autoFocus,
+  autoFocus = false,
   fullWidth = false,
-  color,
+  multiline = false,
+  color = "black",
   inputRef,
+  label,
   input,
   placeholder,
   onChange,
-  onKeyDown,
+  onEnterDown,
   clearInput,
-  sx,
+  inputSx,
 }: TextFieldProps) => {
   const isInputEmpty = () => {
-    return input.length === 0;
+    return !input || input.length === 0;
+  };
+
+  const pressEnter = (event: React.KeyboardEvent) => {
+    if (onEnterDown && event.key === "Enter") {
+      onEnterDown();
+    }
   };
 
   return (
-    <Box display="flex" position="relative" flexGrow={1} sx={sx}>
+    <Box display="flex" position="relative" flexGrow={1}>
       <MuiTextField
         id={id}
         className={className}
         placeholder={placeholder}
         inputRef={inputRef}
         fullWidth={fullWidth}
-        label=""
+        label={label}
         variant="standard"
         value={input}
         onChange={onChange}
-        onKeyDown={onKeyDown}
+        onKeyDown={pressEnter}
         autoFocus={autoFocus}
+        multiline={multiline}
+        sx={
+          {
+            ".MuiInputBase-input": {...inputSx},
+          } as SxProps<Theme>
+        }
       />
-      <IconButton
-        onClick={clearInput}
-        sx={{
-          ml: -3.5,
-          mt: -1,
-          cursor: isInputEmpty() ? "unset" : "pointer",
-        }}
-      >
-        <ClearIcon
+      {clearInput && (
+        <IconButton
+          onClick={clearInput}
           sx={{
-            color: color,
-            visibility: isInputEmpty() ? "hidden" : "visible",
-            border: "1px solid transparent",
-            borderRadius: 50,
-            scale: 0.8,
-            ":hover": {
-              bgcolor: getHex(color) + "33",
-            },
+            ml: -3.5,
+            mt: -1,
+            cursor: isInputEmpty() ? "unset" : "pointer",
           }}
-        />
-      </IconButton>
+        >
+          <ClearIcon
+            sx={{
+              color: color,
+              visibility: isInputEmpty() ? "hidden" : "visible",
+              border: "1px solid transparent",
+              borderRadius: 50,
+              scale: 0.8,
+              ":hover": {
+                bgcolor: getHex(color) + "33",
+              },
+            }}
+          />
+        </IconButton>
+      )}
     </Box>
   );
 };

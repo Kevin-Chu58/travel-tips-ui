@@ -2,12 +2,13 @@ import { Navigate, Route, Routes } from "react-router";
 import SubHeaderBar from "@components/SubHeaderBar";
 import { useEffect, useState } from "react";
 import TripGeneral from "./TripGeneral";
-import { type Trip, tripsService } from "@services/trips";
+import { type Trip as TripType, tripsService } from "@services/trips";
+import TripSchedule from "./TripSchedule";
 
 const Trip = () => {
   // const token = useSelector((state: RootState) => state.auth.accessToken);
   const [tripId, setTripId] = useState<number>();
-  const [trip, setTrip] = useState<Trip>();
+  const [trip, setTrip] = useState<TripType>();
 
   // render when tripId exists
   useEffect(() => {
@@ -29,9 +30,7 @@ const Trip = () => {
   }, {
     name: "Map",
     to: `/trip/${tripId}/map`,
-  }]
-
-  
+  }];  
 
   return (
     <>
@@ -39,8 +38,8 @@ const Trip = () => {
       <Routes>
         <Route index element={<Navigate to={"/home"} />} />
         <Route path="/:tripId" element={<TripGeneral tripDetail={trip} setTripId={setTripId} />} />
-        {/* <Route path="/:tripId/schedule" element={<TripPage />} />
-        <Route path="/:tripId/map" element={<TripPage />} /> */}
+        <Route path="/:tripId/schedule" element={<TripSchedule tripDetail={trip} setTripId={setTripId} />} />
+        {/* <Route path="/:tripId/map" element={<TripPage />} /> */}
       </Routes>
     </>
   );

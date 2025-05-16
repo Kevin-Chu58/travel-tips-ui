@@ -10,9 +10,10 @@ type HttpRequestBody =
 const get = <TResponse>(
   apiBaseURL: string,
   endpoint: string,
+  headers = new Headers(),
   token?: string
 ): Promise<TResponse> =>
-  makeRequest(apiBaseURL, endpoint, "get", undefined, undefined, token);
+  makeRequest(apiBaseURL, endpoint, "get", undefined, setContentTypeJSON(headers), token);
 
 const put = <TResponse>(
   apiBaseURL: string,
@@ -118,7 +119,7 @@ const makeRequest = async <TResponse>(
   token?: string
 ): Promise<TResponse> => {
   // console.log(`${method} request to endpoint ${endpoint}`);
-  const response = await fetch(`${apiBaseURL}/api/${endpoint}`, {
+  const response = await fetch(`${apiBaseURL}/${endpoint}`, {
     method,
     body,
     // headers: headers ?? new Headers(),
@@ -237,6 +238,8 @@ const apiBaseURLs = {
     import.meta.env.VITE_API_URL_LOCAL ??
     import.meta.env.VITE_API_URL_PRODUCTION ??
     "",
+  osm:
+    import.meta.env.VITE_OSM_API ?? "",
 };
 
 const http = {

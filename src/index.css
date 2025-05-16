@@ -6,9 +6,6 @@
   color-scheme: light dark;
   background-color: #F2EFEA;
 
-  overflow-y: auto;
-  overflow-x: hidden;
-
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -20,7 +17,30 @@ body {
   display: flex;
   min-width: 320px;
   min-height: 100vh;
+
+  overflow-y: auto;
+  overflow-x: hidden;
 }
+
+  /* For Firefox */
+/* .scrollable {
+  scrollbar-width: thin;
+  scrollbar-color: #ccc transparent;
+} */
+
+/* For WebKit browsers (Chrome, Edge, Safari) */
+/* .scrollable::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollable::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollable::-webkit-scrollbar-thumb {
+  background-color: #aaa;
+  border-radius: 10px;
+} */
 
 @media (prefers-color-scheme: light) {
   :root {

@@ -16,10 +16,6 @@ function App() {
       navigate(window.location.pathname);
   }, [isLoading, isAuthenticated]);
 
-  if (isLoading) {
-    return <div>Loading authentication...</div>;
-  }
-
   return (
     <>
       <AuthInitializer />
