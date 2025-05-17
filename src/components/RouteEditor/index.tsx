@@ -19,6 +19,7 @@ import { useEffect, useState } from "react";
 import { type Day, type TripAttractionOrder } from "@services/days";
 import DraggableList from "@components/DraggableList";
 import DraggableItem from "@components/DraggableItem";
+import { restrictToParentElement } from "@dnd-kit/modifiers";
 import AddIcon from "@mui/icons-material/Add";
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
@@ -41,7 +42,15 @@ const RouteEditor = ({ tripDetail, open, setOpen }: RouteEditorProps) => {
   // get attraction
   const [openAttraction, setOpenAttraction] = useState<boolean>(false);
 
-  // useEffect(() => {}, [tao]);
+  // rerender on tao attraction id change
+  useEffect(() => {
+    if (tao?.attractionId) {
+      let taoIndex = taos?.findIndex(_tao => _tao.id === tao.id);
+      let newTaos = taos;
+      newTaos![taoIndex!] = tao;
+      setTaos(newTaos);
+    }
+  }, [tao?.attractionId]);
 
   // rerender the day in edit on editTao
   useEffect(() => {
@@ -75,7 +84,7 @@ const RouteEditor = ({ tripDetail, open, setOpen }: RouteEditorProps) => {
       let newTaos = [newTao];
       setTao(newTao);
       setTaos(newTaos);
-      setEditTao(i + 1);
+      setEditTao(i);
     }
   };
 
@@ -95,13 +104,11 @@ const RouteEditor = ({ tripDetail, open, setOpen }: RouteEditorProps) => {
   // edit tao
 
   const updateAttraction = (attractionId: number) => {
-    if (tao) {
-      setTao({
-      ...tao,
+    setTao({
+      ...tao!,
       attractionId: attractionId,
     });
-    }
-  }
+  };
 
   const toggleIsDrive = () => {
     if (tao) {
@@ -186,11 +193,16 @@ const RouteEditor = ({ tripDetail, open, setOpen }: RouteEditorProps) => {
       >
         <Grid container minWidth="60vw" height="80vh" direction="column">
           <Grid size={12}>
-            <Box display="flex" justifyContent="center" alignItems="center" m={2}>
+            <Box
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+              m={2}
+            >
               <Typography variant="h5" fontWeight="bold">
                 Day {editTao} {dayInEdit?.name}
               </Typography>
-              <Box sx={{position: "absolute", right: 5}}>
+              <Box sx={{ position: "absolute", right: 5 }}>
                 <IconButton
                   disableRipple
                   color="error"
@@ -207,7 +219,7 @@ const RouteEditor = ({ tripDetail, open, setOpen }: RouteEditorProps) => {
                 </IconButton>
               </Box>
             </Box>
-            <Divider />
+            <Divider variant="fullWidth" />
           </Grid>
 
           <Grid
@@ -228,26 +240,50 @@ const RouteEditor = ({ tripDetail, open, setOpen }: RouteEditorProps) => {
             }}
           >
             {/* Left Panel */}
-            <Grid size={4} p={2} sx={{
-              height: "100%",
-              overflowX: "hidden",
-              overflowY: "auto",
-              }}>
-              <Box display="flex" justifyContent="center" mb={2}>
+            <Grid
+              size={4}
+              p={2}
+              sx={{
+                height: "100%",
+                overflowX: "hidden",
+                overflowY: "auto",
+              }}
+            >
+              <Grid
+                container
+                flexDirection="column"
+                size={12}
+                display="flex"
+                mb={2}
+              >
                 <Typography fontWeight="bold">Attraction Order</Typography>
-              </Box>
-              <Divider />
-                <DraggableList items={taos} setItems={setTaos}>
-                {taos?.map((_tao, i) => (
-                  <DraggableItem
-                    key={`edit-day-tao-${i}`}
-                    id={i}
-                    enableDrag={_tao.id === tao?.id}
-                  >
-                    {_tao.attractionId}
-                  </DraggableItem>
-                ))}
-              </DraggableList>
+                <Divider />
+              </Grid>
+              <Grid
+                size={12}
+                flexGrow={1}
+                sx={{
+                  position: "relative",
+                  overflowX: "hidden",
+                  overflowY: "auto",
+                }}
+              >
+                <DraggableList
+                  items={taos}
+                  setItems={setTaos}
+                  modifiers={[restrictToParentElement]}
+                >
+                  {taos?.map((_tao, i) => (
+                    <DraggableItem
+                      key={`edit-day-tao-${i}`}
+                      id={i}
+                      enableDrag={_tao.id === tao?.id}
+                    >
+                      Order {i + 1}: {_tao.attractionId}
+                    </DraggableItem>
+                  ))}
+                </DraggableList>
+              </Grid>
             </Grid>
 
             {/* Right Panel */}
@@ -266,8 +302,8 @@ const RouteEditor = ({ tripDetail, open, setOpen }: RouteEditorProps) => {
                 </Grid>
                 <Grid container size={10}>
                   <Box>
-                    {Boolean(tao?.attractionId) ? (
-                      <Typography>attraction info</Typography>
+                    {tao?.attractionId ? (
+                      <Typography>{tao?.attractionId}</Typography>
                     ) : (
                       <Typography>none</Typography>
                     )}
@@ -393,8 +429,12 @@ const RouteEditor = ({ tripDetail, open, setOpen }: RouteEditorProps) => {
             </Grid>
           </Grid>
         </Grid>
-        
-        <AttractionFinder open={openAttraction} setOpen={setOpenAttraction} updateAttr={updateAttraction}/>
+
+        <AttractionFinder
+          open={openAttraction}
+          setOpen={setOpenAttraction}
+          updateAttr={updateAttraction}
+        />
       </Dialog>
     </Dialog>
   );

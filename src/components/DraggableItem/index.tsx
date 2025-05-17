@@ -35,10 +35,11 @@ function DraggableItem({
       sx={{
         ...style,
         cursor: enableDrag ? "grab" : "auto",
-        boxShadow: 1,
+        border: "1px solid",
+        borderColor: "divider",
         borderRadius: 2,
-        mx: 1,
       }}
+      elevation={0}
     >
       <ListItem>
         {children}

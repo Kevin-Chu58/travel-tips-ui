@@ -4,6 +4,7 @@ import {
   PointerSensor,
   useSensor,
   useSensors,
+  type Modifier,
 } from "@dnd-kit/core";
 import {
   arrayMove,
@@ -16,10 +17,11 @@ import type { ReactNode } from "react";
 type DraggableListProps = {
   items: any[] | undefined;
   setItems: (items: any) => void;
+  modifiers?: Modifier[];
   children: ReactNode;
 };
 
-const DraggableList = ({ items, setItems, children }: DraggableListProps) => {
+const DraggableList = ({ items, setItems, modifiers, children }: DraggableListProps) => {
   const sensors = useSensors(useSensor(PointerSensor));
 
   const handleDragEnd = (event: any) => {
@@ -36,6 +38,7 @@ const DraggableList = ({ items, setItems, children }: DraggableListProps) => {
       sensors={sensors}
       collisionDetection={closestCenter}
       onDragEnd={handleDragEnd}
+      modifiers={modifiers ?? []}
     >
       {items && (
         <SortableContext items={items} strategy={verticalListSortingStrategy}>

@@ -3,6 +3,9 @@ import { Box } from "@mui/material";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useEffect, useRef, type ReactNode } from "react";
+import markerIconBlue from "@assets/map/marker-icon-blue.png";
+import markerIconGreen from "@assets/map/marker-icon-green.png";
+import markerShadow from "@assets/map/marker-shadow.png";
 
 type Marker = {
   lat: number;
@@ -21,6 +24,7 @@ type MapProps = {
   focusId?: number | undefined;
   correctionBias?: number;
   correctionDirection?: Direction;
+  correctionZoom?: number;
   children?: ReactNode;
 };
 
@@ -33,6 +37,7 @@ const Map = ({
   focusId = undefined,
   correctionBias = 0,
   correctionDirection = "S",
+  correctionZoom = 0,
   children,
 }: MapProps) => {
   const mapRef = useRef<HTMLDivElement>(null);
@@ -71,14 +76,14 @@ const Map = ({
   }, [isUpdated]);
 
   const setMarkers = () => {
+    const maxZoom = mapInstanceRef.current!.getMaxZoom();
 
     // remove old markers
     markersRef.current.forEach((m) => mapInstanceRef.current!.removeLayer(m));
     markersRef.current = [];
 
-
     markers.forEach((marker) => {
-      let zoom = marker.zoom ?? mapInstanceRef.current!.getZoom();
+      let zoom = Math.min(marker.zoom ?? mapInstanceRef.current!.getZoom(), maxZoom);
       let isFocus = marker.id === focusId;
       let icon = isFocus ? greenIcon : blueIcon;
       let zIndexOffset = isFocus ? 1000 : 0;
@@ -103,12 +108,12 @@ const Map = ({
           marker.lat,
           marker.lng,
           correctionBias,
-          zoom,
+          zoom + correctionZoom,
           correctionDirection
         );
         mapInstanceRef.current!.setView(
           [marker.lat + markerBiased.lat, marker.lng + markerBiased.lng],
-          zoom
+          zoom + correctionZoom
         );
       }
     });
@@ -123,10 +128,8 @@ const Map = ({
   // ref: https://github.com/pointhi/leaflet-color-markers
 
   const blueIcon = new L.Icon({
-    iconUrl:
-      "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png",
-    shadowUrl:
-      "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
+    iconUrl: markerIconBlue,
+    shadowUrl: markerShadow,
     iconSize: [25, 41],
     iconAnchor: [12, 41],
     popupAnchor: [1, -34],
@@ -134,10 +137,8 @@ const Map = ({
   });
 
   const greenIcon = new L.Icon({
-    iconUrl:
-      "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png",
-    shadowUrl:
-      "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
+    iconUrl: markerIconGreen,
+    shadowUrl: markerShadow,
     iconSize: [25, 41],
     iconAnchor: [12, 41],
     popupAnchor: [1, -34],
@@ -157,33 +158,35 @@ const Map = ({
     lng: number,
     cm: number,
     zoom: number,
-    direction: "N" | "E" | "S" | "W",
+    direction: Direction,
   ): L.LatLng => {
     if (cm <= 0) return new L.LatLng(0, 0);
 
-    const originalPoint = map.project([lat, lng], zoom);
-    const px = (96 / 2.54) * cm;
+    // 1 cm in pixels (screen units) — assuming 96 DPI
+    const pixels = (96 / 2.54) * cm; // ~37.8px per cm
 
-    let movedPoint: L.Point;
+    const originalPoint = map.project([lat, lng], zoom);
+
+    let offsetPoint: L.Point;
 
     switch (direction) {
       case "N":
-        movedPoint = L.point(originalPoint.x, originalPoint.y - px);
+        offsetPoint = L.point(originalPoint.x, originalPoint.y - pixels);
         break;
       case "S":
-        movedPoint = L.point(originalPoint.x, originalPoint.y + px);
+        offsetPoint = L.point(originalPoint.x, originalPoint.y + pixels);
         break;
       case "E":
-        movedPoint = L.point(originalPoint.x + px, originalPoint.y);
+        offsetPoint = L.point(originalPoint.x + pixels, originalPoint.y);
         break;
       case "W":
-        movedPoint = L.point(originalPoint.x - px, originalPoint.y);
+        offsetPoint = L.point(originalPoint.x - pixels, originalPoint.y);
         break;
     }
 
-    const movedLatLng = map.unproject(movedPoint, zoom);
+    const newLatLng = map.unproject(offsetPoint, zoom);
 
-    return new L.LatLng(movedLatLng.lat - lat, movedLatLng.lng - lng);
+    return new L.LatLng(newLatLng.lat - lat, newLatLng.lng - lng);
   };
 
   return (
