@@ -1,6 +1,7 @@
 import { AppBar, Breadcrumbs, Container } from "@mui/material";
 import "./index.css";
 import Header from "@components/HeaderBar/Header";
+import Layouts from "@constants/Layouts";
 // import { useNavigate } from "react-router";
 
 type SubHeaderBarProps = {
@@ -21,13 +22,13 @@ const SubHeaderBar = ({ items, showBack = true }: SubHeaderBarProps) => {
       position="sticky"
       sx={{
         width: "100vw",
-        top: "64px",
+        top: `${Layouts.Header}px`,
       }}
     >
       <Container
         maxWidth={false}
         disableGutters
-        sx={{ display: "flex", alignItems: "center", pb: 0.5 }}
+        sx={{ display: "flex", alignItems: "center", pb: 0.5, height: Layouts.SubHeader }}
       >
         {showBack && (
           <Header

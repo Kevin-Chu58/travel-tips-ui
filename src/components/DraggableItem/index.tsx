@@ -1,6 +1,6 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Box, ListItem, Paper } from "@mui/material";
+import { Grid, Paper, type SxProps } from "@mui/material";
 import type { ReactNode } from "react";
 import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
 
@@ -9,6 +9,7 @@ type DraggableItemProps = {
   children?: ReactNode;
   highlight?: boolean;
   enableDrag?: boolean;
+  sx?: SxProps;
 };
 
 function DraggableItem({
@@ -16,6 +17,7 @@ function DraggableItem({
   highlight = false,
   enableDrag = true,
   children,
+  sx,
 }: DraggableItemProps) {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id });
@@ -34,6 +36,7 @@ function DraggableItem({
       {...newListeners}
       sx={{
         ...style,
+        ...sx,
         cursor: enableDrag ? "grab" : "auto",
         border: "1px solid",
         borderColor: "divider",
@@ -41,14 +44,18 @@ function DraggableItem({
       }}
       elevation={0}
     >
-      <ListItem>
-        {children}
-        {enableDrag && (
-          <DragIndicatorIcon
-            sx={{ ml: "auto", color: highlight ? "primary.main" : "grey" }}
-          />
-        )}
-      </ListItem>
+      <Grid container size={12}>
+        <Grid container size={10}>
+          {children}
+        </Grid>
+        <Grid size={2} display="flex" alignItems="center">
+          {enableDrag && (
+            <DragIndicatorIcon
+              sx={{ ml: "auto", my: "auto", color: highlight ? "primary.main" : "grey" }}
+            />
+          )}
+        </Grid>
+      </Grid>
     </Paper>
   );
 }

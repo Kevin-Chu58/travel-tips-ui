@@ -1,4 +1,4 @@
-import type { OsmType } from "@constants/Osms";
+import type { OsmType } from "@constants/Maps";
 import http from "@services/http";
 
 export type OsmEntity = {

@@ -240,6 +240,8 @@ const apiBaseURLs = {
     "",
   osm:
     import.meta.env.VITE_OSM_API ?? "",
+  osrm:
+    import.meta.env.VITE_OSRM_API ?? "",
 };
 
 const http = {

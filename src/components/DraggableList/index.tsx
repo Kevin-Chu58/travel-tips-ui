@@ -12,7 +12,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { List } from "@mui/material";
-import type { ReactNode } from "react";
+import { useMemo, type ReactNode } from "react";
 
 type DraggableListProps = {
   items: any[] | undefined;
@@ -27,11 +27,13 @@ const DraggableList = ({ items, setItems, modifiers, children }: DraggableListPr
   const handleDragEnd = (event: any) => {
     const { active, over } = event;
     if (items && active.id !== over?.id) {
-      const oldIndex = items.indexOf(active.id);
-      const newIndex = items.indexOf(over.id);
-      setItems((items: unknown[]) => arrayMove(items, oldIndex, newIndex));
+      const oldIndex = items.findIndex(item => item.id === active.id);
+      const newIndex = items.findIndex(item => item.id === over.id);
+      setItems(arrayMove(items, oldIndex, newIndex));
     }
   };
+
+  const itemIds = useMemo(() => items!.map(item => item.id), [items]);
 
   return (
     <DndContext
@@ -41,7 +43,7 @@ const DraggableList = ({ items, setItems, modifiers, children }: DraggableListPr
       modifiers={modifiers ?? []}
     >
       {items && (
-        <SortableContext items={items} strategy={verticalListSortingStrategy}>
+        <SortableContext items={itemIds} strategy={verticalListSortingStrategy}>
           <List>{children}</List>
         </SortableContext>
       )}

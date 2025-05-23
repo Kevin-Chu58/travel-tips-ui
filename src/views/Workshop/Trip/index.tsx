@@ -1,65 +1,109 @@
 import {
   Box,
   Container,
-  Divider,
   Grid,
   IconButton,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemText,
+  Tab,
+  Tabs,
   Typography,
 } from "@mui/material";
 import type { RootState } from "@redux/store";
-import { tripsService, type TripDetail } from "@services/trips";
+import { tripsService } from "@services/trips";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { Route, Routes, useNavigate, useParams } from "react-router";
 import EditIcon from "@mui/icons-material/Edit";
 import TextField from "@components/TextField";
-import CheckIcon from "@mui/icons-material/Check";
-import CloseIcon from "@mui/icons-material/Close";
 import TripMain from "./TripMain";
 import TripDays from "./TripDays";
+import ConditionalIconGroup from "@components/ConditionalIconGroup";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import Layouts, { Headers } from "@constants/Layouts";
 
+/**
+ * The view of a specific trip in workshop that allows editing,
+ * currently two nav tabs: General and Days
+ */
 const Trip = () => {
+  // variables
+  const [navTabValue, setNavTabValue] = useState<number>(0);
+  const [name, setName] = useState<string>("");
+  // open form status
+  const [editName, setEditName] = useState<boolean>(false);
+  // others
   const token = useSelector((state: RootState) => state.auth.accessToken);
   const { tripId } = useParams();
-  const [tripDetail, setTripDetail] = useState<TripDetail | undefined>();
-  const [isUpdated, setIsUpdated] = useState<boolean>(false);
-  const [name, setName] = useState<string>("");
-  const [editName, setEditName] = useState<boolean>(false);
+  const queryClient = useQueryClient();
   const navigate = useNavigate();
 
-  // rerender on access token and isUpdated
-  useEffect(() => {
-    const init = async () => {
-      if (token && tripId) {
-        const trip = await tripsService.getMyTripById(Number(tripId), token);
-        setTripDetail(trip);
-        setName(trip.name);
+  /** query functions - trip and trip.name */
+
+  const getTrip = async () => {
+    return await tripsService.getMyTripById(Number(tripId), token!);
+  };
+
+  const updateTripName = async () => {
+    const update = { name: name.trim() };
+    return await tripsService.patchTrip(Number(tripId), update, token!);
+  };
+
+  const queryKey = ["trip", tripId];
+
+  const { data: trip } = useQuery({
+    queryKey: queryKey,
+    queryFn: getTrip,
+    enabled: !!tripId && !!token,
+  });
+
+  const mutationTripName = useMutation({
+    mutationFn: updateTripName,
+    onMutate: () => {
+      const previousTrip = queryClient.getQueryData(queryKey);
+
+      queryClient.setQueryData(queryKey, (oldData: any) => ({
+        ...oldData,
+        name: name,
+      }));
+
+      return { previousTrip };
+    },
+
+    onError: (_err, _variables, context) => {
+      // Rollback if the mutation fails
+      if (context?.previousTrip) {
+        queryClient.setQueryData(queryKey, context.previousTrip);
       }
-    };
-    init();
-  }, [token, isUpdated]);
+    },
 
-  const render = () => {
-    setIsUpdated((prev) => !prev);
-  };
+    onSuccess: (latestTrip) => {
+      queryClient.setQueryData(queryKey, (oldData: any) => ({
+        ...oldData,
+        name: latestTrip.name,
+      }));
+    },
+  });
 
-  // name
+  /** useEffect */
 
-  const handleChangeName = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setName(event.target.value);
-  };
+  // render the nav tab index focus when page initializes
+  useEffect(() => {
+    let pathname = window.location.pathname;
+    let navTabIndex = navTabs.findIndex((tab) => tab.to === pathname);
+    setNavTabValue(navTabIndex);
+  }, []);
+
+  // rerender on trip name
+  useEffect(() => {
+    if (trip?.name) setName(trip.name);
+  }, [trip?.name]);
+
+  /** edit name */
 
   const handleUpdateName = async () => {
     setEditName(false);
 
     if (token && isNewNameValid()) {
-      const update = { name: name };
-      await tripsService.patchTrip(Number(tripId), update, token);
-      render();
+      mutationTripName.mutate();
     } else {
       setName(name.trim());
     }
@@ -67,40 +111,33 @@ const Trip = () => {
 
   const isNewNameValid = () => {
     let input = name.trim();
-    return input.length > 0 && input.length <= 50 && input !== tripDetail?.name;
+    return input.length > 0 && input.length <= 50 && input !== trip?.name;
   };
 
+  /** constants */
+
   // nav tab
-  const navTabs = [{
-    name: "General",
-    to: `/workshop/trip/${tripId}`,
-  }, {
-    name: "Days",
-    to: `/workshop/trip/${tripId}/days`,
-  }];
+  const navTabs = [
+    {
+      name: "General",
+      to: `/workshop/trip/${tripId}`,
+    },
+    {
+      name: "Days",
+      to: `/workshop/trip/${tripId}/days`,
+    },
+  ];
+
+  const handleNavTabChange = (_: React.SyntheticEvent, newValue: number) => {
+    setNavTabValue(newValue);
+    navigate(navTabs[newValue].to);
+  };
 
   return (
-    <Container maxWidth={false}>
-      <Box color="black" mt={4}>
-        <Grid container columns={14} spacing={2}>
-          {/* nav tab */}
-          <Grid size={2}>
-            <List>
-              {navTabs.map((navTab, i) => (
-                <ListItem key={`trip-edit-nav-tab-${i}`} disablePadding>
-                <ListItemButton
-                  disableRipple
-                  onClick={() => navigate(navTab.to)}
-                >
-                  <ListItemText primary={navTab.name} />
-                </ListItemButton>
-              </ListItem>
-              ))}
-            </List>
-          </Grid>
-
-          {/* content */}
-          <Grid size={12} columns={12}>
+    <Container maxWidth={false} disableGutters sx={{width: "100vw", maxHeight: `calc(100vh - ${Headers}px)`, pl: 2, overflow: "hidden"}}>
+      <Box color="black" mt={`${Layouts.WorkshopTripNameMt}px`}>
+        <Grid container direction="column" spacing={2}>
+          <Grid size={12}>
             {/* Name */}
             <Grid
               size={12}
@@ -108,26 +145,12 @@ const Trip = () => {
               flexDirection="row"
               alignItems="center"
             >
-              <Grid container>
-                {!editName && (
-                  <>
-                    <Typography
-                      variant="h4"
-                      fontWeight={600}
-                      sx={{ borderBottom: "2px solid transparent" }}
-                    >
-                      {tripDetail?.name}
-                    </Typography>
-                    <IconButton onClick={() => setEditName(true)}>
-                      <EditIcon />
-                    </IconButton>
-                  </>
-                )}
-                {editName && (
+              <Grid container height={Layouts.WorkshopTripName}>
+                {editName ? (
                   <>
                     <TextField
                       input={name}
-                      onChange={handleChangeName}
+                      onChange={(e) => setName(e.target.value)}
                       onEnterDown={handleUpdateName}
                       fullWidth
                       autoFocus
@@ -140,19 +163,22 @@ const Trip = () => {
                         height: "auto",
                       }}
                     />
-                    <IconButton
-                      disableRipple
-                      color="error"
-                      onClick={() => setEditName(false)}
+                    <ConditionalIconGroup
+                      onClose={() => setEditName(false)}
+                      onConfirm={handleUpdateName}
+                    />
+                  </>
+                ) : (
+                  <>
+                    <Typography
+                      variant="h4"
+                      fontWeight={600}
+                      sx={{ borderBottom: "2px solid transparent" }}
                     >
-                      <CloseIcon />
-                    </IconButton>
-                    <IconButton
-                      disableRipple
-                      color="success"
-                      onClick={handleUpdateName}
-                    >
-                      <CheckIcon />
+                      {trip?.name}
+                    </Typography>
+                    <IconButton onClick={() => setEditName(true)}>
+                      <EditIcon />
                     </IconButton>
                   </>
                 )}
@@ -160,33 +186,39 @@ const Trip = () => {
             </Grid>
 
             <Grid size={12}>
-              <Divider />
+              <Box sx={{ borderBottom: 1, borderColor: "divider", height: Layouts.WorkshopNavTab}}>
+                <Tabs
+                  value={navTabValue}
+                  onChange={handleNavTabChange}
+                >
+                  {navTabs.map((navTab, i) => (
+                    <Tab
+                      key={navTab.name}
+                      label={navTab.name}
+                      value={i}
+                      disableRipple
+                    />
+                  ))}
+                </Tabs>
+              </Box>
             </Grid>
 
-            <Routes>
-              <Route
-                index
-                key="workshop-trip-edit-main"
-                element={
-                  <TripMain
-                    tripDetail={tripDetail}
-                    token={token}
-                    render={render}
-                  />
-                }
-              />
-              <Route
-                key="workshop-trip-edit-days"
-                path="/days"
-                element={
-                  <TripDays
-                    tripDetail={tripDetail}
-                    token={token}
-                    render={render}
-                  />
-                }
-              />
-            </Routes>
+            <Grid size={12}>
+              <Routes>
+                <Route
+                  index
+                  key="workshop-trip-main"
+                  element={<TripMain trip={trip} token={token} queryKey={queryKey} />}
+                />
+                <Route
+                  key="workshop-trip-days"
+                  path="/days"
+                  element={
+                    <TripDays trip={trip} token={token} queryKey={queryKey} />
+                  }
+                />
+              </Routes>
+            </Grid>
           </Grid>
         </Grid>
       </Box>

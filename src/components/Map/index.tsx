@@ -1,5 +1,5 @@
-import type { Direction } from "@constants/Osms";
-import { Box } from "@mui/material";
+import type { Direction } from "@constants/Maps";
+import { Box, type SxProps } from "@mui/material";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useEffect, useRef, type ReactNode } from "react";
@@ -26,6 +26,7 @@ type MapProps = {
   correctionDirection?: Direction;
   correctionZoom?: number;
   children?: ReactNode;
+  sx?: SxProps;
 };
 
 const Map = ({
@@ -39,6 +40,7 @@ const Map = ({
   correctionDirection = "S",
   correctionZoom = 0,
   children,
+  sx,
 }: MapProps) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
@@ -190,7 +192,7 @@ const Map = ({
   };
 
   return (
-    <Box m={0} ref={mapRef} height={height} width="100%">
+    <Box m={0} ref={mapRef} height={height} width="100%" sx={sx}>
       {children}
     </Box>
   );

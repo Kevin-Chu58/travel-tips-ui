@@ -18,6 +18,7 @@ import Pages from "@constants/Pages";
 import Search from "@components/Search";
 import TLogo from "@assets/T.svg";
 import TBoard from "@assets/TT_Board.svg";
+import Layouts from "@constants/Layouts";
 
 const HeaderBar = () => {
   const { isLoading, isAuthenticated, user, loginWithRedirect, logout } =
@@ -85,7 +86,7 @@ const HeaderBar = () => {
       sx={{ width: "100vw" }}
     >
       <Container maxWidth={false} disableGutters>
-        <Toolbar disableGutters sx={{ height: 64 }}>
+        <Toolbar disableGutters sx={{ height: Layouts.Header }}>
           {/* main page - board */}
           {onPage === Pages.Main && (
             <Box mt={20} ml={-5} mr={-20}>
