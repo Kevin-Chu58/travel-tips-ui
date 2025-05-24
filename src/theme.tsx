@@ -3,11 +3,11 @@ import { createTheme } from "@mui/material";
 const theme = createTheme({
     typography: {
         fontFamily: [
+            "noto serif",
             "Arial",
             "tagesschrift",
             "lily script one",
             "fascinate inline",
-            "noto serif",
         ].join(','),
     },
     palette: {

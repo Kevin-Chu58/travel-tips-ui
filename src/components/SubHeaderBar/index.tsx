@@ -2,6 +2,8 @@ import { AppBar, Breadcrumbs, Container } from "@mui/material";
 import "./index.css";
 import Header from "@components/HeaderBar/Header";
 import Layouts from "@constants/Layouts";
+import StyleUtils from "@utils/StyleUtils";
+import { getHex } from "@constants/Colors";
 // import { useNavigate } from "react-router";
 
 type SubHeaderBarProps = {
@@ -28,7 +30,15 @@ const SubHeaderBar = ({ items, showBack = true }: SubHeaderBarProps) => {
       <Container
         maxWidth={false}
         disableGutters
-        sx={{ display: "flex", alignItems: "center", pb: 0.5, height: Layouts.SubHeader }}
+        sx={{ 
+          display: "flex", 
+          alignItems: "center", 
+          pb: 0.5, 
+          height: Layouts.SubHeader,
+          "&.MuiContainer-root": {
+            background: StyleUtils.generateLinearGradientLighter(getHex("black")!, "0deg", 85),
+          }
+        }}
       >
         {showBack && (
           <Header

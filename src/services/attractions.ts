@@ -1,8 +1,10 @@
+import type { OsmType } from "@constants/Maps";
 import http from "./http";
 
 type AttractionBasic = {
   // attractions
   osmId: number;
+  osmType: OsmType;
   lng: number;
   lat: number;
   name: string;

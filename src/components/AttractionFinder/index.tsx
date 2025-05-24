@@ -17,7 +17,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
-import { OsmTypes } from "@constants/Maps";
+import { OsmTypes, type OsmType } from "@constants/Maps";
 import { attractionsService, type Attraction } from "@services/attractions";
 import { useSelector } from "react-redux";
 import type { RootState } from "@redux/store";
@@ -42,7 +42,8 @@ const AttractionFinder = ({
   const [result, setResult] = useState<OsmEntity[]>([]); // result from osm api
   const [isMapUpdated, setIsMapUpdated] = useState<boolean>(false);
   // choose osm and attraction
-  const [osmFocus, setOsmFocus] = useState<number | undefined>(); // focused osm id
+  const [osmIdFocus, setOsmIdFocus] = useState<number | undefined>(); // focused osm id
+  const [osmTypeFocus, setOsmTypeFocus] = useState<OsmType | undefined>(); // focused osm type
   const [attractionResult, setAttractionResult] = useState<Attraction[]>([]); // attractions available of the focused osm id
   const [attractionFocus, setAttractionFocus] = useState<Attraction | undefined>(); // focused attraction
   const [isUpdated, setIsUpdated] = useState<boolean>(false);
@@ -50,11 +51,11 @@ const AttractionFinder = ({
   const [openEditAttraction, setOpenEditAttraction] = useState<boolean>(false);
   const [description, setDescription] = useState<string>("");
 
-  // rerender on osmFocus for highlight results
+  // rerender on osmIdFocus for highlight results
   useEffect(() => {
     const initAttractionResult = async () => {
-      if (osmFocus) {
-        const attraction = result.find((a) => a.osm_id === osmFocus);
+      if (osmIdFocus) {
+        const attraction = result.find((a) => a.osm_id === osmIdFocus);
         const highlightSearch =
           await attractionsService.getHighlightsByParams(
             undefined,
@@ -64,7 +65,7 @@ const AttractionFinder = ({
       }
     };
     initAttractionResult();
-  }, [osmFocus, isUpdated]);
+  }, [osmIdFocus, isUpdated]);
 
   // update parent attribute on attraction
   useEffect(() => {
@@ -75,7 +76,8 @@ const AttractionFinder = ({
 
   const clear = () => {
     // clear attraction focus
-    setOsmFocus(undefined);
+    setOsmIdFocus(undefined);
+    setOsmTypeFocus(undefined);
     setResult([]);
     setSearch("");
     setLastSearch("");
@@ -105,9 +107,10 @@ const AttractionFinder = ({
     }
   };
 
-  const handleFocusOsm = (osmId: number) => {
+  const handleFocusOsm = (osmId: number, osmType: OsmType) => {
     clearEditAttraction();
-    setOsmFocus(osmId);
+    setOsmIdFocus(osmId);
+    setOsmTypeFocus(osmType);
   };
 
   const handleFocusAttraction = async (attraction: Attraction | undefined) => {
@@ -130,9 +133,10 @@ const AttractionFinder = ({
   const postNewAttraction = async (
     description?: string
   ): Promise<Attraction> => {
-    let osmFocused = result.find((r) => r.osm_id === osmFocus);
+    let osmFocused = result.find((r) => r.osm_id === osmIdFocus);
     let newAttraction = {
-      osmId: osmFocus!,
+      osmId: osmIdFocus!,
+      osmType: osmFocused!.osm_type,
       lng: Number(osmFocused!.lon),
       lat: Number(osmFocused!.lat),
       name: osmFocused!.name,
@@ -255,12 +259,12 @@ const AttractionFinder = ({
                   size={12}
                   p={1}
                   key={`attraction-finder-result-${i}`}
-                  color={osmFocus === osm.osm_id ? "primary.main" : "black"}
+                  color={osmIdFocus === osm.osm_id ? "primary.main" : "black"}
                   sx={{
                     cursor: "pointer",
                     ":hover": { bgcolor: "primary.100" },
                   }}
-                  onClick={() => handleFocusOsm(osm.osm_id)}
+                  onClick={() => handleFocusOsm(osm.osm_id, osm.osm_type)}
                 >
                   <Box display="flex" flexDirection="row" mt={1}>
                     <Typography fontWeight="bold">
@@ -292,15 +296,17 @@ const AttractionFinder = ({
                 lat: parseFloat(r.lat),
                 lng: parseFloat(r.lon),
                 label: r.name,
-                id: r.osm_id,
+                osmId: r.osm_id,
+                osmType: r.osm_type,
                 zoom: r.place_rank,
               }))}
               isUpdated={isMapUpdated}
-              focusId={osmFocus}
+              focusId={osmIdFocus}
+              focusType={osmTypeFocus}
               correctionBias={4}
               correctionZoom={-1}
             />
-            {osmFocus && (
+            {osmIdFocus && (
               <Grid
                 size={12}
                 position="absolute"
@@ -319,7 +325,7 @@ const AttractionFinder = ({
               >
                 <Grid container size={12} p={1} px={3} mb={-2} alignItems="center">
                   <Typography fontWeight="bold">Choose a Highlight</Typography>
-                  <IconButton sx={{ml: "auto"}} onClick={() => setOsmFocus(undefined)}>
+                  <IconButton sx={{ml: "auto"}} onClick={() => {setOsmIdFocus(undefined), setOsmTypeFocus(undefined)}}>
                     <CloseIcon/>
                   </IconButton>
                 </Grid>

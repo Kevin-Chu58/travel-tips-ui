@@ -4,7 +4,7 @@ import {
   type SxProps,
   type Theme,
 } from "@mui/material";
-import IconButton from "@components/IconButton";
+import IconButton from "@components/TTIconButton";
 import ClearIcon from "@mui/icons-material/Clear";
 import { getHex } from "@constants/Colors";
 

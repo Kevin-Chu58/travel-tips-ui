@@ -1,6 +1,8 @@
 import {
+  Avatar,
   Box,
   Button,
+  Chip,
   Divider,
   Fab,
   Grid,
@@ -24,6 +26,7 @@ import { daysService, type Day } from "@services/days";
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
+import DirectionsWalkIcon from "@mui/icons-material/DirectionsWalk";
 import {
   Timeline,
   TimelineConnector,
@@ -39,11 +42,14 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import DayForm from "@components/Forms/DayForm";
 import { WorkshopToNavTab } from "@constants/Layouts";
 import TimeUtils from "@utils/TimeUtils";
-import Map from "@components/Map";
+import Map, { type Marker } from "@components/Map";
 import MapIcon from "@mui/icons-material/Map";
 import { HM, HMA, HMS } from "@constants/times";
 import type { OsrmRouteType } from "@constants/Maps";
 import { osrmService } from "@services/geoMap/osrm";
+import TTIconButton from "@components/TTIconButton";
+import StyleUtils from "@utils/StyleUtils";
+import { getHex } from "@constants/Colors";
 
 dayjs.extend(customParseFormat);
 
@@ -51,9 +57,10 @@ type TripDaysProps = {
   trip: TripDetail | undefined;
   token: string | null;
   queryKey: (string | undefined)[];
+  navTabValue: number;
 };
 
-const TripDays = ({ trip, token, queryKey }: TripDaysProps) => {
+const TripDays = ({ trip, token, queryKey, navTabValue }: TripDaysProps) => {
   // constants
   const startDefault = dayjs().hour(8).minute(0).second(0);
   const endDefault = dayjs().hour(20).minute(0).second(0);
@@ -67,7 +74,9 @@ const TripDays = ({ trip, token, queryKey }: TripDaysProps) => {
   const [openMap, setOpenMap] = useState<boolean>(true);
   const [addDay, setAddDay] = useState<boolean>(false);
   const [editDay, setEditDay] = useState<number | undefined>();
-  const [editTao, setEditTao] = useState<number | undefined>();
+  // mapping info
+  const [markers, setMarkers] = useState<Marker[]>([]);
+  const [isMapUpdated, setIsMapUpdated] = useState<boolean>(false);
   // others
   const queryClient = useQueryClient();
 
@@ -79,7 +88,11 @@ const TripDays = ({ trip, token, queryKey }: TripDaysProps) => {
     steps?: boolean;
   };
 
-  const getOsrmRoute = async ({type, lnglats, steps = true}: OsrmRouteParams) => {
+  const getOsrmRoute = async ({
+    type,
+    lnglats,
+    steps = true,
+  }: OsrmRouteParams) => {
     return await osrmService.getOsrmRoute(type, lnglats, steps);
   };
 
@@ -235,6 +248,30 @@ const TripDays = ({ trip, token, queryKey }: TripDaysProps) => {
     else clearDayForm();
   }, [editDay]);
 
+  // rerender on trip and nav tab switching to update marker info
+  useEffect(() => {
+    if (!trip) return;
+
+    const markers =
+      trip.days?.flatMap(
+        (day) =>
+          day.tripAttractionOrders?.map((tao) => ({
+            lat: tao.attraction!.lat,
+            lng: tao.attraction!.lng,
+            label: tao.attraction!.name,
+            osmId: tao.attraction!.osmId,
+            osmType: tao.attraction!.osmType,
+          })) ?? []
+      ) ?? [];
+
+    setMarkers(markers);
+  }, [trip, navTabValue]);
+
+  // renreder on marker info to update map markers
+  useEffect(() => {
+    setIsMapUpdated((prev) => !prev);
+  }, [markers]);
+
   /** edit day */
 
   const initAddDayForm = () => {
@@ -284,7 +321,8 @@ const TripDays = ({ trip, token, queryKey }: TripDaysProps) => {
     let invalidParams = isDayValid();
     if (invalidParams.length > 0) setErrorParams(invalidParams);
     else {
-      mutationDay.mutate({ id: editDay, name, description, start, end });
+      if (!isDayUnchanged())
+        mutationDay.mutate({ id: editDay, name, description, start, end });
       setEditDay(undefined);
     }
   };
@@ -310,7 +348,9 @@ const TripDays = ({ trip, token, queryKey }: TripDaysProps) => {
   };
 
   const dayjsToString = (time: Dayjs | null) => {
-    return time!.format(HMS);
+    // time might be undefined, which is caused by accessing start and end states
+    // before initEditDayForm() setups everything
+    return time?.format(HMS) ?? "";
   };
 
   const stringToDayjs = (time: string) => {
@@ -348,7 +388,19 @@ const TripDays = ({ trip, token, queryKey }: TripDaysProps) => {
                 );
           cummulatedTimes.push(cummulatedTime);
           return (
-            <TimelineItem key={tao.id}>
+            <TimelineItem
+              key={tao.id}
+              sx={{
+                py: 1,
+                ":hover": {
+                  borderRadius: 5,
+                  bgcolor: "secondary.100",
+                  ".MuiTimelineDot-filled, .MuiTimelineConnector-root": {
+                    bgcolor: "primary.main",
+                  },
+                },
+              }}
+            >
               <TimelineOppositeContent>
                 {formatTime(cummulatedTime)}
               </TimelineOppositeContent>
@@ -358,27 +410,122 @@ const TripDays = ({ trip, token, queryKey }: TripDaysProps) => {
                   <TimelineConnector />
                 )}
               </TimelineSeparator>
-              <TimelineContent flexGrow={1} sx={{ minWidth: "100%" }}>
+              <TimelineContent flexGrow={1} mb={2} sx={{ minWidth: "95%" }}>
                 <Grid size={12} spacing={1}>
+                  {/* name */}
                   <Typography fontWeight="bold">
                     {tao.attraction?.name}
                   </Typography>
+
+                  {/* tags */}
+                  <Grid container size={12} py={0.5}>
+                    <Grid>
+                      <Typography
+                        variant="body2"
+                        color="primary"
+                        fontWeight="bold"
+                      >
+                        Duration
+                      </Typography>
+                    </Grid>
+                    <Divider
+                      orientation="vertical"
+                      flexItem
+                      sx={{ mx: 1, my: 0.4, width: 2, bgcolor: "primary.main" }}
+                    />
+                    <Grid>
+                      <Typography
+                        variant="body2"
+                        color="primary"
+                        fontWeight="bold"
+                      >
+                        {TimeUtils.formatMinutes(tao.estimateTime)}
+                      </Typography>
+                    </Grid>
+                  </Grid>
+
+                  {/* address */}
                   <Typography variant="body2">
                     {tao.attraction?.address}
                   </Typography>
-                  <Typography variant="body2">
-                    Stay: {TimeUtils.formatMinutes(tao.estimateTime)}
-                  </Typography>
-                  {i < day.tripAttractionOrders!.length - 1 && (
-                    <Typography variant="body2">
-                      Travel: {TimeUtils.formatMinutes(tao.estimateTravelTime)}
-                    </Typography>
+
+                  {/* highlight */}
+                  {tao.attraction?.description && (
+                    <Grid
+                      size={12}
+                      borderRadius={2}
+                      my={1}
+                      p={1}
+                      sx={{
+                        background: StyleUtils.generateLinearGradientDarker(
+                          getHex("salmon")!
+                        ),
+                      }}
+                    >
+                      <Grid
+                        container
+                        size={12}
+                        width="100%"
+                        alignItems="center"
+                        mb={1}
+                      >
+                        <Typography
+                          color="white"
+                          variant="body1"
+                          fontWeight="bold"
+                        >
+                          Highlight
+                        </Typography>
+                        <Avatar sx={{ width: 24, height: 24, ml: "auto" }} />
+                      </Grid>
+                      <Typography color="white" variant="body2">
+                        {tao.attraction?.description}
+                      </Typography>
+                    </Grid>
                   )}
 
-                  {tao.attraction?.description && (
-                    <Typography variant="body2">
-                      + {tao.attraction?.description}
-                    </Typography>
+                  {/* routes */}
+                  {i < day.tripAttractionOrders!.length - 1 && (
+                    <Grid container size={12} mt={2}>
+                      <Grid>
+                        <DirectionsWalkIcon
+                          color="info"
+                          sx={{ width: 20, height: 20 }}
+                        />
+                      </Grid>
+                      <Grid>
+                        <Typography
+                          variant="body1"
+                          fontWeight="bold"
+                          color="info"
+                        >
+                          To Next Attraction
+                        </Typography>
+                      </Grid>
+
+                      <Grid container size={12} ml={2}>
+                        <Grid size={6}>
+                          <Typography variant="body2">
+                            Estimated Travel Time:
+                          </Typography>
+                        </Grid>
+                        <Grid size={6}>
+                          <Typography variant="body2">
+                            {TimeUtils.formatMinutes(tao.estimateTravelTime)}
+                          </Typography>
+                        </Grid>
+                        <Grid size={6}>
+                          <Typography variant="body2">
+                            Ways of Travel:
+                          </Typography>
+                        </Grid>
+                        <Grid size={6}>
+                          <Typography variant="body2">
+                            TODO..................................
+                          </Typography>
+                        </Grid>
+                      </Grid>
+                    </Grid>
                   )}
                 </Grid>
               </TimelineContent>
@@ -445,19 +592,35 @@ const TripDays = ({ trip, token, queryKey }: TripDaysProps) => {
       >
         {trip?.days?.map((day, i) => (
           <Grid key={`trip-day-${i}`} size={12} width="100%">
-            <Box position="sticky" pt={2} pl={2} top={0} sx={{ zIndex: 100, bgcolor: "secondary.main"}}>
+            <Box
+              position="sticky"
+              pt={2}
+              pl={2}
+              top={0}
+              sx={{ zIndex: 100, bgcolor: "secondary.main" }}
+            >
               {editDay !== day.id ? (
                 <>
-                  <Grid container size={12} direction="row">
+                  <Grid container size={12} direction="row" alignItems="center">
                     <Typography variant="h6" fontWeight="bold" color="primary">
                       Day {i + 1}
                     </Typography>
                     <Typography variant="h6" fontWeight="bold" ml={1}>
                       {day.name}
                     </Typography>
-                    <IconButton size="small" onClick={() => setEditDay(day.id)}>
+                    <TTIconButton
+                      size="small"
+                      sx={{
+                        color: "secondary.main",
+                        bgcolor: "secondary.900",
+                        ":hover": {
+                          bgcolor: "secondary.dark",
+                        },
+                      }}
+                      onClick={() => setEditDay(day.id)}
+                    >
                       <EditIcon />
-                    </IconButton>
+                    </TTIconButton>
                   </Grid>
                   <Typography>
                     {formatTime(day.start)} - {formatTime(day.end)}{" "}
@@ -476,7 +639,6 @@ const TripDays = ({ trip, token, queryKey }: TripDaysProps) => {
                     <ConditionalIconGroup
                       onClose={() => setEditDay(undefined)}
                       onConfirm={() => handleUpdateDay()}
-                      isConditionMet={!isDayUnchanged()}
                     />
                   </Grid>
                   <Grid p={2}>
@@ -523,13 +685,6 @@ const TripDays = ({ trip, token, queryKey }: TripDaysProps) => {
 
             {/* trip attraction orders */}
             <DayTimeline day={day} />
-            {/* {Boolean(day.tripAttractionOrders?.length) && (
-                <Grid container direction="column" size={6} flexGrow={1}>
-                  <Paper>
-                    <Map sx={{minHeight: 400}} />
-                  </Paper>
-                </Grid>
-              )} */}
           </Grid>
         ))}
       </Grid>
@@ -537,19 +692,29 @@ const TripDays = ({ trip, token, queryKey }: TripDaysProps) => {
       {/* interactive map */}
       {openMap && (
         <Grid size={6} borderLeft="1px solid" borderColor="divider">
-          <Map height="100%" />
+          <Map height="100%" markers={markers} isUpdated={isMapUpdated} />
         </Grid>
       )}
 
       <Box position="absolute" bottom={20} right={20} zIndex={1000}>
         {openMap ? (
-          <Fab color="success" aria-label="map" disableRipple onClick={() => setOpenMap(false)}>
-          <CloseIcon />
-        </Fab>
+          <Fab
+            color="primary"
+            aria-label="map"
+            disableRipple
+            onClick={() => setOpenMap(false)}
+          >
+            <CloseIcon />
+          </Fab>
         ) : (
-          <Fab color="success" aria-label="map" disableRipple onClick={() => setOpenMap(true)}>
-          <MapIcon />
-        </Fab>
+          <Fab
+            color="primary"
+            aria-label="map"
+            disableRipple
+            onClick={() => setOpenMap(true)}
+          >
+            <MapIcon />
+          </Fab>
         )}
       </Box>
 
@@ -570,13 +735,13 @@ const TripDays = ({ trip, token, queryKey }: TripDaysProps) => {
       />
 
       {/* route editor */}
-      <RouteEditor
+      {/* <RouteEditor
         tripDetail={trip}
         open={Boolean(editTao)}
         setOpen={setEditTao}
         token={token}
         render={() => {}}
-      />
+      /> */}
     </Grid>
   );
 };

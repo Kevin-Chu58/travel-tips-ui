@@ -1,4 +1,4 @@
-import type { Direction } from "@constants/Maps";
+import type { Direction, OsmType } from "@constants/Maps";
 import { Box, type SxProps } from "@mui/material";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -7,11 +7,12 @@ import markerIconBlue from "@assets/map/marker-icon-blue.png";
 import markerIconGreen from "@assets/map/marker-icon-green.png";
 import markerShadow from "@assets/map/marker-shadow.png";
 
-type Marker = {
+export type Marker = {
   lat: number;
   lng: number;
   label?: string;
-  id: number;
+  osmId: number;
+  osmType: OsmType;
   zoom?: number;
 };
 
@@ -22,6 +23,7 @@ type MapProps = {
   markers?: Marker[];
   isUpdated?: boolean;
   focusId?: number | undefined;
+  focusType?: OsmType | undefined;
   correctionBias?: number;
   correctionDirection?: Direction;
   correctionZoom?: number;
@@ -36,6 +38,7 @@ const Map = ({
   markers = [],
   isUpdated = false,
   focusId = undefined,
+  focusType = undefined,
   correctionBias = 0,
   correctionDirection = "S",
   correctionZoom = 0,
@@ -86,7 +89,7 @@ const Map = ({
 
     markers.forEach((marker) => {
       let zoom = Math.min(marker.zoom ?? mapInstanceRef.current!.getZoom(), maxZoom);
-      let isFocus = marker.id === focusId;
+      let isFocus = marker.osmId === focusId && marker.osmType === focusType;
       let icon = isFocus ? greenIcon : blueIcon;
       let zIndexOffset = isFocus ? 1000 : 0;
 
@@ -104,7 +107,7 @@ const Map = ({
         .bindPopup(marker.label || "Attraction");
 
       // set map zoom level
-      if (marker.id === focusId) {
+      if (marker.osmId === focusId && marker.osmType === focusType) {
         const markerBiased = getLatLonDelta(
           mapInstanceRef.current!,
           marker.lat,

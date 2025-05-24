@@ -19,6 +19,7 @@ import TripDays from "./TripDays";
 import ConditionalIconGroup from "@components/ConditionalIconGroup";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Layouts, { Headers } from "@constants/Layouts";
+import TTIconButton from "@components/TTIconButton";
 
 /**
  * The view of a specific trip in workshop that allows editing,
@@ -134,7 +135,16 @@ const Trip = () => {
   };
 
   return (
-    <Container maxWidth={false} disableGutters sx={{width: "100vw", maxHeight: `calc(100vh - ${Headers}px)`, pl: 2, overflow: "hidden"}}>
+    <Container
+      maxWidth={false}
+      disableGutters
+      sx={{
+        width: "100vw",
+        maxHeight: `calc(100vh - ${Headers}px)`,
+        pl: 2,
+        overflow: "hidden",
+      }}
+    >
       <Box color="black" mt={`${Layouts.WorkshopTripNameMt}px`}>
         <Grid container direction="column" spacing={2}>
           <Grid size={12}>
@@ -145,7 +155,11 @@ const Trip = () => {
               flexDirection="row"
               alignItems="center"
             >
-              <Grid container height={Layouts.WorkshopTripName}>
+              <Grid
+                container
+                height={Layouts.WorkshopTripName}
+                alignItems="center"
+              >
                 {editName ? (
                   <>
                     <TextField
@@ -164,6 +178,7 @@ const Trip = () => {
                       }}
                     />
                     <ConditionalIconGroup
+                      size="medium"
                       onClose={() => setEditName(false)}
                       onConfirm={handleUpdateName}
                     />
@@ -177,20 +192,32 @@ const Trip = () => {
                     >
                       {trip?.name}
                     </Typography>
-                    <IconButton onClick={() => setEditName(true)}>
+                    <TTIconButton
+                      sx={{
+                        color: "secondary.main",
+                        bgcolor: "secondary.900",
+                        ":hover": {
+                          bgcolor: "secondary.dark",
+                        },
+                      }}
+                      onClick={() => setEditName(true)}
+                    >
                       <EditIcon />
-                    </IconButton>
+                    </TTIconButton>
                   </>
                 )}
               </Grid>
             </Grid>
 
             <Grid size={12}>
-              <Box sx={{ borderBottom: 1, borderColor: "divider", height: Layouts.WorkshopNavTab}}>
-                <Tabs
-                  value={navTabValue}
-                  onChange={handleNavTabChange}
-                >
+              <Box
+                sx={{
+                  borderBottom: 1,
+                  borderColor: "divider",
+                  height: Layouts.WorkshopNavTab,
+                }}
+              >
+                <Tabs value={navTabValue} onChange={handleNavTabChange}>
                   {navTabs.map((navTab, i) => (
                     <Tab
                       key={navTab.name}
@@ -208,13 +235,15 @@ const Trip = () => {
                 <Route
                   index
                   key="workshop-trip-main"
-                  element={<TripMain trip={trip} token={token} queryKey={queryKey} />}
+                  element={
+                    <TripMain trip={trip} token={token} queryKey={queryKey} />
+                  }
                 />
                 <Route
                   key="workshop-trip-days"
                   path="/days"
                   element={
-                    <TripDays trip={trip} token={token} queryKey={queryKey} />
+                    <TripDays trip={trip} token={token} queryKey={queryKey} navTabValue={navTabValue} />
                   }
                 />
               </Routes>
