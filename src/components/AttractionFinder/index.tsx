@@ -40,7 +40,6 @@ const AttractionFinder = ({
   const [search, setSearch] = useState<string>("");
   const [lastSearch, setLastSearch] = useState<string>("");
   const [result, setResult] = useState<OsmEntity[]>([]); // result from osm api
-  const [isMapUpdated, setIsMapUpdated] = useState<boolean>(false);
   // choose osm and attraction
   const [osmIdFocus, setOsmIdFocus] = useState<number | undefined>(); // focused osm id
   const [osmTypeFocus, setOsmTypeFocus] = useState<OsmType | undefined>(); // focused osm type
@@ -95,7 +94,6 @@ const AttractionFinder = ({
     if (search.toLowerCase().trim() !== lastSearch.toLowerCase().trim()) {
       const searchResult = await osmService.getOsmEntitiesByName(search);
       setResult(filterResult(searchResult));
-      setIsMapUpdated((prev) => !prev);
       setLastSearch(search);
       clearEditAttraction();
     }
@@ -300,7 +298,6 @@ const AttractionFinder = ({
                 osmType: r.osm_type,
                 zoom: r.place_rank,
               }))}
-              isUpdated={isMapUpdated}
               focusId={osmIdFocus}
               focusType={osmTypeFocus}
               correctionBias={4}

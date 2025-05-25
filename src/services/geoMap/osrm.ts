@@ -1,7 +1,7 @@
 import type { LRSide, OsrmCode, OsrmRouteType } from "@constants/Maps"
 import http from "@services/http";
 
-export type osrmRoute = {
+export type OsrmRoute = {
   code: OsrmCode;
   routes: {
     legs: {
@@ -42,9 +42,9 @@ export type osrmRoute = {
   }[],
 };
 
-const getOsrmRoute = async (type: OsrmRouteType, lngLats: number[][], steps: boolean = true): Promise<osrmRoute> => {
+const getOsrmRoute = async (type: OsrmRouteType, lngLats: number[][], steps: boolean = true): Promise<OsrmRoute> => {
   const lngLatString = lngLats.map((lngLat) => [lngLat.join(",")]).join(";");
-  return await http.get(http.apiBaseURLs.osrm, `${type}/${lngLatString}?steps=${steps}`);
+  return await http.get(http.apiBaseURLs.osrm, `${type}/${lngLatString}?steps=${steps}&overview=full`);
 };
 
 export const osrmService = {

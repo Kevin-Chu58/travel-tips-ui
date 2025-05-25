@@ -16,6 +16,7 @@
     "@dnd-kit/sortable": "^10.0.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
+    "@mapbox/polyline": "^1.2.1",
     "@mui/icons-material": "^7.0.2",
     "@mui/lab": "^7.0.0-beta.12",
     "@mui/material": "^7.0.2",
@@ -33,6 +34,7 @@
   "devDependencies": {
     "@eslint/js": "^9.25.0",
     "@types/leaflet": "^1.9.17",
+    "@types/mapbox__polyline": "^1.0.5",
     "@types/node": "^22.15.9",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.3",

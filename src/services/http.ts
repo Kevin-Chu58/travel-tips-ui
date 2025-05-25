@@ -123,7 +123,7 @@ const makeRequest = async <TResponse>(
     method,
     body,
     // headers: headers ?? new Headers(),
-    headers: await handleAuthHeader(headers ?? new Headers(), token ?? ""),
+    headers: await handleAuthHeader(headers ?? new Headers(), token),
   });
   return parseResponse(response);
 };
@@ -156,9 +156,10 @@ export const parseResponse = async <TResponse>(
 
 const handleAuthHeader = async (
   headers: Headers,
-  token: string
+  token?: string
 ): Promise<Headers> => {
-  headers.append("Authorization", `Bearer ${token}`);
+  if (token)
+    headers.append("Authorization", `Bearer ${token}`);
   // headers.append('Accept', 'application/json');
   return headers;
 };

@@ -1,11 +1,16 @@
 import type { Direction, OsmType } from "@constants/Maps";
 import { Box, type SxProps } from "@mui/material";
+import polyline from "@mapbox/polyline";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import markerIconGrey from "@assets/map/marker-icon-grey.png";
 import markerIconBlue from "@assets/map/marker-icon-blue.png";
 import markerIconGreen from "@assets/map/marker-icon-green.png";
 import markerShadow from "@assets/map/marker-shadow.png";
+import type { OsrmRoute } from "@services/geoMap/osrm";
+import { getHex } from "@constants/Colors";
+import type { MapFocusState } from "@views/Workshop/Trip/TripDays";
 
 export type Marker = {
   lat: number;
@@ -21,9 +26,14 @@ type MapProps = {
   lat?: number;
   lng?: number;
   markers?: Marker[];
-  isUpdated?: boolean;
+  osrmRoute?: OsrmRoute;
+  setIsParentUpdated?: () => void;
   focusId?: number | undefined;
   focusType?: OsmType | undefined;
+  focusRoute?: boolean;
+  setFocusState?: (mapFocusState: MapFocusState) => void;
+  openPopUp?: boolean;
+  updateOnMarkerFocus?: boolean;
   correctionBias?: number;
   correctionDirection?: Direction;
   correctionZoom?: number;
@@ -36,26 +46,70 @@ const Map = ({
   lat = 38.79,
   lng = -106.53,
   markers = [],
-  isUpdated = false,
+  osrmRoute = undefined,
+  setIsParentUpdated = () => {},
   focusId = undefined,
   focusType = undefined,
+  focusRoute = false,
+  setFocusState = () => {},
+  openPopUp = false,
+  updateOnMarkerFocus = false,
   correctionBias = 0,
   correctionDirection = "S",
   correctionZoom = 0,
   children,
   sx,
 }: MapProps) => {
+  // map refs
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
   const markersRef = useRef<L.Marker[]>([]);
+  const routesRef = useRef<L.Polyline[]>([]);
+  // map routes
+  const [routeCoords, setRouteCoords] = useState<[number, number][][]>(); // taos/corodinates
+  // enfore updates
+  const [isUpdated, setIsUpdated] = useState<boolean>(false);
+
+  const focusOnMarker = updateOnMarkerFocus && !focusRoute;
+  const focusOnRoute = focusRoute;
+
   //   const apiKey = import.meta.env.VITE_MAP_TILER_API_KEY;
 
-  // rerender markers on focusId
+  /** useEffect */
+
+  // update on markers to update the overall map
   useEffect(() => {
-    if (mapInstanceRef && focusId) {
+    setIsUpdated((prev) => !prev);
+  }, [markers]);
+
+  // update on id, type, route to update the overall map
+  useEffect(() => {
+    if (mapInstanceRef.current) {
+      setRoutes();
       setMarkers();
+    } else {
+      setIsUpdated((prev) => !prev);
     }
-  }, [focusId]);
+  }, [focusId, focusType, focusRoute]);
+
+  // rerender route coordinates on osrmRoute
+  useEffect(() => {
+    if (osrmRoute) {
+      // Decode each geometry in every step into array of [lat, lng]
+      // then flat map all sub coordinaes in each leg
+      let routes = osrmRoute.routes[0].legs.map((leg) =>
+        leg.steps.flatMap((step) => polyline.decode(step.geometry))
+      );
+      setRouteCoords(routes);
+    }
+  }, [osrmRoute]);
+
+  // rerender route display on routes
+  useEffect(() => {
+    if (mapInstanceRef.current) {
+      setRoutes();
+    }
+  }, [routeCoords]);
 
   // renrender the whole map on isUpdated
   useEffect(() => {
@@ -63,6 +117,7 @@ const Map = ({
       mapInstanceRef.current = L.map(mapRef.current).setView([lat, lng], 4);
 
       if (mapInstanceRef.current && markers.length > 0) {
+        setRoutes();
         setMarkers();
       }
 
@@ -80,6 +135,56 @@ const Map = ({
     };
   }, [isUpdated]);
 
+  const setRoutes = () => {
+    // remove old ployline routes
+    routesRef.current.forEach((m) => mapInstanceRef.current!.removeLayer(m));
+    routesRef.current = [];
+
+    // Draw polyline
+    let markerIndex = markers.findIndex(
+      (marker) => marker.osmId === focusId && marker.osmType === focusType
+    );
+    let indexFocused = focusOnRoute && markerIndex;
+
+    let polyBound: L.LatLngBounds | undefined = undefined;
+
+    routeCoords?.forEach((coords, i) => {
+      let marker = markers.at(i);
+
+      // create polyline for each route coords array
+      const polyline = L.polyline(coords, {
+        color: indexFocused === i ? getHex("dimgray") : getHex("darkgray"),
+        weight: 8,
+        opacity: 1,
+      });
+
+      // add polyline route to routesRef
+      routesRef.current.push(polyline);
+
+      // show polyline route on the map
+      polyline.addTo(mapInstanceRef.current!).on("click", () => {
+        setFocusState({
+          id: marker?.osmId,
+          type: marker?.osmType,
+          routeFocus: true,
+        });
+        setIsParentUpdated();
+      });
+
+      // update the z-index
+      if (indexFocused !== i) polyline.bringToBack();
+      else {
+        polyBound = polyline.getBounds();
+      }
+    });
+
+    let bounds =
+      focusOnRoute && polyBound
+        ? polyBound
+        : L.latLngBounds(markers.map((m) => [m.lat, m.lng]));
+    mapInstanceRef.current?.fitBounds(bounds, { padding: [70, 70] });
+  };
+
   const setMarkers = () => {
     const maxZoom = mapInstanceRef.current!.getMaxZoom();
 
@@ -87,27 +192,56 @@ const Map = ({
     markersRef.current.forEach((m) => mapInstanceRef.current!.removeLayer(m));
     markersRef.current = [];
 
-    markers.forEach((marker) => {
-      let zoom = Math.min(marker.zoom ?? mapInstanceRef.current!.getZoom(), maxZoom);
+    markers.forEach((marker, i) => {
+      let zoom = Math.min(
+        marker.zoom ?? mapInstanceRef.current!.getZoom(),
+        maxZoom
+      );
       let isFocus = marker.osmId === focusId && marker.osmType === focusType;
-      let icon = isFocus ? greenIcon : blueIcon;
+
+      let prevMarker = i > 0 ? markers[i - 1] : undefined;
+      let isPrevFocus =
+        focusOnRoute &&
+        prevMarker &&
+        prevMarker.osmId === focusId &&
+        prevMarker.osmType === focusType;
+
+      let icon = isFocus ? greenIcon : isPrevFocus ? blueIcon : greyIcon;
       let zIndexOffset = isFocus ? 1000 : 0;
 
       const leafletMarker = L.marker([marker.lat, marker.lng], {
         icon: icon,
         zIndexOffset: zIndexOffset, // This makes the focused marker appear on top
+        title: marker.label,
       });
 
       // add markers to markerRef
       markersRef.current.push(leafletMarker);
 
+      // bind popup to markers
+      leafletMarker.bindPopup(marker.label || "Attraction", {autoPan: false});
+
       // add markers to the map
-      leafletMarker
-        .addTo(mapInstanceRef.current!)
-        .bindPopup(marker.label || "Attraction");
+      leafletMarker.addTo(mapInstanceRef.current!).on("click", () => {
+        setFocusState({
+          id: marker.osmId,
+          type: marker.osmType,
+          routeFocus: false,
+        });
+        setIsParentUpdated();
+      });
+
+      if (focusOnRoute && openPopUp) {
+        if (isPrevFocus) {
+          // open popup when focused
+          leafletMarker.setPopupContent("Destination");
+          leafletMarker.openPopup();
+        }
+      }
 
       // set map zoom level
-      if (marker.osmId === focusId && marker.osmType === focusType) {
+      if (focusOnMarker && isFocus) {
+        // adjust map view position
         const markerBiased = getLatLonDelta(
           mapInstanceRef.current!,
           marker.lat,
@@ -124,13 +258,23 @@ const Map = ({
     });
 
     // Optionally fit bounds to markers
-    const bounds = L.latLngBounds(markers.map((m) => [m.lat, m.lng]));
-    if (!focusId)
+    if (!focusId) {
+      const bounds = L.latLngBounds(markers.map((m) => [m.lat, m.lng]));
       mapInstanceRef.current?.fitBounds(bounds, { padding: [20, 20] });
+    }
   };
 
   // different color markers
   // ref: https://github.com/pointhi/leaflet-color-markers
+
+  const greyIcon = new L.Icon({
+    iconUrl: markerIconGrey,
+    shadowUrl: markerShadow,
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    shadowSize: [41, 41],
+  });
 
   const blueIcon = new L.Icon({
     iconUrl: markerIconBlue,
@@ -163,7 +307,7 @@ const Map = ({
     lng: number,
     cm: number,
     zoom: number,
-    direction: Direction,
+    direction: Direction
   ): L.LatLng => {
     if (cm <= 0) return new L.LatLng(0, 0);
 

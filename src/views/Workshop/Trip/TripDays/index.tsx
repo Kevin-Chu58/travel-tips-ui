@@ -26,7 +26,7 @@ import { daysService, type Day } from "@services/days";
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
-import DirectionsWalkIcon from "@mui/icons-material/DirectionsWalk";
+import RoomIcon from "@mui/icons-material/Room";
 import {
   Timeline,
   TimelineConnector,
@@ -40,18 +40,24 @@ import RouteEditor from "@components/RouteEditor";
 import ConditionalIconGroup from "@components/ConditionalIconGroup";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import DayForm from "@components/Forms/DayForm";
-import { WorkshopToNavTab } from "@constants/Layouts";
+import { Headers, WorkshopToNavTab } from "@constants/Layouts";
 import TimeUtils from "@utils/TimeUtils";
 import Map, { type Marker } from "@components/Map";
 import MapIcon from "@mui/icons-material/Map";
 import { HM, HMA, HMS } from "@constants/times";
-import type { OsrmRouteType } from "@constants/Maps";
-import { osrmService } from "@services/geoMap/osrm";
+import type { OsmType, OsrmRouteType } from "@constants/Maps";
+import { type OsrmRoute, osrmService } from "@services/geoMap/osrm";
 import TTIconButton from "@components/TTIconButton";
 import StyleUtils from "@utils/StyleUtils";
 import { getHex } from "@constants/Colors";
 
 dayjs.extend(customParseFormat);
+
+export type MapFocusState = {
+  id: number | undefined;
+  type: OsmType | undefined;
+  routeFocus: boolean;
+};
 
 type TripDaysProps = {
   trip: TripDetail | undefined;
@@ -76,7 +82,15 @@ const TripDays = ({ trip, token, queryKey, navTabValue }: TripDaysProps) => {
   const [editDay, setEditDay] = useState<number | undefined>();
   // mapping info
   const [markers, setMarkers] = useState<Marker[]>([]);
-  const [isMapUpdated, setIsMapUpdated] = useState<boolean>(false);
+  const [mapFocusState, setMapFocusState] = useState<MapFocusState>({
+    id: undefined,
+    type: undefined,
+    routeFocus: false,
+  });
+  // mapping route
+  const [osrmRoute, setOsrmRoute] = useState<OsrmRoute | undefined>();
+  // day content highlight
+  const [isUpdated, setIsUpdated] = useState<boolean>(false);
   // others
   const queryClient = useQueryClient();
 
@@ -265,12 +279,36 @@ const TripDays = ({ trip, token, queryKey, navTabValue }: TripDaysProps) => {
       ) ?? [];
 
     setMarkers(markers);
+
+    const initOsrmRoute = async () => {
+      const markerLngLats = markers.map((marker) => [marker.lng, marker.lat]);
+      const newOsrmRoute = await osrmService.getOsrmRoute(
+        "driving",
+        markerLngLats
+      );
+      setOsrmRoute(newOsrmRoute);
+
+      console.log(newOsrmRoute);
+    };
+    initOsrmRoute();
   }, [trip, navTabValue]);
 
-  // renreder on marker info to update map markers
+  // rerender on isUpdated to update day-content scrollbar position
   useEffect(() => {
-    setIsMapUpdated((prev) => !prev);
-  }, [markers]);
+    if (mapFocusState.id) {
+      let container = document.getElementById("day-content");
+      let target = document.getElementById(
+        getTaoTimelineId(mapFocusState.id, mapFocusState.type)
+      );
+
+      if (container && target) {
+        container.scrollTo({
+          top: target.offsetTop - container.offsetTop + Headers,
+          behavior: "smooth",
+        });
+      }
+    }
+  }, [isUpdated]);
 
   /** edit day */
 
@@ -361,6 +399,13 @@ const TripDays = ({ trip, token, queryKey, navTabValue }: TripDaysProps) => {
     return dayjs(time, HM).format(ampm ? HMA : HM);
   };
 
+  const getTaoTimelineId = (
+    osmId: number | undefined,
+    osmType: OsmType | undefined
+  ) => {
+    return `${osmId}/${osmType}`;
+  };
+
   /** sub components */
 
   const DayTimeline = ({ day }: { day: Day }) => {
@@ -390,15 +435,36 @@ const TripDays = ({ trip, token, queryKey, navTabValue }: TripDaysProps) => {
           return (
             <TimelineItem
               key={tao.id}
+              id={getTaoTimelineId(
+                tao.attraction?.osmId,
+                tao.attraction?.osmType
+              )}
+              onMouseEnter={() => {
+                setMapFocusState({
+                  id: tao.attraction?.osmId,
+                  type: tao.attraction?.osmType,
+                  routeFocus: false,
+                });
+              }}
+              onMouseLeave={() => {
+                setMapFocusState({
+                  id: undefined,
+                  type: undefined,
+                  routeFocus: false,
+                });
+              }}
               sx={{
                 py: 1,
-                ":hover": {
-                  borderRadius: 5,
-                  bgcolor: "secondary.100",
-                  ".MuiTimelineDot-filled, .MuiTimelineConnector-root": {
-                    bgcolor: "primary.main",
-                  },
-                },
+                borderRadius: 5,
+                ...(tao.attraction?.osmId === mapFocusState.id &&
+                tao.attraction?.osmType === mapFocusState.type
+                  ? {
+                      bgcolor: "secondary.100",
+                      ".MuiTimelineDot-filled, .MuiTimelineConnector-root": {
+                        bgcolor: "primary.main",
+                      },
+                    }
+                  : {}),
               }}
             >
               <TimelineOppositeContent>
@@ -410,7 +476,7 @@ const TripDays = ({ trip, token, queryKey, navTabValue }: TripDaysProps) => {
                   <TimelineConnector />
                 )}
               </TimelineSeparator>
-              <TimelineContent flexGrow={1} mb={2} sx={{ minWidth: "95%" }}>
+              <TimelineContent flexGrow={1} mb={2} sx={{ minWidth: "85%" }}>
                 <Grid size={12} spacing={1}>
                   {/* name */}
                   <Typography fontWeight="bold">
@@ -458,7 +524,7 @@ const TripDays = ({ trip, token, queryKey, navTabValue }: TripDaysProps) => {
                       p={1}
                       sx={{
                         background: StyleUtils.generateLinearGradientDarker(
-                          getHex("salmon")!
+                          getHex("lightsalmon")!
                         ),
                       }}
                     >
@@ -486,41 +552,65 @@ const TripDays = ({ trip, token, queryKey, navTabValue }: TripDaysProps) => {
 
                   {/* routes */}
                   {i < day.tripAttractionOrders!.length - 1 && (
-                    <Grid container size={12} mt={2}>
-                      <Grid>
-                        <DirectionsWalkIcon
-                          color="info"
-                          sx={{ width: 20, height: 20 }}
+                    <Grid
+                      container
+                      size={12}
+                      mt={2}
+                      p={1}
+                      borderRadius={2}
+                      sx={{
+                        background: StyleUtils.generateLinearGradientLighter(
+                          getHex("steelblue")!
+                        ),
+                      }}
+                      onMouseEnter={() =>
+                        setMapFocusState({
+                          id: tao.attraction?.osmId,
+                          type: tao.attraction?.osmType,
+                          routeFocus: true,
+                        })
+                      }
+                      onMouseLeave={() =>
+                        setMapFocusState({
+                          id: tao.attraction?.osmId,
+                          type: tao.attraction?.osmType,
+                          routeFocus: false,
+                        })
+                      }
+                    >
+                      <Grid container size={12} direction="row" alignItems="center">
+                        <RoomIcon
+                          sx={{ width: 20, height: 20, color: "white" }}
                         />
-                      </Grid>
-                      <Grid>
-                        <Typography
-                          variant="body1"
-                          fontWeight="bold"
-                          color="info"
-                        >
-                          To Next Attraction
-                        </Typography>
+                        <Grid>
+                          <Typography
+                            variant="body1"
+                            fontWeight="bold"
+                            color="white"
+                          >
+                            To Next Attraction
+                          </Typography>
+                        </Grid>
                       </Grid>
 
-                      <Grid container size={12} ml={2}>
+                      <Grid container size={12}>
                         <Grid size={6}>
-                          <Typography variant="body2">
+                          <Typography variant="body2" color="white">
                             Estimated Travel Time:
                           </Typography>
                         </Grid>
                         <Grid size={6}>
-                          <Typography variant="body2">
+                          <Typography variant="body2" color="white">
                             {TimeUtils.formatMinutes(tao.estimateTravelTime)}
                           </Typography>
                         </Grid>
                         <Grid size={6}>
-                          <Typography variant="body2">
+                          <Typography variant="body2" color="white">
                             Ways of Travel:
                           </Typography>
                         </Grid>
                         <Grid size={6}>
-                          <Typography variant="body2">
+                          <Typography variant="body2" color="white">
                             TODO..................................
                           </Typography>
                         </Grid>
@@ -582,6 +672,7 @@ const TripDays = ({ trip, token, queryKey, navTabValue }: TripDaysProps) => {
 
       {/* day content */}
       <Grid
+        id="day-content"
         container
         direction="column"
         size={openMap ? 6 : 12}
@@ -692,7 +783,18 @@ const TripDays = ({ trip, token, queryKey, navTabValue }: TripDaysProps) => {
       {/* interactive map */}
       {openMap && (
         <Grid size={6} borderLeft="1px solid" borderColor="divider">
-          <Map height="100%" markers={markers} isUpdated={isMapUpdated} />
+          <Map
+            height="100%"
+            markers={markers}
+            osrmRoute={osrmRoute}
+            focusId={mapFocusState.id}
+            focusType={mapFocusState.type}
+            focusRoute={mapFocusState.routeFocus}
+            setFocusState={setMapFocusState}
+            setIsParentUpdated={() => setIsUpdated((prev) => !prev)}
+            updateOnMarkerFocus={true}
+            openPopUp
+          />
         </Grid>
       )}
 
