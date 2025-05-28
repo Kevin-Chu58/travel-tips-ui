@@ -6,6 +6,8 @@ export type OsmType = "node" | "way" | "relation";
 
 export type OsrmRouteType = "driving" | "walking" | "cycling";
 
+export type MapRouteType = OsrmRouteType | "custom";
+
 export const OsmTypes: Record<OsmType, string> = {
   node: "location",
   way: "area",

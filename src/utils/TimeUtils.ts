@@ -1,3 +1,7 @@
+import { HM, HMA, HMS } from "@constants/times";
+import type { Dayjs } from "dayjs";
+import dayjs from "dayjs";
+
 const addMinutesToTime = (timeStr: string, minutesToAdd: number) => {
   const [hours, minutes] = timeStr.split(":").map(Number);
 
@@ -26,9 +30,29 @@ const formatMinutes = (totalMinutes: number) => {
   }
 };
 
+/** dayjs */
+
+const dayjsToString = (time: Dayjs | null) => {
+    // time might be undefined, which is caused by accessing start and end states
+    // before initEditDayForm() setups everything
+    return time?.format(HMS) ?? "";
+  };
+
+  const stringToDayjs = (time: string) => {
+    return dayjs(time, HMS);
+  };
+
+  const formatTime = (time: string, ampm: boolean = true) => {
+    return dayjs(time, HM).format(ampm ? HMA : HM);
+  };
+
 const TimeUtils = {
   addMinutesToTime,
   formatMinutes,
+  // dayjs
+  dayjsToString,
+  stringToDayjs,
+  formatTime,
 };
 
 export default TimeUtils;

@@ -54,6 +54,7 @@ const Trip = () => {
     queryKey: queryKey,
     queryFn: getTrip,
     enabled: !!tripId && !!token,
+    refetchOnWindowFocus: false,
   });
 
   const mutationTripName = useMutation({

@@ -7,6 +7,7 @@ const Layouts = {
   WorkshopTripName: 40,
   WorkshopTripNameMt: 16,
   WorkshopNavTab: 48,
+  workshopDayToolBar: 36,
 } as const;
 
 // Header
@@ -14,5 +15,6 @@ export const Headers = Layouts.Header + Layouts.SubHeader;
 // workshop - edit trip
 export const WorkshopToTripName = Headers + Layouts.WorkshopTripName + Layouts.WorkshopTripNameMt;
 export const WorkshopToNavTab = WorkshopToTripName + Layouts.WorkshopNavTab;
+export const WorkShopToDayToolBar = WorkshopToNavTab + Layouts.workshopDayToolBar;
 
 export default Layouts;

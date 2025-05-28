@@ -1,17 +1,11 @@
 import {
-  Avatar,
   Box,
-  Button,
-  Chip,
   Divider,
-  Fab,
   Grid,
-  IconButton,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemText,
   TextField,
+  ToggleButton,
+  ToggleButtonGroup,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import { type TripDetail } from "@services/trips";
@@ -22,41 +16,36 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 import dayjs, { Dayjs } from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
-import { daysService, type Day } from "@services/days";
-import AddIcon from "@mui/icons-material/Add";
-import CloseIcon from "@mui/icons-material/Close";
-import EditIcon from "@mui/icons-material/Edit";
-import RoomIcon from "@mui/icons-material/Room";
 import {
-  Timeline,
-  TimelineConnector,
-  TimelineContent,
-  TimelineDot,
-  TimelineItem,
-  TimelineOppositeContent,
-  TimelineSeparator,
-} from "@mui/lab";
+  daysService,
+  type Day,
+  type TripAttractionOrder,
+} from "@services/days";
+import EditIcon from "@mui/icons-material/Edit";
+import PlaceIcon from "@mui/icons-material/Place";
+import DirectionsIcon from "@mui/icons-material/Directions";
 import RouteEditor from "@components/RouteEditor";
 import ConditionalIconGroup from "@components/ConditionalIconGroup";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import DayForm from "@components/Forms/DayForm";
-import { Headers, WorkshopToNavTab } from "@constants/Layouts";
-import TimeUtils from "@utils/TimeUtils";
+import Layouts, {
+  Headers,
+  WorkShopToDayToolBar,
+  WorkshopToNavTab,
+} from "@constants/Layouts";
 import Map, { type Marker } from "@components/Map";
-import MapIcon from "@mui/icons-material/Map";
-import { HM, HMA, HMS } from "@constants/times";
-import type { OsmType, OsrmRouteType } from "@constants/Maps";
-import { type OsrmRoute, osrmService } from "@services/geoMap/osrm";
+import type { MapRouteType, OsmType, OsrmRouteType } from "@constants/Maps";
+import { osrmService } from "@services/geoMap/osrm";
 import TTIconButton from "@components/TTIconButton";
-import StyleUtils from "@utils/StyleUtils";
-import { getHex } from "@constants/Colors";
+import TimeUtils from "@utils/TimeUtils";
+import DayTimeline from "./DayTimeline";
+import polyline from "@mapbox/polyline";
 
 dayjs.extend(customParseFormat);
 
-export type MapFocusState = {
+export type OsmFocusState = {
   id: number | undefined;
   type: OsmType | undefined;
-  routeFocus: boolean;
 };
 
 type TripDaysProps = {
@@ -77,22 +66,34 @@ const TripDays = ({ trip, token, queryKey, navTabValue }: TripDaysProps) => {
   const [end, setEnd] = useState<Dayjs | null>(endDefault);
   const [errorParams, setErrorParams] = useState<string[]>([]);
   // open form status
-  const [openMap, setOpenMap] = useState<boolean>(true);
   const [addDay, setAddDay] = useState<boolean>(false);
   const [editDay, setEditDay] = useState<number | undefined>();
+  // day focus
+  const [onDay, setOnDay] = useState<number | undefined>();
+  // map view status
+  const [mapView, setMapView] = useState<string>("location");
   // mapping info
-  const [markers, setMarkers] = useState<Marker[]>([]);
-  const [mapFocusState, setMapFocusState] = useState<MapFocusState>({
+  const [markersOnDay, setMarkersOnDay] = useState<Marker[]>([]);
+  const [markers, setMarkers] = useState<DayMarkers[]>(); // TODO - change this to something easier to use
+  const [mapFocusState, setMapFocusState] = useState<OsmFocusState>({
     id: undefined,
     type: undefined,
-    routeFocus: false,
   });
   // mapping route
-  const [osrmRoute, setOsrmRoute] = useState<OsrmRoute | undefined>();
+  const [mapRoutes, setMapRoutes] = useState<[number, number][][][] | undefined>();
+  const [mapRouteTypes, setMapRouteTypes] = useState<string[][] | undefined>(
+    []
+  );
+  const [routes, setRoutes] = useState<RouteCoordinates | undefined>();
   // day content highlight
   const [isUpdated, setIsUpdated] = useState<boolean>(false);
   // others
   const queryClient = useQueryClient();
+
+  type DayMarkers = {
+    dayId: number;
+    markers: Marker[];
+  };
 
   /** query functions - osrm routes */
 
@@ -137,8 +138,8 @@ const TripDays = ({ trip, token, queryKey, navTabValue }: TripDaysProps) => {
       tripId: trip!.id,
       name: name,
       description: description,
-      start: dayjsToString(start),
-      end: dayjsToString(end),
+      start: TimeUtils.dayjsToString(start),
+      end: TimeUtils.dayjsToString(end),
     };
   };
 
@@ -188,8 +189,8 @@ const TripDays = ({ trip, token, queryKey, navTabValue }: TripDaysProps) => {
       let updatedDay = trip!.days!.find((day) => day.id === editDay);
       updatedDay!.name = name;
       updatedDay!.description = description;
-      updatedDay!.start = dayjsToString(start) ?? updatedDay!.start;
-      updatedDay!.end = dayjsToString(end) ?? updatedDay!.end;
+      updatedDay!.start = TimeUtils.dayjsToString(start) ?? updatedDay!.start;
+      updatedDay!.end = TimeUtils.dayjsToString(end) ?? updatedDay!.end;
 
       let updatedDayIndex = trip!.days!.findIndex((day) => day.id === editDay);
       let updatedDays = trip!.days!;
@@ -266,32 +267,34 @@ const TripDays = ({ trip, token, queryKey, navTabValue }: TripDaysProps) => {
   useEffect(() => {
     if (!trip) return;
 
-    const markers =
-      trip.days?.flatMap(
-        (day) =>
-          day.tripAttractionOrders?.map((tao) => ({
-            lat: tao.attraction!.lat,
-            lng: tao.attraction!.lng,
-            label: tao.attraction!.name,
-            osmId: tao.attraction!.osmId,
-            osmType: tao.attraction!.osmType,
-          })) ?? []
-      ) ?? [];
+    let _markers: DayMarkers[] = [];
+    trip.days?.map((day) => {
+      let markers =
+        day.tripAttractionOrders?.map((tao) => ({
+          lat: tao.attraction!.lat,
+          lng: tao.attraction!.lng,
+          label: tao.attraction!.name,
+          osmId: tao.attraction!.osmId,
+          osmType: tao.attraction!.osmType,
+        })) ?? [];
 
-    setMarkers(markers);
-
-    const initOsrmRoute = async () => {
-      const markerLngLats = markers.map((marker) => [marker.lng, marker.lat]);
-      const newOsrmRoute = await osrmService.getOsrmRoute(
-        "driving",
-        markerLngLats
-      );
-      setOsrmRoute(newOsrmRoute);
-
-      console.log(newOsrmRoute);
-    };
-    initOsrmRoute();
+      _markers.push({ dayId: day.id, markers: markers });
+    });
+    setMarkers(_markers);
   }, [trip, navTabValue]);
+
+  // rerender on onDay to update markersOnDay
+  useEffect(() => {
+    if (markers) {
+      if (onDay) {
+        let _markersOnDay = markers?.find((m) => m.dayId === onDay);
+        setMarkersOnDay(_markersOnDay!.markers);
+      } else {
+        let allMarkers = markers.map((dayMarker) => dayMarker.markers).flat();
+        setMarkersOnDay(allMarkers);
+      }
+    }
+  }, [onDay, markers]);
 
   // rerender on isUpdated to update day-content scrollbar position
   useEffect(() => {
@@ -303,12 +306,178 @@ const TripDays = ({ trip, token, queryKey, navTabValue }: TripDaysProps) => {
 
       if (container && target) {
         container.scrollTo({
-          top: target.offsetTop - container.offsetTop + Headers,
+          top:
+            target.offsetTop -
+            container.offsetTop +
+            Headers +
+            Layouts.workshopDayToolBar,
           behavior: "smooth",
         });
       }
     }
   }, [isUpdated]);
+
+  /** routes */
+
+  type TaoCoordinates = {
+    taoId: number;
+    driving?: [number, number][];
+    cycling?: [number, number][];
+    walking?: [number, number][];
+    custom?: [number, number][];
+  };
+
+  type DayCoordinates = {
+    dayId: number;
+    taos: TaoCoordinates[];
+  };
+
+  type RouteCoordinates = DayCoordinates[];
+
+  // rerender on markers to init routes if not already
+  useEffect(() => {
+    const initRoutes = async () => {
+      if (markers && !routes) {
+        // initate the Route coordinates into routes
+        // also inite the map route types from the routes
+        let mapRouteTypes: string[][] = [];
+
+        const dayCoords =
+          trip!.days?.map(async (day) => {
+            // get Day route coordinates
+            let mapDayRouteTypes: string[] = [];
+
+            let taoRoutes =
+              day.tripAttractionOrders?.map(async (tao, i) => {
+                // get Tao route coordinates
+                const defaultRouteType = getDefaultRouteType(tao);
+                mapDayRouteTypes.push(defaultRouteType!);
+
+                let taoCoords: TaoCoordinates = {
+                  taoId: tao.id,
+                };
+                if (i + 1 < day.tripAttractionOrders!.length) {
+                  const nextTao = day.tripAttractionOrders!.at(i + 1);
+                  const coords = [
+                    [tao.attraction!.lng, tao.attraction!.lat],
+                    [nextTao!.attraction!.lng, nextTao!.attraction!.lat],
+                  ] as [number, number][];
+
+                  if (defaultRouteType && defaultRouteType !== "custom") {
+                    taoCoords[defaultRouteType] = await getOsrmRouteCoords(
+                      defaultRouteType,
+                      coords
+                    );
+                  }
+                }
+                return taoCoords;
+              }) ?? [];
+              mapRouteTypes.push(mapDayRouteTypes);
+
+            const dayCoords: DayCoordinates = {
+              dayId: day.id,
+              taos: await Promise.all(taoRoutes),
+            };
+
+            return dayCoords;
+          }) ?? [];
+
+        const _routes: RouteCoordinates = await Promise.all(dayCoords);
+        setRoutes(_routes);
+
+        setMapRouteTypes(mapRouteTypes);
+      }
+    };
+    initRoutes();
+  }, [markers]);
+
+  // rerender on mapRouteTypes to update the mapRoute coords
+  useEffect(() => {
+    if (routes && mapRouteTypes) {
+      let _mapRoutes: [number, number][][][] = 
+        mapRouteTypes.map((dayRouteTypes, i) => {
+          let _dayRoutes = dayRouteTypes.map((taoRouteType, j) => {
+            let _coords = routes[i].taos[j][taoRouteType as MapRouteType];
+            return _coords ?? [];
+          }) ?? [];
+
+          return _dayRoutes;
+        }) ?? [];
+
+      setMapRoutes(_mapRoutes);
+    }
+  }, [mapRouteTypes]);
+
+  const updateRoutes = async (
+    dayId: number,
+    taoId: number,
+    type: MapRouteType,
+    coords: [number, number][]
+  ) => {
+    if (routes) {
+      const dayIndex = routes!.findIndex((day) => day.dayId === dayId);
+    const day = routes![dayIndex];
+    const taoIndex = day!.taos.findIndex((tao) => tao.taoId === taoId);
+    const tao = day.taos[taoIndex];
+
+    // if tao has no coords of a type
+    if (tao[type] === undefined) {
+      if (type !== "custom") {
+        const taoCoords = await getOsrmRouteCoords(type, coords);
+
+        const newRoutes = routes?.map((day) => {
+          if (day.dayId !== dayId) return day;
+
+          const updatedTaos = day.taos.map((tao) => {
+            if (tao.taoId !== taoId) return tao;
+
+            return {
+              ...tao,
+              [type]: taoCoords,
+            };
+          });
+
+          return {
+            ...day,
+            taos: updatedTaos,
+          };
+        });
+
+        setRoutes(newRoutes);
+      }
+      else {
+        // TODO - when select custom prefer route
+      }
+    }
+
+    let newMapRouteTypes = [...mapRouteTypes!];
+    newMapRouteTypes[dayIndex][taoIndex] = type;
+    setMapRouteTypes(newMapRouteTypes);
+    }
+  };
+
+  const getDefaultRouteType = (
+    tao: TripAttractionOrder
+  ): MapRouteType | undefined => {
+    if (tao.isDrivePreferred) return "driving";
+    if (tao.isBikePreferred) return "cycling";
+    if (tao.isOnFootPreferred) return "walking";
+    if (tao.preferRoutes.length > 0) return "custom";
+  };
+
+  const getOsrmRouteCoords = async (
+    type: OsrmRouteType,
+    coords: [number, number][]
+  ) => {
+    const _osrmRoute = await osrmService.getOsrmRoute(type, coords);
+
+    // if only two coords, as it is now, the only one leg will appear in the result
+    const routes = _osrmRoute.routes[0].legs[0].steps.flatMap((step) =>
+      polyline.decode(step.geometry)
+    );
+
+    return routes;
+  };
 
   /** edit day */
 
@@ -322,8 +491,8 @@ const TripDays = ({ trip, token, queryKey, navTabValue }: TripDaysProps) => {
       setEditDay(day.id);
       setName(day.name);
       setDescription(day.description);
-      setStart(stringToDayjs(day.start));
-      setEnd(stringToDayjs(day.end));
+      setStart(TimeUtils.stringToDayjs(day.start));
+      setEnd(TimeUtils.stringToDayjs(day.end));
     }
   };
 
@@ -380,23 +549,9 @@ const TripDays = ({ trip, token, queryKey, navTabValue }: TripDaysProps) => {
     return (
       day?.name === name?.trim() &&
       day?.description === description?.trim() &&
-      day?.start === dayjsToString(start) &&
-      day?.end === dayjsToString(end)
+      day?.start === TimeUtils.dayjsToString(start) &&
+      day?.end === TimeUtils.dayjsToString(end)
     );
-  };
-
-  const dayjsToString = (time: Dayjs | null) => {
-    // time might be undefined, which is caused by accessing start and end states
-    // before initEditDayForm() setups everything
-    return time?.format(HMS) ?? "";
-  };
-
-  const stringToDayjs = (time: string) => {
-    return dayjs(time, HMS);
-  };
-
-  const formatTime = (time: string, ampm: boolean = true) => {
-    return dayjs(time, HM).format(ampm ? HMA : HM);
   };
 
   const getTaoTimelineId = (
@@ -406,230 +561,20 @@ const TripDays = ({ trip, token, queryKey, navTabValue }: TripDaysProps) => {
     return `${osmId}/${osmType}`;
   };
 
-  /** sub components */
+  /** day tool bar */
 
-  const DayTimeline = ({ day }: { day: Day }) => {
-    let cummulatedTimes: string[] = [];
-    return (
-      <Timeline
-        // onClick={() => setEditTao(day.id)}
-        sx={{
-          ".MuiTypography-root": {
-            mr: 0,
-            flex: 0,
-            WebkitFlex: 0,
-          },
-          maxWidth: "100%",
-        }}
-      >
-        {day.tripAttractionOrders?.map((tao, i) => {
-          let previousTao = day.tripAttractionOrders?.[i - 1];
-          let cummulatedTime =
-            i === 0
-              ? day.start
-              : TimeUtils.addMinutesToTime(
-                  cummulatedTimes.at(-1)!,
-                  previousTao!.estimateTime + previousTao!.estimateTravelTime
-                );
-          cummulatedTimes.push(cummulatedTime);
-          return (
-            <TimelineItem
-              key={tao.id}
-              id={getTaoTimelineId(
-                tao.attraction?.osmId,
-                tao.attraction?.osmType
-              )}
-              onMouseEnter={() => {
-                setMapFocusState({
-                  id: tao.attraction?.osmId,
-                  type: tao.attraction?.osmType,
-                  routeFocus: false,
-                });
-              }}
-              onMouseLeave={() => {
-                setMapFocusState({
-                  id: undefined,
-                  type: undefined,
-                  routeFocus: false,
-                });
-              }}
-              sx={{
-                py: 1,
-                borderRadius: 5,
-                ...(tao.attraction?.osmId === mapFocusState.id &&
-                tao.attraction?.osmType === mapFocusState.type
-                  ? {
-                      bgcolor: "secondary.100",
-                      ".MuiTimelineDot-filled, .MuiTimelineConnector-root": {
-                        bgcolor: "primary.main",
-                      },
-                    }
-                  : {}),
-              }}
-            >
-              <TimelineOppositeContent>
-                {formatTime(cummulatedTime)}
-              </TimelineOppositeContent>
-              <TimelineSeparator>
-                <TimelineDot />
-                {i < day.tripAttractionOrders!.length - 1 && (
-                  <TimelineConnector />
-                )}
-              </TimelineSeparator>
-              <TimelineContent flexGrow={1} mb={2} sx={{ minWidth: "85%" }}>
-                <Grid size={12} spacing={1}>
-                  {/* name */}
-                  <Typography fontWeight="bold">
-                    {tao.attraction?.name}
-                  </Typography>
-
-                  {/* tags */}
-                  <Grid container size={12} py={0.5}>
-                    <Grid>
-                      <Typography
-                        variant="body2"
-                        color="primary"
-                        fontWeight="bold"
-                      >
-                        Duration
-                      </Typography>
-                    </Grid>
-                    <Divider
-                      orientation="vertical"
-                      flexItem
-                      sx={{ mx: 1, my: 0.4, width: 2, bgcolor: "primary.main" }}
-                    />
-                    <Grid>
-                      <Typography
-                        variant="body2"
-                        color="primary"
-                        fontWeight="bold"
-                      >
-                        {TimeUtils.formatMinutes(tao.estimateTime)}
-                      </Typography>
-                    </Grid>
-                  </Grid>
-
-                  {/* address */}
-                  <Typography variant="body2">
-                    {tao.attraction?.address}
-                  </Typography>
-
-                  {/* highlight */}
-                  {tao.attraction?.description && (
-                    <Grid
-                      size={12}
-                      borderRadius={2}
-                      my={1}
-                      p={1}
-                      sx={{
-                        background: StyleUtils.generateLinearGradientDarker(
-                          getHex("lightsalmon")!
-                        ),
-                      }}
-                    >
-                      <Grid
-                        container
-                        size={12}
-                        width="100%"
-                        alignItems="center"
-                        mb={1}
-                      >
-                        <Typography
-                          color="white"
-                          variant="body1"
-                          fontWeight="bold"
-                        >
-                          Highlight
-                        </Typography>
-                        <Avatar sx={{ width: 24, height: 24, ml: "auto" }} />
-                      </Grid>
-                      <Typography color="white" variant="body2">
-                        {tao.attraction?.description}
-                      </Typography>
-                    </Grid>
-                  )}
-
-                  {/* routes */}
-                  {i < day.tripAttractionOrders!.length - 1 && (
-                    <Grid
-                      container
-                      size={12}
-                      mt={2}
-                      p={1}
-                      borderRadius={2}
-                      sx={{
-                        background: StyleUtils.generateLinearGradientLighter(
-                          getHex("steelblue")!
-                        ),
-                      }}
-                      onMouseEnter={() =>
-                        setMapFocusState({
-                          id: tao.attraction?.osmId,
-                          type: tao.attraction?.osmType,
-                          routeFocus: true,
-                        })
-                      }
-                      onMouseLeave={() =>
-                        setMapFocusState({
-                          id: tao.attraction?.osmId,
-                          type: tao.attraction?.osmType,
-                          routeFocus: false,
-                        })
-                      }
-                    >
-                      <Grid container size={12} direction="row" alignItems="center">
-                        <RoomIcon
-                          sx={{ width: 20, height: 20, color: "white" }}
-                        />
-                        <Grid>
-                          <Typography
-                            variant="body1"
-                            fontWeight="bold"
-                            color="white"
-                          >
-                            To Next Attraction
-                          </Typography>
-                        </Grid>
-                      </Grid>
-
-                      <Grid container size={12}>
-                        <Grid size={6}>
-                          <Typography variant="body2" color="white">
-                            Estimated Travel Time:
-                          </Typography>
-                        </Grid>
-                        <Grid size={6}>
-                          <Typography variant="body2" color="white">
-                            {TimeUtils.formatMinutes(tao.estimateTravelTime)}
-                          </Typography>
-                        </Grid>
-                        <Grid size={6}>
-                          <Typography variant="body2" color="white">
-                            Ways of Travel:
-                          </Typography>
-                        </Grid>
-                        <Grid size={6}>
-                          <Typography variant="body2" color="white">
-                            TODO..................................
-                          </Typography>
-                        </Grid>
-                      </Grid>
-                    </Grid>
-                  )}
-                </Grid>
-              </TimelineContent>
-            </TimelineItem>
-          );
-        })}
-      </Timeline>
-    );
+  const handleMapView = (
+    _: React.MouseEvent<HTMLElement>,
+    newMapView: string
+  ) => {
+    if (newMapView)
+      setMapView(newMapView);
   };
 
   return (
-    <Grid container size={12} columns={14}>
+    <Grid container size={12}>
       {/* day nav tab */}
-      <Grid
+      {/* <Grid
         container
         direction="column"
         size={2}
@@ -646,7 +591,7 @@ const TripDays = ({ trip, token, queryKey, navTabValue }: TripDaysProps) => {
       >
         <List sx={{ p: 0, pb: 2 }}>
           {trip?.days?.map((day, i) => (
-            <ListItem key={`trip-day-${i}-nav`} disablePadding>
+            <ListItem key={`trip-day-${day.id}-nav`} disablePadding>
               <ListItemButton disableRipple>
                 <ListItemText primary={`Day ${i + 1}`} />
                 <IconButton
@@ -668,157 +613,227 @@ const TripDays = ({ trip, token, queryKey, navTabValue }: TripDaysProps) => {
             </Button>
           </ListItem>
         </List>
-      </Grid>
+      </Grid> */}
 
-      {/* day content */}
       <Grid
-        id="day-content"
         container
         direction="column"
-        size={openMap ? 6 : 12}
-        pb={4}
-        flexWrap="nowrap"
+        size={7}
         maxHeight={`calc(100vh - ${WorkshopToNavTab}px)`}
-        sx={{ overflowX: "hidden", overflowY: "auto", position: "relative" }}
       >
-        {trip?.days?.map((day, i) => (
-          <Grid key={`trip-day-${i}`} size={12} width="100%">
-            <Box
-              position="sticky"
-              pt={2}
-              pl={2}
-              top={0}
-              sx={{ zIndex: 100, bgcolor: "secondary.main" }}
-            >
-              {editDay !== day.id ? (
-                <>
-                  <Grid container size={12} direction="row" alignItems="center">
-                    <Typography variant="h6" fontWeight="bold" color="primary">
-                      Day {i + 1}
-                    </Typography>
-                    <Typography variant="h6" fontWeight="bold" ml={1}>
-                      {day.name}
-                    </Typography>
-                    <TTIconButton
-                      size="small"
-                      sx={{
-                        color: "secondary.main",
-                        bgcolor: "secondary.900",
-                        ":hover": {
-                          bgcolor: "secondary.dark",
-                        },
-                      }}
-                      onClick={() => setEditDay(day.id)}
-                    >
-                      <EditIcon />
-                    </TTIconButton>
-                  </Grid>
-                  <Typography>
-                    {formatTime(day.start)} - {formatTime(day.end)}{" "}
-                    {day.isOverNight ? "overnight" : ""}
-                  </Typography>
-                  <Typography whiteSpace="pre-line">
-                    {day.description}
-                  </Typography>
-                </>
-              ) : (
-                <>
-                  <Grid container alignItems="center">
-                    <Typography variant="h6" fontWeight="bold" color="primary">
-                      Day {i + 1}
-                    </Typography>
-                    <ConditionalIconGroup
-                      onClose={() => setEditDay(undefined)}
-                      onConfirm={() => handleUpdateDay()}
-                    />
-                  </Grid>
-                  <Grid p={2}>
-                    <TextField
-                      label="Name"
-                      value={name}
-                      sx={{ ".MuiInputBase-input": { fontWeight: "bold" } }}
-                      onChange={(e) => setName(e.target.value)}
-                    />
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                      <Grid container spacing={1} alignItems="center" my={1}>
-                        <Grid>
-                          <TimePicker
-                            label=""
-                            value={start}
-                            onChange={(value) => setStart(value)}
-                          />
-                        </Grid>
-                        <Grid>to</Grid>
-                        <Grid>
-                          <TimePicker
-                            label=""
-                            value={end}
-                            onChange={(value) => setEnd(value)}
-                          />
-                        </Grid>
-                      </Grid>
-                    </LocalizationProvider>
-                    <TextField
-                      id="day--description"
-                      value={description}
-                      label="Description"
-                      placeholder="description"
-                      onChange={(e) => setDescription(e.target.value)}
-                      multiline
-                      fullWidth
-                      sx={{ width: "50%" }}
-                    />
-                  </Grid>
-                </>
-              )}
-              <Divider />
-            </Box>
+        {/* tool bar */}
+        <Grid
+          container
+          size={12}
+          alignItems="center"
+          height={Layouts.workshopDayToolBar}
+          sx={{
+            borderBottom: "1px solid",
+            borderColor: "divider",
+          }}
+        >
+          <ToggleButtonGroup
+            value={mapView}
+            exclusive
+            onChange={handleMapView}
+            aria-label="map view"
+            sx={{
+              ml: "auto",
+              mr: 1,
+              ".MuiToggleButton-root": {
+                color: "white",
+                bgcolor: "secondary.900",
+                ":hover": {
+                  bgcolor: "lightgrey",
+                },
+                "&.Mui-selected": {
+                  color: "white",
+                  bgcolor: "primary.main",
+                  ":hover": {
+                    backgroundColor: "lightgrey",
+                  }
+                },
+                ".MuiSvgIcon-root": {
+                  width: 20,
+                },
+              },
+            }}
+          >
+            <Tooltip title="highlight locations on map" arrow>
+              <ToggleButton
+                value="location"
+                aria-label="location view"
+                sx={{ width: 28, height: 28 }}
+                disableRipple
+              >
+                <PlaceIcon />
+              </ToggleButton>
+            </Tooltip>
 
-            {/* trip attraction orders */}
-            <DayTimeline day={day} />
-          </Grid>
-        ))}
+            <Tooltip title="highlight routes on map" arrow>
+              <ToggleButton
+                value="route"
+                aria-label="route view"
+                sx={{ width: 28, height: 28 }}
+                disableRipple
+              >
+                <DirectionsIcon />
+              </ToggleButton>
+            </Tooltip>
+          </ToggleButtonGroup>
+        </Grid>
+
+        {/* day content */}
+        <Grid
+          id="day-content"
+          size={12}
+          position="sticky"
+          maxHeight={`calc(100vh - ${WorkShopToDayToolBar}px)`}
+          sx={{ overflowX: "hidden", overflowY: "auto" }}
+        >
+          {trip?.days?.map((day, i) => (
+            <Grid
+              key={`trip-day-${day.id}`}
+              onMouseEnter={() => setOnDay(day.id)}
+              // onMouseLeave={() => setOnDay(undefined)}
+              size={12}
+              width="100%"
+            >
+              <Box
+                position="sticky"
+                pt={2}
+                pl={2}
+                top={0}
+                sx={{ zIndex: 100, bgcolor: "secondary.main" }}
+              >
+                {editDay !== day.id ? (
+                  <>
+                    <Grid
+                      container
+                      size={12}
+                      direction="row"
+                      alignItems="center"
+                    >
+                      <Typography
+                        variant="h6"
+                        fontWeight="bold"
+                        color="primary"
+                      >
+                        Day {i + 1}
+                      </Typography>
+                      <Typography variant="h6" fontWeight="bold" ml={1}>
+                        {day.name}
+                      </Typography>
+                      <TTIconButton
+                        size="small"
+                        sx={{
+                          color: "secondary.main",
+                          bgcolor: "secondary.900",
+                          ":hover": {
+                            bgcolor: "secondary.dark",
+                          },
+                        }}
+                        onClick={() => setEditDay(day.id)}
+                      >
+                        <EditIcon />
+                      </TTIconButton>
+                    </Grid>
+                    <Typography>
+                      {TimeUtils.formatTime(day.start)} -{" "}
+                      {TimeUtils.formatTime(day.end)}{" "}
+                      {day.isOverNight ? "overnight" : ""}
+                    </Typography>
+                    <Typography whiteSpace="pre-line">
+                      {day.description}
+                    </Typography>
+                  </>
+                ) : (
+                  <>
+                    <Grid container alignItems="center">
+                      <Typography
+                        variant="h6"
+                        fontWeight="bold"
+                        color="primary"
+                      >
+                        Day {i + 1}
+                      </Typography>
+                      <ConditionalIconGroup
+                        onClose={() => setEditDay(undefined)}
+                        onConfirm={() => handleUpdateDay()}
+                      />
+                    </Grid>
+                    <Grid p={2}>
+                      <TextField
+                        label="Name"
+                        value={name}
+                        sx={{ ".MuiInputBase-input": { fontWeight: "bold" } }}
+                        onChange={(e) => setName(e.target.value)}
+                      />
+                      <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <Grid container spacing={1} alignItems="center" my={1}>
+                          <Grid>
+                            <TimePicker
+                              label=""
+                              value={start}
+                              onChange={(value) => setStart(value)}
+                            />
+                          </Grid>
+                          <Grid>to</Grid>
+                          <Grid>
+                            <TimePicker
+                              label=""
+                              value={end}
+                              onChange={(value) => setEnd(value)}
+                            />
+                          </Grid>
+                        </Grid>
+                      </LocalizationProvider>
+                      <TextField
+                        id="day--description"
+                        value={description}
+                        label="Description"
+                        placeholder="description"
+                        onChange={(e) => setDescription(e.target.value)}
+                        multiline
+                        fullWidth
+                        sx={{ width: "50%" }}
+                      />
+                    </Grid>
+                  </>
+                )}
+                <Divider />
+              </Box>
+
+              {/* trip attraction orders */}
+              <DayTimeline
+                day={day}
+                mapRouteTypes={mapRouteTypes?.at(i) ?? []}
+                mapFocusState={mapFocusState}
+                setMapFocusState={setMapFocusState}
+                updateRoutes={updateRoutes}
+              />
+            </Grid>
+          ))}
+        </Grid>
       </Grid>
 
       {/* interactive map */}
-      {openMap && (
-        <Grid size={6} borderLeft="1px solid" borderColor="divider">
-          <Map
-            height="100%"
-            markers={markers}
-            osrmRoute={osrmRoute}
-            focusId={mapFocusState.id}
-            focusType={mapFocusState.type}
-            focusRoute={mapFocusState.routeFocus}
-            setFocusState={setMapFocusState}
-            setIsParentUpdated={() => setIsUpdated((prev) => !prev)}
-            updateOnMarkerFocus={true}
-            openPopUp
-          />
-        </Grid>
-      )}
-
-      <Box position="absolute" bottom={20} right={20} zIndex={1000}>
-        {openMap ? (
-          <Fab
-            color="primary"
-            aria-label="map"
-            disableRipple
-            onClick={() => setOpenMap(false)}
-          >
-            <CloseIcon />
-          </Fab>
-        ) : (
-          <Fab
-            color="primary"
-            aria-label="map"
-            disableRipple
-            onClick={() => setOpenMap(true)}
-          >
-            <MapIcon />
-          </Fab>
-        )}
-      </Box>
+      <Grid size={5} borderLeft="1px solid" borderColor="divider">
+        <Map
+          height="100%"
+          markers={markersOnDay}
+          mapRoutes={mapRoutes}
+          onDay={onDay}
+          focusId={mapFocusState.id}
+          focusType={mapFocusState.type}
+          focusRoute={mapView === "route"}
+          setFocusState={setMapFocusState}
+          setIsParentUpdated={() => setIsUpdated((prev) => !prev)}
+          setMapView={setMapView}
+          updateOnMarkerFocus={true}
+          openPopUp
+        />
+      </Grid>
 
       {/* new Day */}
       <DayForm

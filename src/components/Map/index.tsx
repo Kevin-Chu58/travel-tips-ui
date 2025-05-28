@@ -10,7 +10,7 @@ import markerIconGreen from "@assets/map/marker-icon-green.png";
 import markerShadow from "@assets/map/marker-shadow.png";
 import type { OsrmRoute } from "@services/geoMap/osrm";
 import { getHex } from "@constants/Colors";
-import type { MapFocusState } from "@views/Workshop/Trip/TripDays";
+import type { OsmFocusState } from "@views/Workshop/Trip/TripDays";
 
 export type Marker = {
   lat: number;
@@ -26,12 +26,14 @@ type MapProps = {
   lat?: number;
   lng?: number;
   markers?: Marker[];
-  osrmRoute?: OsrmRoute;
+  mapRoutes?: [number, number][][][];
+  onDay?: number;
   setIsParentUpdated?: () => void;
   focusId?: number | undefined;
   focusType?: OsmType | undefined;
   focusRoute?: boolean;
-  setFocusState?: (mapFocusState: MapFocusState) => void;
+  setFocusState?: (mapFocusState: OsmFocusState) => void;
+  setMapView?: (state: string) => void;
   openPopUp?: boolean;
   updateOnMarkerFocus?: boolean;
   correctionBias?: number;
@@ -46,12 +48,14 @@ const Map = ({
   lat = 38.79,
   lng = -106.53,
   markers = [],
-  osrmRoute = undefined,
+  mapRoutes = [],
+  onDay = undefined,
   setIsParentUpdated = () => {},
   focusId = undefined,
   focusType = undefined,
   focusRoute = false,
   setFocusState = () => {},
+  setMapView = () => {},
   openPopUp = false,
   updateOnMarkerFocus = false,
   correctionBias = 0,
@@ -66,7 +70,7 @@ const Map = ({
   const markersRef = useRef<L.Marker[]>([]);
   const routesRef = useRef<L.Polyline[]>([]);
   // map routes
-  const [routeCoords, setRouteCoords] = useState<[number, number][][]>(); // taos/corodinates
+  const [routeCoords, setRouteCoords] = useState<[number, number][][][]>(); // days/taos/corodinates
   // enfore updates
   const [isUpdated, setIsUpdated] = useState<boolean>(false);
 
@@ -94,15 +98,11 @@ const Map = ({
 
   // rerender route coordinates on osrmRoute
   useEffect(() => {
-    if (osrmRoute) {
-      // Decode each geometry in every step into array of [lat, lng]
-      // then flat map all sub coordinaes in each leg
-      let routes = osrmRoute.routes[0].legs.map((leg) =>
-        leg.steps.flatMap((step) => polyline.decode(step.geometry))
-      );
-      setRouteCoords(routes);
+    if (mapRoutes.length > 0) {
+      // console.log(mapRoutes);
+      setRouteCoords(mapRoutes);
     }
-  }, [osrmRoute]);
+  }, [mapRoutes]);
 
   // rerender route display on routes
   useEffect(() => {
@@ -136,6 +136,8 @@ const Map = ({
   }, [isUpdated]);
 
   const setRoutes = () => {
+    // if (markers.length === 0) return;
+
     // remove old ployline routes
     routesRef.current.forEach((m) => mapInstanceRef.current!.removeLayer(m));
     routesRef.current = [];
@@ -144,11 +146,13 @@ const Map = ({
     let markerIndex = markers.findIndex(
       (marker) => marker.osmId === focusId && marker.osmType === focusType
     );
+    // if (markerIndex + 1 === markers.length) return;
+
     let indexFocused = focusOnRoute && markerIndex;
 
     let polyBound: L.LatLngBounds | undefined = undefined;
 
-    routeCoords?.forEach((coords, i) => {
+    routeCoords?.forEach(dayRouteCoords => dayRouteCoords.forEach((coords, i) => {
       let marker = markers.at(i);
 
       // create polyline for each route coords array
@@ -166,8 +170,8 @@ const Map = ({
         setFocusState({
           id: marker?.osmId,
           type: marker?.osmType,
-          routeFocus: true,
         });
+        setMapView("route");
         setIsParentUpdated();
       });
 
@@ -176,13 +180,16 @@ const Map = ({
       else {
         polyBound = polyline.getBounds();
       }
-    });
+    }));
+
+    let isPolyBoundInvalid = polyBound === undefined || !(polyBound as L.LatLngBounds).isValid();
 
     let bounds =
-      focusOnRoute && polyBound
-        ? polyBound
+      focusOnRoute && !isPolyBoundInvalid
+        ? polyBound! as L.LatLngBounds
         : L.latLngBounds(markers.map((m) => [m.lat, m.lng]));
-    mapInstanceRef.current?.fitBounds(bounds, { padding: [70, 70] });
+    if (bounds.isValid())
+      mapInstanceRef.current?.fitBounds(bounds, { padding: [70, 70] });
   };
 
   const setMarkers = () => {
@@ -226,8 +233,8 @@ const Map = ({
         setFocusState({
           id: marker.osmId,
           type: marker.osmType,
-          routeFocus: false,
         });
+        setMapView("location");
         setIsParentUpdated();
       });
 
