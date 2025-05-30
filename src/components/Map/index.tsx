@@ -1,6 +1,5 @@
 import type { Direction, OsmType } from "@constants/Maps";
 import { Box, type SxProps } from "@mui/material";
-import polyline from "@mapbox/polyline";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useEffect, useRef, useState, type ReactNode } from "react";
@@ -8,25 +7,15 @@ import markerIconGrey from "@assets/map/marker-icon-grey.png";
 import markerIconBlue from "@assets/map/marker-icon-blue.png";
 import markerIconGreen from "@assets/map/marker-icon-green.png";
 import markerShadow from "@assets/map/marker-shadow.png";
-import type { OsrmRoute } from "@services/geoMap/osrm";
 import { getHex } from "@constants/Colors";
-import type { OsmFocusState } from "@views/Workshop/Trip/TripDays";
-
-export type Marker = {
-  lat: number;
-  lng: number;
-  label?: string;
-  osmId: number;
-  osmType: OsmType;
-  zoom?: number;
-};
+import type { Marker, OsmFocusState, Route } from "@constants/Types";
 
 type MapProps = {
   height?: number | string;
   lat?: number;
   lng?: number;
   markers?: Marker[];
-  mapRoutes?: [number, number][][][];
+  mapRoutes?: Route[][];
   onDay?: number;
   setIsParentUpdated?: () => void;
   focusId?: number | undefined;
@@ -49,7 +38,7 @@ const Map = ({
   lng = -106.53,
   markers = [],
   mapRoutes = [],
-  onDay = undefined,
+  // onDay = undefined,
   setIsParentUpdated = () => {},
   focusId = undefined,
   focusType = undefined,
@@ -100,7 +89,10 @@ const Map = ({
   useEffect(() => {
     if (mapRoutes.length > 0) {
       // console.log(mapRoutes);
-      setRouteCoords(mapRoutes);
+      const routeCoords = mapRoutes.map((dayRoutes) =>
+        dayRoutes.map((taoRoute) => taoRoute?.coords ?? [])
+      );
+      setRouteCoords(routeCoords);
     }
   }, [mapRoutes]);
 
@@ -152,41 +144,44 @@ const Map = ({
 
     let polyBound: L.LatLngBounds | undefined = undefined;
 
-    routeCoords?.forEach(dayRouteCoords => dayRouteCoords.forEach((coords, i) => {
-      let marker = markers.at(i);
+    routeCoords?.forEach((dayRouteCoords) =>
+      dayRouteCoords.forEach((coords, i) => {
+        let marker = markers.at(i);
 
-      // create polyline for each route coords array
-      const polyline = L.polyline(coords, {
-        color: indexFocused === i ? getHex("dimgray") : getHex("darkgray"),
-        weight: 8,
-        opacity: 1,
-      });
-
-      // add polyline route to routesRef
-      routesRef.current.push(polyline);
-
-      // show polyline route on the map
-      polyline.addTo(mapInstanceRef.current!).on("click", () => {
-        setFocusState({
-          id: marker?.osmId,
-          type: marker?.osmType,
+        // create polyline for each route coords array
+        const polyline = L.polyline(coords, {
+          color: indexFocused === i ? getHex("dimgray") : getHex("darkgray"),
+          weight: 8,
+          opacity: 1,
         });
-        setMapView("route");
-        setIsParentUpdated();
-      });
 
-      // update the z-index
-      if (indexFocused !== i) polyline.bringToBack();
-      else {
-        polyBound = polyline.getBounds();
-      }
-    }));
+        // add polyline route to routesRef
+        routesRef.current.push(polyline);
 
-    let isPolyBoundInvalid = polyBound === undefined || !(polyBound as L.LatLngBounds).isValid();
+        // show polyline route on the map
+        polyline.addTo(mapInstanceRef.current!).on("click", () => {
+          setFocusState({
+            id: marker?.osmId,
+            type: marker?.osmType,
+          });
+          setMapView("route");
+          setIsParentUpdated();
+        });
+
+        // update the z-index
+        if (indexFocused !== i) polyline.bringToBack();
+        else {
+          polyBound = polyline.getBounds();
+        }
+      })
+    );
+
+    let isPolyBoundInvalid =
+      polyBound === undefined || !(polyBound as L.LatLngBounds).isValid();
 
     let bounds =
       focusOnRoute && !isPolyBoundInvalid
-        ? polyBound! as L.LatLngBounds
+        ? (polyBound! as L.LatLngBounds)
         : L.latLngBounds(markers.map((m) => [m.lat, m.lng]));
     if (bounds.isValid())
       mapInstanceRef.current?.fitBounds(bounds, { padding: [70, 70] });
@@ -226,7 +221,7 @@ const Map = ({
       markersRef.current.push(leafletMarker);
 
       // bind popup to markers
-      leafletMarker.bindPopup(marker.label || "Attraction", {autoPan: false});
+      leafletMarker.bindPopup(marker.label || "Attraction", { autoPan: false });
 
       // add markers to the map
       leafletMarker.addTo(mapInstanceRef.current!).on("click", () => {

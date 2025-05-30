@@ -243,7 +243,14 @@ const apiBaseURLs = {
     import.meta.env.VITE_OSM_API ?? "",
   osrm:
     import.meta.env.VITE_OSRM_API ?? "",
+  mapbox:
+    import.meta.env.VITE_MAPBOX_API ?? "",
 };
+
+const apiTokens = {
+  mapbox:
+    import.meta.env.VITE_MAPBOX_API_TOKEN ?? "",
+}
 
 const http = {
   del,
@@ -254,6 +261,7 @@ const http = {
   put,
   toQueryString,
   apiBaseURLs,
+  apiTokens,
 };
 
 export default http;

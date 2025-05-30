@@ -1,16 +1,17 @@
 import { Timeline } from "@mui/lab";
 import type { Day } from "@services/days";
-import type { OsmFocusState } from "..";
 import DayTimelineItem from "./DayTimelineItem";
 import { useState } from "react";
 import type { MapRouteType } from "@constants/Maps";
+import type { OsmFocusState, Route } from "@views/Workshop/Trip/TripDays";
 
 type DayTimelineProps = {
   day: Day;
+  dayRoutes: Route[];
   mapRouteTypes: string[];
-  mapFocusState: OsmFocusState;
+  mapFocusState?: OsmFocusState;
   setMapFocusState?: (state: OsmFocusState) => void;
-  updateRoutes: (
+  updateRoutes?: (
     dayId: number,
     taoId: number,
     type: MapRouteType,
@@ -20,19 +21,21 @@ type DayTimelineProps = {
 
 const DayTimeline = ({
   day,
+  dayRoutes,
   mapRouteTypes,
   mapFocusState,
   setMapFocusState = () => {},
   updateRoutes,
 }: DayTimelineProps) => {
-  const [cummulatedTimes, setCummulatedTimes] = useState<string[]>([day.start]);
+  const [acummulatedTimes, setAcummulatedTimes] = useState<string[]>([day.start]);
 
   const updateTaoRoutes = (
     taoId: number,
     type: MapRouteType,
     coords: [number, number][]
   ) => {
-    updateRoutes(day.id, taoId, type, coords);
+    if (updateRoutes)
+      updateRoutes(day.id, taoId, type, coords);
   };
 
   return (
@@ -53,10 +56,11 @@ const DayTimeline = ({
           key={tao.id}
           day={day}
           tao={tao}
+          route={dayRoutes.at(i)}
           i={i}
-          cummulatedTimes={cummulatedTimes}
+          acummulatedTimes={acummulatedTimes}
           mapRouteType={mapRouteTypes[i] ?? ""}
-          setCummulatedTimes={setCummulatedTimes}
+          setAcummulatedTimes={setAcummulatedTimes}
           mapFocusState={mapFocusState}
           setMapFocusState={setMapFocusState}
           updateRoutes={updateTaoRoutes}

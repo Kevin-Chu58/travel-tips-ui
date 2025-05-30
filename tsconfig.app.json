@@ -16,6 +16,7 @@
       "@components/*": ["src/components/*"],
       "@services/*": ["src/services/*"],
       "@views/*": ["src/views/*"],
+      "@react-queries/*": ["src/react-queries/*"],
     },
 
     /* Bundler mode */

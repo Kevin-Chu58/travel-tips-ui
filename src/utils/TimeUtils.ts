@@ -1,4 +1,4 @@
-import { HM, HMA, HMS } from "@constants/times";
+import { HM, HMA, HMS } from "@constants/Times";
 import type { Dayjs } from "dayjs";
 import dayjs from "dayjs";
 
@@ -30,6 +30,25 @@ const formatMinutes = (totalMinutes: number) => {
   }
 };
 
+const secondToMinute = (seconds: number) => {
+  return Math.round(seconds / 60);
+};
+
+const secondToMinuteStr = (seconds: number) => {
+  const minutes = Math.round(seconds / 60);
+  return `${minutes} min${minutes === 1 ? "" : "s"}`;
+};
+
+const formatTimeDiff = (diff: number) => {
+  if (diff === 0) return "exact";
+
+  const abs = Math.abs(diff);
+  const unit = abs === 1 ? "min" : "mins";
+  const direction = diff < 0 ? "early" : "late";
+
+  return `${abs} ${unit} ${direction}`;
+};
+
 /** dayjs */
 
 const dayjsToString = (time: Dayjs | null) => {
@@ -49,6 +68,9 @@ const dayjsToString = (time: Dayjs | null) => {
 const TimeUtils = {
   addMinutesToTime,
   formatMinutes,
+  secondToMinute,
+  secondToMinuteStr,
+  formatTimeDiff,
   // dayjs
   dayjsToString,
   stringToDayjs,

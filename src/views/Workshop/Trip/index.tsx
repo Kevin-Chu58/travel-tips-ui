@@ -2,7 +2,6 @@ import {
   Box,
   Container,
   Grid,
-  IconButton,
   Tab,
   Tabs,
   Typography,
@@ -122,10 +121,17 @@ const Trip = () => {
   const navTabs = [
     {
       name: "General",
+      label: "General",
       to: `/workshop/trip/${tripId}`,
     },
     {
       name: "Days",
+      label:
+        (trip?.days?.length ?? 0) > 0 ? (
+          `Days (${trip!.days!.length})`
+        ) : (
+          "Days"
+        ),
       to: `/workshop/trip/${tripId}/days`,
     },
   ];
@@ -222,9 +228,27 @@ const Trip = () => {
                   {navTabs.map((navTab, i) => (
                     <Tab
                       key={navTab.name}
-                      label={navTab.name}
+                      label={navTab.label}
                       value={i}
                       disableRipple
+                      sx={{
+                        "&.MuiTab-root": {
+                          borderRadius: 40,
+                          minHeight: 0,
+                          py: 1,
+                          mt: 1,
+                          mx: 0.5,
+                          mb: -1,
+                          ":hover": {
+                            bgcolor: "divider",
+                          },
+                          "&.Mui-selected": {
+                            bgcolor: "primary.main",
+                            color: "white",
+                            ":hover": {},
+                          },
+                        },
+                      }}
                     />
                   ))}
                 </Tabs>
@@ -244,7 +268,12 @@ const Trip = () => {
                   key="workshop-trip-days"
                   path="/days"
                   element={
-                    <TripDays trip={trip} token={token} queryKey={queryKey} navTabValue={navTabValue} />
+                    <TripDays
+                      trip={trip}
+                      token={token}
+                      queryKey={queryKey}
+                      navTabValue={navTabValue}
+                    />
                   }
                 />
               </Routes>

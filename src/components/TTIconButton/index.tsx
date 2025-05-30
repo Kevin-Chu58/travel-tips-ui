@@ -1,38 +1,28 @@
+import { forwardRef } from "react";
 import type { Theme } from "@emotion/react";
-import { IconButton, type SxProps } from "@mui/material";
+import { IconButton, type SxProps, type IconButtonProps as MuiIconButtonProps } from "@mui/material";
 
-type IconButtonProps = {
-  children: React.ReactNode;
-  size?: "small" | "medium" | "large";
-  disabled?: boolean;
+type TTIconButtonProps = {
   sx?: SxProps<Theme>;
-  onClick?: () => void;
-};
+} & MuiIconButtonProps; // extend MUI's IconButtonProps
 
-const TTIconButton = ({
-  size = "medium",
-  disabled = false,
-  children,
-  sx,
-  onClick,
-}: IconButtonProps) => {
-  return (
-    <IconButton
-      disableRipple
-      disabled={disabled}
-      size={size}
-      sx={{
-        ...sx,
-        border: "1px solid",
-        borderColor: "divider",
-        borderRadius: 2,
-        scale: 0.7,
-      }}
-      onClick={onClick}
-    >
-      {children}
-    </IconButton>
-  );
-};
+const TTIconButton = forwardRef<HTMLButtonElement, TTIconButtonProps>(
+  ({ sx, ...props }, ref) => {
+    return (
+      <IconButton
+        ref={ref}
+        disableRipple
+        sx={{
+          border: "1px solid",
+          borderColor: "divider",
+          borderRadius: 2,
+          scale: 0.7,
+          ...sx,
+        }}
+        {...props} // 👈 this spreads all other props correctly
+      />
+    );
+  }
+);
 
 export default TTIconButton;
