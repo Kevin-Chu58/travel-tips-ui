@@ -264,7 +264,7 @@ const Map = ({
     });
 
     // Optionally fit bounds to markers
-    if (!focusId) {
+    if (!focusId && markers.length > 0) {
       const bounds = L.latLngBounds(markers.map((m) => [m.lat, m.lng]));
       mapInstanceRef.current?.fitBounds(bounds, { padding: [20, 20] });
     }

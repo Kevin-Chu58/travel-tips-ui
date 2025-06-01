@@ -6,6 +6,7 @@ type TTIconButtonProps = {
   sx?: SxProps<Theme>;
 } & MuiIconButtonProps; // extend MUI's IconButtonProps
 
+// use forwardRef to show the parent mui-Tooltip that wraps around TTIconButton
 const TTIconButton = forwardRef<HTMLButtonElement, TTIconButtonProps>(
   ({ sx, ...props }, ref) => {
     return (

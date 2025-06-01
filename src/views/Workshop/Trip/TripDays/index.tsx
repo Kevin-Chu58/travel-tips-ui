@@ -284,7 +284,7 @@ const TripDays = ({ trip, token, queryKey, navTabValue }: TripDaysProps) => {
         direction="column"
         position="relative"
         size={7}
-        maxHeight={`calc(100vh - ${WorkshopToNavTab}px)`}
+        height={`calc(100vh - ${WorkshopToNavTab}px)`}
       >
         {/* day content */}
         <DayContent

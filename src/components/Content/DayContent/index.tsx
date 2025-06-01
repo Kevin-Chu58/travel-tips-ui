@@ -181,7 +181,7 @@ const DayContent = ({
           <Grid
             key={`trip-day-${day.id}`}
             onMouseEnter={() => setOnDay(day)}
-            // onMouseLeave={() => setOnDay(undefined)}
+            onMouseLeave={() => setOnDay(undefined)}
             size={12}
             width="100%"
           >

@@ -1,7 +1,6 @@
 import Map from "@components/Map";
 import {
   Checkbox,
-  Chip,
   Divider,
   FormControlLabel,
   Grid,
@@ -10,6 +9,7 @@ import {
 import type { TripAttractionOrder } from "@services/days";
 import AddIcon from "@mui/icons-material/Add";
 import { useState } from "react";
+import TTChipButton from "@components/TTChipButton";
 
 type RoutePanelProps = {
   tao: TripAttractionOrder | undefined;
@@ -98,35 +98,15 @@ const RoutePanel = ({ tao, setTao }: RoutePanelProps) => {
           <Grid size={12}>
             <Divider textAlign="left">
               {!showCustomRoutes ? (
-                <Chip
+                <TTChipButton
                   onClick={() => setShowCustomRoutes(true)}
                   icon={<AddIcon />}
                   label={<Typography>Add custom route</Typography>}
-                  sx={{
-                    cursor: "pointer",
-                    ":hover": {
-                      color: "white",
-                      bgcolor: "primary.main",
-                      ".MuiChip-icon": {
-                        color: "white",
-                      },
-                    },
-                  }}
                 />
               ) : (
-                <Chip
+                <TTChipButton
                   onDelete={() => setShowCustomRoutes(false)}
                   label={<Typography>Custom route</Typography>}
-                  sx={{
-                    cursor: "pointer",
-                    ":hover": {
-                      color: "white",
-                      bgcolor: "primary.main",
-                      ".MuiChip-icon": {
-                        color: "white",
-                      },
-                    },
-                  }}
                 />
               )}
             </Divider>

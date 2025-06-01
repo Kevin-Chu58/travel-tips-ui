@@ -4,6 +4,7 @@ import DayTimelineItem from "./DayTimelineItem";
 import { useState } from "react";
 import type { MapRouteType } from "@constants/Maps";
 import type { OsmFocusState, Route } from "@constants/Types";
+import AddTaoButton from "../AddTaoButton";
 
 type DayTimelineProps = {
   day: Day;
@@ -40,6 +41,11 @@ const DayTimeline = ({
       updateRoutes(day.id, taoId, type, coords);
   };
 
+  // return false if Taos is undefined or empty, true otherwise
+  const isTaosValid = () => {
+    return day.tripAttractionOrders && day.tripAttractionOrders?.length > 0;
+  }
+
   return (
     <Timeline
       key={day.id}
@@ -53,7 +59,9 @@ const DayTimeline = ({
         maxWidth: "100%",
       }}
     >
-      {day.tripAttractionOrders?.map((tao, i) => (
+      {!isTaosValid() ? (
+        <AddTaoButton onClick={() => {}}/>
+      ) : day.tripAttractionOrders?.map((tao, i) => (
         <DayTimelineItem
           key={tao.id}
           day={day}
