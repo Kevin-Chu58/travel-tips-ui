@@ -19,7 +19,7 @@ const TTIconButton = forwardRef<HTMLButtonElement, TTIconButtonProps>(
           scale: 0.7,
           ...sx,
         }}
-        {...props} // 👈 this spreads all other props correctly
+        {...props}
       />
     );
   }

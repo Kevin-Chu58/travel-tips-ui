@@ -1,23 +1,30 @@
-import {
-  Box,
-  Grid,
-  Tooltip,
-} from "@mui/material";
+import { Grid } from "@mui/material";
 import { type TripDetail } from "@services/trips";
 import { useEffect, useState } from "react";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
-import { type TripAttractionOrder } from "@services/days";
+import { type Day, type TripAttractionOrder } from "@services/days";
 import PlaceIcon from "@mui/icons-material/Place";
 import DirectionsIcon from "@mui/icons-material/Directions";
 import { Headers, WorkshopToNavTab } from "@constants/Layouts";
 import Map from "@components/Map";
-import type { MapRouteType, OsmType } from "@constants/Maps";
+import type { MapRouteType } from "@constants/Maps";
 import { osrmService, type OsrmRoute } from "@services/geoMap/osrm";
-import TTIconButton from "@components/TTIconButton";
 import polyline from "@mapbox/polyline";
 import DayContent from "@components/Content/DayContent";
-import type { DayMarkers, DayRoutes, Marker, OsmFocusState, Route, RouteRoutes, TaoRoutes } from "@constants/Types";
+import type {
+  DayMarkers,
+  DayRoutes,
+  Marker,
+  OsmFocusState,
+  Route,
+  RouteRoutes,
+  TaoRoutes,
+} from "@constants/Types";
+import IdentifierUtils from "@utils/IdentifierUtils";
+import RouteEditor from "@components/TaoEditor";
+import MapButtonGroup from "@components/ButtonGroup/MapButtonGroup";
+import TripUtils from "@utils/TripUtils";
 
 dayjs.extend(customParseFormat);
 
@@ -29,8 +36,10 @@ type TripDaysProps = {
 };
 
 const TripDays = ({ trip, token, queryKey, navTabValue }: TripDaysProps) => {
+  // open edit form
+  const [editTao, setEditTao] = useState<number | undefined>();
   // day focus
-  const [onDay, setOnDay] = useState<number | undefined>();
+  const [onDay, setOnDay] = useState<Day | undefined>();
   // map view status
   const [mapView, setMapView] = useState<string>("location");
   // mapping info
@@ -75,7 +84,7 @@ const TripDays = ({ trip, token, queryKey, navTabValue }: TripDaysProps) => {
   useEffect(() => {
     if (markers) {
       if (onDay) {
-        let _markersOnDay = markers?.find((m) => m.dayId === onDay);
+        let _markersOnDay = markers?.find((m) => m.dayId === onDay?.id);
         if (_markersOnDay) setMarkersOnDay(_markersOnDay.markers);
       } else {
         let allMarkers = markers.map((dayMarker) => dayMarker.markers).flat();
@@ -89,7 +98,10 @@ const TripDays = ({ trip, token, queryKey, navTabValue }: TripDaysProps) => {
     if (mapFocusState.id) {
       let container = document.getElementById("day-content");
       let target = document.getElementById(
-        getTaoTimelineId(mapFocusState.id, mapFocusState.type)
+        IdentifierUtils.getTaoTimelineItemId(
+          mapFocusState.id,
+          mapFocusState.type
+        )
       );
 
       if (container && target) {
@@ -125,65 +137,65 @@ const TripDays = ({ trip, token, queryKey, navTabValue }: TripDaysProps) => {
   }, [mapRouteTypes]);
 
   const initRoutes = async () => {
-      if (markers && !routes) {
-        // initate the Route coordinates into routes
-        // also inite the map route types from the routes
-        let mapRouteTypes: string[][] = [];
+    if (markers && !routes) {
+      // initate the Route coordinates into routes
+      // also inite the map route types from the routes
+      let mapRouteTypes: string[][] = [];
 
-        const dayCoords =
-          trip!.days?.map(async (day) => {
-            // get Day route coordinates
-            let mapDayRouteTypes: string[] = [];
+      const dayCoords =
+        trip!.days?.map(async (day) => {
+          // get Day route coordinates
+          let mapDayRouteTypes: string[] = [];
 
-            let taoRoutes =
-              day.tripAttractionOrders?.map(async (tao, i) => {
-                // get Tao route coordinates
-                const defaultRouteType = getDefaultRouteType(tao);
-                mapDayRouteTypes.push(defaultRouteType!);
+          let taoRoutes =
+            day.tripAttractionOrders?.map(async (tao, i) => {
+              // get Tao route coordinates
+              const defaultRouteType = getDefaultRouteType(tao);
+              mapDayRouteTypes.push(defaultRouteType!);
 
-                let taoCoords: TaoRoutes = {
-                  taoId: tao.id,
-                };
-                if (i + 1 < day.tripAttractionOrders!.length) {
-                  const nextTao = day.tripAttractionOrders!.at(i + 1);
-                  const coords = [
-                    [tao.attraction!.lng, tao.attraction!.lat],
-                    [nextTao!.attraction!.lng, nextTao!.attraction!.lat],
-                  ] as [number, number][];
+              let taoCoords: TaoRoutes = {
+                taoId: tao.id,
+              };
+              if (i + 1 < day.tripAttractionOrders!.length) {
+                const nextTao = day.tripAttractionOrders!.at(i + 1);
+                const coords = [
+                  [tao.attraction!.lng, tao.attraction!.lat],
+                  [nextTao!.attraction!.lng, nextTao!.attraction!.lat],
+                ] as [number, number][];
 
-                  if (defaultRouteType && defaultRouteType !== "custom") {
-                    const route = await osrmService.getOsrmRoute(
-                      defaultRouteType,
-                      coords
-                    );
+                if (defaultRouteType && defaultRouteType !== "custom") {
+                  const route = await osrmService.getOsrmRoute(
+                    defaultRouteType,
+                    coords
+                  );
 
-                    const routeCoords = decodeOsrmRouteCoords(route);
+                  const routeCoords = decodeOsrmRouteCoords(route);
 
-                    taoCoords[defaultRouteType] = {
-                      coords: routeCoords,
-                      distance: route.routes[0].distance,
-                      duration: route.routes[0].duration,
-                    };
-                  }
+                  taoCoords[defaultRouteType] = {
+                    coords: routeCoords,
+                    distance: route.routes[0].distance,
+                    duration: route.routes[0].duration,
+                  };
                 }
-                return taoCoords;
-              }) ?? [];
-            mapRouteTypes.push(mapDayRouteTypes);
+              }
+              return taoCoords;
+            }) ?? [];
+          mapRouteTypes.push(mapDayRouteTypes);
 
-            const dayCoords: DayRoutes = {
-              dayId: day.id,
-              taos: await Promise.all(taoRoutes),
-            };
+          const dayCoords: DayRoutes = {
+            dayId: day.id,
+            taos: await Promise.all(taoRoutes),
+          };
 
-            return dayCoords;
-          }) ?? [];
+          return dayCoords;
+        }) ?? [];
 
-        const _routes: RouteRoutes = await Promise.all(dayCoords);
-        setRoutes(_routes);
+      const _routes: RouteRoutes = await Promise.all(dayCoords);
+      setRoutes(_routes);
 
-        setMapRouteTypes(mapRouteTypes);
-      }
-    };
+      setMapRouteTypes(mapRouteTypes);
+    }
+  };
 
   const updateRoutes = async (
     dayId: number,
@@ -252,13 +264,6 @@ const TripDays = ({ trip, token, queryKey, navTabValue }: TripDaysProps) => {
     return routes;
   };
 
-  const getTaoTimelineId = (
-    osmId: number | undefined,
-    osmType: OsmType | undefined
-  ) => {
-    return `${osmId}/${osmType}`;
-  };
-
   /** day tool bar */
 
   const mapViews = [
@@ -272,13 +277,8 @@ const TripDays = ({ trip, token, queryKey, navTabValue }: TripDaysProps) => {
     },
   ];
 
-  const isMapView = (routeType: string) => {
-    return mapView === routeType;
-  };
-
   return (
     <Grid container size={12} position="relative">
-
       <Grid
         container
         direction="column"
@@ -298,6 +298,7 @@ const TripDays = ({ trip, token, queryKey, navTabValue }: TripDaysProps) => {
           mapFocusState={mapFocusState}
           setMapFocusState={setMapFocusState}
           updateRoutes={updateRoutes}
+          setEditTao={setEditTao}
         />
       </Grid>
 
@@ -312,7 +313,7 @@ const TripDays = ({ trip, token, queryKey, navTabValue }: TripDaysProps) => {
           height="100%"
           markers={markersOnDay}
           mapRoutes={mapRoutes}
-          onDay={onDay}
+          onDay={onDay?.id}
           focusId={mapFocusState.id}
           focusType={mapFocusState.type}
           focusRoute={mapView === "route"}
@@ -322,56 +323,23 @@ const TripDays = ({ trip, token, queryKey, navTabValue }: TripDaysProps) => {
           updateOnMarkerFocus={true}
           openPopUp
         />
-        <Box
-          aria-label="map view"
-          sx={{
-            ml: "auto",
-            mr: 1,
-            position: "absolute",
-            top: 10,
-            right: 10,
-            zIndex: 2000,
-          }}
-        >
-          {mapViews.map((view) => (
-            <Tooltip
-              key={view.viewType}
-              title={`highlight ${view.viewType}s on map`}
-              arrow
-            >
-              <TTIconButton
-                onClick={() => setMapView(view.viewType)}
-                aria-label={`${view.viewType} view`}
-                size="small"
-                sx={{
-                  scale: isMapView(view.viewType) ? 0.9 : 0.7,
-                  color: "secondary.main",
-                  bgcolor: isMapView(view.viewType)
-                    ? "primary.main"
-                    : "secondary.900",
-                  boxShadow:
-                    "5px 5px 5px rgba(0, 0, 0, .2), 10px 10px 10px rgba(0, 0, 0, .2)",
-                  transition: ".2s ease-in-out all",
-                  ":hover": { bgcolor: "secondary.dark" },
-                }}
-              >
-                <view.icon
-                  fontSize={isMapView(view.viewType) ? "large" : "small"}
-                />
-              </TTIconButton>
-            </Tooltip>
-          ))}
-        </Box>
+        <MapButtonGroup
+          mapViews={mapViews}
+          mapView={mapView}
+          setMapView={setMapView}
+          top={10}
+          right={10}
+        />
       </Grid>
 
       {/* route editor */}
-      {/* <RouteEditor
-        tripDetail={trip}
+      <RouteEditor
+        day={onDay}
+        taoId={editTao}
+        title={`Day ${(TripUtils.getDayIndex(trip, onDay?.id) ?? 0) + 1} ${onDay?.name ? ` - ${onDay.name}` : ""}`}
         open={Boolean(editTao)}
-        setOpen={setEditTao}
-        token={token}
-        render={() => {}}
-      /> */}
+        handleClose={() => setEditTao(undefined)}
+      />
     </Grid>
   );
 };

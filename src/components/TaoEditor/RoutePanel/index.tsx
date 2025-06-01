@@ -1,0 +1,145 @@
+import Map from "@components/Map";
+import {
+  Checkbox,
+  Chip,
+  Divider,
+  FormControlLabel,
+  Grid,
+  Typography,
+} from "@mui/material";
+import type { TripAttractionOrder } from "@services/days";
+import AddIcon from "@mui/icons-material/Add";
+import { useState } from "react";
+
+type RoutePanelProps = {
+  tao: TripAttractionOrder | undefined;
+  setTao: (state: TripAttractionOrder | undefined) => void;
+};
+
+// TODO - custom prefer route and map indication
+
+const RoutePanel = ({ tao, setTao }: RoutePanelProps) => {
+  const [showCustomRoutes, setShowCustomRoutes] = useState<boolean>(false);
+
+  const toggleIsDrive = () => {
+    if (tao) {
+      setTao({
+        ...tao,
+        isDrivePreferred: !tao.isDrivePreferred,
+      });
+    }
+  };
+
+  const toggleIsBike = () => {
+    if (tao) {
+      setTao({
+        ...tao,
+        isBikePreferred: !tao.isBikePreferred,
+      });
+    }
+  };
+
+  const toggleIsOnFoot = () => {
+    if (tao) {
+      setTao({
+        ...tao,
+        isOnFootPreferred: !tao.isOnFootPreferred,
+      });
+    }
+  };
+
+  return (
+    <Grid container size={12} direction="row" flexGrow={1}>
+      {/* Left Panel */}
+      <Grid
+        size={4}
+        p={2}
+        sx={{
+          height: "100%",
+          overflowX: "hidden",
+          overflowY: "auto",
+          borderRight: "1px solid",
+          borderColor: "divider",
+        }}
+      >
+        <Grid size={12}>
+          <Typography fontWeight="bold" color="primary.main">
+            Routes
+          </Typography>
+        </Grid>
+        <Grid container size={12}>
+          <Grid size={6}>
+            <FormControlLabel
+              control={<Checkbox />}
+              checked={tao?.isDrivePreferred}
+              onChange={toggleIsDrive}
+              label="Drive"
+            />
+          </Grid>
+          <Grid size={6}>
+            <FormControlLabel
+              control={<Checkbox />}
+              checked={tao?.isBikePreferred}
+              onChange={toggleIsBike}
+              label="Bike"
+            />
+          </Grid>
+          <Grid size={6}>
+            <FormControlLabel
+              control={<Checkbox />}
+              checked={tao?.isOnFootPreferred}
+              onChange={toggleIsOnFoot}
+              label="On Foot"
+            />
+          </Grid>
+        </Grid>
+
+        <Grid size={12}>
+          <Grid size={12}>
+            <Divider textAlign="left">
+              {!showCustomRoutes ? (
+                <Chip
+                  onClick={() => setShowCustomRoutes(true)}
+                  icon={<AddIcon />}
+                  label={<Typography>Add custom route</Typography>}
+                  sx={{
+                    cursor: "pointer",
+                    ":hover": {
+                      color: "white",
+                      bgcolor: "primary.main",
+                      ".MuiChip-icon": {
+                        color: "white",
+                      },
+                    },
+                  }}
+                />
+              ) : (
+                <Chip
+                  onDelete={() => setShowCustomRoutes(false)}
+                  label={<Typography>Custom route</Typography>}
+                  sx={{
+                    cursor: "pointer",
+                    ":hover": {
+                      color: "white",
+                      bgcolor: "primary.main",
+                      ".MuiChip-icon": {
+                        color: "white",
+                      },
+                    },
+                  }}
+                />
+              )}
+            </Divider>
+          </Grid>
+        </Grid>
+      </Grid>
+
+      {/* Right Panel */}
+        <Grid container size={8} direction="column" spacing={1}>
+          <Map height="100%" markers={[]} />
+        </Grid>
+    </Grid>
+  );
+};
+
+export default RoutePanel;

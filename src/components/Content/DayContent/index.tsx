@@ -1,4 +1,4 @@
-import ConditionalIconGroup from "@components/ConditionalIconGroup";
+import ConditionalSuccessIconGroup from "@components/ButtonGroup/ConditionalSuccessButtonGroup";
 import TTIconButton from "@components/TTIconButton";
 import { Box, Divider, Fab, Grid, TextField, Typography } from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -16,16 +16,17 @@ import type { Dayjs } from "dayjs";
 import dayjs from "dayjs";
 import { useDayMutations } from "@react-queries/useDayQueries";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import type { OsmFocusState, Route } from "@views/Workshop/Trip/TripDays";
 import type { MapRouteType } from "@constants/Maps";
 import DayTimeline from "./DayTimeline";
+import type { OsmFocusState, Route } from "@constants/Types";
+import TripUtils from "@utils/TripUtils";
 
 type DayContentProps = {
   trip?: TripDetail;
   token: string | null;
   queryKey: (string | undefined)[];
-  onDay: number | undefined;
-  setOnDay: (state: number | undefined) => void;
+  onDay: Day | undefined;
+  setOnDay: (state: Day | undefined) => void;
   mapRoutes?: Route[][];
   mapRouteTypes?: string[][];
   mapFocusState?: OsmFocusState;
@@ -36,6 +37,7 @@ type DayContentProps = {
       type: MapRouteType,
       coords: [number, number][]
     ) => void;
+  setEditTao: (state: number) => void;
 };
 
 const DayContent = ({ 
@@ -49,6 +51,7 @@ const DayContent = ({
   mapFocusState,
   setMapFocusState,
   updateRoutes,
+  setEditTao,
 }: DayContentProps) => {
   // constants
   const startDefault = dayjs().hour(8).minute(0).second(0);
@@ -82,17 +85,11 @@ const DayContent = ({
   
     // rerender on editDay to update day form attributes
     useEffect(() => {
-      if (editDay) initEditDayForm(getDay(editDay));
+      if (editDay) initEditDayForm(TripUtils.getDay(trip, editDay));
       else clearDayForm();
     }, [editDay]);
 
-  const getDay = (id: number) => {
-    return trip?.days?.find((day) => day.id === id);
-  };
 
-  const getDayIndex = (id: number) => {
-    return trip?.days?.findIndex((day) => day.id === id);
-  };
 
   const handleUpdateDay = async () => {
     let invalidParams = isDayValid();
@@ -126,7 +123,7 @@ const DayContent = ({
   };
 
   const isDayUnchanged = () => {
-    const day = getDay(editDay!);
+    const day = TripUtils.getDay(trip, editDay!);
     return (
       day?.name === name?.trim() &&
       day?.description === description?.trim() &&
@@ -183,7 +180,7 @@ const DayContent = ({
         {trip?.days?.map((day, i) => (
           <Grid
             key={`trip-day-${day.id}`}
-            onMouseEnter={() => setOnDay(day.id)}
+            onMouseEnter={() => setOnDay(day)}
             // onMouseLeave={() => setOnDay(undefined)}
             size={12}
             width="100%"
@@ -204,7 +201,7 @@ const DayContent = ({
                     <Typography variant="h6" fontWeight="bold" ml={1}>
                       {day.name}
                     </Typography>
-                    {day.id === onDay && (
+                    {day.id === onDay?.id && (
                       <Box position="absolute" right={10}>
                         <TTIconButton
                           size="small"
@@ -225,10 +222,10 @@ const DayContent = ({
                             color: "secondary.main",
                             bgcolor: "error.main",
                             ":hover": {
-                              bgcolor: "secondary.dark",
+                              bgcolor: "error.dark",
                             },
                           }}
-                          onClick={() => setDeleteDay(getDay(day.id))}
+                          onClick={() => setDeleteDay(TripUtils.getDay(trip, day.id))}
                         >
                           <DeleteIcon />
                         </TTIconButton>
@@ -250,7 +247,7 @@ const DayContent = ({
                     <Typography variant="h6" fontWeight="bold" color="primary">
                       Day {i + 1}
                     </Typography>
-                    <ConditionalIconGroup
+                    <ConditionalSuccessIconGroup
                       onClose={() => setEditDay(undefined)}
                       onConfirm={() => handleUpdateDay()}
                       sx={{ ml: "auto", mr: 2 }}
@@ -306,6 +303,7 @@ const DayContent = ({
               mapFocusState={mapFocusState}
               setMapFocusState={setMapFocusState}
               updateRoutes={updateRoutes}
+              setEditTao={setEditTao}
             />
           </Grid>
         ))}
@@ -320,7 +318,7 @@ const DayContent = ({
           <Typography variant="h6" color="error">
             Are you sure you want to delete{" "}
             <strong>
-              Day {(getDayIndex(deleteDay?.id ?? 0) ?? 0) + 1}{" "}
+              Day {(TripUtils.getDayIndex(trip, deleteDay?.id ?? 0) ?? 0) + 1}{" "}
               {deleteDay?.name && `- ${deleteDay?.name}`}
             </strong>
             ?

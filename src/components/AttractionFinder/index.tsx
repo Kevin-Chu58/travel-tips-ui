@@ -12,7 +12,7 @@ import {
   Typography,
 } from "@mui/material";
 import { osmService, type OsmEntity } from "@services/geoMap/osm";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
 import CheckIcon from "@mui/icons-material/Check";
@@ -125,6 +125,17 @@ const AttractionFinder = ({
   const filterResult = (result: OsmEntity[]) => {
     return result.filter((osm) => osm.osm_id !== undefined);
   };
+
+  const markers = useMemo(() => {
+  return result.map((r) => ({
+    lat: parseFloat(r.lat),
+    lng: parseFloat(r.lon),
+    label: r.name,
+    osmId: r.osm_id,
+    osmType: r.osm_type,
+    zoom: r.place_rank,
+  }));
+}, [result]);
 
   // add/edit attraction
 
@@ -290,18 +301,12 @@ const AttractionFinder = ({
           <Box height="100%" position="relative">
             <Map
               height="100%"
-              markers={result.map((r) => ({
-                lat: parseFloat(r.lat),
-                lng: parseFloat(r.lon),
-                label: r.name,
-                osmId: r.osm_id,
-                osmType: r.osm_type,
-                zoom: r.place_rank,
-              }))}
+              markers={markers}
               focusId={osmIdFocus}
               focusType={osmTypeFocus}
               correctionBias={4}
               correctionZoom={-1}
+              updateOnMarkerFocus
             />
             {osmIdFocus && (
               <Grid

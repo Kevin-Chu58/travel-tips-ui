@@ -33,7 +33,7 @@ const DraggableList = ({ items, setItems, modifiers, children }: DraggableListPr
     }
   };
 
-  const itemIds = useMemo(() => items!.map(item => item.id), [items]);
+  const itemIds = useMemo(() => items?.map(item => item.id), [items]);
 
   return (
     <DndContext
@@ -43,8 +43,10 @@ const DraggableList = ({ items, setItems, modifiers, children }: DraggableListPr
       modifiers={modifiers ?? []}
     >
       {items && (
-        <SortableContext items={itemIds} strategy={verticalListSortingStrategy}>
-          <List>{children}</List>
+        <SortableContext items={itemIds ?? []} strategy={verticalListSortingStrategy}>
+          <List>
+            {children}
+          </List>
         </SortableContext>
       )}
     </DndContext>

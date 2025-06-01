@@ -4,6 +4,14 @@ import type { JSX } from "react";
 import type { MapRouteType, OsmType } from "./Maps";
 import type { Dayjs } from "dayjs";
 
+// UI
+export type NavTab = {
+  name: string;
+  label: string;
+  to?: string;
+  condition?: (args: any[]) => boolean;
+};
+
 // trip
 
 // day
@@ -62,4 +70,9 @@ export type Marker = {
 export type OsmFocusState = {
   id: number | undefined;
   type: OsmType | undefined;
+};
+
+export type MapView = {
+  viewType: string;
+  icon: any;
 };

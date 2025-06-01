@@ -6,22 +6,26 @@ import {
   TimelineOppositeContent,
   TimelineSeparator,
 } from "@mui/lab";
-import { Box, Divider, Grid, Typography } from "@mui/material";
+import { Box, Divider, Grid, List, ListItemButton, ListItemIcon, ListItemText, Typography } from "@mui/material";
 import type { Day, TripAttractionOrder } from "@services/days";
-import { useEffect, useState, type JSX } from "react";
-import type { MapRouteType, OsmType } from "@constants/Maps";
+import { useEffect, useState } from "react";
+import type { MapRouteType } from "@constants/Maps";
 import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
 import DirectionsBikeIcon from "@mui/icons-material/DirectionsBike";
 import DirectionsWalkIcon from "@mui/icons-material/DirectionsWalk";
 import DirectionsIcon from "@mui/icons-material/Directions";
 import BuildIcon from "@mui/icons-material/Build";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 import TimeUtils from "@utils/TimeUtils";
 import { getHex } from "@constants/Colors";
 import DistanceUtils from "@utils/DistanceUtils";
 import TTButtonGroup from "@components/TTButtonGroup";
-import type { OsmFocusState, Route } from "@views/Workshop/Trip/TripDays";
+import type { OsmFocusState, Route } from "@constants/Types";
 import TTCard from "@components/TTCard";
 import type { RouteOptionParams } from "@constants/Types";
+import IdentifierUtils from "@utils/IdentifierUtils";
+import NonBlockingPopover from "@components/Popover/NonBlockingPopover";
 
 const routeOptions: RouteOptionParams[] = [
   {
@@ -61,6 +65,7 @@ type DayTimelineItemProps = {
     type: MapRouteType,
     coords: [number, number][]
   ) => void;
+  setEditTao: (state: number) => void;
 };
 
 const DayTimelineItem = ({
@@ -74,6 +79,7 @@ const DayTimelineItem = ({
   mapFocusState,
   setMapFocusState = () => {},
   updateRoutes,
+  setEditTao,
 }: DayTimelineItemProps) => {
   const [routeType, setRouteType] = useState<MapRouteType | undefined>();
   const [cummulatedTime, setCummulatedTime] = useState<string>();
@@ -126,13 +132,6 @@ const DayTimelineItem = ({
     }
   }, [route]);
 
-  const getTaoTimelineItemId = (
-    osmId: number | undefined,
-    osmType: OsmType | undefined
-  ) => {
-    return `${osmId}/${osmType}`;
-  };
-
   /** route buttons */
   const [routeButtons, setRouteButtons] = useState<RouteOptionParams[]>([]);
 
@@ -150,10 +149,20 @@ const DayTimelineItem = ({
     setRouteButtons(_routeButtons);
   };
 
+  const isTaoFocused = () => {
+    return (
+      tao.attraction?.osmId === mapFocusState?.id &&
+      tao.attraction?.osmType === mapFocusState?.type
+    );
+  };
+
   return (
     <TimelineItem
       key={tao.id}
-      id={getTaoTimelineItemId(tao.attraction?.osmId, tao.attraction?.osmType)}
+      id={IdentifierUtils.getTaoTimelineItemId(
+        tao.attraction?.osmId,
+        tao.attraction?.osmType
+      )}
       onMouseEnter={() => {
         setMapFocusState({
           id: tao.attraction?.osmId,
@@ -169,8 +178,7 @@ const DayTimelineItem = ({
       sx={{
         py: 1,
         borderRadius: 5,
-        ...(tao.attraction?.osmId === mapFocusState?.id &&
-        tao.attraction?.osmType === mapFocusState?.type
+        ...(isTaoFocused()
           ? {
               bgcolor: "secondary.100",
               ".MuiTimelineDot-filled, .MuiTimelineConnector-root": {
@@ -191,6 +199,34 @@ const DayTimelineItem = ({
         <Grid size={12} spacing={1}>
           {/* name */}
           <Typography fontWeight="bold">{tao.attraction?.name}</Typography>
+          {isTaoFocused() && (
+            <Box sx={{ position: "absolute", top: 2, right: 2 }}>
+              <NonBlockingPopover>
+                <List disablePadding>
+                  <ListItemButton disableRipple onClick={() => setEditTao(tao.id)}>
+                    <ListItemIcon>
+                      <EditIcon/>
+                    </ListItemIcon>
+                    <ListItemText primary={
+                      <Typography variant="body1">
+                        Edit
+                      </Typography>
+                    } />
+                  </ListItemButton>
+                  <ListItemButton disableRipple>
+                    <ListItemIcon>
+                      <DeleteIcon/>
+                    </ListItemIcon>
+                    <ListItemText primary={
+                      <Typography variant="body1">
+                        Delete
+                      </Typography>
+                    } />
+                  </ListItemButton>
+                </List>
+              </NonBlockingPopover>
+            </Box>
+          )}
 
           {/* tags */}
           <Grid container size={12} py={0.5}>
@@ -216,10 +252,7 @@ const DayTimelineItem = ({
 
           {/* highlight */}
           {tao.attraction?.description && (
-            <TTCard
-              bgcolor="lightsalmon"
-              title="Highlight"
-            >
+            <TTCard bgcolor="lightsalmon" title="Highlight">
               <Typography color="white" variant="body2">
                 {tao.attraction?.description}
               </Typography>
@@ -231,9 +264,11 @@ const DayTimelineItem = ({
             <TTCard
               bgcolor="steelblue"
               darkBg={true}
-              icon={<DirectionsIcon
+              icon={
+                <DirectionsIcon
                   sx={{ width: 20, height: 20, color: "white" }}
-                />}
+                />
+              }
               title="To Next Attraction"
             >
               <Grid size={12} mt={1}>
@@ -255,17 +290,21 @@ const DayTimelineItem = ({
                     </Grid>
                     <Grid container size={6} spacing={1}>
                       <Box>
-                        <Typography variant="body2" color="white" >
-                        {DistanceUtils.meterToKm(route.distance!)}
-                      </Typography>
+                        <Typography variant="body2" color="white">
+                          {DistanceUtils.meterToKm(route.distance!)}
+                        </Typography>
                       </Box>
                       <Box>
-                        <Typography variant="body2" color="white" px={1}
+                        <Typography
+                          variant="body2"
+                          color="white"
+                          px={1}
                           borderRadius={20}
                           fontWeight="bold"
-                          bgcolor={getHex("dimgray")}>
-                        {routeType ?? "- - - - - -"}
-                      </Typography>
+                          bgcolor={getHex("dimgray")}
+                        >
+                          {routeType ?? "- - - - - -"}
+                        </Typography>
                       </Box>
                     </Grid>
                     <Grid size={6}>

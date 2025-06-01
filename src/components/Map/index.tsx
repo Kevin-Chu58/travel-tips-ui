@@ -72,7 +72,9 @@ const Map = ({
 
   // update on markers to update the overall map
   useEffect(() => {
-    setIsUpdated((prev) => !prev);
+    if (markers.length > 0) {
+      setIsUpdated((prev) => !prev);
+    }
   }, [markers]);
 
   // update on id, type, route to update the overall map
@@ -130,7 +132,7 @@ const Map = ({
   const setRoutes = () => {
     // if (markers.length === 0) return;
 
-    // remove old ployline routes
+    // remove old polyline routes
     routesRef.current.forEach((m) => mapInstanceRef.current!.removeLayer(m));
     routesRef.current = [];
 
@@ -252,10 +254,12 @@ const Map = ({
           zoom + correctionZoom,
           correctionDirection
         );
-        mapInstanceRef.current!.setView(
+        mapInstanceRef.current?.whenReady(() => {
+          mapInstanceRef.current?.setView(
           [marker.lat + markerBiased.lat, marker.lng + markerBiased.lng],
           zoom + correctionZoom
         );
+        })
       }
     });
 

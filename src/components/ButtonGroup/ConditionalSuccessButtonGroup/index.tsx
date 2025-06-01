@@ -11,7 +11,7 @@ type ConditonalIconGroupProps = {
   sx?: SxProps;
 };
 
-const ConditionalIconGroup = ({
+const ConditionalSuccessIconGroup = ({
   size = "small",
   onClose,
   onConfirm,
@@ -51,4 +51,4 @@ const ConditionalIconGroup = ({
   );
 };
 
-export default ConditionalIconGroup;
+export default ConditionalSuccessIconGroup;

@@ -35,12 +35,13 @@ function DraggableItem({
       {...attributes}
       {...newListeners}
       sx={{
-        ...style,
-        ...sx,
         cursor: enableDrag ? "grab" : "auto",
         border: "1px solid",
         borderColor: "divider",
         borderRadius: 2,
+        my: .4,
+        ...style,
+        ...sx,
       }}
       elevation={0}
     >

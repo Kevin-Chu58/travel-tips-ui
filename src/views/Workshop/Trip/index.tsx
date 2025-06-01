@@ -15,10 +15,12 @@ import EditIcon from "@mui/icons-material/Edit";
 import TextField from "@components/TextField";
 import TripMain from "./TripMain";
 import TripDays from "./TripDays";
-import ConditionalIconGroup from "@components/ConditionalIconGroup";
+import ConditionalSuccessIconGroup from "@components/ButtonGroup/ConditionalSuccessButtonGroup";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Layouts, { Headers } from "@constants/Layouts";
 import TTIconButton from "@components/TTIconButton";
+import type { NavTab } from "@constants/Types";
+import TTTabs from "@components/TTTabs";
 
 /**
  * The view of a specific trip in workshop that allows editing,
@@ -134,11 +136,13 @@ const Trip = () => {
         ),
       to: `/workshop/trip/${tripId}/days`,
     },
-  ];
+  ] as NavTab[];
 
-  const handleNavTabChange = (_: React.SyntheticEvent, newValue: number) => {
+  const handleNavTabChange = (newValue: number) => {
     setNavTabValue(newValue);
-    navigate(navTabs[newValue].to);
+    let navigateTo = navTabs[newValue].to;
+    if (navigateTo)
+      navigate(navigateTo);
   };
 
   return (
@@ -179,12 +183,12 @@ const Trip = () => {
                         fontSize: "2.125rem",
                         fontWeight: 600,
                         lineHeight: 1,
-                        py: 0.2,
-                        px: 0,
+                        mt: -.3,
+                        p: 0,
                         height: "auto",
                       }}
                     />
-                    <ConditionalIconGroup
+                    <ConditionalSuccessIconGroup
                       size="medium"
                       onClose={() => setEditName(false)}
                       onConfirm={handleUpdateName}
@@ -224,34 +228,11 @@ const Trip = () => {
                   height: Layouts.WorkshopNavTab,
                 }}
               >
-                <Tabs value={navTabValue} onChange={handleNavTabChange}>
-                  {navTabs.map((navTab, i) => (
-                    <Tab
-                      key={navTab.name}
-                      label={navTab.label}
-                      value={i}
-                      disableRipple
-                      sx={{
-                        "&.MuiTab-root": {
-                          borderRadius: 40,
-                          minHeight: 0,
-                          py: 1,
-                          mt: 1,
-                          mx: 0.5,
-                          mb: -1,
-                          ":hover": {
-                            bgcolor: "divider",
-                          },
-                          "&.Mui-selected": {
-                            bgcolor: "primary.main",
-                            color: "white",
-                            ":hover": {},
-                          },
-                        },
-                      }}
-                    />
-                  ))}
-                </Tabs>
+                <TTTabs
+                  navTabValue={navTabValue}
+                  navTabs={navTabs}
+                  handleChange={handleNavTabChange}
+                />
               </Box>
             </Grid>
 

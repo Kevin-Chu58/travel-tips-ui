@@ -3,7 +3,7 @@ import { tripsService, type TripDetail } from "@services/trips";
 import { useEffect, useState } from "react";
 import EditIcon from "@mui/icons-material/Edit";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import ConditionalIconGroup from "@components/ConditionalIconGroup";
+import ConditionalIconGroup from "@components/ButtonGroup/ConditionalSuccessButtonGroup";
 
 type TripMainProps = {
   trip: TripDetail | undefined;

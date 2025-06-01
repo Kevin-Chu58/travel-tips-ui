@@ -3,7 +3,7 @@ import type { Day } from "@services/days";
 import DayTimelineItem from "./DayTimelineItem";
 import { useState } from "react";
 import type { MapRouteType } from "@constants/Maps";
-import type { OsmFocusState, Route } from "@views/Workshop/Trip/TripDays";
+import type { OsmFocusState, Route } from "@constants/Types";
 
 type DayTimelineProps = {
   day: Day;
@@ -17,6 +17,7 @@ type DayTimelineProps = {
     type: MapRouteType,
     coords: [number, number][]
   ) => void;
+  setEditTao: (state: number) => void;
 };
 
 const DayTimeline = ({
@@ -26,6 +27,7 @@ const DayTimeline = ({
   mapFocusState,
   setMapFocusState = () => {},
   updateRoutes,
+  setEditTao,
 }: DayTimelineProps) => {
   const [acummulatedTimes, setAcummulatedTimes] = useState<string[]>([day.start]);
 
@@ -64,6 +66,7 @@ const DayTimeline = ({
           mapFocusState={mapFocusState}
           setMapFocusState={setMapFocusState}
           updateRoutes={updateTaoRoutes}
+          setEditTao={setEditTao}
         />
       ))}
     </Timeline>
