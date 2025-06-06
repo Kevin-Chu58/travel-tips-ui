@@ -1,7 +1,6 @@
-import { Box, type SxProps } from "@mui/material";
+import { Box, IconButton, type SxProps } from "@mui/material";
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
-import TTIconButton from "@components/TTIconButton";
 
 type ConditonalIconGroupProps = {
   size?: "small" | "medium" | "large";
@@ -20,33 +19,21 @@ const ConditionalSuccessIconGroup = ({
 }: ConditonalIconGroupProps) => {
   return (
     <Box sx={sx}>
-      <TTIconButton
+      <IconButton
         onClick={onClose}
         size={size}
-        sx={{
-          color: "secondary.main",
-          bgcolor: "secondary.900",
-          ":hover": {
-            bgcolor: "secondary.dark",
-          },
-        }}
+        color="error"
       >
         <CloseIcon />
-      </TTIconButton>
-      <TTIconButton
+      </IconButton>
+      <IconButton
         disabled={!isConditionMet}
         onClick={onConfirm}
         size={size}
-        sx={{
-          color: "secondary.main",
-          bgcolor: isConditionMet ? "success.main" : "inherit",
-          ":hover": {
-            bgcolor: isConditionMet ? "success.dark" : "inherit",
-          },
-        }}
+        color="success"
       >
         <CheckIcon />
-      </TTIconButton>
+      </IconButton>
     </Box>
   );
 };

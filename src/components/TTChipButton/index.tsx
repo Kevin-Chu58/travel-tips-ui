@@ -2,6 +2,8 @@ import { Chip, type ChipProps } from "@mui/material";
 
 const defaultSx = {
     cursor: "pointer",
+    bgcolor: "lightgrey",
+    filter: "brightness(1.05)",
     ":hover": {
         color: "white",
         bgcolor: "primary.main",

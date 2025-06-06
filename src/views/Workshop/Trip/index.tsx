@@ -2,8 +2,6 @@ import {
   Box,
   Container,
   Grid,
-  Tab,
-  Tabs,
   Typography,
 } from "@mui/material";
 import type { RootState } from "@redux/store";

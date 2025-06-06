@@ -20,6 +20,7 @@ import type { MapRouteType } from "@constants/Maps";
 import DayTimeline from "./DayTimeline";
 import type { OsmFocusState, Route } from "@constants/Types";
 import TripUtils from "@utils/TripUtils";
+import TaoEditor from "@components/TaoEditor";
 
 type DayContentProps = {
   trip?: TripDetail;
@@ -31,27 +32,27 @@ type DayContentProps = {
   mapRouteTypes?: string[][];
   mapFocusState?: OsmFocusState;
   setMapFocusState?: (state: OsmFocusState) => void;
-  updateRoutes?:(
-      dayId: number,
-      taoId: number,
-      type: MapRouteType,
-      coords: [number, number][]
-    ) => void;
-  setEditTao: (state: number) => void;
+  updateRoutes?: (
+    dayId: number,
+    taoId: number,
+    type: MapRouteType,
+    coords: [number, number][]
+  ) => void;
+  renderRoutes: () => void;
 };
 
-const DayContent = ({ 
-  trip, 
+const DayContent = ({
+  trip,
   token,
-  queryKey, 
-  onDay, 
-  setOnDay, 
+  queryKey,
+  onDay,
+  setOnDay,
   mapRoutes,
   mapRouteTypes,
   mapFocusState,
   setMapFocusState,
   updateRoutes,
-  setEditTao,
+  renderRoutes,
 }: DayContentProps) => {
   // constants
   const startDefault = dayjs().hour(8).minute(0).second(0);
@@ -60,36 +61,38 @@ const DayContent = ({
   const [addDay, setAddDay] = useState<boolean>(false);
   const [editDay, setEditDay] = useState<number | undefined>();
   const [deleteDay, setDeleteDay] = useState<Day | undefined>();
+  const [openEditTao, setOpenEditTao] = useState<boolean>(false);
   // day form attributes
   const [name, setName] = useState<string | undefined>();
   const [description, setDescription] = useState<string | undefined>();
   const [start, setStart] = useState<Dayjs | null>(startDefault);
   const [end, setEnd] = useState<Dayjs | null>(endDefault);
   const [errorParams, setErrorParams] = useState<string[]>([]);
+  // tao form attributes
+  const [editTao, setEditTao] = useState<number | undefined>();
+  const [editTaoOrder, setEditTaoOrder] = useState<number>(0);
 
   const { mutationAddDay, mutationUpdateDay, mutationRemoveDay } =
-      useDayMutations({
-        trip,
-        token,
-        editDay,
-        queryKey,
-      });
+    useDayMutations({
+      trip,
+      token,
+      editDay,
+      queryKey,
+    });
 
   /** useEffect */
-  
-    // rerender on addDay to update day form attributes
-    useEffect(() => {
-      if (addDay) initAddDayForm();
-      else clearDayForm();
-    }, [addDay]);
-  
-    // rerender on editDay to update day form attributes
-    useEffect(() => {
-      if (editDay) initEditDayForm(TripUtils.getDay(trip, editDay));
-      else clearDayForm();
-    }, [editDay]);
 
+  // rerender on addDay to update day form attributes
+  useEffect(() => {
+    if (addDay) initAddDayForm();
+    else clearDayForm();
+  }, [addDay]);
 
+  // rerender on editDay to update day form attributes
+  useEffect(() => {
+    if (editDay) initEditDayForm(TripUtils.getDayFromTrip(trip, editDay));
+    else clearDayForm();
+  }, [editDay]);
 
   const handleUpdateDay = async () => {
     let invalidParams = isDayValid();
@@ -123,7 +126,7 @@ const DayContent = ({
   };
 
   const isDayUnchanged = () => {
-    const day = TripUtils.getDay(trip, editDay!);
+    const day = TripUtils.getDayFromTrip(trip, editDay!);
     return (
       day?.name === name?.trim() &&
       day?.description === description?.trim() &&
@@ -132,35 +135,35 @@ const DayContent = ({
     );
   };
 
-    /** edit day */
-  
-    const initAddDayForm = () => {
-      setStart(startDefault);
-      setEnd(endDefault);
-    };
-  
-    const initEditDayForm = (day: Day | undefined) => {
-      if (day) {
-        setEditDay(day.id);
-        setName(day.name);
-        setDescription(day.description);
-        setStart(TimeUtils.stringToDayjs(day.start));
-        setEnd(TimeUtils.stringToDayjs(day.end));
-      }
-    };
-  
-    const clearDayForm = () => {
-      // close all day forms
-      setAddDay(false);
-      setEditDay(undefined);
-  
-      setName("");
-      setDescription("");
-      setStart(null);
-      setEnd(null);
-    };
+  /** edit day */
 
-    const handleAddDay = async () => {
+  const initAddDayForm = () => {
+    setStart(startDefault);
+    setEnd(endDefault);
+  };
+
+  const initEditDayForm = (day: Day | undefined) => {
+    if (day) {
+      setEditDay(day.id);
+      setName(day.name);
+      setDescription(day.description);
+      setStart(TimeUtils.stringToDayjs(day.start));
+      setEnd(TimeUtils.stringToDayjs(day.end));
+    }
+  };
+
+  const clearDayForm = () => {
+    // close all day forms
+    setAddDay(false);
+    setEditDay(undefined);
+
+    setName("");
+    setDescription("");
+    setStart(null);
+    setEnd(null);
+  };
+
+  const handleAddDay = async () => {
     let invalidParams = isDayValid();
     if (invalidParams.length > 0) setErrorParams(invalidParams);
     else {
@@ -169,19 +172,26 @@ const DayContent = ({
     }
   };
 
+  /** edit tao */
+  const updateOpenEditTao = (taoId: number | undefined, order?: number) => {
+    setEditTao(taoId);
+    setEditTaoOrder(order ?? 0);
+    setOpenEditTao(true);
+  }
+
   return (
     <>
       <Grid
         id="day-content"
         size={12}
-        // position="sticky"
-        sx={{ overflowX: "hidden", overflowY: "auto" }}
+        sx={{ overflowX: "hidden", overflowY: "auto", 
+        position: "relative" }}
       >
         {trip?.days?.map((day, i) => (
           <Grid
             key={`trip-day-${day.id}`}
             onMouseEnter={() => setOnDay(day)}
-            onMouseLeave={() => setOnDay(undefined)}
+            position="relative"
             size={12}
             width="100%"
           >
@@ -225,7 +235,9 @@ const DayContent = ({
                               bgcolor: "error.dark",
                             },
                           }}
-                          onClick={() => setDeleteDay(TripUtils.getDay(trip, day.id))}
+                          onClick={() =>
+                            setDeleteDay(TripUtils.getDayFromTrip(trip, day.id))
+                          }
                         >
                           <DeleteIcon />
                         </TTIconButton>
@@ -297,13 +309,15 @@ const DayContent = ({
 
             {/* trip attraction orders */}
             <DayTimeline
+              trip={trip}
+              queryKey={queryKey}
               day={day}
               dayRoutes={mapRoutes?.at(i) ?? []}
               mapRouteTypes={mapRouteTypes?.at(i) ?? []}
               mapFocusState={mapFocusState}
               setMapFocusState={setMapFocusState}
               updateRoutes={updateRoutes}
-              setEditTao={setEditTao}
+              setEditTao={updateOpenEditTao}
             />
           </Grid>
         ))}
@@ -318,7 +332,7 @@ const DayContent = ({
           <Typography variant="h6" color="error">
             Are you sure you want to delete{" "}
             <strong>
-              Day {(TripUtils.getDayIndex(trip, deleteDay?.id ?? 0) ?? 0) + 1}{" "}
+              Day {(TripUtils.getDayIndexFromTrip(trip, deleteDay?.id ?? 0) ?? 0) + 1}{" "}
               {deleteDay?.name && `- ${deleteDay?.name}`}
             </strong>
             ?
@@ -362,6 +376,21 @@ const DayContent = ({
         errorParams={errorParams}
         onClose={clearDayForm}
         onConfirm={handleAddDay}
+      />
+
+      {/* tao editor */}
+      <TaoEditor
+        trip={trip}
+        day={onDay}
+        taoId={editTao}
+        taoOrder={editTaoOrder}
+        queryKey={queryKey}
+        title={`Day ${(TripUtils.getDayIndexFromTrip(trip, onDay?.id) ?? 0) + 1} ${
+          onDay?.name ? ` - ${onDay.name}` : ""
+        }`}
+        open={openEditTao}
+        handleClose={() => setOpenEditTao(false)}
+        render={renderRoutes}
       />
     </>
   );

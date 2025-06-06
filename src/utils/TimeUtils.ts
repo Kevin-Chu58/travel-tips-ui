@@ -49,21 +49,41 @@ const formatTimeDiff = (diff: number) => {
   return `${abs} ${unit} ${direction}`;
 };
 
+/** update useState related to time */
+
+const updateTimeByHour = (
+  hours: number,
+  time: number,
+  setTime: (state: number) => void
+) => {
+  let minutes = time % 60;
+  setTime(hours * 60 + minutes);
+};
+
+const updateTimeByMinute = (
+  minute: number,
+  time: number,
+  setTime: (state: number) => void
+) => {
+  let hours = Math.floor(time / 60);
+  setTime(hours * 60 + minute);
+};
+
 /** dayjs */
 
 const dayjsToString = (time: Dayjs | null) => {
-    // time might be undefined, which is caused by accessing start and end states
-    // before initEditDayForm() setups everything
-    return time?.format(HMS) ?? "";
-  };
+  // time might be undefined, which is caused by accessing start and end states
+  // before initEditDayForm() setups everything
+  return time?.format(HMS) ?? "";
+};
 
-  const stringToDayjs = (time: string) => {
-    return dayjs(time, HMS);
-  };
+const stringToDayjs = (time: string) => {
+  return dayjs(time, HMS);
+};
 
-  const formatTime = (time: string, ampm: boolean = true) => {
-    return dayjs(time, HM).format(ampm ? HMA : HM);
-  };
+const formatTime = (time: string, ampm: boolean = true) => {
+  return dayjs(time, HM).format(ampm ? HMA : HM);
+};
 
 const TimeUtils = {
   addMinutesToTime,
@@ -71,6 +91,9 @@ const TimeUtils = {
   secondToMinute,
   secondToMinuteStr,
   formatTimeDiff,
+  // update time useState
+  updateTimeByHour,
+  updateTimeByMinute,
   // dayjs
   dayjsToString,
   stringToDayjs,

@@ -39,6 +39,7 @@ type TripAttractionOrderPost = TripAttractionOrderBasic & {
 
 type TripAttractionOrderPatch = {
     dayId?: number;
+    order?: number;
     highlightId?: number;
     estimateTime?: number;
     estimateTravelTime?: number;
@@ -74,20 +75,24 @@ const getTaosByDayId = async (dayId: number, token: string): Promise<TripAttract
   return await http.get(http.apiBaseURLs.api, `tripAttractionOrders/${dayId}`, undefined, token);
 };
 
-const postNewTao = async (newTao: TripAttractionOrderPost, token: string): Promise<TripAttractionOrder> => {
+const postNewTao = async (newTao: TripAttractionOrderPost, token: string): Promise<TripAttractionOrder[]> => {
   const body = JSON.stringify(newTao);
   return await http.post(http.apiBaseURLs.api, "tripAttractionOrders", body, undefined, token);
 };
 
-const patchTao = async (id: number, tao: TripAttractionOrderPatch, token: string): Promise<TripAttractionOrder> => {
+const patchTao = async (id: number, tao: TripAttractionOrderPatch, token: string): Promise<TripAttractionOrder[]> => {
   const body = JSON.stringify(tao);
   return await http.patch(http.apiBaseURLs.api, `tripAttractionOrders/${id}`, body, undefined, token);
 };
 
-const patchTaoOrder = async (id: number, order: number, token: string): Promise<TripAttractionOrder> => {
-  const body = JSON.stringify(order);
-  return await http.patch(http.apiBaseURLs.api, `tripAttractionOrders/${id}/order`, body, undefined, token);
-};
+// const patchTaoOrder = async (id: number, order: number, token: string): Promise<TripAttractionOrder> => {
+//   const body = JSON.stringify(order);
+//   return await http.patch(http.apiBaseURLs.api, `tripAttractionOrders/${id}/order`, body, undefined, token);
+// };
+
+const deleteTao = async (id: number, token: string): Promise<TripAttractionOrder> => {
+  return await http.del(http.apiBaseURLs.api, `tripAttractionOrders/${id}`, undefined, undefined, token);
+}
 
 export const daysService = {
     postNewDay,
@@ -96,5 +101,6 @@ export const daysService = {
     getTaosByDayId,
     postNewTao,
     patchTao,
-    patchTaoOrder,
+    // patchTaoOrder,
+    deleteTao,
 };

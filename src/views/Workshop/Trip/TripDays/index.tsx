@@ -22,9 +22,7 @@ import type {
   TaoRoutes,
 } from "@constants/Types";
 import IdentifierUtils from "@utils/IdentifierUtils";
-import RouteEditor from "@components/TaoEditor";
 import MapButtonGroup from "@components/ButtonGroup/MapButtonGroup";
-import TripUtils from "@utils/TripUtils";
 
 dayjs.extend(customParseFormat);
 
@@ -36,8 +34,6 @@ type TripDaysProps = {
 };
 
 const TripDays = ({ trip, token, queryKey, navTabValue }: TripDaysProps) => {
-  // open edit form
-  const [editTao, setEditTao] = useState<number | undefined>();
   // day focus
   const [onDay, setOnDay] = useState<Day | undefined>();
   // map view status
@@ -48,6 +44,7 @@ const TripDays = ({ trip, token, queryKey, navTabValue }: TripDaysProps) => {
   const [mapFocusState, setMapFocusState] = useState<OsmFocusState>({
     id: undefined,
     type: undefined,
+    order: undefined,
   });
   // mapping route
   const [mapRoutes, setMapRoutes] = useState<Route[][] | undefined>();
@@ -57,6 +54,8 @@ const TripDays = ({ trip, token, queryKey, navTabValue }: TripDaysProps) => {
   const [routes, setRoutes] = useState<RouteRoutes | undefined>();
   // day content highlight
   const [isUpdated, setIsUpdated] = useState<boolean>(false);
+  // update when Tao updates
+  const [isTaoUpdated, setIsTaoUpdated] = useState<boolean>(false);
 
   /** useEffect */
 
@@ -73,6 +72,7 @@ const TripDays = ({ trip, token, queryKey, navTabValue }: TripDaysProps) => {
           label: tao.attraction!.name,
           osmId: tao.attraction!.osmId,
           osmType: tao.attraction!.osmType,
+          order: tao.order,
         })) ?? [];
 
       _markers.push({ dayId: day.id, markers: markers });
@@ -96,20 +96,22 @@ const TripDays = ({ trip, token, queryKey, navTabValue }: TripDaysProps) => {
   // rerender on isUpdated to update day-content scrollbar position
   useEffect(() => {
     if (mapFocusState.id) {
-      let container = document.getElementById("day-content");
-      let target = document.getElementById(
-        IdentifierUtils.getTaoTimelineItemId(
-          mapFocusState.id,
-          mapFocusState.type
-        )
-      );
+      requestAnimationFrame(() => {
+        let container = document.getElementById("day-content");
+        let target = document.getElementById(
+          IdentifierUtils.getTaoTimelineItemId(
+            mapFocusState.id,
+            mapFocusState.type
+          )
+        );
 
-      if (container && target) {
-        container.scrollTo({
-          top: target.offsetTop - container.offsetTop - Headers,
-          behavior: "smooth",
-        });
-      }
+        if (container && target) {
+          container.scrollTo({
+            top: target.offsetTop - container.offsetTop,
+            behavior: "smooth",
+          });
+        }
+      })
     }
   }, [isUpdated]);
 
@@ -118,7 +120,7 @@ const TripDays = ({ trip, token, queryKey, navTabValue }: TripDaysProps) => {
   // rerender on markers to init routes if not already
   useEffect(() => {
     initRoutes();
-  }, [markers]);
+  }, [markers, isTaoUpdated]);
 
   // rerender on mapRouteTypes to update the mapRoute coords
   useEffect(() => {
@@ -137,7 +139,7 @@ const TripDays = ({ trip, token, queryKey, navTabValue }: TripDaysProps) => {
   }, [mapRouteTypes]);
 
   const initRoutes = async () => {
-    if (markers && !routes) {
+    if (markers) {
       // initate the Route coordinates into routes
       // also inite the map route types from the routes
       let mapRouteTypes: string[][] = [];
@@ -298,7 +300,7 @@ const TripDays = ({ trip, token, queryKey, navTabValue }: TripDaysProps) => {
           mapFocusState={mapFocusState}
           setMapFocusState={setMapFocusState}
           updateRoutes={updateRoutes}
-          setEditTao={setEditTao}
+          renderRoutes={() => setIsTaoUpdated((prev) => !prev)}
         />
       </Grid>
 
@@ -316,6 +318,7 @@ const TripDays = ({ trip, token, queryKey, navTabValue }: TripDaysProps) => {
           onDay={onDay?.id}
           focusId={mapFocusState.id}
           focusType={mapFocusState.type}
+          focusOrder={mapFocusState.order}
           focusRoute={mapView === "route"}
           setFocusState={setMapFocusState}
           setIsParentUpdated={() => setIsUpdated((prev) => !prev)}
@@ -331,15 +334,6 @@ const TripDays = ({ trip, token, queryKey, navTabValue }: TripDaysProps) => {
           right={10}
         />
       </Grid>
-
-      {/* route editor */}
-      <RouteEditor
-        day={onDay}
-        taoId={editTao}
-        title={`Day ${(TripUtils.getDayIndex(trip, onDay?.id) ?? 0) + 1} ${onDay?.name ? ` - ${onDay.name}` : ""}`}
-        open={Boolean(editTao)}
-        handleClose={() => setEditTao(undefined)}
-      />
     </Grid>
   );
 };

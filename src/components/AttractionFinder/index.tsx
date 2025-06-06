@@ -40,14 +40,18 @@ const AttractionFinder = ({
   const [search, setSearch] = useState<string>("");
   const [lastSearch, setLastSearch] = useState<string>("");
   const [result, setResult] = useState<OsmEntity[]>([]); // result from osm api
+  // open form status
+  const [openHighlight, setOpenHighlight] = useState<boolean>(false);
+  const [openEditAttraction, setOpenEditAttraction] = useState<boolean>(false);
   // choose osm and attraction
   const [osmIdFocus, setOsmIdFocus] = useState<number | undefined>(); // focused osm id
   const [osmTypeFocus, setOsmTypeFocus] = useState<OsmType | undefined>(); // focused osm type
   const [attractionResult, setAttractionResult] = useState<Attraction[]>([]); // attractions available of the focused osm id
-  const [attractionFocus, setAttractionFocus] = useState<Attraction | undefined>(); // focused attraction
+  const [attractionFocus, setAttractionFocus] = useState<
+    Attraction | undefined
+  >(); // focused attraction
   const [isUpdated, setIsUpdated] = useState<boolean>(false);
   // edit attraction
-  const [openEditAttraction, setOpenEditAttraction] = useState<boolean>(false);
   const [description, setDescription] = useState<string>("");
 
   // rerender on osmIdFocus for highlight results
@@ -55,11 +59,10 @@ const AttractionFinder = ({
     const initAttractionResult = async () => {
       if (osmIdFocus) {
         const attraction = result.find((a) => a.osm_id === osmIdFocus);
-        const highlightSearch =
-          await attractionsService.getHighlightsByParams(
-            undefined,
-            attraction!.osm_id
-          );
+        const highlightSearch = await attractionsService.getHighlightsByParams(
+          undefined,
+          attraction!.osm_id
+        );
         setAttractionResult(highlightSearch.attractions);
       }
     };
@@ -96,6 +99,7 @@ const AttractionFinder = ({
       setResult(filterResult(searchResult));
       setLastSearch(search);
       clearEditAttraction();
+      setOpenHighlight(false);
     }
   };
 
@@ -109,6 +113,7 @@ const AttractionFinder = ({
     clearEditAttraction();
     setOsmIdFocus(osmId);
     setOsmTypeFocus(osmType);
+    setOpenHighlight(true);
   };
 
   const handleFocusAttraction = async (attraction: Attraction | undefined) => {
@@ -127,15 +132,15 @@ const AttractionFinder = ({
   };
 
   const markers = useMemo(() => {
-  return result.map((r) => ({
-    lat: parseFloat(r.lat),
-    lng: parseFloat(r.lon),
-    label: r.name,
-    osmId: r.osm_id,
-    osmType: r.osm_type,
-    zoom: r.place_rank,
-  }));
-}, [result]);
+    return result.map((r) => ({
+      lat: parseFloat(r.lat),
+      lng: parseFloat(r.lon),
+      label: r.name,
+      osmId: r.osm_id,
+      osmType: r.osm_type,
+      zoom: r.place_rank,
+    }));
+  }, [result]);
 
   // add/edit attraction
 
@@ -304,11 +309,11 @@ const AttractionFinder = ({
               markers={markers}
               focusId={osmIdFocus}
               focusType={osmTypeFocus}
-              correctionBias={4}
+              correctionBias={4.5}
               correctionZoom={-1}
               updateOnMarkerFocus
             />
-            {osmIdFocus && (
+            {osmIdFocus && openHighlight && (
               <Grid
                 size={12}
                 position="absolute"
@@ -325,10 +330,22 @@ const AttractionFinder = ({
                   boxShadow: "inherit",
                 }}
               >
-                <Grid container size={12} p={1} px={3} mb={-2} alignItems="center">
+                <Grid
+                  container
+                  size={12}
+                  p={1}
+                  px={3}
+                  mb={-2}
+                  alignItems="center"
+                >
                   <Typography fontWeight="bold">Choose a Highlight</Typography>
-                  <IconButton sx={{ml: "auto"}} onClick={() => {setOsmIdFocus(undefined), setOsmTypeFocus(undefined)}}>
-                    <CloseIcon/>
+                  <IconButton
+                    sx={{ ml: "auto" }}
+                    onClick={() => {
+                      setOpenHighlight(false);
+                    }}
+                  >
+                    <CloseIcon />
                   </IconButton>
                 </Grid>
 
@@ -415,7 +432,6 @@ const AttractionFinder = ({
                           <Grid
                             key={`attraction-finder-attraction-result-${i}`}
                             size={12}
-                            maxHeight={60}
                             p={0.5}
                             onClick={() => handleFocusAttraction(a)}
                             color={
@@ -447,19 +463,15 @@ const AttractionFinder = ({
                         <Grid
                           size={12}
                           p={0.5}
-                          onClick={() =>
-                            handleFocusAttraction(undefined)
-                          }
+                          onClick={() => handleFocusAttraction(undefined)}
                           sx={{ ":hover": { bgcolor: "primary.100" } }}
                         >
-                          <Grid container spacing={1}>
+                          <>
                             <Chip size="small" label="default" />
-                          </Grid>
-                          <Grid container spacing={1}>
                             <Typography>
                               {defualt_attraction_description}
                             </Typography>
-                          </Grid>
+                          </>
                         </Grid>
                       )}
                     </Grid>

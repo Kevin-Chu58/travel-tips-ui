@@ -1,12 +1,13 @@
 import TTChipButton from "@components/TTChipButton";
-import { Typography } from "@mui/material";
+import { Typography, type SxProps } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 
 type AddTaoButtonProps = {
     onClick: () => void;
+    sx?: SxProps;
 }
 
-const AddTaoButton = ({onClick}: AddTaoButtonProps) => {
+const AddTaoButton = ({onClick, sx}: AddTaoButtonProps) => {
     return (
         <TTChipButton
             onClick={onClick}
@@ -14,7 +15,8 @@ const AddTaoButton = ({onClick}: AddTaoButtonProps) => {
             label={<Typography>New Attraction</Typography>}
             sx={{
                 width: 200,
-                mx: "auto"
+                mx: "auto",
+                ...sx,
             }}
         />
     )

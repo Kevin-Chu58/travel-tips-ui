@@ -6,7 +6,16 @@ import {
   TimelineOppositeContent,
   TimelineSeparator,
 } from "@mui/lab";
-import { Box, Divider, Grid, List, ListItemButton, ListItemIcon, ListItemText, Typography } from "@mui/material";
+import {
+  Box,
+  Divider,
+  Grid,
+  List,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Typography,
+} from "@mui/material";
 import type { Day, TripAttractionOrder } from "@services/days";
 import { useEffect, useState } from "react";
 import type { MapRouteType } from "@constants/Maps";
@@ -21,11 +30,17 @@ import TimeUtils from "@utils/TimeUtils";
 import { getHex } from "@constants/Colors";
 import DistanceUtils from "@utils/DistanceUtils";
 import TTButtonGroup from "@components/TTButtonGroup";
-import type { OsmFocusState, Route } from "@constants/Types";
+import type { OsmFocusState, Route, TaoId } from "@constants/Types";
 import TTCard from "@components/TTCard";
 import type { RouteOptionParams } from "@constants/Types";
 import IdentifierUtils from "@utils/IdentifierUtils";
 import NonBlockingPopover from "@components/Popover/NonBlockingPopover";
+import TripUtils from "@utils/TripUtils";
+import AddTaoButton from "../../AddTaoButton";
+import { useTaoMutations } from "@react-queries/useTaoQueriers";
+import { useSelector } from "react-redux";
+import type { RootState } from "@redux/store";
+import type { TripDetail } from "@services/trips";
 
 const routeOptions: RouteOptionParams[] = [
   {
@@ -51,6 +66,8 @@ const routeOptions: RouteOptionParams[] = [
 ];
 
 type DayTimelineItemProps = {
+  trip?: TripDetail;
+  queryKey: (string | undefined)[];
   day: Day;
   tao: TripAttractionOrder;
   route?: Route;
@@ -65,14 +82,16 @@ type DayTimelineItemProps = {
     type: MapRouteType,
     coords: [number, number][]
   ) => void;
-  setEditTao: (state: number) => void;
+  setEditTao: (state: number | undefined, order?: number) => void;
 };
 
 const DayTimelineItem = ({
+  trip,
   day,
   tao,
   route,
   i,
+  queryKey,
   acummulatedTimes,
   mapRouteType,
   setAcummulatedTimes,
@@ -85,6 +104,16 @@ const DayTimelineItem = ({
   const [cummulatedTime, setCummulatedTime] = useState<string>();
   const [minDiff, setMinDiff] = useState<number | undefined>();
   const [nextTao, setNextTao] = useState<TripAttractionOrder | undefined>();
+  const [isUpdated, setIsUpdated] = useState<boolean>(false);
+  // others
+  const token = useSelector((state: RootState) => state.auth.accessToken);
+
+  const { mutationRemoveTao } = useTaoMutations({
+      trip,
+      token,
+      editDay: day?.id,
+      queryKey,
+    });
 
   const updateTaoRoutes = (type: MapRouteType) => {
     if (nextTao) {
@@ -95,6 +124,11 @@ const DayTimelineItem = ({
       updateRoutes(tao.id, type, coords);
     }
   };
+
+  // rerender on certain add or edit updates to the trip
+  useEffect(() => {
+    setIsUpdated(prev => !prev);
+  }, [day.start, day.end, tao.estimateTime, tao.estimateTravelTime]);
 
   // rerender on day to setup the next tao;
   useEffect(() => {
@@ -123,14 +157,18 @@ const DayTimelineItem = ({
     }
   }, [acummulatedTimes]);
 
-  // rerender on route to update minute difference between expected and estimated travel time
+  // rerender on route duration to update minute difference between expected and estimated travel time
   useEffect(() => {
     if (route) {
       setMinDiff(
         TimeUtils.secondToMinute(route.duration!) - tao.estimateTravelTime
       );
     }
-  }, [route]);
+  }, [route, isUpdated]);
+
+  const handleDeleteRoute = async () => {
+    mutationRemoveTao.mutate({id: tao.id} as TaoId);
+  }
 
   /** route buttons */
   const [routeButtons, setRouteButtons] = useState<RouteOptionParams[]>([]);
@@ -149,210 +187,241 @@ const DayTimelineItem = ({
     setRouteButtons(_routeButtons);
   };
 
-  const isTaoFocused = () => {
+  const TimelineItemBase = () => {
     return (
-      tao.attraction?.osmId === mapFocusState?.id &&
-      tao.attraction?.osmType === mapFocusState?.type
+      <TimelineItem
+        key={tao.id}
+        sx={{
+          mr: "auto",
+          py: 2,
+          width: "100%",
+          position: "relative",
+          borderRadius: 5,
+          ...(TripUtils.isTaoFocused(tao, mapFocusState)
+            ? {
+                bgcolor: "secondary.100",
+                ".MuiTimelineDot-filled, .MuiTimelineConnector-root": {
+                  bgcolor: "primary.main",
+                },
+              }
+            : {}),
+        }}
+      >
+        <TimelineOppositeContent>
+          {cummulatedTime && TimeUtils.formatTime(cummulatedTime)}
+        </TimelineOppositeContent>
+        <TimelineSeparator>
+          <TimelineDot />
+          {i < day.tripAttractionOrders!.length - 1 && <TimelineConnector />}
+        </TimelineSeparator>
+        <TimelineContent flexGrow={1} mb={2} sx={{ minWidth: "75%" }}>
+          <Grid size={12} spacing={1}>
+            {/* name */}
+            <Typography fontWeight="bold">{tao.attraction?.name}</Typography>
+            {TripUtils.isTaoFocused(tao, mapFocusState) && (
+              <Box sx={{ position: "absolute", top: 2, right: 2 }}>
+                <NonBlockingPopover>
+                  <List disablePadding>
+                    <ListItemButton
+                      disableRipple
+                      onClick={() => setEditTao(tao.id)}
+                    >
+                      <ListItemIcon>
+                        <EditIcon />
+                      </ListItemIcon>
+                      <ListItemText
+                        primary={<Typography variant="body1">Edit</Typography>}
+                      />
+                    </ListItemButton>
+                    <ListItemButton 
+                      disableRipple
+                      onClick={handleDeleteRoute}
+                    >
+                      <ListItemIcon>
+                        <DeleteIcon />
+                      </ListItemIcon>
+                      <ListItemText
+                        primary={
+                          <Typography variant="body1">Delete</Typography>
+                        }
+                      />
+                    </ListItemButton>
+                  </List>
+                </NonBlockingPopover>
+              </Box>
+            )}
+
+            {/* tags */}
+            <Grid container size={12} py={0.5}>
+              <Grid>
+                <Typography variant="body2" color="primary" fontWeight="bold">
+                  Duration
+                </Typography>
+              </Grid>
+              <Divider
+                orientation="vertical"
+                flexItem
+                sx={{ mx: 1, my: 0.4, width: 2, bgcolor: "primary.main" }}
+              />
+              <Grid>
+                <Typography variant="body2" color="primary" fontWeight="bold">
+                  {TimeUtils.formatMinutes(tao.estimateTime)}
+                </Typography>
+              </Grid>
+            </Grid>
+
+            {/* address */}
+            <Typography variant="body2">{tao.attraction?.address}</Typography>
+
+            {/* highlight */}
+            {tao.attraction?.description && (
+              <TTCard bgcolor="lightsalmon" title="Highlight">
+                <Typography color="white" variant="body2">
+                  {tao.attraction?.description}
+                </Typography>
+              </TTCard>
+            )}
+
+            {/* routes */}
+            {i < day.tripAttractionOrders!.length - 1 && (
+              <TTCard
+                bgcolor="steelblue"
+                darkBg={true}
+                icon={
+                  <DirectionsIcon
+                    sx={{ width: 20, height: 20, color: "white" }}
+                  />
+                }
+                title="To Next Attraction"
+              >
+                <Grid size={12} mt={1}>
+                  <TTButtonGroup
+                    items={routeButtons}
+                    focus={routeType}
+                    focusParam="routeType"
+                    onClick={updateTaoRoutes}
+                  />
+                </Grid>
+
+                <Grid container size={12}>
+                  {route && minDiff && (
+                    <>
+                      <Grid size={6}>
+                        <Typography variant="body2" color="white">
+                          Distance:
+                        </Typography>
+                      </Grid>
+                      <Grid container size={6} spacing={1}>
+                        <Box>
+                          <Typography variant="body2" color="white">
+                            {DistanceUtils.meterToKm(route.distance!)}
+                          </Typography>
+                        </Box>
+                        <Box>
+                          <Typography
+                            variant="body2"
+                            color="white"
+                            px={1}
+                            borderRadius={20}
+                            fontWeight="bold"
+                            bgcolor={getHex("dimgray")}
+                          >
+                            {routeType ?? "- - - - - -"}
+                          </Typography>
+                        </Box>
+                      </Grid>
+                      <Grid size={6}>
+                        <Typography variant="body2" color="white">
+                          Expected Time:
+                        </Typography>
+                      </Grid>
+                      <Grid size={6}>
+                        <Typography variant="body2" color="white">
+                          {TimeUtils.formatMinutes(tao.estimateTravelTime)}
+                        </Typography>
+                      </Grid>
+                      <Grid size={6}>
+                        <Typography variant="body2" color="white">
+                          Estimated Time:
+                        </Typography>
+                      </Grid>
+                      <Grid container size={6} spacing={1}>
+                        <Box>
+                          <Typography variant="body2" color="white">
+                            {TimeUtils.secondToMinuteStr(route.duration!)}
+                          </Typography>
+                        </Box>
+                        <Box>
+                          <Typography
+                            variant="body2"
+                            fontWeight="bold"
+                            color="white"
+                            px={1}
+                            borderRadius={20}
+                            bgcolor={
+                              minDiff > 0
+                                ? getHex("darkred")
+                                : getHex("darkgreen")
+                            }
+                          >
+                            {TimeUtils.formatTimeDiff(minDiff)}
+                          </Typography>
+                        </Box>
+                      </Grid>
+                    </>
+                  )}
+                </Grid>
+              </TTCard>
+            )}
+          </Grid>
+        </TimelineContent>
+      </TimelineItem>
     );
   };
 
   return (
-    <TimelineItem
-      key={tao.id}
+    <Box
       id={IdentifierUtils.getTaoTimelineItemId(
         tao.attraction?.osmId,
         tao.attraction?.osmType
       )}
+      m={0}
+      p={0}
+      sx={{  
+        position: "relative",
+        height: "100%",
+      }}
       onMouseEnter={() => {
         setMapFocusState({
           id: tao.attraction?.osmId,
           type: tao.attraction?.osmType,
+          order: tao.order,
         });
       }}
       onMouseLeave={() => {
         setMapFocusState({
           id: undefined,
           type: undefined,
+          order: undefined,
         });
       }}
-      sx={{
-        py: 1,
-        borderRadius: 5,
-        ...(isTaoFocused()
-          ? {
-              bgcolor: "secondary.100",
-              ".MuiTimelineDot-filled, .MuiTimelineConnector-root": {
-                bgcolor: "primary.main",
-              },
-            }
-          : {}),
-      }}
     >
-      <TimelineOppositeContent>
-        {cummulatedTime && TimeUtils.formatTime(cummulatedTime)}
-      </TimelineOppositeContent>
-      <TimelineSeparator>
-        <TimelineDot />
-        {i < day.tripAttractionOrders!.length - 1 && <TimelineConnector />}
-      </TimelineSeparator>
-      <TimelineContent flexGrow={1} mb={2} sx={{ minWidth: "75%" }}>
-        <Grid size={12} spacing={1}>
-          {/* name */}
-          <Typography fontWeight="bold">{tao.attraction?.name}</Typography>
-          {isTaoFocused() && (
-            <Box sx={{ position: "absolute", top: 2, right: 2 }}>
-              <NonBlockingPopover>
-                <List disablePadding>
-                  <ListItemButton disableRipple onClick={() => setEditTao(tao.id)}>
-                    <ListItemIcon>
-                      <EditIcon/>
-                    </ListItemIcon>
-                    <ListItemText primary={
-                      <Typography variant="body1">
-                        Edit
-                      </Typography>
-                    } />
-                  </ListItemButton>
-                  <ListItemButton disableRipple>
-                    <ListItemIcon>
-                      <DeleteIcon/>
-                    </ListItemIcon>
-                    <ListItemText primary={
-                      <Typography variant="body1">
-                        Delete
-                      </Typography>
-                    } />
-                  </ListItemButton>
-                </List>
-              </NonBlockingPopover>
-            </Box>
-          )}
-
-          {/* tags */}
-          <Grid container size={12} py={0.5}>
-            <Grid>
-              <Typography variant="body2" color="primary" fontWeight="bold">
-                Duration
-              </Typography>
-            </Grid>
-            <Divider
-              orientation="vertical"
-              flexItem
-              sx={{ mx: 1, my: 0.4, width: 2, bgcolor: "primary.main" }}
-            />
-            <Grid>
-              <Typography variant="body2" color="primary" fontWeight="bold">
-                {TimeUtils.formatMinutes(tao.estimateTime)}
-              </Typography>
-            </Grid>
-          </Grid>
-
-          {/* address */}
-          <Typography variant="body2">{tao.attraction?.address}</Typography>
-
-          {/* highlight */}
-          {tao.attraction?.description && (
-            <TTCard bgcolor="lightsalmon" title="Highlight">
-              <Typography color="white" variant="body2">
-                {tao.attraction?.description}
-              </Typography>
-            </TTCard>
-          )}
-
-          {/* routes */}
-          {i < day.tripAttractionOrders!.length - 1 && (
-            <TTCard
-              bgcolor="steelblue"
-              darkBg={true}
-              icon={
-                <DirectionsIcon
-                  sx={{ width: 20, height: 20, color: "white" }}
-                />
-              }
-              title="To Next Attraction"
-            >
-              <Grid size={12} mt={1}>
-                <TTButtonGroup
-                  items={routeButtons}
-                  focus={routeType}
-                  focusParam="routeType"
-                  onClick={updateTaoRoutes}
-                />
-              </Grid>
-
-              <Grid container size={12}>
-                {route && minDiff && (
-                  <>
-                    <Grid size={6}>
-                      <Typography variant="body2" color="white">
-                        Distance:
-                      </Typography>
-                    </Grid>
-                    <Grid container size={6} spacing={1}>
-                      <Box>
-                        <Typography variant="body2" color="white">
-                          {DistanceUtils.meterToKm(route.distance!)}
-                        </Typography>
-                      </Box>
-                      <Box>
-                        <Typography
-                          variant="body2"
-                          color="white"
-                          px={1}
-                          borderRadius={20}
-                          fontWeight="bold"
-                          bgcolor={getHex("dimgray")}
-                        >
-                          {routeType ?? "- - - - - -"}
-                        </Typography>
-                      </Box>
-                    </Grid>
-                    <Grid size={6}>
-                      <Typography variant="body2" color="white">
-                        Expected Time:
-                      </Typography>
-                    </Grid>
-                    <Grid size={6}>
-                      <Typography variant="body2" color="white">
-                        {TimeUtils.formatMinutes(tao.estimateTravelTime)}
-                      </Typography>
-                    </Grid>
-                    <Grid size={6}>
-                      <Typography variant="body2" color="white">
-                        Estimated Time:
-                      </Typography>
-                    </Grid>
-                    <Grid container size={6} spacing={1}>
-                      <Box>
-                        <Typography variant="body2" color="white">
-                          {TimeUtils.secondToMinuteStr(route.duration!)}
-                        </Typography>
-                      </Box>
-                      <Box>
-                        <Typography
-                          variant="body2"
-                          fontWeight="bold"
-                          color="white"
-                          px={1}
-                          borderRadius={20}
-                          bgcolor={
-                            minDiff > 0
-                              ? getHex("darkred")
-                              : getHex("darkgreen")
-                          }
-                        >
-                          {TimeUtils.formatTimeDiff(minDiff)}
-                        </Typography>
-                      </Box>
-                    </Grid>
-                  </>
-                )}
-              </Grid>
-            </TTCard>
-          )}
-        </Grid>
-      </TimelineContent>
-    </TimelineItem>
+      {TripUtils.isTaoFocused(tao, mapFocusState) ? (
+        <Box sx={{position: "relative"}} m={0} p={0} display="flex" justifyContent="center">
+          <AddTaoButton
+            onClick={() => setEditTao(undefined, i)}
+            sx={{ position: "absolute", top: -16, ml: "auto", zIndex: 10 }}
+          />
+          <TimelineItemBase/>
+          <AddTaoButton
+            onClick={() => setEditTao(undefined, i+1)}
+            sx={{ position: "absolute", bottom: -16, zIndex: 10 }}
+          />
+        </Box>
+      ) : (
+        <TimelineItemBase/>
+      )}
+    </Box>
   );
 };
 

@@ -1,24 +1,30 @@
 import Map from "@components/Map";
 import {
+  Autocomplete,
   Checkbox,
   Divider,
   FormControlLabel,
   Grid,
+  TextField,
   Typography,
 } from "@mui/material";
 import type { TripAttractionOrder } from "@services/days";
 import AddIcon from "@mui/icons-material/Add";
 import { useState } from "react";
 import TTChipButton from "@components/TTChipButton";
+import { HOURS, MINUTES } from "@constants/Times";
+import TimeUtils from "@utils/TimeUtils";
 
 type RoutePanelProps = {
   tao: TripAttractionOrder | undefined;
+  time: number;
+  setTime: (state: number) => void;
   setTao: (state: TripAttractionOrder | undefined) => void;
 };
 
 // TODO - custom prefer route and map indication
 
-const RoutePanel = ({ tao, setTao }: RoutePanelProps) => {
+const RoutePanel = ({ tao, time, setTao, setTime }: RoutePanelProps) => {
   const [showCustomRoutes, setShowCustomRoutes] = useState<boolean>(false);
 
   const toggleIsDrive = () => {
@@ -94,8 +100,47 @@ const RoutePanel = ({ tao, setTao }: RoutePanelProps) => {
           </Grid>
         </Grid>
 
+        {/* expected time */}
         <Grid size={12}>
           <Grid size={12}>
+            <Typography fontWeight="bold" color="primary.main">
+              Expected Time*
+            </Typography>
+          </Grid>
+          <Grid container direction="column" size={12} spacing={.5}>
+            <Grid container size={12} alignItems="center">
+              <Autocomplete
+                options={HOURS}
+                getOptionLabel={(option) => String(option)}
+                sx={{ width: 100 }}
+                size="small"
+                value={Math.floor(time / 60)}
+                onChange={(_, val) =>
+                  TimeUtils.updateTimeByHour(val ?? 0, time, setTime)
+                }
+                renderInput={(params) => <TextField {...params} />}
+              />
+              <Typography ml={2}>Hours</Typography>
+            </Grid>
+            <Grid container size={12} alignItems="center">
+              <Autocomplete
+                options={MINUTES}
+                getOptionLabel={(option) => String(option)}
+                sx={{ width: 100 }}
+                size="small"
+                value={time % 60}
+                onChange={(_, val) =>
+                  TimeUtils.updateTimeByMinute(val ?? 0, time, setTime)
+                }
+                renderInput={(params) => <TextField {...params} />}
+              />
+              <Typography ml={2}>Minutes</Typography>
+            </Grid>
+          </Grid>
+        </Grid>
+
+        <Grid size={12}>
+          <Grid size={12} mt={1}>
             <Divider textAlign="left">
               {!showCustomRoutes ? (
                 <TTChipButton
@@ -115,9 +160,9 @@ const RoutePanel = ({ tao, setTao }: RoutePanelProps) => {
       </Grid>
 
       {/* Right Panel */}
-        <Grid container size={8} direction="column" spacing={1}>
-          <Map height="100%" markers={[]} />
-        </Grid>
+      <Grid container size={8} direction="column" spacing={1}>
+        <Map height="100%" markers={[]} />
+      </Grid>
     </Grid>
   );
 };

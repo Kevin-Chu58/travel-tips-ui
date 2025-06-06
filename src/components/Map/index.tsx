@@ -20,6 +20,7 @@ type MapProps = {
   setIsParentUpdated?: () => void;
   focusId?: number | undefined;
   focusType?: OsmType | undefined;
+  focusOrder?: number | undefined;
   focusRoute?: boolean;
   setFocusState?: (mapFocusState: OsmFocusState) => void;
   setMapView?: (state: string) => void;
@@ -42,6 +43,7 @@ const Map = ({
   setIsParentUpdated = () => {},
   focusId = undefined,
   focusType = undefined,
+  focusOrder = undefined,
   focusRoute = false,
   setFocusState = () => {},
   setMapView = () => {},
@@ -72,9 +74,9 @@ const Map = ({
 
   // update on markers to update the overall map
   useEffect(() => {
-    if (markers.length > 0) {
-      setIsUpdated((prev) => !prev);
-    }
+    // if (markers.length > 0) {
+    setIsUpdated((prev) => !prev);
+    // }
   }, [markers]);
 
   // update on id, type, route to update the overall map
@@ -85,12 +87,11 @@ const Map = ({
     } else {
       setIsUpdated((prev) => !prev);
     }
-  }, [focusId, focusType, focusRoute]);
+  }, [focusId, focusType, focusOrder, focusRoute]);
 
   // rerender route coordinates on osrmRoute
   useEffect(() => {
     if (mapRoutes.length > 0) {
-      // console.log(mapRoutes);
       const routeCoords = mapRoutes.map((dayRoutes) =>
         dayRoutes.map((taoRoute) => taoRoute?.coords ?? [])
       );
@@ -165,6 +166,7 @@ const Map = ({
           setFocusState({
             id: marker?.osmId,
             type: marker?.osmType,
+            order: marker?.order,
           });
           setMapView("route");
           setIsParentUpdated();
@@ -178,30 +180,37 @@ const Map = ({
       })
     );
 
-    let isPolyBoundInvalid =
-      polyBound === undefined || !(polyBound as L.LatLngBounds).isValid();
+    if (focusOnRoute) {
+      let isPolyBoundInvalid =
+        polyBound === undefined || !(polyBound as L.LatLngBounds).isValid();
 
-    let bounds =
-      focusOnRoute && !isPolyBoundInvalid
+      let bounds = !isPolyBoundInvalid
         ? (polyBound! as L.LatLngBounds)
         : L.latLngBounds(markers.map((m) => [m.lat, m.lng]));
-    if (bounds.isValid())
-      mapInstanceRef.current?.fitBounds(bounds, { padding: [70, 70] });
+      if (bounds.isValid()) {
+        mapInstanceRef.current?.fitBounds(bounds, { padding: [70, 70] });
+      }
+    }
   };
 
   const setMarkers = () => {
-    const maxZoom = mapInstanceRef.current!.getMaxZoom();
+    let isFocusFound = false;
 
     // remove old markers
     markersRef.current.forEach((m) => mapInstanceRef.current!.removeLayer(m));
     markersRef.current = [];
 
+    // calculate the fitting zoom level according to the bounds
+    const bounds = L.latLngBounds(markers.map((m) => [m.lat, m.lng]));
+    const boundsZoom =
+      markers.length > 0
+        ? mapInstanceRef.current?.getBoundsZoom(bounds)
+        : mapInstanceRef.current?.getZoom();
+
     markers.forEach((marker, i) => {
-      let zoom = Math.min(
-        marker.zoom ?? mapInstanceRef.current!.getZoom(),
-        maxZoom
-      );
+      let zoom = boundsZoom!;
       let isFocus = marker.osmId === focusId && marker.osmType === focusType;
+      isFocusFound = isFocusFound || isFocus;
 
       let prevMarker = i > 0 ? markers[i - 1] : undefined;
       let isPrevFocus =
@@ -230,6 +239,7 @@ const Map = ({
         setFocusState({
           id: marker.osmId,
           type: marker.osmType,
+          order: marker.order,
         });
         setMapView("location");
         setIsParentUpdated();
@@ -256,16 +266,15 @@ const Map = ({
         );
         mapInstanceRef.current?.whenReady(() => {
           mapInstanceRef.current?.setView(
-          [marker.lat + markerBiased.lat, marker.lng + markerBiased.lng],
-          zoom + correctionZoom
-        );
-        })
+            [marker.lat + markerBiased.lat, marker.lng + markerBiased.lng],
+            zoom + correctionZoom
+          );
+        });
       }
     });
 
     // Optionally fit bounds to markers
-    if (!focusId && markers.length > 0) {
-      const bounds = L.latLngBounds(markers.map((m) => [m.lat, m.lng]));
+    if (!isFocusFound && markers.length > 0) {
       mapInstanceRef.current?.fitBounds(bounds, { padding: [20, 20] });
     }
   };

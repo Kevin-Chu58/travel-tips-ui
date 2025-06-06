@@ -29,6 +29,19 @@ export type DayMarkers = {
   markers: Marker[];
 };
 
+// tao
+export type TaoId = { id?: number };
+
+export type TaoParams = TaoId & {
+  order: number;
+  highlightId: number;
+  estimateTime: number;
+  estimateTravelTime: number;
+  isDrivePreferred: boolean;
+  isBikePreferred: boolean;
+  isOnFootPreferred: boolean;
+};
+
 // route
 export type RouteOptionParams = {
   name: string;
@@ -65,11 +78,13 @@ export type Marker = {
   osmId: number;
   osmType: OsmType;
   zoom?: number;
+  order?: number;
 };
 
 export type OsmFocusState = {
   id: number | undefined;
   type: OsmType | undefined;
+  order: number | undefined;
 };
 
 export type MapView = {

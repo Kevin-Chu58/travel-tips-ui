@@ -14,6 +14,7 @@ import {
 } from "@mui/material";
 import type { Attraction } from "@services/attractions";
 import type { TripAttractionOrder } from "@services/days";
+import TimeUtils from "@utils/TimeUtils";
 import { useState } from "react";
 
 type AttracitonPanelProps = {
@@ -35,17 +36,6 @@ const AttractionPanel = ({
 }: AttracitonPanelProps) => {
   // open form status
   const [openAttraction, setOpenAttraction] = useState<boolean>(false);
-
-  const updateTimeByHour = (hours: number) => {
-    let minutes = time % 60;
-    setTime(hours * 60 + minutes);
-  };
-
-  const updateTimeByMinute = (minute: number) => {
-    let hours = Math.floor(time / 60);
-    setTime(hours * 60 + minute);
-  };
-
   return (
     <Grid container size={12} direction="row" flexGrow={1} maxHeight="68.5vh">
       {/* Left Panel */}
@@ -98,9 +88,10 @@ const AttractionPanel = ({
               setItems={setTaos}
               modifiers={[restrictToParentElement]}
             >
-              {taos?.map((_tao, i) => (
-                <DraggableItem
-                  key={_tao.id}
+              {taos?.map((_tao, i) => {
+                return (
+                  <DraggableItem
+                  key={`drag-item-${_tao.id}`}
                   id={_tao.id}
                   enableDrag={_tao.id === tao?.id}
                   sx={{ overflow: "hidden" }}
@@ -122,7 +113,8 @@ const AttractionPanel = ({
                     </Typography>
                   </Grid>
                 </DraggableItem>
-              ))}
+                )
+              })}
             </DraggableList>
           </Grid>
         </Box>
@@ -182,7 +174,7 @@ const AttractionPanel = ({
               sx={{ width: 100 }}
               size="small"
               value={Math.floor(time / 60)}
-              onChange={(_, val) => updateTimeByHour(val ?? 0)}
+              onChange={(_, val) => TimeUtils.updateTimeByHour(val ?? 0, time, setTime)}
               renderInput={(params) => <TextField {...params} />}
             />
             <Typography ml={2}>Hours</Typography>
@@ -192,7 +184,7 @@ const AttractionPanel = ({
               sx={{ width: 100, ml: 2 }}
               size="small"
               value={time % 60}
-              onChange={(_, val) => updateTimeByMinute(val ?? 0)}
+              onChange={(_, val) => TimeUtils.updateTimeByMinute(val ?? 0, time, setTime)}
               renderInput={(params) => <TextField {...params} />}
             />
             <Typography ml={2}>Minutes</Typography>

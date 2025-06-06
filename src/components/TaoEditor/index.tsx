@@ -1,118 +1,63 @@
-import Map from "@components/Map";
-import {
-  Autocomplete,
-  Box,
-  Button,
-  Checkbox,
-  Chip,
-  Dialog,
-  Divider,
-  FormControlLabel,
-  Grid,
-  IconButton,
-  List,
-  TextField,
-  Typography,
-} from "@mui/material";
-import type { TripDetail } from "@services/trips";
+import { Box, Dialog, Grid, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
-import {
-  daysService,
-  type Day,
-  type TripAttractionOrder,
-} from "@services/days";
-import DraggableList from "@components/DraggableList";
-import DraggableItem from "@components/DraggableItem";
-import { restrictToParentElement } from "@dnd-kit/modifiers";
-import AddIcon from "@mui/icons-material/Add";
-import AttractionFinder from "@components/AttractionFinder";
+import { type Day, type TripAttractionOrder } from "@services/days";
 import type { Attraction } from "@services/attractions";
-import ConditionalIconGroup from "@components/ButtonGroup/ConditionalSuccessButtonGroup";
+import ConditionalSuccessIconGroup from "@components/ButtonGroup/ConditionalSuccessButtonGroup";
 import TTTabs from "@components/TTTabs";
 import type { NavTab } from "@constants/Types";
-import { HOURS, MINUTES } from "@constants/Times";
 import AttractionPanel from "./AttractionPanel";
 import RoutePanel from "./RoutePanel";
+import { useSelector } from "react-redux";
+import type { RootState } from "@redux/store";
+import { useTaoMutations } from "@react-queries/useTaoQueriers";
+import type { TripDetail } from "@services/trips";
+import TripUtils from "@utils/TripUtils";
 
 type TaoEditorProps = {
+  trip: TripDetail | undefined;
   day: Day | undefined;
+  queryKey: (string | undefined)[];
   title: string;
-  taoId?: number;
+  taoId?: number; // undefined if add new Tao
   taoOrder?: number;
   open: boolean;
   handleClose: () => void;
+  render: () => void;
 };
 
 const TaoEditor = ({
+  trip,
   day,
+  queryKey,
   title,
   taoId,
   taoOrder,
   open,
   handleClose,
+  render,
 }: TaoEditorProps) => {
-  // const [isUpdated, setIsUpdated] = useState<boolean>(false);
   // const [editTao, setEditTao] = useState<number | undefined>(); // index of day in trip
   // const [day, setDay] = useState<Day | undefined>(); // day
-
+  // constants
+  const defaultTime = 30;
+  const defaultTravelTime = 60;
   // nav tab
   const [navTabValue, setNavTabValue] = useState<number>(0);
   // edit tao
   const [taos, setTaos] = useState<TripAttractionOrder[] | undefined>();
   const [tao, setTao] = useState<TripAttractionOrder | undefined>();
   // const [taoOrder, setTaoOrder] = useState<number>(Number.MAX_VALUE); // tao order
-  const [time, setTime] = useState<number>(30);
-  // const [travelTime, setTravelTime] = useState<number>(60);
+  const [time, setTime] = useState<number>(defaultTime);
+  const [travelTime, setTravelTime] = useState<number>(defaultTravelTime);
+  // others
+  const token = useSelector((state: RootState) => state.auth.accessToken);
 
-  // get attraction
-
-  // const [openAttraction, setOpenAttraction] = useState<boolean>(false);
-
-  // rerender on isUpdated to update the trip
-  // useEffect(() => {
-  //   render();
-  // }, [isUpdated]);
-
-  // rerender on tao attraction id change
-  // useEffect(() => {
-  //   if (tao?.attraction?.id) {
-  //     let taoIndex = taos?.findIndex((_tao) => _tao.id === tao.id);
-  //     let newTaos = taos;
-  //     newTaos![taoIndex!] = tao;
-  //     setTaos(newTaos);
-  //   }
-  // }, [tao?.attraction?.id]);
-
-  // rerender on time change to update estimate time on tao
-  // useEffect(() => {
-  //   setTao({ ...tao!, estimateTime: time });
-  // }, [time]);
-
-  // rerender on taoOrder change to update order on tao
-  // useEffect(() => {
-  //   setTao({ ...tao!, order: taoOrder });
-  // }, [taoOrder]);
-
-  // rerender the day in edit on editTao
-  // useEffect(() => {
-  //   const getDayInEdit = () => {
-  //     if (!taoId) {
-  //       const _day = trip?.days?.at(open!);
-  //       setDay(_day);
-  //       setTime(30);
-  //       setTao({ ...tao!, dayId: _day!.id });
-  //       // set the edit tao information
-  //       if (tao && taos && _day?.tripAttractionOrders) {
-  //         setTaos(_day?.tripAttractionOrders?.concat(taos));
-  //         setTaoOrder(taos.length + 1);
-  //         setShowCustomRoutes(tao.preferRoutes.length > 0);
-  //       }
-  //     } else {
-  //       setDay(undefined);
-  //     }
-  //   };
-  //   getDayInEdit();
-  // }, [taoId]);
+  const { mutationAddTao, mutationUpdateTao } = useTaoMutations({
+    trip,
+    token,
+    editDay: day?.id,
+    queryKey,
+  });
 
   // rerender taos and tao on opening this form
   useEffect(() => {
@@ -122,41 +67,84 @@ const TaoEditor = ({
         setTaos(day?.tripAttractionOrders);
         const tao = day?.tripAttractionOrders?.find((tao) => tao.id === taoId);
         setTao(tao);
+        setTime(tao!.estimateTime);
+        setTravelTime(tao!.estimateTravelTime);
       } else {
         // to add a new tao
-        // TODO
+        let newTao = {
+          dayId: day?.id,
+          order: taoOrder ?? 1,
+          highlightId: 0,
+          estimateTime: time,
+          estimateTravelTime: travelTime,
+          isDrivePreferred: true,
+          isBikePreferred: true,
+          isOnFootPreferred: true,
+          id: 0,
+          createdBy: trip?.createdBy,
+          preferRoutes: [],
+        } as TripAttractionOrder;
+
+        let _taos = [...(day?.tripAttractionOrders ?? [])];
+        _taos.splice(newTao.order, 0, newTao);
+        setTao(newTao);
+        setTaos(_taos);
       }
+      setNavTabValue(0);
     }
   }, [open]);
 
-  const handleToAddTao = (i: number) => {
-    let newTao = {
-      dayId: 0,
-      order: 1,
-      highlightId: 0,
-      // estimateTime: time,
-      // estimateTravelTime: travelTime,
-      isDrivePreferred: true,
-      isBikePreferred: true,
-      isOnFootPreferred: true,
-      id: 0,
-      createdBy: 0,
-      preferRoutes: [],
-    };
-    let newTaos = [newTao];
-    // setTao(newTao);
-    // setTaos(newTaos);
+  const handleAddTao = async () => {
+    if (isConditionMet()) {
+      mutationAddTao.mutate(getTaoInfo());
+      render();
+      handleClearForm();
+    }
   };
 
-  const handleAddTao = async () => {
-    let newTao = {
-      ...tao!,
-      highlightId: tao!.attraction!.id,
-    };
+  const handleUpdateTao = async () => {
+    if (isTaoUnchanged()) return;
 
-    // await daysService.postNewTao(newTao, token!);
-    // setIsUpdated((prev) => !prev);
+    if (isConditionMet()) {
+      mutationUpdateTao.mutate(getTaoInfo());
+      render();
+      handleClearForm();
+    }
+  };
+
+  const handleClearForm = () => {
+    setTime(defaultTime);
+    setTravelTime(defaultTravelTime);
     handleClose();
+  };
+
+  const getTaoInfo = () => {
+    return {
+      id: taoId,
+      order: TripUtils.getTaoIndex(taos, taoId ?? 0)! + 1,
+      highlightId: tao!.attraction!.id,
+      estimateTime: time,
+      estimateTravelTime: travelTime,
+      isDrivePreferred: tao!.isDrivePreferred,
+      isBikePreferred: tao!.isBikePreferred,
+      isOnFootPreferred: tao!.isOnFootPreferred,
+    };
+  };
+
+  const isTaoUnchanged = () => {
+    const _tao = TripUtils.getTaoFromDay(day, taoId);
+    const _taoIndex = TripUtils.getTaoIndexFromDay(day, taoId);
+    const taoIndex = TripUtils.getTaoIndex(taos, taoId);
+    return (
+      _taoIndex === taoIndex && // check the relative order of the tao
+      _tao?.attraction?.id === tao?.attraction?.id && // check highlight id
+      _tao?.estimateTime === time && // check time in attraction
+      _tao?.estimateTravelTime === travelTime && // check time in travel
+      _tao?.isDrivePreferred === tao?.isDrivePreferred &&
+      _tao?.isBikePreferred === tao?.isBikePreferred &&
+      _tao?.isOnFootPreferred === tao?.isOnFootPreferred
+      // TODO - check prefer routes
+    );
   };
 
   /**
@@ -172,11 +160,17 @@ const TaoEditor = ({
     return true;
   };
 
-  // edit tao
+  const isAddConditionMet = () => {
+    return tao?.attraction !== undefined && time > 0 && travelTime > 0;
+  };
 
-  // const isConditionMet = () => {
-  //   return tao?.attraction !== undefined && time > 0;
-  // };
+  const isUpdateConditionMet = () => {
+    return isAddConditionMet() && !isTaoUnchanged();
+  };
+
+  const isConditionMet = () => {
+    return taoId ? isUpdateConditionMet() : isAddConditionMet();
+  };
 
   const updateAttraction = (attraction: Attraction) => {
     setTao({
@@ -204,7 +198,12 @@ const TaoEditor = ({
   };
 
   return (
-    <Dialog open={Boolean(open)} onClose={handleClose} maxWidth="md" fullWidth>
+    <Dialog
+      open={Boolean(open)}
+      onClose={handleClearForm}
+      maxWidth="md"
+      fullWidth
+    >
       <Grid
         container
         minWidth="600px"
@@ -231,10 +230,10 @@ const TaoEditor = ({
               {title}
             </Typography>
             <Box sx={{ position: "absolute", right: 5 }}>
-              <ConditionalIconGroup
-                onClose={handleClose}
-                onConfirm={() => handleAddTao()}
-                // isConditionMet={isConditionMet()}
+              <ConditionalSuccessIconGroup
+                onClose={handleClearForm}
+                onConfirm={() => (taoId ? handleUpdateTao() : handleAddTao())}
+                isConditionMet={isConditionMet()}
               />
             </Box>
           </Box>
@@ -274,7 +273,14 @@ const TaoEditor = ({
           </Grid>
         )}
 
-        {navTabValue === 1 && <RoutePanel tao={tao} setTao={setTao} />}
+        {navTabValue === 1 && (
+          <RoutePanel
+            tao={tao}
+            time={travelTime}
+            setTao={setTao}
+            setTime={setTravelTime}
+          />
+        )}
       </Grid>
     </Dialog>
   );
