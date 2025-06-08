@@ -36,7 +36,8 @@ const SubHeaderBar = ({ items, showBack = true }: SubHeaderBarProps) => {
           pb: 0.5, 
           height: Layouts.SubHeader,
           "&.MuiContainer-root": {
-            background: StyleUtils.generateLinearGradientLighter(getHex("black")!, "0deg", 85),
+            // bgcolor: getHex("steelblue"),
+            background: StyleUtils.generateLinearGradientLighter(getHex("black")!, "24deg", 0, 40),
           }
         }}
       >

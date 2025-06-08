@@ -15,6 +15,12 @@ const addMinutesToTime = (timeStr: string, minutesToAdd: number) => {
   return `${newHours}:${newMinutes}`;
 };
 
+const formatDays = (totalDays: number) => {
+  if (totalDays === 0) return "no day available";
+  if (totalDays === 1) return "1 day";
+  return `${totalDays} days`;
+};
+
 const formatMinutes = (totalMinutes: number) => {
   const hours = Math.floor(totalMinutes / 60);
   const minutes = totalMinutes % 60;
@@ -87,6 +93,7 @@ const formatTime = (time: string, ampm: boolean = true) => {
 
 const TimeUtils = {
   addMinutesToTime,
+  formatDays,
   formatMinutes,
   secondToMinute,
   secondToMinuteStr,

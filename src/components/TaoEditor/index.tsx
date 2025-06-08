@@ -193,10 +193,6 @@ const TaoEditor = ({
     },
   ] as NavTab[];
 
-  const handleNavTabChange = (value: number) => {
-    setNavTabValue(value);
-  };
-
   return (
     <Dialog
       open={Boolean(open)}
@@ -247,7 +243,7 @@ const TaoEditor = ({
             <TTTabs
               navTabValue={navTabValue}
               navTabs={navTabs}
-              handleChange={handleNavTabChange}
+              setNavTabValue={setNavTabValue}
             />
           </Box>
         </Grid>

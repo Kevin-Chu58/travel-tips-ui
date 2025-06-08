@@ -59,10 +59,13 @@ const Search = ({
         onEnterDown={handleSearch}
       />
       <IconButton
+        size="small"
         onClick={handleSearch}
         sx={{
           ml: -1,
           color: color,
+          scale: 1.1,
+          borderWidth: 0,
           ":hover": {
             color: "primary.main",
           },

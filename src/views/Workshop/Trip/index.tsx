@@ -8,7 +8,7 @@ import type { RootState } from "@redux/store";
 import { tripsService } from "@services/trips";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { Route, Routes, useNavigate, useParams } from "react-router";
+import { Route, Routes, useParams } from "react-router";
 import EditIcon from "@mui/icons-material/Edit";
 import TextField from "@components/TextField";
 import TripMain from "./TripMain";
@@ -34,7 +34,6 @@ const Trip = () => {
   const token = useSelector((state: RootState) => state.auth.accessToken);
   const { tripId } = useParams();
   const queryClient = useQueryClient();
-  const navigate = useNavigate();
 
   /** query functions - trip and trip.name */
 
@@ -47,7 +46,7 @@ const Trip = () => {
     return await tripsService.patchTrip(Number(tripId), update, token!);
   };
 
-  const queryKey = ["trip", tripId];
+  let queryKey = ["trip", tripId];
 
   const { data: trip } = useQuery({
     queryKey: queryKey,
@@ -136,13 +135,6 @@ const Trip = () => {
     },
   ] as NavTab[];
 
-  const handleNavTabChange = (newValue: number) => {
-    setNavTabValue(newValue);
-    let navigateTo = navTabs[newValue].to;
-    if (navigateTo)
-      navigate(navigateTo);
-  };
-
   return (
     <Container
       maxWidth={false}
@@ -229,7 +221,7 @@ const Trip = () => {
                 <TTTabs
                   navTabValue={navTabValue}
                   navTabs={navTabs}
-                  handleChange={handleNavTabChange}
+                  setNavTabValue={setNavTabValue}
                 />
               </Box>
             </Grid>

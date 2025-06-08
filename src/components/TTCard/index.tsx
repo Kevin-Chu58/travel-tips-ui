@@ -1,5 +1,5 @@
 import { getHex } from "@constants/Colors";
-import { Grid, Typography } from "@mui/material";
+import { Grid, Typography, type SxProps } from "@mui/material";
 import StyleUtils from "@utils/StyleUtils";
 import type { ReactNode } from "react";
 
@@ -12,6 +12,7 @@ type TTCardProps = {
   direction?: 'row' | 'row-reverse' | 'column' | 'column-reverse';
   // creator?: UserInfo;  TODO - add creator later
   children?: ReactNode;
+  sx?: SxProps;
 };
 
 const TTCard = ({
@@ -22,6 +23,7 @@ const TTCard = ({
   icon,
   direction = "column",
   children,
+  sx,
 }: TTCardProps) => {
   return (
     <Grid
@@ -38,6 +40,7 @@ const TTCard = ({
         '& .MuiTypography-root': {
           color: color,
         },
+        ...sx,
       }}
     >
       {/* header */}

@@ -78,6 +78,7 @@ const TextField = ({
           sx={{
             ml: -3.5,
             mt: -1,
+            borderWidth: 0,
             cursor: isInputEmpty() ? "unset" : "pointer",
           }}
         >
@@ -87,7 +88,7 @@ const TextField = ({
               visibility: isInputEmpty() ? "hidden" : "visible",
               border: "1px solid transparent",
               borderRadius: 50,
-              scale: 0.8,
+              scale: 1.1,
               ":hover": {
                 bgcolor: getHex(color) + "33",
               },

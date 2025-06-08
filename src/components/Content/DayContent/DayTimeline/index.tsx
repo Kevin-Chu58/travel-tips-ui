@@ -71,7 +71,7 @@ const DayTimeline = ({
       }}
     >
       {!isTaosValid() ? (
-        <AddTaoButton onClick={() => {}} />
+        <AddTaoButton onClick={() => setEditTao(undefined, 0)} />
       ) : (
         day.tripAttractionOrders?.map((tao, i) => (
           <DayTimelineItem
