@@ -4,7 +4,7 @@ const theme = createTheme({
     typography: {
         fontFamily: [
             "noto serif",
-            "Arial",
+            "arial",
             "tagesschrift",
             "lily script one",
             "fascinate inline",

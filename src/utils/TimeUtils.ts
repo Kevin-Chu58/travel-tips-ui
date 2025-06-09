@@ -16,7 +16,7 @@ const addMinutesToTime = (timeStr: string, minutesToAdd: number) => {
 };
 
 const formatDays = (totalDays: number) => {
-  if (totalDays === 0) return "no day available";
+  if (totalDays === 0) return "no days available";
   if (totalDays === 1) return "1 day";
   return `${totalDays} days`;
 };

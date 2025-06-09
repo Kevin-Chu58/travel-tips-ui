@@ -1,3 +1,5 @@
+// gradient
+
 const generateLinearGradientLighter = (
   baseColor: string,
   direction: string = "20deg",
@@ -57,6 +59,7 @@ const generateLinearGradientDarker = (
 };
 
 const StyleUtils = {
+  // gradient
   generateLinearGradientLighter,
   generateLinearGradientDarker,
 };

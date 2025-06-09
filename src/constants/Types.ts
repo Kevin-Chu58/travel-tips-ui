@@ -12,6 +12,12 @@ export type NavTab = {
   condition?: (args: any[]) => boolean;
 };
 
+// sorting
+export type SortType = {
+  label: string;
+  function: (list: any[]) => any[];
+};
+
 // trip
 
 // day

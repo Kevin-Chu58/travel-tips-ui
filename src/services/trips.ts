@@ -17,6 +17,7 @@ export type Trip = TripPost & {
     createdAt: Date;
     lastUpdatedAt: Date;
     numDays?: number;
+    isPublic: boolean;
 };
 
 export type TripDetail = TripPost &  {
@@ -54,6 +55,11 @@ const patchTrip = async (id: number, trip: TripPatch, token: string): Promise<Tr
     return await http.patch(http.apiBaseURLs.api, `trips/${id}`, body, undefined, token);
 }
 
+const patchTripIsPublic = async (ids: number[], isPublic: boolean, token: string): Promise<number[]> => {
+    const body = JSON.stringify(ids);
+    return await http.patch(http.apiBaseURLs.api, `trips/isPublic/${isPublic}`, body, undefined, token);
+}
+
 const hideTrip = async (id: number, token: string): Promise<Trip> => {
     const body = JSON.stringify(true);
     return await http.patch(http.apiBaseURLs.api, `trips/${id}/isHidden`, body, undefined, token);
@@ -66,5 +72,6 @@ export const tripsService = {
     getMyTripById,
     postNewTrip,
     patchTrip,
+    patchTripIsPublic,
     hideTrip,
 };

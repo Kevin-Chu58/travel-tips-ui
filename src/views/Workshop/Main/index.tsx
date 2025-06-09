@@ -12,28 +12,31 @@ import { tripsService, type Trip } from "@services/trips";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import AddIcon from "@mui/icons-material/Add";
-import { useNavigate } from "react-router";
 import TextField from "@components/TextField";
 import TTTabs from "@components/TTTabs";
-import type { NavTab } from "@constants/Types";
+import type { NavTab, SortType } from "@constants/Types";
 import Layouts, { Headers, WorkshopToNavTab } from "@constants/Layouts";
-import TTCard from "@components/TTCard";
-import SortIcon from "@mui/icons-material/Sort";
-import FilterAltIcon from "@mui/icons-material/FilterAlt";
-import TimeUtils from "@utils/TimeUtils";
-import { getHex } from "@constants/Colors";
-import StyleUtils from "@utils/StyleUtils";
+import ListTool from "@components/ListTool";
+import TTTripCard from "@components/TTTripCard";
+import SortUtils from "@utils/SortUtils";
 
 const Main = () => {
-  const token = useSelector((state: RootState) => state.auth.accessToken);
+  // basic strcutures
   const [navTabValue, setNavTabValue] = useState<number>(0);
   const [isUpdated, setIsUpdated] = useState<boolean>(false);
+  // items
   const [trips, setTrips] = useState<Trip[]>([]);
+  // open form status
   const [isOpen, setisOpen] = useState<boolean>(false);
+  // new trip attributes
   const [name, setName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [errorParams, setErrorParams] = useState<string[]>([]);
-  const navigate = useNavigate();
+  // tool values
+  const [sortTypeIndex, setSortTypeIndex] = useState<number>(0);
+  const [selected, setSelected] = useState<number[]>([]);
+  // others
+  const token = useSelector((state: RootState) => state.auth.accessToken);
 
   // rerender on trips length
   useEffect(() => {}, [trips.length]);
@@ -43,11 +46,17 @@ const Main = () => {
     const getMyTrips = async () => {
       if (token) {
         const myTrips = await tripsService.getMyTrips(token);
-        setTrips(myTrips);
+        setTrips(sortTrips(myTrips));
+        // setIsSorted(prev => !prev);
       }
     };
     getMyTrips();
   }, [token, isUpdated]);
+
+  // rerender on sortTypeIndex to request sorting
+  useEffect(() => {
+    setTrips(prevTrips => sortTrips([...prevTrips]));
+  }, [sortTypeIndex]);
 
   const handleOpenMenu = () => {
     setisOpen(true);
@@ -72,13 +81,48 @@ const Main = () => {
     },
   ] as NavTab[];
 
-  // trip
+  // list tool
 
-  const hideTrip = async (id: number) => {
-    if (token) {
-      await tripsService.hideTrip(id, token);
-      setIsUpdated((prev) => !prev);
+  const sortTypes = [{
+    label: "Id ASC",
+    function: SortUtils.sortIdAsc,
+  },{
+    label: "Id DESC",
+    function: SortUtils.sortIdDesc,
+  },{
+    label: "Name ASC",
+    function: SortUtils.sortNameAsc,
+  }, {
+    label: "Name DESC",
+    function: SortUtils.sortNameDesc,
+  }, {
+    label: "Days ASC",
+    function: SortUtils.sortDayAsc,
+  },{
+    label: "Days DESC",
+    function: SortUtils.sortDayDesc,
+  },{
+    label: "Last Updated ASC",
+    function: SortUtils.sortLastUpdatedAsc,
+  },{
+    label: "Last Updated DESC",
+    function: SortUtils.sortLastUpdatedDesc,
+  }] as SortType[];
+
+  const sortTrips = (list: any[]) => {
+      let func = sortTypes[sortTypeIndex].function;
+      return func(list);
     }
+
+  const addSelected = (id: number) => {
+    setSelected([...selected, id]);
+  };
+
+  const removeSelected = (id: number) => {
+    let i = selected.indexOf(id);
+    let _selected = [...selected];
+    _selected.splice(i, 1);
+    setSelected(_selected);
   };
 
   // new trip menu
@@ -174,94 +218,22 @@ const Main = () => {
               <Grid
                 container
                 spacing={2}
+                columns={12}
                 p={2}
                 sx={{
                   maxHeight: `calc(100vh - ${WorkshopToNavTab}px)`,
                 }}
               >
                 {trips.map((trip) => (
-                  <Grid
-                    container
-                    direction="row"
-                    size={6}
-                    key={`my-trip-${trip.id}`}
-                    onDoubleClick={() => navigate(`trip/${trip.id}`)}
-                    sx={{
-                      color: "white",
-                      background: StyleUtils.generateLinearGradientDarker(
-                        getHex("steelblue")!
-                      ),
-                      borderRadius: 2,
-                      overflow: "hidden",
-                      position: "relative",
-                      height: 160,
-                      cursor: "pointer",
-                    }}
-                  >
-                    {/* trip info */}
-                    <Grid container direction="column" spacing={0} size={7} p={1} position="relative">
-                      <Typography variant="h6" fontWeight="bold" textTransform="capitalize">
-                        {trip.name}
-                      </Typography>
-                      <Typography
-                        variant="body2"
-                        fontWeight="bold"
-                        sx={{
-                          color: trip.numDays ? "lightgrey" : "darkgrey",
-                          fontStyle: trip.numDays ? "none" : "italic",
-                        }}
-                      >
-                        {TimeUtils.formatDays(trip.numDays ?? 0)}
-                      </Typography>
-
-                      {/* last updated */}
-
-                        <Typography
-                          variant="body2"
-                          fontStyle="italic"
-                          bottom={8}
-                          left={8}
-                          position="absolute"
-                        >
-                          Last Updated ·{" "}
-                          {trip.lastUpdatedAt.toString().split("T")[0]}
-                        </Typography>
-
-                        {/* <Box
-                          bottom={0}
-                          right={-8}
-                          position="absolute"
-                        >
-                          <IconButton
-                            size="small"
-                            onClick={() => navigate(`trip/${trip.id}`)}
-                          >
-                            <EditIcon />
-                          </IconButton>
-                          <IconButton
-                            size="small"
-                            onClick={() => hideTrip(trip.id)}
-                          >
-                            <DeleteIcon />
-                          </IconButton>
-                        </Box> */}
-                    </Grid>
-
-                    {/* trip image */}
-                    <Grid size={5}>
-                      <Box
-                        component="img"
-                        src="src/assets/Lincoln_Memorial.jpeg"
-                        // src="src/assets/test.jpg"
-                        sx={{
-                          width: "100%",
-                          height: "100%",
-                          objectFit: "cover",
-                          objectPosition: "50% 40%",
-                        }}
-                      />
-                    </Grid>
-                  </Grid>
+                  <TTTripCard
+                    key={`trip-${trip.id}`}
+                    trip={trip}
+                    isFocused={selected.includes(trip.id)}
+                    setIsFocused={
+                      selected.includes(trip.id) ? removeSelected : addSelected
+                    }
+                    setParentUpdate={() => setIsUpdated((prev) => !prev)}
+                  />
                 ))}
                 <Grid size={12} height={4} />
               </Grid>
@@ -271,24 +243,14 @@ const Main = () => {
 
         {/* right panel */}
         <Grid container size={3} direction="column">
-          <TTCard
-            color="black"
-            bgcolor="white"
-            title="Sort By"
-            icon={<SortIcon />}
-            sx={{ background: "white" }}
-          >
-            sort type
-          </TTCard>
-          <TTCard
-            color="black"
-            bgcolor="white"
-            title="Filter"
-            icon={<FilterAltIcon />}
-            sx={{ background: "white", mt: 0 }}
-          >
-            filter params
-          </TTCard>
+          <ListTool
+            sortType={sortTypeIndex}
+            setSortType={setSortTypeIndex}
+            sortTypes={sortTypes}
+            selected={selected}
+            setSelected={setSelected}
+            setParentUpdate={() => setIsUpdated((prev) => !prev)}
+          />
         </Grid>
       </Grid>
 
