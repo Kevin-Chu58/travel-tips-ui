@@ -39,7 +39,7 @@ const ListTool = ({
   sortType,
   setSortType,
   sortTypes,
-
+  // filter props
   showFilter = false,
   // select props
   showSelect = false,

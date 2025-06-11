@@ -276,7 +276,7 @@ const DayTimelineItem = ({
             {/* highlight */}
             {tao.attraction?.description && (
               <TTCard bgcolor="lightsalmon" title="Highlight">
-                <Typography color="white" variant="body2">
+                <Typography color="white" variant="body2" whiteSpace="pre-wrap">
                   {tao.attraction?.description}
                 </Typography>
               </TTCard>

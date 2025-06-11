@@ -1,3 +1,4 @@
+import TTHighlightCard from "@components/TTHighlightCard";
 import { WorkshopToNavTab } from "@constants/Layouts";
 import { Grid, Typography } from "@mui/material";
 import type { AttractionHighlights } from "@services/attractions";
@@ -20,7 +21,7 @@ const Highlights = ({
   return (
 <Grid
       container
-      spacing={2}
+      spacing={4}
       columns={12}
       p={2}
       sx={{
@@ -28,7 +29,11 @@ const Highlights = ({
       }}
     >
       {highlights.map((ah) => (
-        <Typography key={ah.id}>{ah.name}</Typography>
+        <TTHighlightCard
+          key={`attraction-${ah.id}`}
+          attractionHighlights={ah}
+          isFocused={false}
+        />
       ))}
       <Grid size={12} height={4} />
     </Grid>

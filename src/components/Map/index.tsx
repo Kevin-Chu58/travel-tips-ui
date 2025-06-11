@@ -11,6 +11,7 @@ import { getHex } from "@constants/Colors";
 import type { Marker, OsmFocusState, Route } from "@constants/Types";
 
 type MapProps = {
+  readonly?: boolean;
   height?: number | string;
   lat?: number;
   lng?: number;
@@ -34,6 +35,7 @@ type MapProps = {
 };
 
 const Map = ({
+  readonly = false,
   height = 200,
   lat = 38.79,
   lng = -106.53,
@@ -109,7 +111,25 @@ const Map = ({
   // renrender the whole map on isUpdated
   useEffect(() => {
     if (mapRef.current && !mapInstanceRef.current) {
-      mapInstanceRef.current = L.map(mapRef.current).setView([lat, lng], 4);
+      let mapOptions: L.MapOptions = {
+        maxZoom: 18,
+      };
+
+      let mapOptionsReadonly: L.MapOptions = {
+        ...mapOptions,
+        zoomControl: false, // hide zoom buttons
+        dragging: false, // disable dragging
+        scrollWheelZoom: false, // disable wheel zoom
+        doubleClickZoom: false, // disable double-click
+        boxZoom: false, // disable shift-drag zoom
+        keyboard: false, // disable keyboard navigation
+        touchZoom: false, // disable pinch zoom on mobile
+      };
+
+      mapInstanceRef.current = L.map(
+        mapRef.current,
+        readonly ? mapOptionsReadonly : mapOptions
+      ).setView([lat, lng], 4);
 
       if (mapInstanceRef.current && markers.length > 0) {
         setRoutes();
