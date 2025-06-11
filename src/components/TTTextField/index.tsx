@@ -8,7 +8,7 @@ import IconButton from "@components/TTIconButton";
 import ClearIcon from "@mui/icons-material/Clear";
 import { getHex } from "@constants/Colors";
 
-type TextFieldProps = {
+type TTTextFieldProps = {
   id?: string;
   className?: string;
   autoFocus?: boolean;
@@ -25,7 +25,7 @@ type TextFieldProps = {
   inputSx?: SxProps<Theme>;
 };
 
-const TextField = ({
+const TTTextField = ({
   id,
   className,
   autoFocus = false,
@@ -40,7 +40,7 @@ const TextField = ({
   onEnterDown,
   clearInput,
   inputSx,
-}: TextFieldProps) => {
+}: TTTextFieldProps) => {
   const isInputEmpty = () => {
     return !input || input.length === 0;
   };
@@ -100,4 +100,4 @@ const TextField = ({
   );
 };
 
-export default TextField;
+export default TTTextField;

@@ -38,7 +38,7 @@ const TTTripCard = ({
 
   const hideTrip = async (id: number) => {
     if (token) {
-      await tripsService.hideTrip(id, token);
+      await tripsService.patchTripIsHidden([id], true, token);
       if (setParentUpdate) setParentUpdate();
     }
   };
@@ -110,7 +110,7 @@ const TTTripCard = ({
           left={8}
           position="absolute"
         >
-          Last Updated · {trip.lastUpdatedAt.toString().split("T")[0]}
+          Updated · {trip.lastUpdatedAt.toString().split("T")[0]}
         </Typography>
       </Grid>
 
@@ -157,7 +157,7 @@ const TTTripCard = ({
               label="EDIT"
               onClick={(e) => {
                 e.stopPropagation();
-                navigate(`trip/${trip.id}`);
+                navigate(`/workshop/trip/${trip.id}`);
               }}
               sx={{
                 mr: 4,

@@ -36,6 +36,20 @@ export type AttractionSearch = {
   attractions: Attraction[];
 };
 
+export type Highlight = {
+  id: number;
+  attractionId: number;
+  isDeprecated: boolean;
+  description?: string;
+  createdBy?: number;
+  linkId?: number;
+};
+
+export type AttractionHighlights = AttractionBasic & {
+  id: number;
+  highlights: Highlight[];
+};
+
 const getHighlightsByParams = async (name?: string, osmId?: number): Promise<AttractionSearch> => {
   const params = new URLSearchParams();
 
@@ -44,6 +58,10 @@ const getHighlightsByParams = async (name?: string, osmId?: number): Promise<Att
   params.set("timestamp", Date.now().toString());
 
   return await http.get(http.apiBaseURLs.api, `attractions?${params.toString()}`, undefined, undefined);
+};
+
+const getAttractionHighlightsByUserId = async (userId: number): Promise<AttractionHighlights[]> => {
+  return await http.get(http.apiBaseURLs.api, `attractions/${userId}`, undefined, undefined);
 };
 
 const postNewHighlight = async (newAttraction: AttractionPost, token: string): Promise<Attraction> => {
@@ -58,6 +76,7 @@ const patchHighlight = async (id: number, attraction: AttractionPatch, token: st
 
 export const attractionsService = {
   getHighlightsByParams,
+  getAttractionHighlightsByUserId,
   postNewHighlight,
   patchHighlight,
 };

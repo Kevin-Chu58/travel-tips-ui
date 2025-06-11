@@ -3,9 +3,6 @@ import SortIcon from "@mui/icons-material/Sort";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { Box, MenuItem, Select, type SelectChangeEvent } from "@mui/material";
-import { useSelector } from "react-redux";
-import type { RootState } from "@redux/store";
-import { tripsService } from "@services/trips";
 import TTIconButton from "@components/TTIconButton";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
@@ -20,61 +17,50 @@ type ListToolSortProps = {
   sortTypes?: SortType[];
 };
 
+type ListToolFilterProps = {
+  showFilter?: boolean;
+};
+
 type ListToolSelectProps = {
   showSelect?: boolean;
   selected?: number[];
-  setSelected?: (state: number[]) => void;
+  // button options
+  handlePublish?: (state: boolean) => void;
+  handleDelete?: () => void;
 };
 
 type ListToolProps = ListToolSortProps &
-  ListToolSelectProps & {
-    showFilter?: boolean;
-
-    setParentUpdate?: () => void;
-  };
+  ListToolSelectProps &
+  ListToolFilterProps;
 
 const ListTool = ({
   // sort props
-  showSort = true,
+  showSort = false,
   sortType,
   setSortType,
   sortTypes,
 
-  showFilter = true,
+  showFilter = false,
   // select props
-  showSelect = true,
+  showSelect = false,
   selected = [],
-  setSelected = () => {},
-  // others
-  setParentUpdate,
+  handlePublish,
+  handleDelete,
 }: ListToolProps) => {
   // others
-  const token = useSelector((state: RootState) => state.auth.accessToken);
   const selectButtonSx = { scale: 0.9, height: 32 };
 
   const isSelectedEmpty = () => selected.length === 0;
 
-  const displayNumSelected = () => {
-    if (isSelectedEmpty()) return "No item selected";
-    return `${selected.length} ${
-      selected.length > 1 ? "items" : "item"
-    } selected`;
-  };
+  const displayNumSelected = () =>
+    selected.length === 0
+      ? "No item selected"
+      : `${selected.length} ${selected.length > 1 ? "items" : "item"} selected`;
 
   // sort operations
 
   const handleSortChange = (e: SelectChangeEvent) => {
     if (setSortType) setSortType(Number.parseInt(e.target.value));
-  };
-
-  // select operations
-
-  const publishSelected = async (isPublished: boolean) => {
-    if (token && selected.length > 0) {
-      await tripsService.patchTripIsPublic(selected, isPublished, token);
-      if (setParentUpdate) setParentUpdate();
-      setSelected([]);
-    }
   };
 
   return (
@@ -98,7 +84,7 @@ const ListTool = ({
             }}
           >
             {sortTypes?.map((_sortType, i) => (
-              <MenuItem key={i} value={i.toString()} sx={{fontSize: 14}}>
+              <MenuItem key={i} value={i.toString()} sx={{ fontSize: 14 }}>
                 {_sortType.label}
               </MenuItem>
             ))}
@@ -137,28 +123,36 @@ const ListTool = ({
 
             {/* select buttons */}
             <Box display="flex" flexWrap="wrap" mt={1}>
-              <TTIconButton
-                size="small"
-                onClick={() => publishSelected(true)}
-                sx={{ ...selectButtonSx }}
-              >
-                <VisibilityIcon sx={{ mr: 1 }} /> Publish
-              </TTIconButton>
-              <TTIconButton
-                size="small"
-                onClick={() => publishSelected(false)}
-                sx={{ ...selectButtonSx }}
-              >
-                <VisibilityOffIcon sx={{ mr: 1 }} /> Unpublish
-              </TTIconButton>
-              <TTIconButton
-                size="small"
-                onClick={() => publishSelected(false)}
-                color="error"
-                sx={{ ...selectButtonSx, borderColor: "error.main" }}
-              >
-                <DeleteIcon sx={{ mr: 1 }} /> Delete
-              </TTIconButton>
+              {handlePublish && (
+                <TTIconButton
+                  size="small"
+                  onClick={() => handlePublish(true)}
+                  sx={{ ...selectButtonSx }}
+                >
+                  <VisibilityIcon sx={{ mr: 1 }} /> Publish
+                </TTIconButton>
+              )}
+
+              {handlePublish && (
+                <TTIconButton
+                  size="small"
+                  onClick={() => handlePublish(false)}
+                  sx={{ ...selectButtonSx }}
+                >
+                  <VisibilityOffIcon sx={{ mr: 1 }} /> Unpublish
+                </TTIconButton>
+              )}
+
+              {handleDelete && (
+                <TTIconButton
+                  size="small"
+                  onClick={handleDelete}
+                  color="error"
+                  sx={{ ...selectButtonSx, borderColor: "error.main" }}
+                >
+                  <DeleteIcon sx={{ mr: 1 }} /> Delete
+                </TTIconButton>
+              )}
             </Box>
           </Box>
         </TTCard>

@@ -7,7 +7,7 @@ const Workshop = () => {
   return (
     <>
       <Routes>
-        <Route index key="workshop-main" element={<Main />} />
+        <Route path="/*" key="workshop-main" element={<Main />} />
         <Route
           key="workshop-trip-edit"
           path="/trip/:tripId/*"

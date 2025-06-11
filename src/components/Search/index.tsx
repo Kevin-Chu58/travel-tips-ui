@@ -2,7 +2,7 @@
 import SearchIcon from "@mui/icons-material/Search";
 import { useEffect, useRef, useState } from "react";
 import IconButton from "@components/TTIconButton";
-import TextField from "@components/TextField";
+import TTTextField from "@components/TTTextField";
 import { Box, type SxProps, type Theme } from "@mui/material";
 
 type SearchProps = {
@@ -45,7 +45,7 @@ const Search = ({
 
   return (
     <Box display="flex" flexDirection="row" maxWidth={400} sx={sx}>
-      <TextField
+      <TTTextField
         id="search"
         className={className}
         placeholder={placeholder}

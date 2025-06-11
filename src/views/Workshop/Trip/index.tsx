@@ -10,7 +10,7 @@ import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { Route, Routes, useParams } from "react-router";
 import EditIcon from "@mui/icons-material/Edit";
-import TextField from "@components/TextField";
+import TextField from "@components/TTTextField";
 import TripMain from "./TripMain";
 import TripDays from "./TripDays";
 import ConditionalSuccessIconGroup from "@components/ButtonGroup/ConditionalSuccessButtonGroup";
