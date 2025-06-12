@@ -21,6 +21,7 @@ const Main = () => {
   const [areTripsUpdated, setAreTripsUpdated] = useState<boolean>(false);
   // Highlights
   const [highlights, setHighlights] = useState<AttractionHighlights[]>([]);
+  const [areHighlightsUpdated, setAreHighlightsUpdated] = useState<boolean>(false);
   // open form status
   const [isAddTripOpen, setIsAddTripOpen] = useState<boolean>(false);
   // tool values
@@ -34,6 +35,10 @@ const Main = () => {
   const renderTrips = () => {
     setAreTripsUpdated(prev => !prev);
   };
+
+  const renderHighlights = () => {
+    setAreHighlightsUpdated(prev => !prev);
+  }
 
   const addSelected = (id: number) => {
     setSelected([...selected, id]);
@@ -116,7 +121,7 @@ const Main = () => {
           selected={selected}
           addSelected={addSelected}
           removeSelected={removeSelected}
-          setIsUpdated={renderTrips}
+          setIsUpdated={renderHighlights}
         />
       ),
       tool: (
@@ -126,8 +131,8 @@ const Main = () => {
           selected={selected}
           setSelected={setSelected}
           setHighlights={setHighlights}
-          isUpdated={areTripsUpdated}
-          setIsUpdated={renderTrips}
+          isUpdated={areHighlightsUpdated}
+          setIsUpdated={renderHighlights}
         />
       ),
       addForm: (

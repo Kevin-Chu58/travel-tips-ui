@@ -21,7 +21,7 @@ const Highlights = ({
   return (
 <Grid
       container
-      spacing={4}
+      spacing={8}
       columns={12}
       p={2}
       sx={{
@@ -32,7 +32,9 @@ const Highlights = ({
         <TTHighlightCard
           key={`attraction-${ah.id}`}
           attractionHighlights={ah}
-          isFocused={false}
+          selected={selected}
+          addSelected={addSelected}
+          removeSelected={removeSelected}
         />
       ))}
       <Grid size={12} height={4} />

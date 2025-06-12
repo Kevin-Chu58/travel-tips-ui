@@ -1,7 +1,6 @@
 import ListTool from "@components/ListTool";
 import type { RootState } from "@redux/store";
-import { attractionsService, type Attraction, type AttractionHighlights } from "@services/attractions";
-import { tripsService } from "@services/trips";
+import { attractionsService, type AttractionHighlights } from "@services/attractions";
 import SortUtils, {
   sortTypeIdAsc,
   sortTypeIdDesc,
@@ -60,6 +59,14 @@ const HighlightsTool = ({
     );
   }, [sortTypeIndex]);
 
+  const handleDelete = async () => {
+    if (token && selected.length > 0) {
+      await attractionsService.deleteHighlights(selected, token);
+      setIsUpdated();
+      setSelected([]);
+    }
+  }
+
   return (
     <ListTool
       showSort
@@ -69,6 +76,7 @@ const HighlightsTool = ({
       setSortType={setSortTypeIndex}
       sortTypes={sortTypes}
       selected={selected}
+      handleDelete={handleDelete}
     />
   );
 };

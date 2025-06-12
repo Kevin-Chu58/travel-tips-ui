@@ -72,11 +72,17 @@ const postNewHighlight = async (newAttraction: AttractionPost, token: string): P
 const patchHighlight = async (id: number, attraction: AttractionPatch, token: string) : Promise<Attraction> => {
   const body = JSON.stringify(attraction);
   return await http.patch(http.apiBaseURLs.api, `attractions/${id}`, body, undefined, token);
-}
+};
+
+const deleteHighlights = async (ids: number[], token: string): Promise<number[]> => {
+  const body = JSON.stringify(ids);
+  return await http.del(http.apiBaseURLs.api, "attraction", body, undefined, token);
+};
 
 export const attractionsService = {
   getHighlightsByParams,
   getAttractionHighlightsByUserId,
   postNewHighlight,
   patchHighlight,
+  deleteHighlights,
 };

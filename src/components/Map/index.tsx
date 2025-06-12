@@ -2,7 +2,7 @@ import type { Direction, OsmType } from "@constants/Maps";
 import { Box, type SxProps } from "@mui/material";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import React, { useEffect, useRef, useState, type ReactNode } from "react";
 import markerIconGrey from "@assets/map/marker-icon-grey.png";
 import markerIconBlue from "@assets/map/marker-icon-blue.png";
 import markerIconGreen from "@assets/map/marker-icon-green.png";
@@ -34,7 +34,7 @@ type MapProps = {
   sx?: SxProps;
 };
 
-const Map = ({
+const Map = React.memo(({
   readonly = false,
   height = 200,
   lat = 38.79,
@@ -378,6 +378,6 @@ const Map = ({
       {children}
     </Box>
   );
-};
+});
 
 export default Map;
