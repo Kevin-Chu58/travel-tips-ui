@@ -12,6 +12,7 @@ import TripsTool from "./Trips/TripsTool";
 import HighlightsTool from "./Highlights/HighlightsTool";
 import { type AttractionHighlights } from "@services/attractions";
 import Highlights from "./Highlights";
+import AttractionFinder from "@components/AttractionFinder";
 
 const Main = () => {
   // basic strcutures
@@ -24,13 +25,10 @@ const Main = () => {
   const [areHighlightsUpdated, setAreHighlightsUpdated] = useState<boolean>(false);
   // open form status
   const [isAddTripOpen, setIsAddTripOpen] = useState<boolean>(false);
+  const [isAddHighlightOpen, setIsAddHighlightOpen] = useState<boolean>(false);
   // tool values
   const [sortTypeIndex, setSortTypeIndex] = useState<number>(0);
   const [selected, setSelected] = useState<number[]>([]);
-
-  const handleOpenMenu = () => {
-    setIsAddTripOpen(true);
-  };
 
   const renderTrips = () => {
     setAreTripsUpdated(prev => !prev);
@@ -109,7 +107,7 @@ const Main = () => {
           setIsParentUpdated={renderTrips}
         />
       ),
-      addFabOnClick: handleOpenMenu,
+      addFabOnClick: () => setIsAddTripOpen(true),
       addFabLabel: "New Trip",
     },
     {
@@ -136,13 +134,13 @@ const Main = () => {
         />
       ),
       addForm: (
-        <TripForm
-          isOpen={isAddTripOpen}
-          setIsOpen={setIsAddTripOpen}
-          setIsParentUpdated={renderTrips}
+        <AttractionFinder
+          open={isAddHighlightOpen}
+          setOpen={setIsAddHighlightOpen}
+          setIsParentUpdated={renderHighlights}
         />
       ),
-      addFabOnClick: handleOpenMenu,
+      addFabOnClick: () => setIsAddHighlightOpen(true),
       addFabLabel: "New Highlight",
     },
   ];

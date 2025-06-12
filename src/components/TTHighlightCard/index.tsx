@@ -3,25 +3,31 @@ import { getHex } from "@constants/Colors";
 import { OsmTypes } from "@constants/Maps";
 import { mild_box_shadow } from "@constants/Shadows";
 import { Avatar, Box, Chip, Grid, Typography } from "@mui/material";
-import type { AttractionHighlights } from "@services/attractions";
+import type {
+  Attraction,
+  AttractionHighlights,
+  Highlight,
+} from "@services/attractions";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { Masonry } from "@mui/lab";
 import { useMemo } from "react";
+import EditIcon from "@mui/icons-material/Edit";
+import TTIconButton from "@components/TTIconButton";
 
 type TTHighlightCardProps = {
   attractionHighlights: AttractionHighlights;
+  setHighlight: (state: Attraction) => void;
   selected: number[];
   addSelected: (state: number) => void;
   removeSelected: (state: number) => void;
-  setParentUpdate?: () => void;
 };
 
 const TTHighlightCard = ({
   attractionHighlights,
+  setHighlight,
   selected,
   addSelected,
   removeSelected,
-  setParentUpdate,
 }: TTHighlightCardProps) => {
   const markers = useMemo(
     () => [
@@ -39,6 +45,15 @@ const TTHighlightCard = ({
       attractionHighlights.osmType,
     ]
   );
+
+  const getHighlightInfo = (highlight: Highlight) => {
+    return {
+      ...attractionHighlights,
+      id: highlight.id,
+      description: highlight.description,
+      linkId: highlight.linkId,
+    } as Attraction;
+  };
 
   return (
     <Grid
@@ -130,20 +145,39 @@ const TTHighlightCard = ({
                 bgcolor: "white",
                 borderRadius: 2,
                 overflow: "hidden",
+                boxShadow: mild_box_shadow,
               }}
             >
               <Grid size={12}>
                 <Grid
+                  container
                   size={12}
                   p={2}
+                  alignItems="center"
                   sx={{
                     background: getHex("steelblue"),
+                    postion: "relative",
                   }}
                 >
                   <Avatar
-                    src="src/404-not-found"
+                    // src="src/404-not-found"
                     alt={highlight.createdBy?.toString()}
                   />
+
+                  <Box ml="auto" onClick={(e) => e.stopPropagation()}>
+                    <TTIconButton
+                      onClick={() => setHighlight(getHighlightInfo(highlight))}
+                      sx={{
+                        color: "secondary.main",
+                        bgcolor: "secondary.900",
+                        ":hover": {
+                          bgcolor: "secondary.dark",
+                        },
+                      }}
+                    >
+                      <EditIcon />
+                    </TTIconButton>
+                  </Box>
                 </Grid>
 
                 <Typography
@@ -153,6 +187,7 @@ const TTHighlightCard = ({
                   bgcolor="white"
                   fontFamily="tagesschrift"
                   p={2}
+                  onClick={(e) => e.stopPropagation()}
                 >
                   {highlight.description}
                 </Typography>

@@ -25,13 +25,15 @@ import type { RootState } from "@redux/store";
 type AttractionFinderProps = {
   open: boolean;
   setOpen: (isOpen: boolean) => void;
-  updateAttraction: (attraction: Attraction) => void;
+  updateAttraction?: (attraction: Attraction) => void;
+  setIsParentUpdated?: () => void;
 };
 
 const AttractionFinder = ({
   open,
   setOpen,
   updateAttraction,
+  setIsParentUpdated,
 }: AttractionFinderProps) => {
   const token = useSelector((state: RootState) => state.auth.accessToken);
   const defualt_attraction_description = "No Highlight";
@@ -71,7 +73,7 @@ const AttractionFinder = ({
 
   // update parent attribute on attraction
   useEffect(() => {
-    if (attractionFocus) {
+    if (updateAttraction && attractionFocus) {
       updateAttraction(attractionFocus);
     }
   }, [attractionFocus]);
@@ -91,6 +93,10 @@ const AttractionFinder = ({
   const handleClose = () => {
     setOpen(false);
     clear();
+
+    // optionally rerender the parent
+    if (setIsParentUpdated)
+      setIsParentUpdated();
   };
 
   const handleSearch = async () => {

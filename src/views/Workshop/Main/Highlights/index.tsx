@@ -1,7 +1,9 @@
+import HighlightForm from "@components/Forms/HighlightForm";
 import TTHighlightCard from "@components/TTHighlightCard";
 import { WorkshopToNavTab } from "@constants/Layouts";
-import { Grid, Typography } from "@mui/material";
-import type { AttractionHighlights } from "@services/attractions";
+import { Grid } from "@mui/material";
+import { type Attraction, type AttractionHighlights } from "@services/attractions";
+import { useState } from "react";
 
 type HighlightsProps = {
   highlights: AttractionHighlights[];
@@ -9,7 +11,7 @@ type HighlightsProps = {
   addSelected: (state: number) => void;
   removeSelected: (state: number) => void;
   setIsUpdated: () => void;
-}
+};
 
 const Highlights = ({
   highlights,
@@ -18,8 +20,10 @@ const Highlights = ({
   removeSelected,
   setIsUpdated,
 }: HighlightsProps) => {
+  const [highlight, setHighlight] = useState<Attraction | undefined>();
+
   return (
-<Grid
+    <Grid
       container
       spacing={8}
       columns={12}
@@ -32,14 +36,22 @@ const Highlights = ({
         <TTHighlightCard
           key={`attraction-${ah.id}`}
           attractionHighlights={ah}
+          setHighlight={setHighlight}
           selected={selected}
           addSelected={addSelected}
           removeSelected={removeSelected}
         />
       ))}
       <Grid size={12} height={4} />
+
+      <HighlightForm
+        highlight={highlight}
+        open={Boolean(highlight)}
+        setOpen={setHighlight}
+        setIsParentUpdated={setIsUpdated}
+      />
     </Grid>
-  )
+  );
 };
 
 export default Highlights;

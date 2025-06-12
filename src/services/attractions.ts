@@ -17,7 +17,7 @@ type AttractionPost = AttractionBasic & {
   linkId?: number;
 };
 
-type AttractionPatch = AttractionBasic & {
+export type AttractionPatch = AttractionBasic & {
   // highlights
   description?: string;
   linkId?: string;
@@ -76,7 +76,7 @@ const patchHighlight = async (id: number, attraction: AttractionPatch, token: st
 
 const deleteHighlights = async (ids: number[], token: string): Promise<number[]> => {
   const body = JSON.stringify(ids);
-  return await http.del(http.apiBaseURLs.api, "attraction", body, undefined, token);
+  return await http.del(http.apiBaseURLs.api, "attractions", body, undefined, token);
 };
 
 export const attractionsService = {
