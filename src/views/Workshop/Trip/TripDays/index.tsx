@@ -1,4 +1,4 @@
-import { Grid } from "@mui/material";
+import { Grid, type SxProps } from "@mui/material";
 import { type TripDetail } from "@services/trips";
 import { useEffect, useState } from "react";
 import dayjs from "dayjs";
@@ -6,7 +6,7 @@ import customParseFormat from "dayjs/plugin/customParseFormat";
 import { type Day, type TripAttractionOrder } from "@services/days";
 import PlaceIcon from "@mui/icons-material/Place";
 import DirectionsIcon from "@mui/icons-material/Directions";
-import { Headers, WorkshopToNavTab } from "@constants/Layouts";
+import { WorkshopToNavTab } from "@constants/Layouts";
 import Map from "@components/Map";
 import type { MapRouteType } from "@constants/Maps";
 import { osrmService, type OsrmRoute } from "@services/geoMap/osrm";
@@ -23,17 +23,24 @@ import type {
 } from "@constants/Types";
 import IdentifierUtils from "@utils/IdentifierUtils";
 import MapButtonGroup from "@components/ButtonGroup/MapButtonGroup";
+import type { RootState } from "@redux/store";
+import { useSelector } from "react-redux";
 
 dayjs.extend(customParseFormat);
 
 type TripDaysProps = {
   trip: TripDetail | undefined;
-  token: string | null;
   queryKey: (string | undefined)[];
-  navTabValue: number;
+  navTabValue?: number;
+  sx?: SxProps;
 };
 
-const TripDays = ({ trip, token, queryKey, navTabValue }: TripDaysProps) => {
+const TripDays = ({
+  trip,
+  queryKey,
+  navTabValue,
+  sx,
+}: TripDaysProps) => {
   // day focus
   const [onDay, setOnDay] = useState<Day | undefined>();
   // map view status
@@ -56,6 +63,8 @@ const TripDays = ({ trip, token, queryKey, navTabValue }: TripDaysProps) => {
   const [isUpdated, setIsUpdated] = useState<boolean>(false);
   // update when Tao updates
   const [isTaoUpdated, setIsTaoUpdated] = useState<boolean>(false);
+  // others
+  const token = useSelector((state: RootState) => state.auth.accessToken);
 
   /** useEffect */
 
@@ -111,7 +120,7 @@ const TripDays = ({ trip, token, queryKey, navTabValue }: TripDaysProps) => {
             behavior: "smooth",
           });
         }
-      })
+      });
     }
   }, [isUpdated]);
 
@@ -286,7 +295,7 @@ const TripDays = ({ trip, token, queryKey, navTabValue }: TripDaysProps) => {
         direction="column"
         position="relative"
         size={7}
-        height={`calc(100vh - ${WorkshopToNavTab}px)`}
+        sx={{ height: `calc(100vh - ${WorkshopToNavTab}px)`, ...sx }}
       >
         {/* day content */}
         <DayContent

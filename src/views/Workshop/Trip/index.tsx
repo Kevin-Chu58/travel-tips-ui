@@ -241,7 +241,6 @@ const Trip = () => {
                   element={
                     <TripDays
                       trip={trip}
-                      token={token}
                       queryKey={queryKey}
                       navTabValue={navTabValue}
                     />

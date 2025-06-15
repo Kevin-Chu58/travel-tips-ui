@@ -1,47 +1,106 @@
 import { Navigate, Route, Routes } from "react-router";
-import SubHeaderBar from "@components/SubHeaderBar";
 import { useEffect, useState } from "react";
-import TripGeneral from "./TripGeneral";
-import { type Trip as TripType, tripsService } from "@services/trips";
-import TripSchedule from "./TripSchedule";
+import { type TripDetail, tripsService } from "@services/trips";
+import { Container, Divider, Grid, Typography } from "@mui/material";
+import { useParams } from "react-router";
+import { Headers } from "@constants/Layouts";
+import { getHex } from "@constants/Colors";
+import TripDays from "@views/Workshop/Trip/TripDays";
 
-const Trip = () => {
-  // const token = useSelector((state: RootState) => state.auth.accessToken);
-  const [tripId, setTripId] = useState<number>();
-  const [trip, setTrip] = useState<TripType>();
+const TripView = () => {
+  // components
+  const [trip, setTrip] = useState<TripDetail>();
+  // url
+  const { tripId } = useParams();
 
-  // render when tripId exists
+  if (!/^\d+$/.test(tripId ?? "")) {
+    return <Navigate to="/home" />;
+  }
+
+  let queryKey = ["trip", tripId];
+
+  // render the nav tab index focus when page initializes
   useEffect(() => {
     const getTrip = async () => {
       if (tripId) {
-        const trip = await tripsService.getTripDetailById(tripId);
+        const trip = await tripsService.getTripDetailById(
+          Number.parseInt(tripId)
+        );
         setTrip(trip);
       }
     };
     getTrip();
-  }, [tripId]);
-
-  let headerItems = [{
-    name: "General",
-    to: `/trip/${tripId}`,
-  }, {
-    name: "Schedule",
-    to: `/trip/${tripId}/schedule`,
-  }, {
-    name: "Map",
-    to: `/trip/${tripId}/map`,
-  }];  
+  }, []);
 
   return (
-    <>
-      <SubHeaderBar items={headerItems} />
-      <Routes>
-        <Route index element={<Navigate to={"/home"} />} />
-        <Route path="/:tripId" element={<TripGeneral tripDetail={trip} setTripId={setTripId} />} />
-        <Route path="/:tripId/schedule" element={<TripSchedule tripDetail={trip} setTripId={setTripId} />} />
-        {/* <Route path="/:tripId/map" element={<TripPage />} /> */}
-      </Routes>
-    </>
+    <Container maxWidth={false} disableGutters sx={{ color: "black" }}>
+      <Grid
+        container
+        direction="column"
+        position="relative"
+        spacing={4}
+        sx={{
+          // background: getHex("ivory"),
+          minHeight: `calc(100vh - ${Headers}px)`,
+        }}
+      >
+        {/* name */}
+        <Grid
+          size={12}
+          display="flex"
+          py={2}
+          px={4}
+          sx={{
+            position: "sticky",
+            top: `${Headers}px`,
+            color: "white",
+            bgcolor: "rgba(0, 0, 0, .9)",
+            backdropFilter: "blur(4px)",
+          }}
+        >
+          <Typography variant="h5" fontWeight="bold">
+            {trip?.name}
+          </Typography>
+        </Grid>
+
+        {/* content */}
+        <Grid container size={12} direction="column" spacing={10} maxWidth="lg" mx="auto">
+          {/* description */}
+          {trip?.description && (
+            <Grid size={12}>
+              <Typography variant="h4" fontWeight="bold">
+                Introduction
+              </Typography>
+              <Divider sx={{borderBottomWidth: 2, borderColor: "black", mb: 2}} />
+              <Typography variant="h6" whiteSpace="pre-wrap">
+                {trip?.description}
+              </Typography>
+            </Grid>
+          )}
+
+          {/* timeline */}
+          <Grid size={12}>
+            <Typography variant="h4" fontWeight="bold">
+                Timeline
+              </Typography>
+              <Divider sx={{borderBottomWidth: 2, borderColor: "black", }} />
+              <TripDays
+                trip={trip}
+                queryKey={queryKey}
+              />
+          </Grid>
+        </Grid>
+      </Grid>
+    </Container>
+  );
+};
+
+const Trip = () => {
+  return (
+    <Routes>
+      <Route path=":tripId" element={<TripView />} />
+      <Route path="*" element={<Navigate to="/home" />} />
+    </Routes>
   );
 };
 
