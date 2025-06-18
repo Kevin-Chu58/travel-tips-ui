@@ -3,7 +3,7 @@ import type { Day } from "@services/days";
 import DayTimelineItem from "./DayTimelineItem";
 import { useEffect, useState } from "react";
 import type { MapRouteType } from "@constants/Maps";
-import type { OsmFocusState, Route } from "@constants/Types";
+import type { Route } from "@constants/Types";
 import AddTaoButton from "../AddTaoButton";
 import type { TripDetail } from "@services/trips";
 
@@ -13,8 +13,8 @@ type DayTimelineProps = {
   day: Day;
   dayRoutes: Route[];
   mapRouteTypes: string[];
-  mapFocusState?: OsmFocusState;
-  setMapFocusState?: (state: OsmFocusState) => void;
+  mapFocusId?: string;
+  setMapFocusId?: (state: string | undefined) => void;
   updateRoutes?: (
     dayId: number,
     taoId: number,
@@ -22,6 +22,7 @@ type DayTimelineProps = {
     coords: [number, number][]
   ) => void;
   setEditTao: (state: number | undefined, order?: number) => void;
+  readonly?: boolean;
 };
 
 const DayTimeline = ({
@@ -30,10 +31,11 @@ const DayTimeline = ({
   day,
   dayRoutes,
   mapRouteTypes,
-  mapFocusState,
-  setMapFocusState = () => {},
+  mapFocusId,
+  setMapFocusId = () => {},
   updateRoutes,
   setEditTao,
+  readonly = false,
 }: DayTimelineProps) => {
   const [acummulatedTimes, setAcummulatedTimes] = useState<string[]>([
     day.start,
@@ -70,7 +72,7 @@ const DayTimeline = ({
         position: "relative",
       }}
     >
-      {!isTaosValid() ? (
+      {!readonly && !isTaosValid() ? (
         <AddTaoButton onClick={() => setEditTao(undefined, 0)} />
       ) : (
         day.tripAttractionOrders?.map((tao, i) => (
@@ -85,10 +87,11 @@ const DayTimeline = ({
             acummulatedTimes={acummulatedTimes}
             mapRouteType={mapRouteTypes[i] ?? ""}
             setAcummulatedTimes={setAcummulatedTimes}
-            mapFocusState={mapFocusState}
-            setMapFocusState={setMapFocusState}
+            mapFocusId={mapFocusId}
+            setMapFocusId={setMapFocusId}
             updateRoutes={updateTaoRoutes}
             setEditTao={setEditTao}
+            readonly={readonly}
           />
         ))
       )}

@@ -3,6 +3,7 @@ import { createTheme } from "@mui/material";
 const theme = createTheme({
     typography: {
         fontFamily: [
+            "open sans",
             "noto serif",
             "arial",
             "tagesschrift",

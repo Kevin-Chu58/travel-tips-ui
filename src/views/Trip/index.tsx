@@ -4,7 +4,6 @@ import { type TripDetail, tripsService } from "@services/trips";
 import { Container, Divider, Grid, Typography } from "@mui/material";
 import { useParams } from "react-router";
 import { Headers } from "@constants/Layouts";
-import { getHex } from "@constants/Colors";
 import TripDays from "@views/Workshop/Trip/TripDays";
 
 const TripView = () => {
@@ -87,6 +86,7 @@ const TripView = () => {
               <TripDays
                 trip={trip}
                 queryKey={queryKey}
+                readonly={true}
               />
           </Grid>
         </Grid>

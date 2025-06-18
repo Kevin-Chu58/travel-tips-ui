@@ -1,4 +1,4 @@
-import { OsmTypes, type OsmType } from "@constants/Maps";
+import { OsmTypes } from "@constants/Maps";
 import {
   Box,
   Button,
@@ -12,14 +12,13 @@ import {
 import { osmService, type OsmEntity } from "@services/geoMap/osm";
 import SearchIcon from "@mui/icons-material/Search";
 import { useState } from "react";
+import IdentifierUtils from "@utils/IdentifierUtils";
 
 type SearchPanelProps = {
   result: OsmEntity[];
   setResult: (state: OsmEntity[]) => void;
-  osmIdFocus: number | undefined;
-  osmTypeFocus: OsmType | undefined;
-  setOsmIdFocus: (state: number) => void;
-  setOsmTypeFocus: (state: OsmType) => void;
+  idFocus: string | undefined;
+  setIdFocus: (state: string) => void;
   setOpenHighlight: (state: boolean) => void;
   clearEditAttraction: () => void;
   handleClose: () => void;
@@ -28,10 +27,8 @@ type SearchPanelProps = {
 const SearchPanel = ({
   result,
   setResult,
-  osmIdFocus,
-  osmTypeFocus,
-  setOsmIdFocus,
-  setOsmTypeFocus,
+  idFocus,
+  setIdFocus,
   setOpenHighlight,
   clearEditAttraction,
   handleClose,
@@ -60,10 +57,9 @@ const SearchPanel = ({
     return result.filter((osm) => osm.osm_id !== undefined);
   };
 
-  const handleFocusOsm = (osmId: number, osmType: OsmType) => {
+  const handleFocusOsm = (osm: OsmEntity) => {
     clearEditAttraction();
-    setOsmIdFocus(osmId);
-    setOsmTypeFocus(osmType);
+    setIdFocus(IdentifierUtils.getOsmItemId(osm));
     setOpenHighlight(true);
   };
 
@@ -142,7 +138,7 @@ const SearchPanel = ({
               p={1}
               key={`attraction-finder-result-${i}`}
               color={
-                osmIdFocus === osm.osm_id && osmTypeFocus === osm.osm_type
+                IdentifierUtils.getOsmItemId(osm) === idFocus
                   ? "primary.main"
                   : "black"
               }
@@ -150,7 +146,7 @@ const SearchPanel = ({
                 cursor: "pointer",
                 ":hover": { bgcolor: "primary.100" },
               }}
-              onClick={() => handleFocusOsm(osm.osm_id, osm.osm_type)}
+              onClick={() => handleFocusOsm(osm)}
             >
               <Box display="flex" flexDirection="row" mt={1}>
                 <Typography fontWeight="bold">

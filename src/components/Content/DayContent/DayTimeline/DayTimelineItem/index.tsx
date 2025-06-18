@@ -30,7 +30,7 @@ import TimeUtils from "@utils/TimeUtils";
 import { getHex } from "@constants/Colors";
 import DistanceUtils from "@utils/DistanceUtils";
 import TTButtonGroup from "@components/TTButtonGroup";
-import type { OsmFocusState, Route, TaoId } from "@constants/Types";
+import type { Route, TaoId } from "@constants/Types";
 import TTCard from "@components/TTCard";
 import type { RouteOptionParams } from "@constants/Types";
 import IdentifierUtils from "@utils/IdentifierUtils";
@@ -75,14 +75,15 @@ type DayTimelineItemProps = {
   acummulatedTimes: string[];
   mapRouteType: string;
   setAcummulatedTimes: (state: string[]) => void;
-  mapFocusState?: OsmFocusState;
-  setMapFocusState?: (state: OsmFocusState) => void;
+  mapFocusId?: string;
+  setMapFocusId?: (state: string | undefined) => void;
   updateRoutes: (
     taoId: number,
     type: MapRouteType,
     coords: [number, number][]
   ) => void;
   setEditTao: (state: number | undefined, order?: number) => void;
+  readonly?: boolean;
 };
 
 const DayTimelineItem = ({
@@ -95,10 +96,11 @@ const DayTimelineItem = ({
   acummulatedTimes,
   mapRouteType,
   setAcummulatedTimes,
-  mapFocusState,
-  setMapFocusState = () => {},
+  mapFocusId,
+  setMapFocusId = () => {},
   updateRoutes,
   setEditTao,
+  readonly = false,
 }: DayTimelineItemProps) => {
   const [routeType, setRouteType] = useState<MapRouteType | undefined>();
   const [cummulatedTime, setCummulatedTime] = useState<string>();
@@ -197,7 +199,7 @@ const DayTimelineItem = ({
           width: "100%",
           position: "relative",
           borderRadius: 5,
-          ...(TripUtils.isTaoFocused(tao, mapFocusState)
+          ...(TripUtils.isTaoFocused(tao, mapFocusId)
             ? {
                 bgcolor: "secondary.100",
                 ".MuiTimelineDot-filled, .MuiTimelineConnector-root": {
@@ -218,7 +220,7 @@ const DayTimelineItem = ({
           <Grid size={12} spacing={1}>
             {/* name */}
             <Typography fontWeight="bold">{tao.attraction?.name}</Typography>
-            {TripUtils.isTaoFocused(tao, mapFocusState) && (
+            {!readonly && TripUtils.isTaoFocused(tao, mapFocusId) && (
               <Box sx={{ position: "absolute", top: 2, right: 2 }}>
                 <NonBlockingPopover>
                   <List disablePadding>
@@ -381,32 +383,21 @@ const DayTimelineItem = ({
 
   return (
     <Box
-      id={IdentifierUtils.getTaoTimelineItemId(
-        tao.attraction?.osmId,
-        tao.attraction?.osmType
-      )}
+      id={IdentifierUtils.getTaoTimelineItemId(tao)}
       m={0}
       p={0}
-      sx={{  
+      sx={{
         position: "relative",
         height: "100%",
       }}
       onMouseEnter={() => {
-        setMapFocusState({
-          id: tao.attraction?.osmId,
-          type: tao.attraction?.osmType,
-          order: tao.order,
-        });
+        setMapFocusId(IdentifierUtils.getTaoTimelineItemId(tao));
       }}
       onMouseLeave={() => {
-        setMapFocusState({
-          id: undefined,
-          type: undefined,
-          order: undefined,
-        });
+        setMapFocusId(undefined);
       }}
     >
-      {TripUtils.isTaoFocused(tao, mapFocusState) ? (
+      {!readonly && TripUtils.isTaoFocused(tao, mapFocusId) ? (
         <Box sx={{position: "relative"}} m={0} p={0} display="flex" justifyContent="center">
           <AddTaoButton
             onClick={() => setEditTao(undefined, i)}

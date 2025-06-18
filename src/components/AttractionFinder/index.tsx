@@ -4,10 +4,10 @@ import {
 } from "@mui/material";
 import { type OsmEntity } from "@services/geoMap/osm";
 import { useEffect, useState } from "react";
-import { type OsmType } from "@constants/Maps";
 import { attractionsService, type Attraction } from "@services/attractions";
 import SearchPanel from "./SearchPanel";
 import MapPanel from "./MapPanel";
+import IdentifierUtils from "@utils/IdentifierUtils";
 
 type AttractionFinderProps = {
   open: boolean;
@@ -31,8 +31,7 @@ const AttractionFinder = ({
   // edit attraction
   const [description, setDescription] = useState<string>("");
   // choose osm and attraction
-  const [osmIdFocus, setOsmIdFocus] = useState<number | undefined>(); // focused osm id
-  const [osmTypeFocus, setOsmTypeFocus] = useState<OsmType | undefined>(); // focused osm type
+  const [idFocus, setIdFocus] = useState<string | undefined>(); // focused osm id
   const [attractionResult, setAttractionResult] = useState<Attraction[]>([]); // attractions available of the focused osm id
   const [attractionFocus, setAttractionFocus] = useState<
     Attraction | undefined
@@ -42,8 +41,8 @@ const AttractionFinder = ({
   // rerender on osmIdFocus for highlight results
   useEffect(() => {
     const initAttractionResult = async () => {
-      if (osmIdFocus) {
-        const attraction = result.find((a) => a.osm_id === osmIdFocus);
+      if (idFocus) {
+        const attraction = result.find((r) => IdentifierUtils.getOsmItemId(r) === idFocus);
         const highlightSearch = await attractionsService.getHighlightsByParams(
           undefined,
           attraction!.osm_id
@@ -52,7 +51,7 @@ const AttractionFinder = ({
       }
     };
     initAttractionResult();
-  }, [osmIdFocus, isUpdated]);
+  }, [idFocus, isUpdated]);
 
   // update parent attribute on attraction
   useEffect(() => {
@@ -63,8 +62,7 @@ const AttractionFinder = ({
 
   const clear = () => {
     // clear attraction focus
-    setOsmIdFocus(undefined);
-    setOsmTypeFocus(undefined);
+    setIdFocus(undefined);
     setResult([]);
     setAttractionResult([]);
     setAttractionFocus(undefined);
@@ -116,10 +114,8 @@ const AttractionFinder = ({
           <SearchPanel
             result={result}
             setResult={setResult}
-            osmIdFocus={osmIdFocus}
-            osmTypeFocus={osmTypeFocus}
-            setOsmIdFocus={setOsmIdFocus}
-            setOsmTypeFocus={setOsmTypeFocus}
+            idFocus={idFocus}
+            setIdFocus={setIdFocus}
             setOpenHighlight={setOpenHighlight}
             clearEditAttraction={clearEditAttraction}
             handleClose={handleClose}
@@ -133,8 +129,7 @@ const AttractionFinder = ({
             attractionResult={attractionResult}
             attractionFocus={attractionFocus}
             setAttractionFocus={setAttractionFocus}
-            osmIdFocus={osmIdFocus}
-            osmTypeFocus={osmTypeFocus}
+            idFocus={idFocus}
             openHighlight={openHighlight}
             setOpenHighlight={setOpenHighlight}
             openEditAttraction={openEditAttraction}

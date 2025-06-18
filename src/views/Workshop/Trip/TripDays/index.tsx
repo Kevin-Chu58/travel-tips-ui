@@ -1,6 +1,6 @@
 import { Grid, type SxProps } from "@mui/material";
 import { type TripDetail } from "@services/trips";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import { type Day, type TripAttractionOrder } from "@services/days";
@@ -16,7 +16,6 @@ import type {
   DayMarkers,
   DayRoutes,
   Marker,
-  OsmFocusState,
   Route,
   RouteRoutes,
   TaoRoutes,
@@ -32,6 +31,7 @@ type TripDaysProps = {
   trip: TripDetail | undefined;
   queryKey: (string | undefined)[];
   navTabValue?: number;
+  readonly?: boolean;
   sx?: SxProps;
 };
 
@@ -39,6 +39,7 @@ const TripDays = ({
   trip,
   queryKey,
   navTabValue,
+  readonly = false,
   sx,
 }: TripDaysProps) => {
   // day focus
@@ -48,13 +49,9 @@ const TripDays = ({
   // mapping info
   const [markersOnDay, setMarkersOnDay] = useState<Marker[]>([]);
   const [markers, setMarkers] = useState<DayMarkers[]>();
-  const [mapFocusState, setMapFocusState] = useState<OsmFocusState>({
-    id: undefined,
-    type: undefined,
-    order: undefined,
-  });
+  const [mapFocusId, setMapFocusId] = useState<string | undefined>();
   // mapping route
-  const [mapRoutes, setMapRoutes] = useState<Route[][] | undefined>();
+  const [mapRoutes, setMapRoutes] = useState<Route[] | undefined>();
   const [mapRouteTypes, setMapRouteTypes] = useState<string[][] | undefined>(
     []
   );
@@ -66,6 +63,9 @@ const TripDays = ({
   // others
   const token = useSelector((state: RootState) => state.auth.accessToken);
 
+  const _markersOnDay = useMemo(() => markersOnDay, [markersOnDay]);
+  const _routesOnDay = useMemo(() => mapRoutes, [mapRoutes]);
+
   /** useEffect */
 
   // rerender on trip and nav tab switching to update marker info
@@ -76,6 +76,7 @@ const TripDays = ({
     trip.days?.forEach((day) => {
       let markers =
         day.tripAttractionOrders?.map((tao) => ({
+          id: IdentifierUtils.getTaoTimelineItemId(tao),
           lat: tao.attraction!.lat,
           lng: tao.attraction!.lng,
           label: tao.attraction!.name,
@@ -104,15 +105,10 @@ const TripDays = ({
 
   // rerender on isUpdated to update day-content scrollbar position
   useEffect(() => {
-    if (mapFocusState.id) {
+    if (mapFocusId) {
       requestAnimationFrame(() => {
         let container = document.getElementById("day-content");
-        let target = document.getElementById(
-          IdentifierUtils.getTaoTimelineItemId(
-            mapFocusState.id,
-            mapFocusState.type
-          )
-        );
+        let target = document.getElementById(mapFocusId);
 
         if (container && target) {
           container.scrollTo({
@@ -133,19 +129,17 @@ const TripDays = ({
 
   // rerender on mapRouteTypes to update the mapRoute coords
   useEffect(() => {
-    if (routes && mapRouteTypes) {
-      let _mapRoutes: Route[][] = mapRouteTypes.map((dayRouteTypes, i) => {
+    if (onDay && routes && mapRouteTypes) {
+        let onDayIndex = routes.findIndex(r => r.dayId === onDay.id);
+        let dayRouteTypes = mapRouteTypes[onDayIndex!];
         let _dayRoutes = dayRouteTypes.map((taoRouteType, j) => {
-          let _route = routes[i].taos[j][taoRouteType as MapRouteType];
+          let _route = routes[onDayIndex!].taos[j][taoRouteType as MapRouteType];
           return _route!;
         });
 
-        return _dayRoutes;
-      });
-
-      setMapRoutes(_mapRoutes);
+      setMapRoutes(_dayRoutes);
     }
-  }, [mapRouteTypes]);
+  }, [onDay, mapRouteTypes]);
 
   const initRoutes = async () => {
     if (markers) {
@@ -306,10 +300,11 @@ const TripDays = ({
           setOnDay={setOnDay}
           mapRoutes={mapRoutes}
           mapRouteTypes={mapRouteTypes}
-          mapFocusState={mapFocusState}
-          setMapFocusState={setMapFocusState}
+          mapFocusId={mapFocusId}
+          setMapFocusId={setMapFocusId}
           updateRoutes={updateRoutes}
           renderRoutes={() => setIsTaoUpdated((prev) => !prev)}
+          readonly={readonly}
         />
       </Grid>
 
@@ -322,14 +317,11 @@ const TripDays = ({
       >
         <Map
           height="100%"
-          markers={markersOnDay}
-          mapRoutes={mapRoutes}
-          onDay={onDay?.id}
-          focusId={mapFocusState.id}
-          focusType={mapFocusState.type}
-          focusOrder={mapFocusState.order}
+          markers={_markersOnDay}
+          mapRoutes={_routesOnDay}
+          focusId={mapFocusId}
           focusRoute={mapView === "route"}
-          setFocusState={setMapFocusState}
+          setFocusId={setMapFocusId}
           setIsParentUpdated={() => setIsUpdated((prev) => !prev)}
           setMapView={setMapView}
           updateOnMarkerFocus={true}

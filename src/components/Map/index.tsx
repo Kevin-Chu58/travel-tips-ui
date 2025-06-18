@@ -1,4 +1,4 @@
-import type { Direction, OsmType } from "@constants/Maps";
+import type { Direction } from "@constants/Maps";
 import { Box, type SxProps } from "@mui/material";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -8,7 +8,7 @@ import markerIconBlue from "@assets/map/marker-icon-blue.png";
 import markerIconGreen from "@assets/map/marker-icon-green.png";
 import markerShadow from "@assets/map/marker-shadow.png";
 import { getHex } from "@constants/Colors";
-import type { Marker, OsmFocusState, Route } from "@constants/Types";
+import type { Marker, Route } from "@constants/Types";
 
 type MapProps = {
   readonly?: boolean;
@@ -16,14 +16,11 @@ type MapProps = {
   lat?: number;
   lng?: number;
   markers?: Marker[];
-  mapRoutes?: Route[][];
-  onDay?: number;
+  mapRoutes?: Route[];
   setIsParentUpdated?: () => void;
-  focusId?: number | undefined;
-  focusType?: OsmType | undefined;
-  focusOrder?: number | undefined;
+  focusId?: string;
   focusRoute?: boolean;
-  setFocusState?: (mapFocusState: OsmFocusState) => void;
+  setFocusId?: (state: string | undefined) => void;
   setMapView?: (state: string) => void;
   openPopUp?: boolean;
   updateOnMarkerFocus?: boolean;
@@ -41,13 +38,10 @@ const Map = React.memo(({
   lng = -106.53,
   markers = [],
   mapRoutes = [],
-  // onDay = undefined,
   setIsParentUpdated = () => {},
   focusId = undefined,
-  focusType = undefined,
-  focusOrder = undefined,
   focusRoute = false,
-  setFocusState = () => {},
+  setFocusId = () => {},
   setMapView = () => {},
   openPopUp = false,
   updateOnMarkerFocus = false,
@@ -63,7 +57,7 @@ const Map = React.memo(({
   const markersRef = useRef<L.Marker[]>([]);
   const routesRef = useRef<L.Polyline[]>([]);
   // map routes
-  const [routeCoords, setRouteCoords] = useState<[number, number][][][]>(); // days/taos/corodinates
+  const [routeCoords, setRouteCoords] = useState<[number, number][][]>(); // days/taos/corodinates
   // enfore updates
   const [isUpdated, setIsUpdated] = useState<boolean>(false);
 
@@ -89,14 +83,12 @@ const Map = React.memo(({
     } else {
       setIsUpdated((prev) => !prev);
     }
-  }, [focusId, focusType, focusOrder, focusRoute]);
+  }, [focusId, focusRoute]);
 
   // rerender route coordinates on osrmRoute
   useEffect(() => {
     if (mapRoutes.length > 0) {
-      const routeCoords = mapRoutes.map((dayRoutes) =>
-        dayRoutes.map((taoRoute) => taoRoute?.coords ?? [])
-      );
+      const routeCoords = mapRoutes.map((taoRoute) => taoRoute?.coords ?? []);
       setRouteCoords(routeCoords);
     }
   }, [mapRoutes]);
@@ -159,7 +151,7 @@ const Map = React.memo(({
 
     // Draw polyline
     let markerIndex = markers.findIndex(
-      (marker) => marker.osmId === focusId && marker.osmType === focusType
+      (marker) => marker.id === focusId
     );
     // if (markerIndex + 1 === markers.length) return;
 
@@ -167,8 +159,7 @@ const Map = React.memo(({
 
     let polyBound: L.LatLngBounds | undefined = undefined;
 
-    routeCoords?.forEach((dayRouteCoords) =>
-      dayRouteCoords.forEach((coords, i) => {
+    routeCoords?.forEach((coords, i) => {
         let marker = markers.at(i);
 
         // create polyline for each route coords array
@@ -183,11 +174,7 @@ const Map = React.memo(({
 
         // show polyline route on the map
         polyline.addTo(mapInstanceRef.current!).on("click", () => {
-          setFocusState({
-            id: marker?.osmId,
-            type: marker?.osmType,
-            order: marker?.order,
-          });
+          setFocusId(marker?.id);
           setMapView("route");
           setIsParentUpdated();
         });
@@ -197,7 +184,7 @@ const Map = React.memo(({
         else {
           polyBound = polyline.getBounds();
         }
-      })
+      }
     );
 
     if (focusOnRoute) {
@@ -229,15 +216,14 @@ const Map = React.memo(({
 
     markers.forEach((marker, i) => {
       let zoom = boundsZoom!;
-      let isFocus = marker.osmId === focusId && marker.osmType === focusType;
+      let isFocus = marker.id === focusId;
       isFocusFound = isFocusFound || isFocus;
 
       let prevMarker = i > 0 ? markers[i - 1] : undefined;
       let isPrevFocus =
         focusOnRoute &&
         prevMarker &&
-        prevMarker.osmId === focusId &&
-        prevMarker.osmType === focusType;
+        prevMarker.id === focusId;
 
       let icon = isFocus ? greenIcon : isPrevFocus ? blueIcon : greyIcon;
       let zIndexOffset = isFocus ? 1000 : 0;
@@ -256,11 +242,7 @@ const Map = React.memo(({
 
       // add markers to the map
       leafletMarker.addTo(mapInstanceRef.current!).on("click", () => {
-        setFocusState({
-          id: marker.osmId,
-          type: marker.osmType,
-          order: marker.order,
-        });
+        setFocusId(marker.id);
         setMapView("location");
         setIsParentUpdated();
       });

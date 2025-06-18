@@ -18,7 +18,7 @@ import { useDayMutations } from "@react-queries/useDayQueries";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import type { MapRouteType } from "@constants/Maps";
 import DayTimeline from "./DayTimeline";
-import type { OsmFocusState, Route } from "@constants/Types";
+import type { Route } from "@constants/Types";
 import TripUtils from "@utils/TripUtils";
 import TaoEditor from "@components/TaoEditor";
 
@@ -28,10 +28,10 @@ type DayContentProps = {
   queryKey: (string | undefined)[];
   onDay: Day | undefined;
   setOnDay: (state: Day | undefined) => void;
-  mapRoutes?: Route[][];
+  mapRoutes?: Route[];
   mapRouteTypes?: string[][];
-  mapFocusState?: OsmFocusState;
-  setMapFocusState?: (state: OsmFocusState) => void;
+  mapFocusId?: string;
+  setMapFocusId?: (state: string | undefined) => void;
   updateRoutes?: (
     dayId: number,
     taoId: number,
@@ -39,6 +39,7 @@ type DayContentProps = {
     coords: [number, number][]
   ) => void;
   renderRoutes: () => void;
+  readonly?: boolean;
 };
 
 const DayContent = ({
@@ -49,10 +50,11 @@ const DayContent = ({
   setOnDay,
   mapRoutes,
   mapRouteTypes,
-  mapFocusState,
-  setMapFocusState,
+  mapFocusId,
+  setMapFocusId,
   updateRoutes,
   renderRoutes,
+  readonly = false,
 }: DayContentProps) => {
   // constants
   const startDefault = dayjs().hour(8).minute(0).second(0);
@@ -177,15 +179,14 @@ const DayContent = ({
     setEditTao(taoId);
     setEditTaoOrder(order ?? 0);
     setOpenEditTao(true);
-  }
+  };
 
   return (
     <>
       <Grid
         id="day-content"
         size={12}
-        sx={{ overflowX: "hidden", overflowY: "auto", 
-        position: "relative" }}
+        sx={{ overflowX: "hidden", overflowY: "auto", position: "relative" }}
       >
         {trip?.days?.map((day, i) => (
           <Grid
@@ -202,58 +203,7 @@ const DayContent = ({
               top={0}
               sx={{ zIndex: 100, bgcolor: "secondary.main" }}
             >
-              {editDay !== day.id ? (
-                <>
-                  <Grid container size={12} direction="row" alignItems="center">
-                    <Typography variant="h6" fontWeight="bold" color="primary">
-                      Day {i + 1}
-                    </Typography>
-                    <Typography variant="h6" fontWeight="bold" ml={1}>
-                      {day.name}
-                    </Typography>
-                    {day.id === onDay?.id && (
-                      <Box position="absolute" right={10}>
-                        <TTIconButton
-                          size="small"
-                          sx={{
-                            color: "secondary.main",
-                            bgcolor: "secondary.900",
-                            ":hover": {
-                              bgcolor: "secondary.dark",
-                            },
-                          }}
-                          onClick={() => setEditDay(day.id)}
-                        >
-                          <EditIcon />
-                        </TTIconButton>
-                        <TTIconButton
-                          size="small"
-                          sx={{
-                            color: "secondary.main",
-                            bgcolor: "error.main",
-                            ":hover": {
-                              bgcolor: "error.dark",
-                            },
-                          }}
-                          onClick={() =>
-                            setDeleteDay(TripUtils.getDayFromTrip(trip, day.id))
-                          }
-                        >
-                          <DeleteIcon />
-                        </TTIconButton>
-                      </Box>
-                    )}
-                  </Grid>
-                  <Typography>
-                    {TimeUtils.formatTime(day.start)} -{" "}
-                    {TimeUtils.formatTime(day.end)}{" "}
-                    {day.isOverNight ? "overnight" : ""}
-                  </Typography>
-                  <Typography whiteSpace="pre-line">
-                    {day.description}
-                  </Typography>
-                </>
-              ) : (
+              {editDay === day.id ? (
                 <>
                   <Grid container alignItems="center">
                     <Typography variant="h6" fontWeight="bold" color="primary">
@@ -303,6 +253,57 @@ const DayContent = ({
                     />
                   </Grid>
                 </>
+              ) : (
+                <>
+                  <Grid container size={12} direction="row" alignItems="center">
+                    <Typography variant="h6" fontWeight="bold" color="primary">
+                      Day {i + 1}
+                    </Typography>
+                    <Typography variant="h6" fontWeight="bold" ml={1}>
+                      {day.name}
+                    </Typography>
+                    {!readonly && day.id === onDay?.id && (
+                      <Box position="absolute" right={10}>
+                        <TTIconButton
+                          size="small"
+                          sx={{
+                            color: "secondary.main",
+                            bgcolor: "secondary.900",
+                            ":hover": {
+                              bgcolor: "secondary.dark",
+                            },
+                          }}
+                          onClick={() => setEditDay(day.id)}
+                        >
+                          <EditIcon />
+                        </TTIconButton>
+                        <TTIconButton
+                          size="small"
+                          sx={{
+                            color: "secondary.main",
+                            bgcolor: "error.main",
+                            ":hover": {
+                              bgcolor: "error.dark",
+                            },
+                          }}
+                          onClick={() =>
+                            setDeleteDay(TripUtils.getDayFromTrip(trip, day.id))
+                          }
+                        >
+                          <DeleteIcon />
+                        </TTIconButton>
+                      </Box>
+                    )}
+                  </Grid>
+                  <Typography>
+                    {TimeUtils.formatTime(day.start)} -{" "}
+                    {TimeUtils.formatTime(day.end)}{" "}
+                    {day.isOverNight ? "overnight" : ""}
+                  </Typography>
+                  <Typography whiteSpace="pre-line">
+                    {day.description}
+                  </Typography>
+                </>
               )}
               <Divider />
             </Box>
@@ -312,12 +313,13 @@ const DayContent = ({
               trip={trip}
               queryKey={queryKey}
               day={day}
-              dayRoutes={mapRoutes?.at(i) ?? []}
+              dayRoutes={mapRoutes ?? []}
               mapRouteTypes={mapRouteTypes?.at(i) ?? []}
-              mapFocusState={mapFocusState}
-              setMapFocusState={setMapFocusState}
+              mapFocusId={mapFocusId}
+              setMapFocusId={setMapFocusId}
               updateRoutes={updateRoutes}
               setEditTao={updateOpenEditTao}
+              readonly={readonly}
             />
           </Grid>
         ))}
@@ -332,7 +334,9 @@ const DayContent = ({
           <Typography variant="h6" color="error">
             Are you sure you want to delete{" "}
             <strong>
-              Day {(TripUtils.getDayIndexFromTrip(trip, deleteDay?.id ?? 0) ?? 0) + 1}{" "}
+              Day{" "}
+              {(TripUtils.getDayIndexFromTrip(trip, deleteDay?.id ?? 0) ?? 0) +
+                1}{" "}
               {deleteDay?.name && `- ${deleteDay?.name}`}
             </strong>
             ?
@@ -341,26 +345,28 @@ const DayContent = ({
       </Grid>
 
       {/* add icon */}
-      <Fab
-        variant="extended"
-        aria-label="add"
-        onClick={() => setAddDay(true)}
-        disableRipple
-        sx={{
-          position: "absolute",
-          bottom: 10,
-          right: 10,
-          bgcolor: "primary.main",
-          color: "white",
-          ":hover": {
+      {!readonly && (
+        <Fab
+          variant="extended"
+          aria-label="add"
+          onClick={() => setAddDay(true)}
+          disableRipple
+          sx={{
+            position: "absolute",
+            bottom: 10,
+            right: 10,
             bgcolor: "primary.main",
-            filter: "brightness(.9)",
-          },
-        }}
-      >
-        <AddIcon sx={{ mr: 1 }} />
-        New Day
-      </Fab>
+            color: "white",
+            ":hover": {
+              bgcolor: "primary.main",
+              filter: "brightness(.9)",
+            },
+          }}
+        >
+          <AddIcon sx={{ mr: 1 }} />
+          New Day
+        </Fab>
+      )}
 
       {/* new Day */}
       <DayForm
@@ -385,9 +391,9 @@ const DayContent = ({
         taoId={editTao}
         taoOrder={editTaoOrder}
         queryKey={queryKey}
-        title={`Day ${(TripUtils.getDayIndexFromTrip(trip, onDay?.id) ?? 0) + 1} ${
-          onDay?.name ? ` - ${onDay.name}` : ""
-        }`}
+        title={`Day ${
+          (TripUtils.getDayIndexFromTrip(trip, onDay?.id) ?? 0) + 1
+        } ${onDay?.name ? ` - ${onDay.name}` : ""}`}
         open={openEditTao}
         handleClose={() => setOpenEditTao(false)}
         render={renderRoutes}

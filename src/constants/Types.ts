@@ -78,6 +78,7 @@ export type RouteRoutes = DayRoutes[];
 
 // map
 export type Marker = {
+  id?: string;
   lat: number;
   lng: number;
   label?: string;
@@ -85,12 +86,6 @@ export type Marker = {
   osmType: OsmType;
   zoom?: number;
   order?: number;
-};
-
-export type OsmFocusState = {
-  id: number | undefined;
-  type: OsmType | undefined;
-  order: number | undefined;
 };
 
 export type MapView = {

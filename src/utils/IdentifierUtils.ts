@@ -1,14 +1,21 @@
-import type { OsmType } from "@constants/Maps";
+import type { TripAttractionOrder } from "@services/days";
+import type { OsmEntity } from "@services/geoMap/osm";
 
 const getTaoTimelineItemId = (
-  osmId: number | undefined,
-  osmType: OsmType | undefined
+  tao: TripAttractionOrder
 ) => {
-  return `${osmId}/${osmType}`;
+  return `${tao.dayId}-${tao.order}`;
 };
+
+const getOsmItemId = (
+  osm: OsmEntity
+) => {
+  return `${osm.osm_id}-${osm.type}`
+}
 
 const IdentifierUtils = {
   getTaoTimelineItemId,
+  getOsmItemId,
 };
 
 export default IdentifierUtils;

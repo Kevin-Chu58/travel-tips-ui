@@ -1,5 +1,4 @@
 import Map from "@components/Map";
-import type { OsmType } from "@constants/Maps";
 import {
   Avatar,
   Box,
@@ -14,18 +13,18 @@ import type { OsmEntity } from "@services/geoMap/osm";
 import AddIcon from "@mui/icons-material/Add";
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { attractionsService, type Attraction } from "@services/attractions";
 import { useSelector } from "react-redux";
 import type { RootState } from "@redux/store";
+import IdentifierUtils from "@utils/IdentifierUtils";
 
 type MapPanelProps = {
   result: OsmEntity[];
   attractionResult: Attraction[];
   attractionFocus: Attraction | undefined;
   setAttractionFocus: (state: Attraction | undefined) => void;
-  osmIdFocus: number | undefined;
-  osmTypeFocus: OsmType | undefined;
+  idFocus: string | undefined;
   openHighlight: boolean;
   setOpenHighlight: (state: boolean) => void;
   openEditAttraction: boolean;
@@ -41,8 +40,7 @@ const MapPanel = ({
   attractionResult,
   attractionFocus,
   setAttractionFocus,
-  osmIdFocus,
-  osmTypeFocus,
+  idFocus,
   openHighlight,
   setOpenHighlight,
   openEditAttraction,
@@ -58,6 +56,7 @@ const MapPanel = ({
 
   const markers = useMemo(() => {
     return result.map((r) => ({
+      id: IdentifierUtils.getOsmItemId(r),
       lat: parseFloat(r.lat),
       lng: parseFloat(r.lon),
       label: r.name,
@@ -70,9 +69,9 @@ const MapPanel = ({
   const postNewAttraction = async (
     description?: string
   ): Promise<Attraction> => {
-    let osmFocused = result.find((r) => r.osm_id === osmIdFocus);
+    let osmFocused = result.find((r) => IdentifierUtils.getOsmItemId(r) === idFocus);
     let newAttraction = {
-      osmId: osmIdFocus!,
+      osmId: osmFocused!.osm_id,
       osmType: osmFocused!.osm_type,
       lng: Number(osmFocused!.lon),
       lat: Number(osmFocused!.lat),
@@ -108,13 +107,12 @@ const MapPanel = ({
       <Map
         height="100%"
         markers={markers}
-        focusId={osmIdFocus}
-        focusType={osmTypeFocus}
+        focusId={idFocus}
         correctionBias={4.5}
-        correctionZoom={-1}
+        correctionZoom={2}
         updateOnMarkerFocus
       />
-      {osmIdFocus && openHighlight && (
+      {idFocus && openHighlight && (
         <Grid
           size={12}
           position="absolute"
