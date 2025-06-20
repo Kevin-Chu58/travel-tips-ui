@@ -4,7 +4,7 @@ import { type TripDetail, tripsService } from "@services/trips";
 import { Container, Divider, Grid, Typography } from "@mui/material";
 import { useParams } from "react-router";
 import { Headers } from "@constants/Layouts";
-import TripDays from "@views/Workshop/Trip/TripDays";
+import TripTimelineMap from "@components/TripTimelineMap";
 
 const TripView = () => {
   // components
@@ -32,16 +32,15 @@ const TripView = () => {
   }, []);
 
   return (
-    <Container maxWidth={false} disableGutters sx={{ color: "black" }}>
+    <Container id="trip-container" maxWidth={false} disableGutters sx={{ color: "black", 
+        overflowX: "hidden",
+        overflowY: "auto",
+          height: `calc(100vh - ${Headers}px)`, }}>
       <Grid
         container
         direction="column"
         position="relative"
         spacing={4}
-        sx={{
-          // background: getHex("ivory"),
-          minHeight: `calc(100vh - ${Headers}px)`,
-        }}
       >
         {/* name */}
         <Grid
@@ -51,9 +50,10 @@ const TripView = () => {
           px={4}
           sx={{
             position: "sticky",
-            top: `${Headers}px`,
+            top: 0,
+            zIndex: 10,
             color: "white",
-            bgcolor: "rgba(0, 0, 0, .9)",
+            bgcolor: "rgba(0, 0, 0, .8)",
             backdropFilter: "blur(4px)",
           }}
         >
@@ -83,7 +83,7 @@ const TripView = () => {
                 Timeline
               </Typography>
               <Divider sx={{borderBottomWidth: 2, borderColor: "black", }} />
-              <TripDays
+              <TripTimelineMap
                 trip={trip}
                 queryKey={queryKey}
                 readonly={true}

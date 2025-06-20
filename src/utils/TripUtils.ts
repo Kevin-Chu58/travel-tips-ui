@@ -1,4 +1,3 @@
-import type { OsmFocusState } from "@constants/Types";
 import type { Day, TripAttractionOrder } from "@services/days";
 import type { TripDetail } from "@services/trips";
 import IdentifierUtils from "./IdentifierUtils";

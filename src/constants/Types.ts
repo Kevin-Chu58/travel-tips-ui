@@ -12,6 +12,20 @@ export type NavTab = {
   condition?: (args: any[]) => boolean;
 };
 
+export type StringArrUpdate = {
+  stringArr: string[];
+  update: React.Dispatch<React.SetStateAction<string[]>>;
+};
+
+// form
+
+export type DayFormParams = {
+  name: string | undefined;
+  description: string | undefined;
+  start: Dayjs | null;
+  end: Dayjs | null;
+};
+
 // sorting
 export type SortType = {
   label: string;

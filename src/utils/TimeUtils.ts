@@ -1,4 +1,4 @@
-import { HM, HMA, HMS } from "@constants/Times";
+import { HM, hMA, HMS } from "@constants/Times";
 import type { Dayjs } from "dayjs";
 import dayjs from "dayjs";
 
@@ -88,7 +88,7 @@ const stringToDayjs = (time: string) => {
 };
 
 const formatTime = (time: string, ampm: boolean = true) => {
-  return dayjs(time, HM).format(ampm ? HMA : HM);
+  return dayjs(time, HM).format(ampm ? hMA : HM);
 };
 
 const TimeUtils = {

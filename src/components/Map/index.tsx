@@ -31,13 +31,15 @@ type MapProps = {
   sx?: SxProps;
 };
 
+// TODO - add a option dropdown to select which day to view: [all, day 1, day 2, ...]
+
 const Map = React.memo(({
   readonly = false,
   height = 200,
   lat = 38.79,
   lng = -106.53,
   markers = [],
-  mapRoutes = [],
+  mapRoutes,
   setIsParentUpdated = () => {},
   focusId = undefined,
   focusRoute = false,
@@ -58,8 +60,6 @@ const Map = React.memo(({
   const routesRef = useRef<L.Polyline[]>([]);
   // map routes
   const [routeCoords, setRouteCoords] = useState<[number, number][][]>(); // days/taos/corodinates
-  // enfore updates
-  const [isUpdated, setIsUpdated] = useState<boolean>(false);
 
   const focusOnMarker = updateOnMarkerFocus && !focusRoute;
   const focusOnRoute = focusRoute;
@@ -68,37 +68,21 @@ const Map = React.memo(({
 
   /** useEffect */
 
-  // update on markers to update the overall map
-  useEffect(() => {
-    // if (markers.length > 0) {
-    setIsUpdated((prev) => !prev);
-    // }
-  }, [markers]);
-
-  // update on id, type, route to update the overall map
+  // update on markers, taoId, focusRoute and routeCoords to update the overall map
   useEffect(() => {
     if (mapInstanceRef.current) {
       setRoutes();
       setMarkers();
-    } else {
-      setIsUpdated((prev) => !prev);
     }
-  }, [focusId, focusRoute]);
+  }, [markers, focusId, focusRoute, routeCoords]);
 
   // rerender route coordinates on osrmRoute
   useEffect(() => {
-    if (mapRoutes.length > 0) {
+    if (mapRoutes) {
       const routeCoords = mapRoutes.map((taoRoute) => taoRoute?.coords ?? []);
       setRouteCoords(routeCoords);
     }
   }, [mapRoutes]);
-
-  // rerender route display on routes
-  useEffect(() => {
-    if (mapInstanceRef.current) {
-      setRoutes();
-    }
-  }, [routeCoords]);
 
   // renrender the whole map on isUpdated
   useEffect(() => {
@@ -134,13 +118,14 @@ const Map = React.memo(({
       }).addTo(mapInstanceRef.current);
     }
 
-    return () => {
-      if (mapInstanceRef.current) {
-        mapInstanceRef.current.remove();
-        mapInstanceRef.current = null;
-      }
-    };
-  }, [isUpdated]);
+    // return () => {
+    //   if (mapInstanceRef.current) {
+    //     mapInstanceRef.current.remove();
+    //     mapInstanceRef.current = null;
+    //   }
+    // };
+  }, []);
+  // }, [isUpdated]);
 
   const setRoutes = () => {
     // if (markers.length === 0) return;
@@ -362,4 +347,4 @@ const Map = React.memo(({
   );
 });
 
-export default Map;
+export default React.memo(Map);

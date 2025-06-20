@@ -8,7 +8,9 @@ const Layouts = {
   WorkshopNameMt: 16,
   WorkshopNavTab: 48,
   WorkshopToolBar: 32,
+  WorkshopNavTabDivider: 1,
   // workshop - edit trip
+  // TODO - remove this, because both trips and trip use the same main attributes defined above
   WorkshopTripName: 40,
   WorkshopTripNameMt: 16,
 } as const;
@@ -16,8 +18,9 @@ const Layouts = {
 // Header
 export const Headers = Layouts.Header; // + Layouts.SubHeader;
 // workshop - main
-export const WorkshopToName = Headers + Layouts.WorkshopName + Layouts.WorkshopNameMt;
-export const WorkshopToNavTab = WorkshopToName + Layouts.WorkshopNavTab;
+export const WorkshopToNameMt = Headers + Layouts.WorkshopNameMt;
+export const WorkshopToName = WorkshopToNameMt + Layouts.WorkshopName;
+export const WorkshopToNavTab = WorkshopToName + Layouts.WorkshopNavTab + Layouts.WorkshopNavTabDivider;
 export const WorkshopToToolBar = WorkshopToNavTab + Layouts.WorkshopToolBar;
 // workshop - edit trip
 export const WorkshopToTripName = Headers + Layouts.WorkshopTripName + Layouts.WorkshopTripNameMt;

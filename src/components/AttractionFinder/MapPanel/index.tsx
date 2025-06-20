@@ -24,7 +24,7 @@ type MapPanelProps = {
   attractionResult: Attraction[];
   attractionFocus: Attraction | undefined;
   setAttractionFocus: (state: Attraction | undefined) => void;
-  idFocus: string | undefined;
+  focusId: string | undefined;
   openHighlight: boolean;
   setOpenHighlight: (state: boolean) => void;
   openEditAttraction: boolean;
@@ -40,7 +40,7 @@ const MapPanel = ({
   attractionResult,
   attractionFocus,
   setAttractionFocus,
-  idFocus,
+  focusId,
   openHighlight,
   setOpenHighlight,
   openEditAttraction,
@@ -69,7 +69,7 @@ const MapPanel = ({
   const postNewAttraction = async (
     description?: string
   ): Promise<Attraction> => {
-    let osmFocused = result.find((r) => IdentifierUtils.getOsmItemId(r) === idFocus);
+    let osmFocused = result.find((r) => IdentifierUtils.getOsmItemId(r) === focusId);
     let newAttraction = {
       osmId: osmFocused!.osm_id,
       osmType: osmFocused!.osm_type,
@@ -107,12 +107,12 @@ const MapPanel = ({
       <Map
         height="100%"
         markers={markers}
-        focusId={idFocus}
+        focusId={focusId}
         correctionBias={4.5}
         correctionZoom={2}
         updateOnMarkerFocus
       />
-      {idFocus && openHighlight && (
+      {focusId && openHighlight && (
         <Grid
           size={12}
           position="absolute"

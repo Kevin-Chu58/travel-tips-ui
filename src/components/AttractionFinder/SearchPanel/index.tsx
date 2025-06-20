@@ -17,7 +17,7 @@ import IdentifierUtils from "@utils/IdentifierUtils";
 type SearchPanelProps = {
   result: OsmEntity[];
   setResult: (state: OsmEntity[]) => void;
-  idFocus: string | undefined;
+  focusId: string | undefined;
   setIdFocus: (state: string) => void;
   setOpenHighlight: (state: boolean) => void;
   clearEditAttraction: () => void;
@@ -27,7 +27,7 @@ type SearchPanelProps = {
 const SearchPanel = ({
   result,
   setResult,
-  idFocus,
+  focusId,
   setIdFocus,
   setOpenHighlight,
   clearEditAttraction,
@@ -138,7 +138,7 @@ const SearchPanel = ({
               p={1}
               key={`attraction-finder-result-${i}`}
               color={
-                IdentifierUtils.getOsmItemId(osm) === idFocus
+                IdentifierUtils.getOsmItemId(osm) === focusId
                   ? "primary.main"
                   : "black"
               }

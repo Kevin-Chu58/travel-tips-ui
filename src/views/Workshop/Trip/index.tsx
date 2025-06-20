@@ -1,9 +1,4 @@
-import {
-  Box,
-  Container,
-  Grid,
-  Typography,
-} from "@mui/material";
+import { Box, Container, Grid, Typography } from "@mui/material";
 import type { RootState } from "@redux/store";
 import { tripsService } from "@services/trips";
 import { useEffect, useState } from "react";
@@ -15,7 +10,10 @@ import TripMain from "./TripMain";
 import TripDays from "./TripDays";
 import ConditionalSuccessIconGroup from "@components/ButtonGroup/ConditionalSuccessButtonGroup";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import Layouts, { Headers } from "@constants/Layouts";
+import Layouts, {
+  Headers,
+  WorkshopToNavTab,
+} from "@constants/Layouts";
 import TTIconButton from "@components/TTIconButton";
 import type { NavTab } from "@constants/Types";
 import TTTabs from "@components/TTTabs";
@@ -126,107 +124,118 @@ const Trip = () => {
     {
       name: "Days",
       label:
-        (trip?.days?.length ?? 0) > 0 ? (
-          `Days (${trip!.days!.length})`
-        ) : (
-          "Days"
-        ),
+        (trip?.days?.length ?? 0) > 0 ? `Days (${trip!.days!.length})` : "Days",
       to: `/workshop/trip/${tripId}/days`,
     },
   ] as NavTab[];
 
   return (
     <Container
+      id="trip-container"
       maxWidth={false}
       disableGutters
       sx={{
         width: "100vw",
         maxHeight: `calc(100vh - ${Headers}px)`,
+        overflowX: "hidden",
+        overflowY: "auto",
         pl: 2,
-        overflow: "hidden",
       }}
     >
-      <Box color="black" mt={`${Layouts.WorkshopTripNameMt}px`}>
+      <Box color="black">
         <Grid container direction="column" spacing={2}>
-          <Grid size={12}>
-            {/* Name */}
+          <Grid size={12} position="relative">
+            {/* trip header */}
             <Grid
               size={12}
-              display="flex"
-              flexDirection="row"
-              alignItems="center"
+              sx={{
+                position: "sticky",
+                pt: `${Layouts.WorkshopTripNameMt}px`,
+                top: 0,
+                zIndex: 10,
+                bgcolor: "secondary.main",
+              }}
             >
+              {/* Name */}
               <Grid
-                container
-                height={Layouts.WorkshopTripName}
+                size={12}
+                display="flex"
+                flexDirection="row"
                 alignItems="center"
               >
-                {editName ? (
-                  <>
-                    <TextField
-                      input={name}
-                      onChange={(e) => setName(e.target.value)}
-                      onEnterDown={handleUpdateName}
-                      fullWidth
-                      autoFocus
-                      inputSx={{
-                        fontSize: "2.125rem",
-                        fontWeight: 600,
-                        lineHeight: 1,
-                        mt: -.3,
-                        p: 0,
-                        height: "auto",
-                      }}
-                    />
-                    <ConditionalSuccessIconGroup
-                      size="medium"
-                      onClose={() => setEditName(false)}
-                      onConfirm={handleUpdateName}
-                    />
-                  </>
-                ) : (
-                  <>
-                    <Typography
-                      variant="h4"
-                      fontWeight={600}
-                      sx={{ borderBottom: "2px solid transparent" }}
-                    >
-                      {trip?.name}
-                    </Typography>
-                    <TTIconButton
-                      sx={{
-                        color: "secondary.main",
-                        bgcolor: "secondary.900",
-                        ":hover": {
-                          bgcolor: "secondary.dark",
-                        },
-                      }}
-                      onClick={() => setEditName(true)}
-                    >
-                      <EditIcon />
-                    </TTIconButton>
-                  </>
-                )}
+                <Grid
+                  container
+                  height={Layouts.WorkshopTripName}
+                  alignItems="center"
+                >
+                  {editName ? (
+                    <>
+                      <TextField
+                        input={name}
+                        onChange={(e) => setName(e.target.value)}
+                        onEnterDown={handleUpdateName}
+                        fullWidth
+                        autoFocus
+                        inputSx={{
+                          fontSize: "2.125rem",
+                          fontWeight: 600,
+                          lineHeight: 1,
+                          mt: -0.3,
+                          p: 0,
+                          height: "auto",
+                        }}
+                      />
+                      <ConditionalSuccessIconGroup
+                        size="medium"
+                        onClose={() => setEditName(false)}
+                        onConfirm={handleUpdateName}
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <Typography
+                        variant="h4"
+                        fontWeight={600}
+                        sx={{ borderBottom: "2px solid transparent" }}
+                      >
+                        {trip?.name}
+                      </Typography>
+                      <TTIconButton
+                        sx={{
+                          color: "secondary.main",
+                          bgcolor: "secondary.900",
+                          ":hover": {
+                            bgcolor: "secondary.dark",
+                          },
+                        }}
+                        onClick={() => setEditName(true)}
+                      >
+                        <EditIcon />
+                      </TTIconButton>
+                    </>
+                  )}
+                </Grid>
+              </Grid>
+
+              <Grid size={12}>
+                <Box
+                  sx={{
+                    borderBottom: 1,
+                    borderColor: "divider",
+                    height: Layouts.WorkshopNavTab,
+                  }}
+                >
+                  <TTTabs
+                    navTabValue={navTabValue}
+                    navTabs={navTabs}
+                    setNavTabValue={setNavTabValue}
+                  />
+                </Box>
               </Grid>
             </Grid>
 
-            <Grid size={12}>
-              <Box
-                sx={{
-                  borderBottom: 1,
-                  borderColor: "divider",
-                  height: Layouts.WorkshopNavTab,
-                }}
-              >
-                <TTTabs
-                  navTabValue={navTabValue}
-                  navTabs={navTabs}
-                  setNavTabValue={setNavTabValue}
-                />
-              </Box>
-            </Grid>
-
-            <Grid size={12}>
+            {/* trip detail pages */}
+            <Grid size={12} sx={{ position: "sticky", top: WorkshopToNavTab }}>
               <Routes>
                 <Route
                   index

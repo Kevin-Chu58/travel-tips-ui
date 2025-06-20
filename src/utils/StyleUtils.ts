@@ -58,10 +58,26 @@ const generateLinearGradientDarker = (
   return `linear-gradient(${direction}, ${darkColor} ${startPercent}%, ${baseColor} ${endPercent}%)`;
 };
 
+// scrollbar
+
+function getOffsetTopRelativeToContainer(target: HTMLElement, container: HTMLElement): number {
+  let offset = 0;
+  let current = target;
+
+  while (current && current !== container && current.offsetParent) {
+    offset += current.offsetTop;
+    current = current.offsetParent as HTMLElement;
+  }
+
+  return offset;
+};
+
 const StyleUtils = {
   // gradient
   generateLinearGradientLighter,
   generateLinearGradientDarker,
+  // scrollbar
+  getOffsetTopRelativeToContainer,
 };
 
 export default StyleUtils;

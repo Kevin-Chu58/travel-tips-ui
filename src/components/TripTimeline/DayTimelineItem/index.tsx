@@ -15,6 +15,7 @@ import {
   ListItemIcon,
   ListItemText,
   Typography,
+  type SxProps,
 } from "@mui/material";
 import type { Day, TripAttractionOrder } from "@services/days";
 import { useEffect, useState } from "react";
@@ -36,7 +37,7 @@ import type { RouteOptionParams } from "@constants/Types";
 import IdentifierUtils from "@utils/IdentifierUtils";
 import NonBlockingPopover from "@components/Popover/NonBlockingPopover";
 import TripUtils from "@utils/TripUtils";
-import AddTaoButton from "../../AddTaoButton";
+import AddTaoButton from "../AddTaoButton";
 import { useTaoMutations } from "@react-queries/useTaoQueriers";
 import { useSelector } from "react-redux";
 import type { RootState } from "@redux/store";
@@ -72,18 +73,19 @@ type DayTimelineItemProps = {
   tao: TripAttractionOrder;
   route?: Route;
   i: number;
-  acummulatedTimes: string[];
   mapRouteType: string;
-  setAcummulatedTimes: (state: string[]) => void;
+  cummulatedTimes?: string[];
   mapFocusId?: string;
   setMapFocusId?: (state: string | undefined) => void;
-  updateRoutes: (
+  updateRoutes?: (
+    dayId: number,
     taoId: number,
     type: MapRouteType,
     coords: [number, number][]
   ) => void;
   setEditTao: (state: number | undefined, order?: number) => void;
   readonly?: boolean;
+  sx?: SxProps;
 };
 
 const DayTimelineItem = ({
@@ -93,14 +95,14 @@ const DayTimelineItem = ({
   route,
   i,
   queryKey,
-  acummulatedTimes,
+  cummulatedTimes,
   mapRouteType,
-  setAcummulatedTimes,
   mapFocusId,
   setMapFocusId = () => {},
   updateRoutes,
   setEditTao,
   readonly = false,
+  sx,
 }: DayTimelineItemProps) => {
   const [routeType, setRouteType] = useState<MapRouteType | undefined>();
   const [cummulatedTime, setCummulatedTime] = useState<string>();
@@ -118,12 +120,12 @@ const DayTimelineItem = ({
     });
 
   const updateTaoRoutes = (type: MapRouteType) => {
-    if (nextTao) {
+    if (nextTao && updateRoutes) {
       const coords = [
         [tao.attraction!.lng, tao.attraction!.lat],
         [nextTao!.attraction!.lng, nextTao!.attraction!.lat],
       ] as [number, number][];
-      updateRoutes(tao.id, type, coords);
+      updateRoutes(day.id, tao.id, type, coords);
     }
   };
 
@@ -147,17 +149,10 @@ const DayTimelineItem = ({
 
   // calculate the cummulatedTime of the day on acummulatedTimes
   useEffect(() => {
-    let cummulatedTime = acummulatedTimes.at(i)!;
-    setCummulatedTime(cummulatedTime);
-
-    if (acummulatedTimes.length === i + 1) {
-      let cummulatedTimeNext = TimeUtils.addMinutesToTime(
-        cummulatedTime,
-        tao.estimateTime + tao.estimateTravelTime
-      );
-      setAcummulatedTimes([...acummulatedTimes, cummulatedTimeNext]);
+    if (cummulatedTimes) {
+      setCummulatedTime(cummulatedTimes[i]);
     }
-  }, [acummulatedTimes]);
+  }, [cummulatedTimes]);
 
   // rerender on route duration to update minute difference between expected and estimated travel time
   useEffect(() => {
@@ -207,6 +202,7 @@ const DayTimelineItem = ({
                 },
               }
             : {}),
+          ...sx,
         }}
       >
         <TimelineOppositeContent>
@@ -401,12 +397,12 @@ const DayTimelineItem = ({
         <Box sx={{position: "relative"}} m={0} p={0} display="flex" justifyContent="center">
           <AddTaoButton
             onClick={() => setEditTao(undefined, i)}
-            sx={{ position: "absolute", top: -16, ml: "auto", zIndex: 10 }}
+            sx={{ position: "absolute", top: -16, ml: "auto", zIndex: 5 }}
           />
           <TimelineItemBase/>
           <AddTaoButton
             onClick={() => setEditTao(undefined, i+1)}
-            sx={{ position: "absolute", bottom: -16, zIndex: 10 }}
+            sx={{ position: "absolute", bottom: -16, zIndex: 5 }}
           />
         </Box>
       ) : (

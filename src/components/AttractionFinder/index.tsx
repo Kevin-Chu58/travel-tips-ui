@@ -31,7 +31,7 @@ const AttractionFinder = ({
   // edit attraction
   const [description, setDescription] = useState<string>("");
   // choose osm and attraction
-  const [idFocus, setIdFocus] = useState<string | undefined>(); // focused osm id
+  const [focusId, setIdFocus] = useState<string | undefined>(); // focused osm id
   const [attractionResult, setAttractionResult] = useState<Attraction[]>([]); // attractions available of the focused osm id
   const [attractionFocus, setAttractionFocus] = useState<
     Attraction | undefined
@@ -41,8 +41,8 @@ const AttractionFinder = ({
   // rerender on osmIdFocus for highlight results
   useEffect(() => {
     const initAttractionResult = async () => {
-      if (idFocus) {
-        const attraction = result.find((r) => IdentifierUtils.getOsmItemId(r) === idFocus);
+      if (focusId) {
+        const attraction = result.find((r) => IdentifierUtils.getOsmItemId(r) === focusId);
         const highlightSearch = await attractionsService.getHighlightsByParams(
           undefined,
           attraction!.osm_id
@@ -51,7 +51,7 @@ const AttractionFinder = ({
       }
     };
     initAttractionResult();
-  }, [idFocus, isUpdated]);
+  }, [focusId, isUpdated]);
 
   // update parent attribute on attraction
   useEffect(() => {
@@ -114,7 +114,7 @@ const AttractionFinder = ({
           <SearchPanel
             result={result}
             setResult={setResult}
-            idFocus={idFocus}
+            focusId={focusId}
             setIdFocus={setIdFocus}
             setOpenHighlight={setOpenHighlight}
             clearEditAttraction={clearEditAttraction}
@@ -129,7 +129,7 @@ const AttractionFinder = ({
             attractionResult={attractionResult}
             attractionFocus={attractionFocus}
             setAttractionFocus={setAttractionFocus}
-            idFocus={idFocus}
+            focusId={focusId}
             openHighlight={openHighlight}
             setOpenHighlight={setOpenHighlight}
             openEditAttraction={openEditAttraction}
