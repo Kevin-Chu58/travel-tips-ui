@@ -1,25 +1,19 @@
 import TTIconButton from "@components/TTIconButton";
 import type { MapView } from "@constants/Types";
-import { Box, Tooltip } from "@mui/material";
+import { Box, Tooltip, type SxProps } from "@mui/material";
 
 type MapButtonGroup = {
   mapViews: MapView[];
   mapView: string;
   setMapView: (state: string) => void;
-  top?: number;
-  bottom?: number;
-  left?: number;
-  right?: number;
+  sx?: SxProps;
 };
 
 const MapButtonGroup = ({
   mapViews,
   mapView,
   setMapView,
-  top,
-  bottom,
-  left,
-  right,
+  sx,
 }: MapButtonGroup) => {
   const isMapView = (routeType: string) => {
     return mapView === routeType;
@@ -33,10 +27,7 @@ const MapButtonGroup = ({
         mr: 1,
         position: "absolute",
         zIndex: 1200,
-        top: top,
-        bottom: bottom,
-        left: left,
-        right: right,
+        ...sx,
       }}
     >
       {mapViews.map((view) => (

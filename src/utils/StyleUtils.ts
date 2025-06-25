@@ -69,7 +69,7 @@ function getOffsetTopRelativeToContainer(target: HTMLElement, container: HTMLEle
     current = current.offsetParent as HTMLElement;
   }
 
-  return offset;
+  return offset - container.offsetTop;
 };
 
 const StyleUtils = {

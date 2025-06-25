@@ -7,37 +7,21 @@ import TTTabs from "@components/TTTabs";
 import type { NavTab } from "@constants/Types";
 import AttractionPanel from "./AttractionPanel";
 import RoutePanel from "./RoutePanel";
-import { useSelector } from "react-redux";
-import type { RootState } from "@redux/store";
 import { useTaoMutations } from "@react-queries/useTaoQueriers";
-import type { TripDetail } from "@services/trips";
 import TripUtils from "@utils/TripUtils";
+import { useTripTimeline } from "@components/TripTimelineMap/TripTimeline/TripTimelineProvider";
 
 type TaoEditorProps = {
-  trip: TripDetail | undefined;
   day: Day | undefined;
-  queryKey: (string | undefined)[];
   title: string;
-  taoId?: number; // undefined if add new Tao
-  taoOrder?: number;
-  open: boolean;
-  handleClose: () => void;
   render: () => void;
 };
 
 const TaoEditor = ({
-  trip,
   day,
-  queryKey,
   title,
-  taoId,
-  taoOrder,
-  open,
-  handleClose,
   render,
 }: TaoEditorProps) => {
-  // const [editTao, setEditTao] = useState<number | undefined>(); // index of day in trip
-  // const [day, setDay] = useState<Day | undefined>(); // day
   // constants
   const defaultTime = 30;
   const defaultTravelTime = 60;
@@ -49,8 +33,23 @@ const TaoEditor = ({
   // const [taoOrder, setTaoOrder] = useState<number>(Number.MAX_VALUE); // tao order
   const [time, setTime] = useState<number>(defaultTime);
   const [travelTime, setTravelTime] = useState<number>(defaultTravelTime);
-  // others
-  const token = useSelector((state: RootState) => state.auth.accessToken);
+
+  const {
+    // props
+    trip,
+    token,
+    queryKey,
+    // tao
+    editTao,
+    editTaoOrder,
+    openEditTao,
+    setOpenEditTao,
+  } = useTripTimeline();
+  
+  const taoId = editTao;
+  const taoOrder= editTaoOrder;
+  const open = openEditTao;
+  const handleClose= () => setOpenEditTao(false);
 
   const { mutationAddTao, mutationUpdateTao } = useTaoMutations({
     trip,

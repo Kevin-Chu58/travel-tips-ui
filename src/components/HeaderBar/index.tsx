@@ -15,7 +15,7 @@ import UserMenu from "./UserMenu";
 import UserMenuItem from "./UserMenu/UserMenuItem";
 import { useLocation } from "react-router";
 import Pages from "@constants/Pages";
-import Search from "@components/Search";
+import TTSearch from "@components/TTSearch";
 import TLogo from "@assets/T.svg";
 import TBoard from "@assets/TT_Board.svg";
 import Layouts from "@constants/Layouts";
@@ -139,10 +139,21 @@ const HeaderBar = () => {
           {/* main page - quick search */}
           {onPage === Pages.Main && (
             <Box m={2}>
-              <Search
-                className="app-bar-quick-search"
+              <TTSearch
                 color="white"
                 autoFocus={true}
+                sx={{
+                  ".MuiInput-root": {
+                    color: "white",
+                    ".MuiInputBase-input": {
+                      width: "90%",
+                    },
+                    "&::after": {
+                      borderBottom: "2px solid white",
+                      transform: "scaleX(1) translateX(0)",
+                    },
+                  },
+                }}
               />
             </Box>
           )}

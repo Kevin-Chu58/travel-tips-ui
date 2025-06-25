@@ -14,7 +14,7 @@ function App() {
   // rerender to the correct page when login
   useEffect(() => {
     if (!isLoading && isAuthenticated)
-      navigate(window.location.pathname);
+      navigate(window.location.pathname + window.location.search);
   }, [isLoading, isAuthenticated]);
 
   return (

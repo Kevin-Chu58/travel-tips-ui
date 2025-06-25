@@ -4,11 +4,11 @@ import type { Trip } from "@services/trips";
 import { useNavigate } from "react-router";
 import { TripDurationColors } from "@constants/Colors";
 
-type TripViewProps = {
+type TTTripPreviewCardProps = {
   trip?: Trip;
 }
 
-const TripView = ({trip}: TripViewProps) => {
+const TTTripPreviewCard = ({trip}: TTTripPreviewCardProps) => {
   const tags = ["historical", "national park"];
   const navigate = useNavigate();
 
@@ -17,12 +17,8 @@ const TripView = ({trip}: TripViewProps) => {
       return TripDurationColors.none;
     if (duration < 7)
       return TripDurationColors.days;
-    if (duration < 30)
-      return TripDurationColors.weeks;
-    if (duration < 120)
-      return TripDurationColors.months;
     else
-      return TripDurationColors.seasons;
+      return TripDurationColors.weeks;
   }
 
   const formatTripDuration = (duration: number) => {
@@ -40,7 +36,7 @@ const TripView = ({trip}: TripViewProps) => {
       maxHeight={350}
       pb={1}
       sx={{
-        bgcolor: "white",
+        // bgcolor: "white",
         border: "0 solid transparent",
         borderRadius: 2,
       }}
@@ -68,7 +64,7 @@ const TripView = ({trip}: TripViewProps) => {
           sx={{ width: 30, height: 30, cursor: "pointer" }}
         />
           <Typography
-          fontFamily="noto serif"
+          // fontFamily="noto serif"
           variant="body2"
           my={0.5}
           mr={0}
@@ -94,7 +90,8 @@ const TripView = ({trip}: TripViewProps) => {
       <Box>
         {/* name */}
         <Typography
-          fontFamily="tagesschrift"
+          // fontFamily="tagesschrift"
+          fontWeight="bold"
           variant="body1"
           mt={1}
           mx={0.5}
@@ -110,11 +107,10 @@ const TripView = ({trip}: TripViewProps) => {
         </Typography>
 
         {/* address */}
-        <Box>
           <Typography
-            fontFamily="noto serif"
+            // fontFamily="noto serif"
             variant="body2"
-            mx={0.25}
+            mx={0.5}
             sx={{
               cursor: "pointer",
               ":hover": {
@@ -122,12 +118,11 @@ const TripView = ({trip}: TripViewProps) => {
               },
             }}
           >
-            Washington D.C.
+            Washington D.C. (hard coded)
           </Typography>
-        </Box>
 
         {/* tags */}
-        <Box display="flex" flexDirection="row">
+        {/* <Box display="flex" flexDirection="row">
           {tags.map((tag) => (
             <Chip
               key={`trip-view-tag-${tag}`}
@@ -139,17 +134,17 @@ const TripView = ({trip}: TripViewProps) => {
                 color: "white",
                 bgcolor: grey[600],
                 cursor: "pointer",
-                fontFamily: "noto serif",
+                // fontFamily: "noto serif",
                 ":hover": {
                   filter: "brightness(1.1)",
                 },
               }}
             />
           ))}
-        </Box>
+        </Box> */}
       </Box>
     </Grid>
   );
 };
 
-export default TripView;
+export default TTTripPreviewCard;

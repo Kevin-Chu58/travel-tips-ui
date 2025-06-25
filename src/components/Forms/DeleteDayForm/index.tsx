@@ -1,21 +1,14 @@
+import { useTripTimeline } from "@components/TripTimelineMap/TripTimeline/TripTimelineProvider";
 import { Box, Button, Dialog, Grid, Typography } from "@mui/material";
-import type { ReactNode } from "react";
+import TripUtils from "@utils/TripUtils";
 
-type DeleteConfirmFormProps = {
-  title: string;
-  open: any;
-  onClose: () => void;
-  onDelete: () => void;
-  children: ReactNode;
-};
+const DeleteDayForm = () => {
+  const { trip, deleteDay, setDeleteDay, handleDeleteDay } = useTripTimeline();
+  const title = "Delete Day";
+  const open = deleteDay;
+  const onClose = () => setDeleteDay(undefined);
+  const onDelete = () => handleDeleteDay(deleteDay!.id);
 
-const DeleteConfirmForm = ({
-  open,
-  title,
-  onClose,
-  onDelete,
-  children,
-}: DeleteConfirmFormProps) => {
   return (
     <Dialog open={Boolean(open)} onClose={onClose} maxWidth="md">
       <Grid container direction="column" spacing={1} m={4}>
@@ -27,7 +20,18 @@ const DeleteConfirmForm = ({
         </Grid>
 
         {/* content */}
-        <Grid size={12}>{children}</Grid>
+        <Grid size={12}>
+          <Typography variant="h6" color="error">
+            Are you sure you want to delete{" "}
+            <strong>
+              Day{" "}
+              {(TripUtils.getDayIndexFromTrip(trip, deleteDay?.id ?? 0) ?? 0) +
+                1}{" "}
+              {deleteDay?.name && `- ${deleteDay?.name}`}
+            </strong>
+            ?
+          </Typography>
+        </Grid>
 
         {/* buttons */}
         <Grid size={12} justifyContent="center">
@@ -56,4 +60,4 @@ const DeleteConfirmForm = ({
   );
 };
 
-export default DeleteConfirmForm;
+export default DeleteDayForm;

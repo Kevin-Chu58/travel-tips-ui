@@ -4,26 +4,30 @@ import { useEffect, useRef, useState } from "react";
 import IconButton from "@components/TTIconButton";
 import TTTextField from "@components/TTTextField";
 import { Box, type SxProps, type Theme } from "@mui/material";
+import { useSearchParams } from "react-router";
 
-type SearchProps = {
-  className: string;
+type TTSearchProps = {
   color: string;
   placeholder?: string;
+  defaultInput?: string;
   autoFocus?: boolean;
   fullWidth?: boolean;
+  isTripSearch?: boolean;
   sx?: SxProps<Theme>;
 };
 
-const Search = ({
-  className,
+const TTSearch = ({
   color,
   placeholder,
+  defaultInput = "",
   autoFocus = false,
   fullWidth = false,
+  isTripSearch = false,
   sx,
-}: SearchProps) => {
+}: TTSearchProps) => {
+  const [input, setInput] = useState<string>(defaultInput);
   const inputRef = useRef<HTMLInputElement>(null);
-  const [input, setInput] = useState<string>("");
+  const [_, setSearchParams] = useSearchParams();
 
   // re-render the input
   useEffect(() => {}, [input]);
@@ -38,16 +42,23 @@ const Search = ({
   };
 
   const handleSearch = () => {
-    // TODO - get search results
-    console.log(input);
-    clearInput();
+     if (isTripSearch) {
+      setSearchParams(prev => {
+        const newParams = new URLSearchParams(prev);
+        if (input.trim()) {
+          newParams.set("search", input.trim());
+        } else {
+          newParams.delete("search");
+        }
+        return newParams;
+      });
+    }
   };
 
   return (
     <Box display="flex" flexDirection="row" maxWidth={400} sx={sx}>
       <TTTextField
         id="search"
-        className={className}
         placeholder={placeholder}
         autoFocus={autoFocus}
         fullWidth={fullWidth}
@@ -77,4 +88,4 @@ const Search = ({
   );
 };
 
-export default Search;
+export default TTSearch;

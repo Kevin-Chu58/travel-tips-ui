@@ -84,9 +84,12 @@ const useTripTimelineLogic = ({
     }
   };
 
-  const handleDeleteDay = async (id: number) => {
+  const handleDeleteDay = async (id: number | undefined): Promise<boolean> => {
+    if (id === undefined) return false;
+
     mutationRemoveDay.mutate({ id });
     setDeleteDay(undefined);
+    return true;
   };
 
   const handleDayFormChange = (key: string, value: any) =>
@@ -148,6 +151,10 @@ const useTripTimelineLogic = ({
   };
 
   return {
+    // props
+    trip,
+    token,
+    queryKey,
     // day
     addDay,
     setAddDay,
@@ -163,6 +170,7 @@ const useTripTimelineLogic = ({
     handleDeleteDay,
     // tao
     editTao,
+    setEditTao,
     editTaoOrder,
     openEditTao,
     setOpenEditTao,
@@ -170,6 +178,7 @@ const useTripTimelineLogic = ({
     // utils
     clearDayForm,
     dayAcummulatedTimes,
+    setDayAcummulatedTimes,
   };
 };
 

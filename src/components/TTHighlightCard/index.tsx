@@ -119,8 +119,6 @@ const TTHighlightCard = ({
             height="100%"
             readonly
             updateOnMarkerFocus
-            focusId={attractionHighlights.osmId}
-            focusType={attractionHighlights.osmType}
             markers={markers}
             correctionZoom={-3}
           />

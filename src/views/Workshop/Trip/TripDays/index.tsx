@@ -2,7 +2,7 @@ import { type SxProps } from "@mui/material";
 import { type TripDetail } from "@services/trips";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
-import TripTimelineMap from "@components/TripTimelineMap";
+import { TripTimelineMap } from "@components/TripTimelineMap";
 
 dayjs.extend(customParseFormat);
 
@@ -14,18 +14,13 @@ type TripDaysProps = {
   sx?: SxProps;
 };
 
-const TripDays = ({
-  trip,
-  queryKey,
-  sx,
-}: TripDaysProps) => {
-
+const TripDays = ({ trip, queryKey, sx }: TripDaysProps) => {
   return (
-      <TripTimelineMap
-        trip={trip}
-        queryKey={queryKey}
-        sx={sx}
-      />
+    <TripTimelineMap.TripTimelineMapEdit
+      trip={trip}
+      queryKey={queryKey}
+      sx={sx}
+    />
   );
 };
 

@@ -12,7 +12,6 @@ import ConditionalSuccessIconGroup from "@components/ButtonGroup/ConditionalSucc
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Layouts, {
   Headers,
-  WorkshopToNavTab,
 } from "@constants/Layouts";
 import TTIconButton from "@components/TTIconButton";
 import type { NavTab } from "@constants/Types";
@@ -131,11 +130,9 @@ const Trip = () => {
 
   return (
     <Container
-      id="trip-container"
       maxWidth={false}
       disableGutters
       sx={{
-        width: "100vw",
         maxHeight: `calc(100vh - ${Headers}px)`,
         overflowX: "hidden",
         overflowY: "auto",
@@ -150,7 +147,7 @@ const Trip = () => {
               size={12}
               sx={{
                 position: "sticky",
-                pt: `${Layouts.WorkshopTripNameMt}px`,
+                pt: `${Layouts.WorkshopNameMt}px`,
                 top: 0,
                 zIndex: 10,
                 bgcolor: "secondary.main",
@@ -165,7 +162,7 @@ const Trip = () => {
               >
                 <Grid
                   container
-                  height={Layouts.WorkshopTripName}
+                  height={Layouts.WorkshopName}
                   alignItems="center"
                 >
                   {editName ? (
@@ -235,7 +232,7 @@ const Trip = () => {
             </Grid>
 
             {/* trip detail pages */}
-            <Grid size={12} sx={{ position: "sticky", top: WorkshopToNavTab }}>
+            <Grid size={12} position="sticky">
               <Routes>
                 <Route
                   index

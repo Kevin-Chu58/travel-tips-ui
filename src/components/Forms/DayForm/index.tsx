@@ -1,4 +1,4 @@
-import type { DayFormParams } from "@constants/Types";
+import { useTripTimeline } from "@components/TripTimelineMap/TripTimeline/TripTimelineProvider";
 import {
   Box,
   Button,
@@ -11,23 +11,19 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 
-type DayFormProps = {
-  dayFormData: DayFormParams;
-  handleDayFormChange: (key: string, value: any) => void;
-  errorParams: string[];
-  open: boolean;
-  onClose: () => void;
-  onConfirm: () => void;
-};
+const DayForm = () => {
+  const {
+    dayFormData,
+    handleDayFormChange,
+    errorParams,
+    addDay,
+    handleAddDay,
+    clearDayForm,
+  } = useTripTimeline();
+  const open = addDay;
+  const onClose = clearDayForm;
+  const onConfirm = handleAddDay;
 
-const DayForm = ({
-  dayFormData,
-  handleDayFormChange,
-  errorParams,
-  open,
-  onClose,
-  onConfirm,
-}: DayFormProps) => {
   return (
     <Dialog open={open} onClose={onClose} disablePortal={false} maxWidth="md">
       <Grid container direction="column" spacing={1} m={4}>

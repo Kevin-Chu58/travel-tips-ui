@@ -15,7 +15,7 @@ export type NavTab = {
 export type StringArrUpdate = {
   stringArr: string[];
   update: React.Dispatch<React.SetStateAction<string[]>>;
-};
+}; // used in map coords update, i think
 
 // form
 
@@ -30,6 +30,12 @@ export type DayFormParams = {
 export type SortType = {
   label: string;
   function: (list: any[]) => any[];
+};
+
+// selecting
+export type SelectType = {
+  item: any;
+  label: string;
 };
 
 // trip

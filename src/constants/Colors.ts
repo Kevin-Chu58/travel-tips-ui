@@ -1,4 +1,4 @@
-import { blue, green, grey, purple, yellow } from "@mui/material/colors";
+import { blue, green, grey } from "@mui/material/colors";
 
 const ColorMatches: { [key: string]: string } = {
   aliceblue: "#f0f8ff",
@@ -153,6 +153,4 @@ export const TripDurationColors = {
   none: grey[600],
   days: green[800],
   weeks: blue[800],
-  months: purple[800],
-  seasons: yellow[900],
 };

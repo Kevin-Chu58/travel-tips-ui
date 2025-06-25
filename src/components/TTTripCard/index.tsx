@@ -1,7 +1,6 @@
 import { getHex } from "@constants/Colors";
 import { Box, Grid, Switch, Typography } from "@mui/material";
 import { tripsService, type Trip } from "@services/trips";
-import StyleUtils from "@utils/StyleUtils";
 import TimeUtils from "@utils/TimeUtils";
 import { useNavigate } from "react-router";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
@@ -53,9 +52,7 @@ const TTTripCard = ({
       onMouseLeave={() => setIsHovered(false)}
       sx={{
         color: "white",
-        background: StyleUtils.generateLinearGradientDarker(
-          getHex("steelblue")!
-        ),
+        bgcolor: getHex("steelblue"),
         borderRadius: 2,
         overflow: "hidden",
         position: "relative",
@@ -86,7 +83,7 @@ const TTTripCard = ({
           variant="body2"
           fontWeight="bold"
           sx={{
-            color: trip.numDays ? "lightgrey" : "darkgrey",
+            color: "lightgrey",
             fontStyle: trip.numDays ? "none" : "italic",
           }}
         >
@@ -147,7 +144,7 @@ const TTTripCard = ({
         >
           {/* description */}
           <Box flex={1} sx={{ overflowX: "hidden", overflowY: "auto" }}>
-            <Typography p={1} variant="body2" whiteSpace="pre-line">
+            <Typography p={1} variant="body2" whiteSpace="pre-line" color="white">
               {trip.description}
             </Typography>
           </Box>

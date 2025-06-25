@@ -1,5 +1,5 @@
 import { Grid } from "@mui/material";
-import TripView from "@components/TripView";
+import TTTripPreviewCard from "@components/TTTripPreviewCard";
 import type { Trip } from "@services/trips";
 
 type TripGalleryProps = {
@@ -10,7 +10,7 @@ const TripGallery = ({ trips }: TripGalleryProps) => {
   return (
     <Grid container spacing={2} columns={{ lg: 12, xl: 15 }}>
       {trips.map((trip) => (
-        <TripView key={trip.id} trip={trip} />
+        <TTTripPreviewCard key={trip.id} trip={trip} />
       ))}
     </Grid>
   );

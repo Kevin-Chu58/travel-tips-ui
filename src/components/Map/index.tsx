@@ -117,18 +117,9 @@ const Map = React.memo(({
         attribution: "&copy; OpenStreetMap contributors",
       }).addTo(mapInstanceRef.current);
     }
-
-    // return () => {
-    //   if (mapInstanceRef.current) {
-    //     mapInstanceRef.current.remove();
-    //     mapInstanceRef.current = null;
-    //   }
-    // };
   }, []);
-  // }, [isUpdated]);
 
   const setRoutes = () => {
-    // if (markers.length === 0) return;
 
     // remove old polyline routes
     routesRef.current.forEach((m) => mapInstanceRef.current!.removeLayer(m));
@@ -138,7 +129,6 @@ const Map = React.memo(({
     let markerIndex = markers.findIndex(
       (marker) => marker.id === focusId
     );
-    // if (markerIndex + 1 === markers.length) return;
 
     let indexFocused = focusOnRoute && markerIndex;
 
@@ -227,7 +217,7 @@ const Map = React.memo(({
 
       // add markers to the map
       leafletMarker.addTo(mapInstanceRef.current!).on("click", () => {
-        setFocusId(marker.id);
+        setFocusId(marker?.id);
         setMapView("location");
         setIsParentUpdated();
       });

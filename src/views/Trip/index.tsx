@@ -4,7 +4,7 @@ import { type TripDetail, tripsService } from "@services/trips";
 import { Container, Divider, Grid, Typography } from "@mui/material";
 import { useParams } from "react-router";
 import { Headers } from "@constants/Layouts";
-import TripTimelineMap from "@components/TripTimelineMap";
+import { TripTimelineMap } from "@components/TripTimelineMap";
 
 const TripView = () => {
   // components
@@ -32,16 +32,17 @@ const TripView = () => {
   }, []);
 
   return (
-    <Container id="trip-container" maxWidth={false} disableGutters sx={{ color: "black", 
+    <Container
+      maxWidth={false}
+      disableGutters
+      sx={{
+        color: "black",
         overflowX: "hidden",
         overflowY: "auto",
-          height: `calc(100vh - ${Headers}px)`, }}>
-      <Grid
-        container
-        direction="column"
-        position="relative"
-        spacing={4}
-      >
+        height: `calc(100vh - ${Headers}px)`,
+      }}
+    >
+      <Grid container direction="column" position="relative" spacing={4}>
         {/* name */}
         <Grid
           size={12}
@@ -63,14 +64,23 @@ const TripView = () => {
         </Grid>
 
         {/* content */}
-        <Grid container size={12} direction="column" spacing={10} maxWidth="lg" mx="auto">
+        <Grid
+          container
+          size={12}
+          direction="column"
+          spacing={10}
+          maxWidth="lg"
+          mx="auto"
+        >
           {/* description */}
           {trip?.description && (
             <Grid size={12}>
               <Typography variant="h4" fontWeight="bold">
                 Introduction
               </Typography>
-              <Divider sx={{borderBottomWidth: 2, borderColor: "black", mb: 2}} />
+              <Divider
+                sx={{ borderBottomWidth: 2, borderColor: "black", mb: 2 }}
+              />
               <Typography variant="h6" whiteSpace="pre-wrap">
                 {trip?.description}
               </Typography>
@@ -80,14 +90,14 @@ const TripView = () => {
           {/* timeline */}
           <Grid size={12}>
             <Typography variant="h4" fontWeight="bold">
-                Timeline
-              </Typography>
-              <Divider sx={{borderBottomWidth: 2, borderColor: "black", }} />
-              <TripTimelineMap
-                trip={trip}
-                queryKey={queryKey}
-                readonly={true}
-              />
+              Timeline
+            </Typography>
+            <Divider sx={{ borderBottomWidth: 2, borderColor: "black" }} />
+            <TripTimelineMap.TripTimelineMapEdit
+              trip={trip}
+              queryKey={queryKey}
+              readonly
+            />
           </Grid>
         </Grid>
       </Grid>
