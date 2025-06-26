@@ -64,7 +64,6 @@ const TripTimeline = React.memo(
               key={day.id}
               i={i}
               day={day}
-              onDayId={onDay?.id}
               setOnDay={setOnDay}
               setMapFocusId={setMapFocusId}
               readonly={readonly}

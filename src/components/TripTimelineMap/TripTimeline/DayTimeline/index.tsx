@@ -14,7 +14,7 @@ import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 import TimeUtils from "@utils/TimeUtils";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import React from "react";
+import React, { useState } from "react";
 import type { Day } from "@services/days";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import AddTaoButton from "../AddTaoButton";
@@ -27,7 +27,6 @@ import type { Route } from "@constants/Types";
 type DayTimelineProps = {
   i: number;
   day: Day;
-  onDayId: number | undefined;
   setOnDay: (stete: Day | undefined) => void;
   setMapFocusId?: (state: string | undefined) => void;
   readonly?: boolean;
@@ -48,7 +47,6 @@ const DayTimeline = React.memo(
   ({
     i,
     day,
-    onDayId,
     setOnDay,
     setMapFocusId = () => {},
     readonly = false,
@@ -59,6 +57,8 @@ const DayTimeline = React.memo(
     mapFocusId,
     updateRoutes,
   }: DayTimelineProps) => {
+    const [isHovered, setIsHovered] = useState<boolean>(false);
+
     const {
       editDay,
       setEditDay,
@@ -74,14 +74,15 @@ const DayTimeline = React.memo(
       return day.tripAttractionOrders && day.tripAttractionOrders?.length > 0;
     };
 
-    const handleClick = () => {
-      setOnDay(day);
+    const handleHover = () => {
+      setIsHovered(true);
       setMapFocusId(undefined);
     };
 
     return (
       <Grid
-        onMouseEnter={handleClick}
+        onMouseEnter={handleHover}
+        onMouseLeave={() => setIsHovered(false)}
         position="relative"
         size={12}
         width="100%"
@@ -161,7 +162,7 @@ const DayTimeline = React.memo(
                   {day.name}
                 </Typography>
                 {!readonly 
-                && day.id === onDayId
+                && isHovered
                  && (
                   <Box position="absolute" right={10}>
                     <TTIconButton
