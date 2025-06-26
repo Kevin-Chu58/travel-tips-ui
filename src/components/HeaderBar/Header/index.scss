@@ -1,0 +1,34 @@
+.app-bar-header {
+        font-family: "tagesschrift";
+        font-weight: "bold";
+        cursor: pointer;
+
+        &.MuiTypography-root {
+            text-decoration: none;
+        }
+        
+        &.m0 {
+            margin: 0;
+        }
+
+        &:after {
+            transition: .2s width linear, .2s border-color ease-in;
+            content: '';
+            display: flex;
+            position: relative;
+            top: -10%;
+            left: 0%;
+            width: 0;
+            height: 0;
+            margin: 0 auto;
+            border: solid 1px;
+            border-color: transparent;
+        }
+
+        &:hover {
+            &:after {
+                width: 96%;
+                border: solid 1px;
+            }
+        }
+    }

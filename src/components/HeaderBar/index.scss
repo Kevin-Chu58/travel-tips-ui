@@ -1,0 +1,69 @@
+.app-bar {
+    &.MuiPaper-root {
+        z-index: 1200;
+    }
+
+    .MuiContainer-root {
+        background-color: black;
+    }
+
+    &.main {
+        &.MuiAppBar-root {
+            background-color: transparent;
+            box-shadow: none;
+        }
+        .MuiContainer-root {
+            background-color: transparent;
+            background-image: linear-gradient(black 0%, #000000dd 20%, #000000aa 50%, #00000000 100%);
+        }
+
+        .app-bar-icon {
+            display: none;
+        }
+    }
+
+    .app-bar-icon{
+        &:after {
+            content:'';
+            top: 0%;
+            left: 0;
+            width: 0;
+            height: 0;
+            border-left: solid 32px #e15915;
+            border-top: solid 32px transparent;
+            border-bottom: solid 32px transparent;
+        }
+
+        .app-bar-icon-svg {
+            cursor: pointer;
+        }
+    }
+
+    .app-bar-login {
+        font-family: "tagesschrift";
+        font-weight: "bold";
+        border-width: 2px;
+        border-style: solid;
+        transition: .2s all ease-in-out;
+    }
+
+    .app-bar-header,
+    .app-bar-login {
+        cursor: pointer;
+    }
+}
+
+.app-bar-user-menu {
+    .MuiPaper-root {
+        display: "flex";
+        flex-direction: "column";
+        background-color: transparent;
+        color: white;
+        box-shadow: none;
+        overflow: visible;
+    }
+
+    .app-bar-user-menu-item {
+        font-family: "tagesschrift";
+    }
+}
