@@ -11,7 +11,6 @@ import {
 import { useEffect, useState } from "react";
 import LockIcon from "@mui/icons-material/Lock";
 import LockOpenIcon from "@mui/icons-material/LockOpen";
-import { getHex } from "@constants/Colors";
 
 type SelectOptionsBaseLockProps = {
   optionIndex?: number; // option index gives option to update focused option from the outside
@@ -96,7 +95,7 @@ const SelectOptionsBase = ({
       {showIsLocked && (
         <Tooltip
           key="select-option-base-lock"
-          title="lock/unlock focusing on day when hover on timeline"
+          title={lockedLabel}
           arrow
         >
           <TTIconButton

@@ -45,6 +45,7 @@ const MapDaySelectOptions = ({
       optionIndex={optionIndex}
       isLocked={isLocked}
       setIsLocked={setIsLocked}
+      lockedLabel="lock/unlock focusing on day when hover on timeline"
       showIsLocked
       sx={sx}
       selectSx={{

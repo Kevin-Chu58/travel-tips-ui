@@ -118,7 +118,6 @@ const TripTimelineMapEdit = React.memo(({
             bottom: 30,
             left: 20,
             zIndex: 1200,
-            px: 1,
           }}
         />
         <MapButtonGroup
