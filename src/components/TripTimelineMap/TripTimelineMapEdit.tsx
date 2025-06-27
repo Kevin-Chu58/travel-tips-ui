@@ -31,7 +31,7 @@ const TripTimelineMapEdit = React.memo(({
   const {
     // Day selection
     _onDay,
-    setOnDay,
+    setMapOnDay,
     setOnDayWithLock,
     // View mode: "location" or "route"
     mapView,
@@ -111,7 +111,7 @@ const TripTimelineMapEdit = React.memo(({
         <MapDaySelectOptions
           days={trip?.days ?? []}
           onDay={_onDay}
-          setOnDay={setOnDay}
+          setOnDay={setMapOnDay}
           isLocked={isLocked}
           setIsLocked={setIsLocked}
           sx={{

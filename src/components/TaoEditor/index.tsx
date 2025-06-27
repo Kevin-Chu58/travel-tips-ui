@@ -49,7 +49,7 @@ const TaoEditor = ({
   const taoId = editTao;
   const taoOrder= editTaoOrder;
   const open = openEditTao;
-  const handleClose= () => setOpenEditTao(false);
+  const handleClose = () => setOpenEditTao(false);
 
   const { mutationAddTao, mutationUpdateTao } = useTaoMutations({
     trip,
