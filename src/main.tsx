@@ -2,7 +2,7 @@ import { StrictMode, type JSX } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter as Router } from "react-router-dom";
 import { Auth0Provider, type AppState } from "@auth0/auth0-react";
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import "./index.css";
 import App from "./App.tsx";
 import { ThemeProvider } from "@mui/material";
@@ -17,13 +17,12 @@ let audience = import.meta.env.VITE_AUTH0_AUDIENCE;
 const queryClient = new QueryClient();
 
 const Auth0Layer = (): JSX.Element => {
-
   const onRedirectCallback = (appState?: AppState) => {
     // window.location.href = appState?.returnTo || "/";
     window.history.replaceState(
       {},
       document.title,
-      appState?.returnTo || window.location.pathname
+      appState?.returnTo || window.location.pathname + window.location.search
     );
   };
 
