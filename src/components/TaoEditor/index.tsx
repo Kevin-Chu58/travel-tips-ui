@@ -152,12 +152,12 @@ const TaoEditor = ({
    * - decide to show route option or not
    * @returns true if is at the last index, false otherwise
    */
-  const isLastTao = () => {
-    if (taos && tao) {
-      return taos?.findIndex((_tao) => _tao.id === tao.id) === taos?.length - 1;
-    }
-    return true;
-  };
+  // const isLastTao = () => {
+  //   if (taos && tao) {
+  //     return taos?.findIndex((_tao) => _tao.id === tao.id) === taos?.length - 1;
+  //   }
+  //   return true;
+  // };
 
   const isAddConditionMet = () => {
     return tao?.attraction !== undefined && time > 0 && travelTime > 0;
@@ -188,7 +188,7 @@ const TaoEditor = ({
     {
       name: "Route",
       label: "Route",
-      condition: !isLastTao(),
+      // condition: !isLastTao(),
     },
   ] as NavTab[];
 
