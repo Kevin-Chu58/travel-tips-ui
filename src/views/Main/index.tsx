@@ -1,4 +1,5 @@
 import { Box, Container, Grid, Typography } from "@mui/material";
+import alone from "@assets/alone.png";
 
 const Main = () => {
   return (
@@ -11,7 +12,7 @@ const Main = () => {
           justifyContent="end"
           alignItems="center"
           sx={{
-            backgroundImage: `url("src/assets/alone.png")`,
+            backgroundImage: alone,
             backgroundPosition: "center",
             backgroundRepeat: "no-repeat",
             backgroundSize: "cover",
