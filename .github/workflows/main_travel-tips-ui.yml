@@ -33,7 +33,7 @@ jobs:
         run: dir
 
       - name: List build folder contents
-        run: dir build
+        run: dir dist
 
       - name: Zip production build
         run: |
