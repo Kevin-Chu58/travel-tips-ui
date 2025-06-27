@@ -108,7 +108,7 @@ const MapPanel = ({
         height="100%"
         markers={markers}
         focusId={focusId}
-        correctionBias={4.5}
+        correctionBias={8}
         correctionZoom={2}
         updateOnMarkerFocus
       />

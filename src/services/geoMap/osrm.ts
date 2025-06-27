@@ -48,9 +48,9 @@ export type OsrmRoute = {
 const getOsrmRoute = async (type: OsrmRouteType, lngLats: number[][], steps: boolean = true): Promise<OsrmRoute> => {
   const lngLatString = lngLats.map((lngLat) => [lngLat.join(",")]).join(";");
   // mapbox routing
-  // return await http.get(http.apiBaseURLs.mapbox, `${type}/${lngLatString}?access_token=${http.apiTokens.mapbox}`);
+  return await http.get(http.apiBaseURLs.mapbox, `${type}/${lngLatString}?access_token=${http.apiTokens.mapbox}`);
   // osrm routing - don't use, public server only has driving profile, no cycling and walking, have to setup server myself
-  return await http.get(http.apiBaseURLs.osrm, `${type}/${lngLatString}?steps=${steps}&overview=full`);
+  // return await http.get(http.apiBaseURLs.osrm, `${type}/${lngLatString}?steps=${steps}&overview=full`);
 };
 
 export const osrmService = {

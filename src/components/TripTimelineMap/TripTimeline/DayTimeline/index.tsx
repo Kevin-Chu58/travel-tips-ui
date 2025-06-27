@@ -230,7 +230,6 @@ const DayTimeline = React.memo(
                 <DayTimelineItem
                   key={tao.id}
                   day={day}
-                  setOnDay={setOnDay}
                   tao={tao}
                   route={mapRoutes?.at(j)}
                   i={i}

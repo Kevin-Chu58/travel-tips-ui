@@ -66,7 +66,6 @@ type DayTimelineItemProps = {
   i: number;
   j: number;
   day: Day;
-  setOnDay: (stete: Day | undefined) => void;
   tao: TripAttractionOrder;
   route?: Route;
   mapRouteType: string;
@@ -87,7 +86,6 @@ const DayTimelineItem = React.memo(
     i,
     j,
     day,
-    setOnDay,
     tao,
     route,
     mapRouteType,
@@ -384,9 +382,7 @@ const DayTimelineItem = React.memo(
       );
     };
 
-    const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
-      event.stopPropagation();
-      setOnDay(day);
+    const handleHover = () => {
       setMapFocusId(tao.id.toString());
     };
 
@@ -401,7 +397,7 @@ const DayTimelineItem = React.memo(
           position: "relative",
           height: "100%",
         }}
-        onMouseEnter={handleClick}
+        onMouseEnter={handleHover}
         onMouseLeave={() => {
           setMapFocusId(undefined);
         }}
