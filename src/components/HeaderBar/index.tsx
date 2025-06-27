@@ -7,7 +7,7 @@ import {
   Toolbar,
   Typography,
 } from "@mui/material";
-import "./index.css";
+import "./index.scss";
 import Header from "./Header";
 import { useAuth0 } from "@auth0/auth0-react";
 import React, { useEffect, useState } from "react";
