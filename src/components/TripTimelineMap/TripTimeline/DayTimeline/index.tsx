@@ -76,6 +76,7 @@ const DayTimeline = React.memo(
 
     const handleHover = () => {
       setIsHovered(true);
+      setOnDay(day);
       setMapFocusId(undefined);
     };
 

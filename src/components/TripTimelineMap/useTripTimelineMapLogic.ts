@@ -37,6 +37,7 @@ const useTripTimelineMapLogic = ({
   const [markersOnDay, setMarkersOnDay] = useState<Marker[]>([]);
   const [markers, setMarkers] = useState<DayMarkers[]>();
   const [mapFocusId, setMapFocusId] = useState<string | undefined>();
+  const [mapOnDay, setMapOnDay] = useState<Day | undefined>();
   // mapping route
   const [mapRoutes, setMapRoutes] = useState<Route[][] | undefined>();
   const [mapRouteTypes, setMapRouteTypes] = useState<string[][] | undefined>(
@@ -52,14 +53,16 @@ const useTripTimelineMapLogic = ({
   const [isLocked, setIsLocked] = useState<boolean>(false);
 
   const _onDay = useMemo(() => onDay, [onDay]);
+  const _mapOnDay = useMemo(() => mapOnDay, [mapOnDay]);
   const _markersOnDay = useMemo(() => markersOnDay, [markersOnDay]);
   const _routesOnDay = useMemo(() => routesOnDay, [routesOnDay]);
 
   const setOnDayWithLock = (day: Day | undefined) => {
     if (!isLocked) {
-      setOnDay(day);
+      setMapOnDay(day);
     }
-  }
+    setOnDay(day);
+  };
 
   /** useEffect */
 
@@ -85,18 +88,18 @@ const useTripTimelineMapLogic = ({
     setMarkers(_markers);
   }, [trip, navTabValue]);
 
-  // rerender on onDay to update markersOnDay
+  // rerender on mapOnDay to update markersOnDay
   useEffect(() => {
     if (markers) {
-      if (onDay) {
-        let _markersOnDay = markers?.find((m) => m.dayId === onDay?.id);
+      if (mapOnDay) {
+        let _markersOnDay = markers?.find((m) => m.dayId === mapOnDay.id);
         if (_markersOnDay) setMarkersOnDay(_markersOnDay.markers);
       } else {
         let allMarkers = markers.map((dayMarker) => dayMarker.markers).flat();
         setMarkersOnDay(allMarkers);
       }
     }
-  }, [onDay, markers]);
+  }, [mapOnDay, markers]);
 
   // rerender on isUpdated to update day-content scrollbar position
   useEffect(() => {
@@ -142,13 +145,13 @@ const useTripTimelineMapLogic = ({
 
   // renreder on mapRoutes to update routes displaying on map
   useEffect(() => {
-    if (onDay) {
-      let dayIndex = TripUtils.getDayIndex(trip?.days, onDay.id);
+    if (mapOnDay) {
+      let dayIndex = TripUtils.getDayIndex(trip?.days, mapOnDay.id);
       setRoutesOnDay(mapRoutes?.at(dayIndex!) ?? []);
     } else {
       setRoutesOnDay(mapRoutes?.flat() ?? []);
     }
-  }, [onDay, mapRoutes]);
+  }, [mapOnDay, mapRoutes]);
 
   const initRoutes = async () => {
     if (markers) {
@@ -295,6 +298,8 @@ const useTripTimelineMapLogic = ({
     // Day selection
     _onDay,
     setOnDay,
+    _mapOnDay,
+    setMapOnDay,
     setOnDayWithLock,
 
     // View mode: "location" or "route"
