@@ -10,6 +10,7 @@ import { useSelector } from "react-redux";
 import type { RootState } from "@redux/store";
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import Memorial from "@assets/Lincoln_Memorial.jpeg";
 
 type TTTripCardProps = {
   trip: Trip;
@@ -115,7 +116,7 @@ const TTTripCard = ({
       <Grid size={5} position="relative">
         <Box
           component="img"
-          src="src/assets/Lincoln_Memorial.jpeg"
+          src={Memorial}
           sx={{
             width: "100%",
             height: "100%",

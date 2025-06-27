@@ -5,6 +5,7 @@ import { Avatar, Box,
 import type { Trip } from "@services/trips";
 import { useNavigate } from "react-router";
 import { TripDurationColors } from "@constants/Colors";
+import testImg from "@assets/test.jpg";
 
 type TTTripPreviewCardProps = {
   trip?: Trip;
@@ -47,7 +48,7 @@ const TTTripPreviewCard = ({trip}: TTTripPreviewCardProps) => {
       <Box
         component="img"
         // src="src/assets/Lincoln_Memorial.jpeg"
-        src="src/assets/test.jpg"
+        src={testImg}
         sx={{
           width: "100%",
           height: 150,
