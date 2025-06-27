@@ -1,7 +1,7 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
-name: Build and deploy Node.js app to Azure Web App - travel-tips-ui
+name: Build and deploy UI to Azure Web App - travel-tips-ui
 
 on:
   push:
@@ -13,7 +13,7 @@ jobs:
   build:
     runs-on: windows-latest
     permissions:
-      contents: read #This is required for actions/checkout
+      contents: read
 
     steps:
       - uses: actions/checkout@v4
@@ -23,43 +23,45 @@ jobs:
         with:
           node-version: '20.x'
 
-      - name: npm install, build, and test
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build UI
+        run: npm run build
+
+      - name: Zip production build
         run: |
-          npm install
-          npm run build --if-present
-          npm run test --if-present
-      
-      - name: Upload artifact for deployment job
+          powershell Compress-Archive -Path build\* -DestinationPath ui.zip
+
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: node-app
-          path: .
+          name: ui-app
+          path: ui.zip
 
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     needs: build
     permissions:
-      id-token: write #This is required for requesting the JWT
-      contents: read #This is required for actions/checkout
+      id-token: write
+      contents: read
 
     steps:
-      - name: Download artifact from build job
+      - name: Download artifact
         uses: actions/download-artifact@v4
         with:
-          name: node-app
-      
-      - name: Login to Azure
+          name: ui-app
+
+      - name: Azure Login
         uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_9FC3B45117294C639936687FD1CA4118 }}
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_8F00BD62ED814C18941D3F1A180CFCF0 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_1CF1526EDE5C4AD491A355CB834B74B8 }}
 
-      - name: 'Deploy to Azure Web App'
+      - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
-        id: deploy-to-webapp
         with:
           app-name: 'travel-tips-ui'
           slot-name: 'Production'
-          package: .
-          
+          package: ui.zip
