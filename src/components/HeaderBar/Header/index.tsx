@@ -1,5 +1,5 @@
 import { Link, type LinkProps, type SxProps } from "@mui/material";
-import "./index.css";
+import "./index.scss";
 
 type HeaderProps = {
   name: string;
