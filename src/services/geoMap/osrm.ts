@@ -1,4 +1,4 @@
-import type { LRSide, OsrmCode, OsrmRouteType } from "@constants/Maps"
+import type { OsrmCode, OsrmRouteType } from "@constants/Maps"
 import http from "@services/http";
 
 export type OsrmRoute = {
@@ -45,7 +45,9 @@ export type OsrmRoute = {
   }[],
 };
 
-const getOsrmRoute = async (type: OsrmRouteType, lngLats: number[][], steps: boolean = true): Promise<OsrmRoute> => {
+const getOsrmRoute = async (type: OsrmRouteType, lngLats: number[][], 
+  // steps: boolean = true
+): Promise<OsrmRoute> => {
   const lngLatString = lngLats.map((lngLat) => [lngLat.join(",")]).join(";");
   // mapbox routing
   return await http.get(http.apiBaseURLs.mapbox, `${type}/${lngLatString}?access_token=${http.apiTokens.mapbox}`);

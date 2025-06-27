@@ -8,13 +8,13 @@ type PreferRoutePost = {
   linkId?: number;
 };
 
-type PreferRoutePatch = {
-  type?: RouteType;
-  departAttraction?: Attraction;
-  arrivalAttraction?: Attraction;
-  estimatedTime?: number;
-  linkId?: number;
-};
+// type PreferRoutePatch = {
+//   type?: RouteType;
+//   departAttraction?: Attraction;
+//   arrivalAttraction?: Attraction;
+//   estimatedTime?: number;
+//   linkId?: number;
+// };
 
 export type PreferRoute = PreferRoutePost & {
     id: number;

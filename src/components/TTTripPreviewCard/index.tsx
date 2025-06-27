@@ -1,5 +1,7 @@
-import { Avatar, Box, Chip, Grid, Typography } from "@mui/material";
-import { grey } from "@mui/material/colors";
+import { Avatar, Box,
+  //  Chip, 
+  Grid, Typography } from "@mui/material";
+// import { grey } from "@mui/material/colors";
 import type { Trip } from "@services/trips";
 import { useNavigate } from "react-router";
 import { TripDurationColors } from "@constants/Colors";
@@ -9,7 +11,7 @@ type TTTripPreviewCardProps = {
 }
 
 const TTTripPreviewCard = ({trip}: TTTripPreviewCardProps) => {
-  const tags = ["historical", "national park"];
+  // const tags = ["historical", "national park"];
   const navigate = useNavigate();
 
   const getTripDurationColor = (duration: number) => {
