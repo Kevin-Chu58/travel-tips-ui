@@ -32,6 +32,7 @@ function obfuscatePlugin(): Plugin {
 }
 
 export default defineConfig({
+  base: './',
   plugins: [
     react(),
     obfuscatePlugin(),

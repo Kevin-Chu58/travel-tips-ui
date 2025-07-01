@@ -36,8 +36,7 @@ jobs:
         run: dir dist
 
       - name: Zip production build
-        run: |
-          powershell Compress-Archive -Path dist\* -DestinationPath ui.zip
+        run: powershell Compress-Archive -Path dist\* -DestinationPath ui.zip
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4

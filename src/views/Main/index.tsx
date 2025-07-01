@@ -12,7 +12,7 @@ const Main = () => {
           justifyContent="end"
           alignItems="center"
           sx={{
-            backgroundImage: alone,
+            backgroundImage: `url(${alone})`,
             backgroundPosition: "center",
             backgroundRepeat: "no-repeat",
             backgroundSize: "cover",
