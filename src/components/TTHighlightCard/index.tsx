@@ -1,16 +1,17 @@
 import Map from "@components/Map";
-import { getHex } from "@constants/Colors";
-import { OsmTypes } from "@constants/Maps";
 import { mild_box_shadow } from "@constants/Shadows";
-import { Avatar, Box, Chip, Grid, Typography } from "@mui/material";
+import {
+  Box,
+  Checkbox,
+  Dialog,
+  Typography,
+} from "@mui/material";
 import type {
   Attraction,
   AttractionHighlights,
   Highlight,
 } from "@services/attractions";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import { Masonry } from "@mui/lab";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import EditIcon from "@mui/icons-material/Edit";
 import TTIconButton from "@components/TTIconButton";
 
@@ -29,6 +30,9 @@ const TTHighlightCard = ({
   addSelected,
   removeSelected,
 }: TTHighlightCardProps) => {
+  const [isHover, setIsHover] = useState<boolean>(false);
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+
   const markers = useMemo(
     () => [
       {
@@ -56,64 +60,29 @@ const TTHighlightCard = ({
   };
 
   return (
-    <Grid
-      container
-      direction="column"
-      size={12}
-      key={`my-trip-${attractionHighlights.id}`}
-      sx={{
-        color: "black",
-        bgcolor: getHex("gainsboro"),
-        borderRadius: 2,
-        // position: "relative",
-      }}
-    >
-      {/* attraction content */}
-      <Grid
-        container
-        size={12}
-        boxShadow={mild_box_shadow}
+    <>
+      <Box
+        key={`my-trip-${attractionHighlights.id}`}
+        width={240}
+        onMouseEnter={() => setIsHover(true)}
+        onMouseLeave={() => setIsHover(false)}
+        onClick={() => setIsOpen(true)}
         sx={{
-          minHeight: 120,
-          borderRadius: 2,
-          bgcolor: "white",
-          overflow: "hidden",
-          position: "sticky",
-          top: -12,
-          scale: 1.01,
-          zIndex: 10,
+          cursor: "pointer",
         }}
       >
-        {/* attraction info */}
-        <Grid container direction="column" size={7} p={1} position="relative">
-          <Box display="flex" flexDirection="row" alignItems="center">
-            <Typography
-              variant="h6"
-              fontWeight="bold"
-              textTransform="capitalize"
-              display="flex"
-              alignItems="center"
-            >
-              {attractionHighlights.name}
-            </Typography>
-            {attractionHighlights.osmType && (
-              <Chip
-                label={OsmTypes[attractionHighlights.osmType]}
-                size="small"
-                sx={{
-                  ml: 1,
-                }}
-              />
-            )}
-          </Box>
-          <Typography>{attractionHighlights.address}</Typography>
-        </Grid>
-
         {/* attraction location on map (read-only) */}
-        <Grid
-          size={5}
+        <Box
+          width={240}
+          height={200}
           position="relative"
-          sx={{ borderLeft: "1px solid", borderColor: "divider" }}
+          sx={{
+            borderLeft: "1px solid",
+            borderColor: "divider",
+            borderRadius: 4,
+            boxShadow: mild_box_shadow,
+            overflow: "hidden",
+          }}
         >
           <Map
             height="100%"
@@ -122,50 +91,148 @@ const TTHighlightCard = ({
             markers={markers}
             correctionZoom={-3}
           />
-        </Grid>
-      </Grid>
 
-      {/* highlight list */}
-      <Grid size={12} p={2} mt={2}>
-        <Masonry columns={{ xs: 1, md: 2 }} spacing={2}>
-          {attractionHighlights.highlights.map((highlight) => (
+          <Box
+            width={240}
+            height={200}
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              position: "absolute",
+              justifyContent: "center",
+              alignItems: "center",
+              top: isHover ? 0 : 240,
+              transition: ".2s all linear",
+              bgcolor: "rgba(0, 0, 0, .6)",
+              color: "lightgrey",
+              zIndex: 1100,
+              backdropFilter: "blur(2px)",
+            }}
+          >
+            <Typography fontSize={72} mb={-1}>
+              {attractionHighlights.highlights.length}
+            </Typography>
+            <Typography fontSize={24} fontWeight="bold">
+              {attractionHighlights.highlights.length > 1
+                ? "Highlights"
+                : "Highlight"}
+            </Typography>
+            <Typography>Click to view</Typography>
+          </Box>
+        </Box>
+
+        {/* attraction info */}
+        <Box mt={2}>
+          <Typography
+            textTransform="capitalize"
+            display="flex"
+            alignItems="center"
+            fontSize={18}
+          >
+            {attractionHighlights.name}
+          </Typography>
+
+          <Typography fontSize={14} color="dimgrey">
+            {attractionHighlights.address}
+          </Typography>
+        </Box>
+      </Box>
+
+      <Dialog open={isOpen} onClose={() => setIsOpen(false)}>
+        <Box>
+          {/* attraction info */}
+          <Box m={2} mb={0}>
+            <Typography
+              textTransform="capitalize"
+              display="flex"
+              alignItems="center"
+              fontSize={18}
+            >
+              {attractionHighlights.name}
+            </Typography>
+
+            <Typography fontSize={14} color="dimgrey">
+              {attractionHighlights.address}
+            </Typography>
+
+            {/* indicator */}
             <Box
               display="flex"
-              key={`highlight-${highlight.id}`}
-              onClick={() =>
-                selected.includes(highlight.id)
-                  ? removeSelected(highlight.id)
-                  : addSelected(highlight.id)
-              }
+              color="dimgrey"
+              mt={1}
+              py={0.5}
               sx={{
-                position: "relative",
-                cursor: "pointer",
-                bgcolor: "white",
-                borderRadius: 2,
-                overflow: "hidden",
-                boxShadow: mild_box_shadow,
+                borderTop: "1px solid",
+                borderBottom: "1px solid",
+                borderColor: "divider",
               }}
             >
-              <Grid size={12}>
-                <Grid
-                  container
-                  size={12}
-                  p={2}
-                  alignItems="center"
+              <Box width={50} display="flex" justifyContent="center">
+                <Typography fontSize={12}>select</Typography>
+              </Box>
+              <Box
+                flex={1}
+                display="flex"
+                justifyContent="center"
+                sx={{
+                  borderWidth: "0 1px 0 1px",
+                  borderStyle: "solid",
+                  borderColor: "divider",
+                }}
+              >
+                <Typography fontSize={12}>highlight</Typography>
+              </Box>
+              <Box width={50} display="flex" justifyContent="center">
+                <Typography fontSize={12}>options</Typography>
+              </Box>
+            </Box>
+          </Box>
+
+          {/* highlight list */}
+          <Box maxHeight="60vh" overflow="auto" p={2}>
+            {attractionHighlights.highlights.map((highlight) => (
+              <Box
+                display="flex"
+                key={`highlight-${highlight.id}`}
+                onClick={() =>
+                  selected.includes(highlight.id)
+                    ? removeSelected(highlight.id)
+                    : addSelected(highlight.id)
+                }
+                sx={{
+                  position: "relative",
+                  cursor: "pointer",
+                  py: 1,
+                }}
+              >
+                {/* checkbox */}
+                <Box width={50} display="flex" justifyContent="center">
+                  <Box>
+                    <Checkbox checked={selected.includes(highlight.id)} />
+                  </Box>
+                </Box>
+                {/* content */}
+                <Box
+                  flex={1}
+                  mt={1}
                   sx={{
-                    background: getHex("steelblue"),
-                    postion: "relative",
+                    overflowX: "auto",
                   }}
                 >
-                  <Avatar
-                    // src="src/404-not-found"
-                    alt={highlight.createdBy?.toString()}
-                  />
-
-                  <Box ml="auto" onClick={(e) => e.stopPropagation()}>
+                  <Typography whiteSpace="pre-wrap" bgcolor="white">
+                    {highlight.description}
+                  </Typography>
+                </Box>
+                {/* options */}
+                <Box width={50} display="flex" justifyContent="center">
+                  <Box>
                     <TTIconButton
-                      onClick={() => setHighlight(getHighlightInfo(highlight))}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setHighlight(getHighlightInfo(highlight));
+                      }}
                       sx={{
+                        mx: "auto",
                         color: "secondary.main",
                         bgcolor: "secondary.900",
                         ":hover": {
@@ -176,49 +243,13 @@ const TTHighlightCard = ({
                       <EditIcon />
                     </TTIconButton>
                   </Box>
-                </Grid>
-
-                <Typography
-                  width="90%"
-                  maxWidth={600}
-                  whiteSpace="pre-wrap"
-                  bgcolor="white"
-                  fontFamily="tagesschrift"
-                  p={2}
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  {highlight.description}
-                </Typography>
-              </Grid>
-
-              {/* selected status */}
-              {selected.includes(highlight.id) && (
-                <Box
-                  position="absolute"
-                  top={0}
-                  right={0}
-                  width={40}
-                  height={40}
-                  display="flex"
-                  justifyContent="center"
-                  alignItems="center"
-                  zIndex={0}
-                  sx={{
-                    bgcolor: "rgba(0, 0, 0, .8)",
-                    borderBottomLeftRadius: 6,
-                  }}
-                >
-                  <CheckCircleIcon
-                    fontSize="large"
-                    sx={{ color: "success.light" }}
-                  />
                 </Box>
-              )}
-            </Box>
-          ))}
-        </Masonry>
-      </Grid>
-    </Grid>
+              </Box>
+            ))}
+          </Box>
+        </Box>
+      </Dialog>
+    </>
   );
 };
 

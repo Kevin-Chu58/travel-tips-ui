@@ -1,6 +1,6 @@
 import HighlightForm from "@components/Forms/HighlightForm";
 import TTHighlightCard from "@components/TTHighlightCard";
-import { Grid } from "@mui/material";
+import { Box } from "@mui/material";
 import { type Attraction, type AttractionHighlights } from "@services/attractions";
 import { useState } from "react";
 
@@ -22,10 +22,11 @@ const Highlights = ({
   const [highlight, setHighlight] = useState<Attraction | undefined>();
 
   return (
-    <Grid
-      container
-      spacing={8}
-      columns={12}
+    <Box
+      display="flex"
+      alignItems="flex-start"
+      flexWrap="wrap"
+      gap={2}
       mt={2}
     >
       {highlights.map((ah) => (
@@ -38,7 +39,6 @@ const Highlights = ({
           removeSelected={removeSelected}
         />
       ))}
-      <Grid size={12} height={4} />
 
       <HighlightForm
         highlight={highlight}
@@ -46,7 +46,7 @@ const Highlights = ({
         setOpen={setHighlight}
         setIsParentUpdated={setIsUpdated}
       />
-    </Grid>
+    </Box>
   );
 };
 

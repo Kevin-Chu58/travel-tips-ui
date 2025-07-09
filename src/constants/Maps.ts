@@ -14,6 +14,12 @@ export const OsmTypes: Record<OsmType, string> = {
   relation: "complex",
 };
 
+export const OsmTypePrefixes: Record<OsmType, string> = {
+  node: "N",
+  way: "W",
+  relation: "R",
+};
+
 export type OsrmCode =
   | "Ok"
   | "Bad Request"
