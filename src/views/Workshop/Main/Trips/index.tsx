@@ -1,6 +1,5 @@
 import TTTripCard from "@components/TTTripCard";
-import { WorkshopToNavTab } from "@constants/Layouts";
-import { Grid } from "@mui/material";
+import { Box, Grid } from "@mui/material";
 import type { Trip } from "@services/trips";
 
 type TripsProps = {
@@ -20,13 +19,12 @@ const Trips = ({
 }: TripsProps) => {
 
   return (
-    <Grid
-      container
-      spacing={2}
-      columns={12}
-      p={2}
+    <Box
+      display="flex"
+      flexWrap="wrap"
       sx={{
-        maxHeight: `calc(100vh - ${WorkshopToNavTab}px)`,
+        my: 1,
+        gap: 2,
       }}
     >
       {trips.map((trip) => (
@@ -41,7 +39,7 @@ const Trips = ({
         />
       ))}
       <Grid size={12} height={4} />
-    </Grid>
+    </Box>
   );
 };
 

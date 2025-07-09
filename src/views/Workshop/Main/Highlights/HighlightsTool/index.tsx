@@ -45,7 +45,7 @@ const HighlightsTool = ({
   useEffect(() => {
     const getMyTrips = async () => {
       if (token) {
-        const myAttractionHighlights = await attractionsService.getAttractionHighlightsByUserId(4);
+        const myAttractionHighlights = await attractionsService.getAttractionHighlightsByUserId(1);
         setHighlights(SortUtils.sortList(myAttractionHighlights, sortTypes, sortTypeIndex));
       }
     };

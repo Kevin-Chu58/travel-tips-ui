@@ -1,6 +1,5 @@
 import HighlightForm from "@components/Forms/HighlightForm";
 import TTHighlightCard from "@components/TTHighlightCard";
-import { WorkshopToNavTab } from "@constants/Layouts";
 import { Grid } from "@mui/material";
 import { type Attraction, type AttractionHighlights } from "@services/attractions";
 import { useState } from "react";
@@ -27,10 +26,7 @@ const Highlights = ({
       container
       spacing={8}
       columns={12}
-      p={2}
-      sx={{
-        maxHeight: `calc(100vh - ${WorkshopToNavTab}px)`,
-      }}
+      mt={2}
     >
       {highlights.map((ah) => (
         <TTHighlightCard

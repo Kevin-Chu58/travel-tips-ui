@@ -18,7 +18,6 @@ const queryClient = new QueryClient();
 
 const Auth0Layer = (): JSX.Element => {
   const onRedirectCallback = (appState?: AppState) => {
-    // window.location.href = appState?.returnTo || "/";
     window.history.replaceState(
       {},
       document.title,

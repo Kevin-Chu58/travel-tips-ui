@@ -12,7 +12,6 @@ const TTIconButton = forwardRef<HTMLButtonElement, TTIconButtonProps>(
     return (
       <IconButton
         ref={ref}
-        disableRipple
         sx={{
           border: "1px solid",
           borderColor: "divider",

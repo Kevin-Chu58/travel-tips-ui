@@ -65,7 +65,7 @@ const TTHighlightCard = ({
         color: "black",
         bgcolor: getHex("gainsboro"),
         borderRadius: 2,
-        position: "relative",
+        // position: "relative",
       }}
     >
       {/* attraction content */}
@@ -79,9 +79,9 @@ const TTHighlightCard = ({
           bgcolor: "white",
           overflow: "hidden",
           position: "sticky",
-          top: 0,
+          top: -12,
           scale: 1.01,
-          zIndex: 100,
+          zIndex: 10,
         }}
       >
         {/* attraction info */}
@@ -202,7 +202,7 @@ const TTHighlightCard = ({
                   display="flex"
                   justifyContent="center"
                   alignItems="center"
-                  zIndex={10}
+                  zIndex={0}
                   sx={{
                     bgcolor: "rgba(0, 0, 0, .8)",
                     borderBottomLeftRadius: 6,

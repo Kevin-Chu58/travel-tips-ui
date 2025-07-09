@@ -1,5 +1,4 @@
 import { Route, Routes, useNavigate } from "react-router";
-import "./App.css";
 import HeaderBar from "./components/HeaderBar";
 import routes from "./routes";
 import { AuthInitializer } from "./AuthInitializer";

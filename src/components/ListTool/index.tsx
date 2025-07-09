@@ -7,7 +7,6 @@ import TTIconButton from "@components/TTIconButton";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { mild_box_shadow } from "@constants/Shadows";
 import type { SortType } from "@constants/Types";
 
 type ListToolSortProps = {
@@ -53,7 +52,7 @@ const ListTool = ({
   const isSelectedEmpty = () => selected.length === 0;
 
   const displayNumSelected = () =>
-    selected.length === 0
+    isSelectedEmpty()
       ? "No item selected"
       : `${selected.length} ${selected.length > 1 ? "items" : "item"} selected`;
 
@@ -64,14 +63,19 @@ const ListTool = ({
   };
 
   return (
-    <>
+    <Box>
       {showSort && (
         <TTCard
           color="black"
           bgcolor="white"
           title="Sort By"
           icon={<SortIcon />}
-          sx={{ background: "white", mt: 0, boxShadow: mild_box_shadow }}
+          sx={{
+            background: "white",
+            mt: 1,
+            border: "1px solid",
+            borderColor: "divider",
+          }}
         >
           <Select
             value={sortType?.toString()}
@@ -97,7 +101,12 @@ const ListTool = ({
           bgcolor="white"
           title="Filter"
           icon={<FilterAltIcon />}
-          sx={{ background: "white", mt: 0, boxShadow: mild_box_shadow }}
+          sx={{
+            background: "white",
+            mt: 1,
+            border: "1px solid",
+            borderColor: "divider",
+          }}
         >
           filter params
         </TTCard>
@@ -110,8 +119,9 @@ const ListTool = ({
           icon={<CheckCircleIcon />}
           sx={{
             background: "white",
-            mt: 0,
-            boxShadow: mild_box_shadow,
+            mt: 1,
+            border: "1px solid",
+            borderColor: "divider",
           }}
         >
           <Box
@@ -157,7 +167,7 @@ const ListTool = ({
           </Box>
         </TTCard>
       )}
-    </>
+    </Box>
   );
 };
 
