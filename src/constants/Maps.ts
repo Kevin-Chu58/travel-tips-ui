@@ -27,3 +27,5 @@ export type OsrmCode =
   | "Too Many Requests"
   | "Internal Server Error"
   | "Not Implemented";
+
+export const GoogleMapLink = "https://www.google.com/maps/search/?api=1&query=";

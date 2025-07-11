@@ -3,6 +3,7 @@
 import type { JSX } from "react";
 import type { MapRouteType, OsmType } from "./Maps";
 import type { Dayjs } from "dayjs";
+import type { SxProps } from "@mui/material";
 
 // UI
 export type NavTab = {
@@ -16,6 +17,12 @@ export type StringArrUpdate = {
   stringArr: string[];
   update: React.Dispatch<React.SetStateAction<string[]>>;
 }; // used in map coords update, i think
+
+export type IndicatorItem = {
+  label: string;
+  isIcon?: boolean;
+  sx: SxProps;
+};
 
 // form
 

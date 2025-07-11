@@ -140,11 +140,8 @@ const Main = () => {
         <HighlightsTool
           sortTypeIndex={sortTypeIndex}
           setSortTypeIndex={setSortTypeIndex}
-          selected={selected}
-          setSelected={setSelected}
           setHighlights={setHighlights}
           isUpdated={areHighlightsUpdated}
-          setIsUpdated={renderHighlights}
         />
       ),
       addForm: (

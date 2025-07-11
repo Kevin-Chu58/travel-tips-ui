@@ -1,6 +1,23 @@
 import type { OsmType } from "@constants/Maps";
 import http from "./http";
 
+// v2
+
+type AttractionV2Basic = {
+  osmId: number;
+  osmType: OsmType;
+  lng: number;
+  lat: number;
+  name: string;
+  address: string;
+};
+
+export type AttractionV2 = AttractionV2Basic & {
+  id: number;
+};
+
+// v1
+
 type AttractionBasic = {
   // attractions
   osmId: number;
@@ -50,6 +67,10 @@ export type AttractionHighlights = AttractionBasic & {
   highlights: Highlight[];
 };
 
+const getAttractionById = async (id: number): Promise<AttractionV2> => {
+  return await http.get(http.apiBaseURLs.api, `attractions/v2/${id}`, undefined, undefined);
+};
+
 const getHighlightsByParams = async (name?: string, osmId?: number): Promise<AttractionSearch> => {
   const params = new URLSearchParams();
 
@@ -80,6 +101,7 @@ const deleteHighlights = async (ids: number[], token: string): Promise<number[]>
 };
 
 export const attractionsService = {
+  getAttractionById,
   getHighlightsByParams,
   getAttractionHighlightsByUserId,
   postNewHighlight,

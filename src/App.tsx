@@ -5,6 +5,7 @@ import { AuthInitializer } from "./AuthInitializer";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useEffect } from "react";
 import { Box } from "@mui/material";
+import { UserBasicInitializer } from "./UserBasicInitializer";
 
 function App() {
   const { isLoading, isAuthenticated } = useAuth0();
@@ -19,6 +20,7 @@ function App() {
   return (
     <Box id="app">
       <AuthInitializer />
+      <UserBasicInitializer />
       <HeaderBar />
       <Routes>
         {routes.map((route) => (

@@ -10,6 +10,7 @@ import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import Memorial from "@assets/Lincoln_Memorial.jpeg";
 import TTIconButton from "@components/TTIconButton";
 import EditIcon from '@mui/icons-material/Edit';
+import { mild_box_shadow } from "@constants/Shadows";
 
 type TTTripCardProps = {
   trip: Trip;
@@ -39,7 +40,7 @@ const TTTripCard = ({
       key={`my-trip-${trip.id}`}
       onClick={() => (setIsFocused ? setIsFocused(trip.id) : {})}
       sx={{
-        overflow: "hidden",
+        overflow: "visible",
         position: "relative",
         width: 190,
         height: 320,
@@ -47,7 +48,7 @@ const TTTripCard = ({
       }}
     >
       <Box p={.5} height={300} position="relative" sx={{
-        overflow: "hidden",
+        // overflow: "hidden",
         border: "1px solid transparent",
         ":hover": {
           borderColor: "darkgray",
@@ -64,16 +65,17 @@ const TTTripCard = ({
             objectFit: "cover",
             objectPosition: "50% 40%",
             borderRadius: 2,
+            boxShadow: mild_box_shadow,
           }}
         />
 
         {/* name */}
-        <Tooltip title={trip.name} placement="bottom-start">
+        {/* <Tooltip title={trip.name} placement="bottom-start"> */}
             <Typography
             textTransform="capitalize"
             display="flex"
             alignItems="center"
-            fontSize={18}
+            fontSize={16}
             sx={{
               display: "-webkit-box",
               WebkitLineClamp: 2,
@@ -84,7 +86,7 @@ const TTTripCard = ({
           >
             {trip.name}
           </Typography>
-        </Tooltip>
+        {/* </Tooltip> */}
 
         {/* days */}
         <Typography

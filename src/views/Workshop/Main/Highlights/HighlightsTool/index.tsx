@@ -20,37 +20,31 @@ const sortTypes = [
 type HighlightsToolProps = {
   sortTypeIndex: number;
   setSortTypeIndex: (state: number) => void;
-  selected: number[];
-  setSelected: (state: number[]) => void;
   setHighlights: (
     state: AttractionHighlights[] | ((prevState: AttractionHighlights[]) => AttractionHighlights[])
   ) => void;
   isUpdated: boolean;
-  setIsUpdated: () => void;
 };
 
 const HighlightsTool = ({
   sortTypeIndex,
   setSortTypeIndex,
-  selected,
-  setSelected,
   setHighlights,
   isUpdated,
-  setIsUpdated,
 }: HighlightsToolProps) => {
   // others
-  const token = useSelector((state: RootState) => state.auth.accessToken);
+  const userId = useSelector((state: RootState) => state.user.id);
 
   // rerender on access token and isUpdated
   useEffect(() => {
-    const getMyTrips = async () => {
-      if (token) {
-        const myAttractionHighlights = await attractionsService.getAttractionHighlightsByUserId(1);
+    const getMyHighlights = async () => {
+      if (userId) {
+        const myAttractionHighlights = await attractionsService.getAttractionHighlightsByUserId(userId);
         setHighlights(SortUtils.sortList(myAttractionHighlights, sortTypes, sortTypeIndex));
       }
     };
-    getMyTrips();
-  }, [token, isUpdated]);
+    getMyHighlights();
+  }, [userId, isUpdated]);
 
   // rerender on sortTypeIndex to request sorting
   useEffect(() => {
@@ -59,24 +53,21 @@ const HighlightsTool = ({
     );
   }, [sortTypeIndex]);
 
-  const handleDelete = async () => {
-    if (token && selected.length > 0) {
-      await attractionsService.deleteHighlights(selected, token);
-      setIsUpdated();
-      setSelected([]);
-    }
-  }
+  // const handleDelete = async () => {
+  //   if (token && selected.length > 0) {
+  //     await attractionsService.deleteHighlights(selected, token);
+  //     setIsUpdated();
+  //     setSelected([]);
+  //   }
+  // }
 
   return (
     <ListTool
       showSort
       showFilter
-      showSelect
       sortType={sortTypeIndex}
       setSortType={setSortTypeIndex}
       sortTypes={sortTypes}
-      selected={selected}
-      handleDelete={handleDelete}
     />
   );
 };

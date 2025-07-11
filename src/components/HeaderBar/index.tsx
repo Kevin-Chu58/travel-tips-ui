@@ -83,7 +83,7 @@ const HeaderBar = () => {
       key="app-bar"
       className={`app-bar ${onPage}`}
       position="sticky"
-      sx={{ width: "100vw" }}
+      sx={{ width: {sx: "none", md: "100vw"} }}
     >
       <Container maxWidth={false} disableGutters>
         <Toolbar disableGutters sx={{ height: Layouts.Header }}>

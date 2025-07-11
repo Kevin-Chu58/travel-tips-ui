@@ -23,17 +23,6 @@
     }
 
     .app-bar-icon{
-        &:after {
-            content:'';
-            top: 0%;
-            left: 0;
-            width: 0;
-            height: 0;
-            border-left: solid 32px #e15915;
-            border-top: solid 32px transparent;
-            border-bottom: solid 32px transparent;
-        }
-
         .app-bar-icon-svg {
             cursor: pointer;
         }

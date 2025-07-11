@@ -1,19 +1,18 @@
 import Map from "@components/Map";
 import { mild_box_shadow } from "@constants/Shadows";
-import {
-  Box,
-  Checkbox,
-  Dialog,
-  Typography,
-} from "@mui/material";
+import { Box, Checkbox, Divider, Typography } from "@mui/material";
 import type {
   Attraction,
   AttractionHighlights,
   Highlight,
 } from "@services/attractions";
-import { useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import EditIcon from "@mui/icons-material/Edit";
-import TTIconButton from "@components/TTIconButton";
+import type { IndicatorItem } from "@constants/Types";
+import IndicatorBar from "@components/IndicatorBar";
+import TTButton from "@components/TTButton";
+import TTDialog from "@components/TTDialog";
+import { useNavigate } from "react-router";
 
 type TTHighlightCardProps = {
   attractionHighlights: AttractionHighlights;
@@ -32,6 +31,7 @@ const TTHighlightCard = ({
 }: TTHighlightCardProps) => {
   const [isHover, setIsHover] = useState<boolean>(false);
   const [isOpen, setIsOpen] = useState<boolean>(false);
+  const navigate = useNavigate();
 
   const markers = useMemo(
     () => [
@@ -59,6 +59,30 @@ const TTHighlightCard = ({
     } as Attraction;
   };
 
+  const indicatorItems = [
+    {
+      label: "select",
+      isIcon: true,
+      sx: {
+        width: 60,
+      },
+    },
+    {
+      label: "highlight",
+      sx: {
+        flex: 1,
+        overflowX: "auto",
+      },
+    },
+    {
+      label: "option",
+      isIcon: true,
+      sx: {
+        width: 100,
+      },
+    },
+  ] as IndicatorItem[];
+
   return (
     <>
       <Box
@@ -66,7 +90,8 @@ const TTHighlightCard = ({
         width={240}
         onMouseEnter={() => setIsHover(true)}
         onMouseLeave={() => setIsHover(false)}
-        onClick={() => setIsOpen(true)}
+        // onClick={() => setIsOpen(true)}
+        onClick={() => navigate(`/workshop/highlight/${attractionHighlights.id}`)}
         sx={{
           cursor: "pointer",
         }}
@@ -138,7 +163,7 @@ const TTHighlightCard = ({
         </Box>
       </Box>
 
-      <Dialog open={isOpen} onClose={() => setIsOpen(false)}>
+      <TTDialog maxWidth="md" open={isOpen} onClose={() => setIsOpen(false)}>
         <Box>
           {/* attraction info */}
           <Box m={2} mb={0}>
@@ -147,6 +172,7 @@ const TTHighlightCard = ({
               display="flex"
               alignItems="center"
               fontSize={18}
+              color="info"
             >
               {attractionHighlights.name}
             </Typography>
@@ -156,99 +182,82 @@ const TTHighlightCard = ({
             </Typography>
 
             {/* indicator */}
-            <Box
-              display="flex"
-              color="dimgrey"
-              mt={1}
-              py={0.5}
-              sx={{
-                borderTop: "1px solid",
-                borderBottom: "1px solid",
-                borderColor: "divider",
-              }}
-            >
-              <Box width={50} display="flex" justifyContent="center">
-                <Typography fontSize={12}>select</Typography>
-              </Box>
-              <Box
-                flex={1}
-                display="flex"
-                justifyContent="center"
-                sx={{
-                  borderWidth: "0 1px 0 1px",
-                  borderStyle: "solid",
-                  borderColor: "divider",
-                }}
-              >
-                <Typography fontSize={12}>highlight</Typography>
-              </Box>
-              <Box width={50} display="flex" justifyContent="center">
-                <Typography fontSize={12}>options</Typography>
-              </Box>
-            </Box>
+            <IndicatorBar indicatorItems={indicatorItems} />
           </Box>
 
           {/* highlight list */}
           <Box maxHeight="60vh" overflow="auto" p={2}>
-            {attractionHighlights.highlights.map((highlight) => (
-              <Box
-                display="flex"
-                key={`highlight-${highlight.id}`}
-                onClick={() =>
-                  selected.includes(highlight.id)
-                    ? removeSelected(highlight.id)
-                    : addSelected(highlight.id)
-                }
-                sx={{
-                  position: "relative",
-                  cursor: "pointer",
-                  py: 1,
-                }}
-              >
-                {/* checkbox */}
-                <Box width={50} display="flex" justifyContent="center">
-                  <Box>
-                    <Checkbox checked={selected.includes(highlight.id)} />
-                  </Box>
-                </Box>
-                {/* content */}
-                <Box
-                  flex={1}
-                  mt={1}
+            {attractionHighlights.highlights.map((highlight, i) => {
+              let checkbox = (
+                <Checkbox color="info" checked={selected.includes(highlight.id)} />
+              );
+              let content = (
+                <Typography whiteSpace="pre-wrap">
+                  {highlight.description}
+                </Typography>
+              );
+              let option = (
+                <TTButton
+                  label="edit"
+                  size="small"
+                  color="info"
+                  variant="contained"
+                  startIcon={<EditIcon />}
+                  onClick={() => 
+                    setHighlight(getHighlightInfo(highlight))}
                   sx={{
-                    overflowX: "auto",
+                    "&.MuiButton-root": {
+                      mt: 1,
+                    },
                   }}
-                >
-                  <Typography whiteSpace="pre-wrap" bgcolor="white">
-                    {highlight.description}
-                  </Typography>
-                </Box>
-                {/* options */}
-                <Box width={50} display="flex" justifyContent="center">
-                  <Box>
-                    <TTIconButton
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setHighlight(getHighlightInfo(highlight));
-                      }}
-                      sx={{
-                        mx: "auto",
-                        color: "secondary.main",
-                        bgcolor: "secondary.900",
-                        ":hover": {
-                          bgcolor: "secondary.dark",
-                        },
-                      }}
-                    >
-                      <EditIcon />
-                    </TTIconButton>
+                />
+              );
+              let items = [checkbox, content, option];
+
+              return (
+                <React.Fragment key={`highlight-${highlight.id}`}>
+                  <Box
+                    display="flex"
+                    onClick={() =>
+                      selected.includes(highlight.id)
+                        ? removeSelected(highlight.id)
+                        : addSelected(highlight.id)
+                    }
+                    sx={{
+                      position: "relative",
+                      cursor: "pointer",
+                      py: 1,
+                      ":hover": {
+                        bgcolor: "secondary.main",
+                      }
+                    }}
+                  >
+                    {items.map((item, item_i) => (
+                      <Box
+                        key={item_i}
+                        display="flex"
+                        justifyContent={
+                          indicatorItems[item_i].isIcon ? "center" : "normal"
+                        }
+                        sx={indicatorItems[item_i].sx}
+                      >
+                        {indicatorItems[item_i].isIcon ? (
+                          <Box>{item}</Box>
+                        ) : (
+                          <Box mt={1}>{item}</Box>
+                        )}
+                      </Box>
+                    ))}
                   </Box>
-                </Box>
-              </Box>
-            ))}
+                  {i + 1 < attractionHighlights.highlights.length && 
+                    <Divider flexItem/>
+                  }
+                </React.Fragment>
+              );
+            })}
           </Box>
         </Box>
-      </Dialog>
+      </TTDialog>
     </>
   );
 };

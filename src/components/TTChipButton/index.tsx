@@ -6,7 +6,7 @@ const defaultSx = {
     filter: "brightness(1.05)",
     ":hover": {
         color: "white",
-        bgcolor: "primary.main",
+        bgcolor: "info.main",
         ".MuiChip-icon": {
             color: "white",
         },
