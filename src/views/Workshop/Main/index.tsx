@@ -3,8 +3,6 @@ import {
   Drawer,
   Fab,
   Typography,
-  useMediaQuery,
-  useTheme,
 } from "@mui/material";
 import { type Trip } from "@services/trips";
 import { useEffect, useState } from "react";
@@ -21,11 +19,11 @@ import Highlights from "./Highlights";
 import AttractionFinder from "@components/AttractionFinder";
 import TTDrawer from "@components/TTDrawer";
 import { Turn as Hamburger } from "hamburger-react";
+import { useIsMobile } from "@hooks/useIsMobile";
 
 const Main = () => {
   // windows
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const isMobile = useIsMobile();
   // basic strcutures
   const [navTabValue, setNavTabValue] = useState<number>(0);
   // Trips

@@ -14,6 +14,7 @@ type TTTextFieldProps = {
   autoFocus?: boolean;
   fullWidth?: boolean;
   multiline?: boolean;
+  flexDirection?: "row" | "column";
   color?: string;
   inputRef?: React.RefObject<HTMLElement | null>;
   label?: string;
@@ -31,6 +32,7 @@ const TTTextField = ({
   autoFocus = false,
   fullWidth = false,
   multiline = false,
+  flexDirection = "column",
   color = "black",
   inputRef,
   label,
@@ -52,7 +54,7 @@ const TTTextField = ({
   };
 
   return (
-    <Box display="flex" position="relative" flexGrow={1}>
+    <Box display="flex" position="relative" flexGrow={1} flexDirection={flexDirection}>
       <MuiTextField
         id={id}
         className={className}

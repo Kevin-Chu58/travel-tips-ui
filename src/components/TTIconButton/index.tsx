@@ -16,7 +16,6 @@ const TTIconButton = forwardRef<HTMLButtonElement, TTIconButtonProps>(
           border: "1px solid",
           borderColor: "divider",
           borderRadius: 2,
-          scale: 0.7,
           ...sx,
         }}
         {...props}

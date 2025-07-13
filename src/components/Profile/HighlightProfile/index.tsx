@@ -1,30 +1,68 @@
 import TTButton from "@components/TTButton";
-import { Box, Container, Divider, Typography } from "@mui/material";
+import TTDialog from "@components/TTDialog";
+import {
+  Box,
+  CircularProgress,
+  Container,
+  Divider,
+  IconButton,
+  Skeleton,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 import type { RootState } from "@redux/store";
 import { attractionsService, type AttractionV2 } from "@services/attractions";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router";
 import Map from "@components/Map";
 import { mild_box_shadow } from "@constants/Shadows";
-import { highlightsService, type Highlight } from "@services/highlights";
+import {
+  getDefaultHighlight,
+  highlightsService,
+  type Highlight,
+} from "@services/highlights";
 import HighlightItem from "@components/Item/HighlightItem";
 import TTChipButton from "@components/TTChipButton";
 import GoogleIcon from "@mui/icons-material/Google";
 import MapUtils from "@utils/MapUtils";
+import { useIsMobile } from "@hooks/useIsMobile";
+import WarningIcon from "@mui/icons-material/Warning";
+import DeleteIcon from "@mui/icons-material/Delete";
+import AddIcon from "@mui/icons-material/Add";
+import { BehaviorUtils } from "@utils/BehaviorUtils";
+import HighlightForm from "@components/Forms/HighlightForm";
+import TTIconButton from "@components/TTIconButton";
 
 const HighlightProfile = () => {
+  // window
+  const isMobile = useIsMobile();
   // attraction
   const [attraction, setAttraction] = useState<AttractionV2>();
   // highlight
   const [highlights, setHighlights] = useState<Highlight[]>([]);
+  const [syncHighlights, setSyncHighlights] = useState<boolean>(false);
+  // post
+  const [openPost, setOpenPost] = useState<boolean>(false);
+  // delete
+  const [deleteHighlightId, setDeleteHighlightId] = useState<
+    number | undefined
+  >();
+  const openDelete = Boolean(deleteHighlightId);
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
   // others
   const token = useSelector((state: RootState) => state.auth.accessToken);
   const userId = useSelector((state: RootState) => state.user.id);
   const { attractionId } = useParams();
   const hasFetchedRef = useRef(false);
   const navigate = useNavigate();
+
+  const deleteIcon = isDeleting ? (
+    <CircularProgress size="1rem" sx={{ color: "white" }} />
+  ) : (
+    <DeleteIcon />
+  );
 
   const markers = attraction
     ? [
@@ -59,7 +97,7 @@ const HighlightProfile = () => {
 
   useEffect(() => {
     const getHighlights = async () => {
-      if (attractionId && userId && highlights.length === 0) {
+      if (attractionId && userId) {
         let highlights = await highlightsService.getHighlightsByAttractionId(
           parseInt(attractionId),
           userId
@@ -68,22 +106,41 @@ const HighlightProfile = () => {
       }
     };
     getHighlights();
-  }, [userId]);
+  }, [userId, syncHighlights]);
+
+  const handleDeleteClose = () => {
+    setDeleteHighlightId(undefined);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (token && deleteHighlightId) {
+      setIsDeleting(true);
+
+      const deletedHighlight = await highlightsService.deleteHighlight(
+        deleteHighlightId,
+        token
+      );
+
+      await BehaviorUtils.sleep(600);
+      setHighlights(highlights.filter((h) => h.id !== deletedHighlight.id));
+
+      setIsDeleting(false);
+    }
+    setDeleteHighlightId(undefined);
+  };
 
   return (
     <Container
-      maxWidth={false}
+      maxWidth="lg"
       sx={{
-        // height: `calc(100vh - ${Headers}px)`,
         color: "black",
         overflowY: "auto",
         display: "flex",
         position: "relative",
         justifyContent: "center",
-        bgcolor: "secondary.main",
       }}
     >
-      <Box maxWidth="lg" p={2} pt={4}>
+      <Box p={2} pt={4}>
         {/* nav back button */}
         <TTButton
           label="back"
@@ -94,12 +151,12 @@ const HighlightProfile = () => {
           sx={{ fontSize: "1rem" }}
         />
 
-        {/* attraction */}
-        {attraction ? (
-          <Box display="flex" flexDirection="column" gap={2}>
+        <Box display="flex" flexDirection="column" gap={2}>
+          {/* attraction */}
+          {attraction ? (
             <Box
               display="flex"
-              flexDirection="row"
+              flexDirection={isMobile ? "column" : "row"}
               gap={2}
               bgcolor="white"
               p={2}
@@ -124,7 +181,7 @@ const HighlightProfile = () => {
                 </Typography>
 
                 {/* links */}
-                <Box mt={1}>
+                <Box>
                   <a
                     href={MapUtils.getGoogleMapLink(attraction.address)}
                     target="_blank"
@@ -137,7 +194,7 @@ const HighlightProfile = () => {
 
               {/* map */}
               <Box
-                width={240}
+                width={isMobile ? "100%" : 240}
                 height={200}
                 sx={{
                   ml: "auto",
@@ -155,8 +212,12 @@ const HighlightProfile = () => {
                 />
               </Box>
             </Box>
+          ) : (
+            <Skeleton width="100%" height={240} variant="rectangular" />
+          )}
 
-            {/* highlights */}
+          {/* highlights */}
+          {highlights ? (
             <Box
               display="flex"
               flexDirection="column"
@@ -167,22 +228,91 @@ const HighlightProfile = () => {
               border="1px solid"
               borderColor="divider"
             >
-              <Typography fontSize="1.2rem">Highlights</Typography>
+              <Box display="flex" flexDirection="row" alignItems="center">
+                <Typography fontSize="1.2rem">Highlights</Typography>
+                {/* add icon */}
+                <Tooltip
+                  title="Write a new highlight"
+                  slotProps={{
+                    popper: {
+                      modifiers: [
+                        {
+                          name: "offset",
+                          options: {
+                            offset: [0, -14],
+                          },
+                        },
+                      ],
+                    },
+                  }}
+                >
+                  <TTIconButton
+                    // size="small"
+                    onClick={() => setOpenPost(true)}
+                    sx={{ ml: "auto" }}
+                  >
+                    <AddIcon />
+                  </TTIconButton>
+                </Tooltip>
+              </Box>
               <Divider flexItem />
+
+              {/* new highlight form - highlight item in edit */}
+              {openPost && attraction && (
+                <React.Fragment>
+                  <HighlightForm
+                    highlight={{ ...getDefaultHighlight(attraction.id) }}
+                    onAction={() => setSyncHighlights((prev) => !prev)}
+                    onClose={() => setOpenPost(false)}
+                    isPost
+                  />
+                  {highlights.length > 0 && <Divider flexItem />}
+                </React.Fragment>
+              )}
 
               {highlights.map((highlight, i) => (
                 <HighlightItem
                   key={highlight.id}
                   highlight={highlight}
                   isLast={i + 1 === highlights.length}
+                  onDelete={setDeleteHighlightId}
                 />
               ))}
             </Box>
-          </Box>
-        ) : (
-          <></>
-        )}
+          ) : (
+            <Skeleton width="100%" height={240} variant="rectangular" />
+          )}
+        </Box>
       </Box>
+
+      {/* dialog - confirm delete */}
+      <TTDialog open={openDelete} onClose={handleDeleteClose}>
+        <Box display="flex" flexDirection="column" gap={1}>
+          <Box display="flex" flexDirection="row" alignItems="center" gap={1}>
+            <WarningIcon color="error" />
+            <Typography fontSize="1.2rem" color="error">
+              Permanent Action
+            </Typography>
+          </Box>
+          <Typography fontSize="1rem">
+            Are you sure you want to delete this highlight?
+          </Typography>
+          <Box display="flex" gap={1} justifyContent="right" mt={1}>
+            <TTButton
+              label="cancel"
+              variant="text"
+              color="error"
+              onClick={handleDeleteClose}
+            />
+            <TTButton
+              label="confirm"
+              color="error"
+              startIcon={deleteIcon}
+              onClick={handleDeleteConfirm}
+            />
+          </Box>
+        </Box>
+      </TTDialog>
     </Container>
   );
 };

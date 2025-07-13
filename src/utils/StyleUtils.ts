@@ -77,7 +77,7 @@ function getOffsetTopRelativeToContainer(
   }
 
   return offset - container.offsetTop;
-}
+};
 
 const StyleUtils = {
   // lighten / darken

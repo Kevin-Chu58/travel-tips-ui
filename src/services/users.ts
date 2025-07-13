@@ -2,8 +2,7 @@ import http from "./http";
 
 export type UserBasic = {
   id: number;
-  name: string;
-  email: string;
+  username: string;
 };
 
 const getUserBasicInfo = async (token: string): Promise<UserBasic> => {

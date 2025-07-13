@@ -39,13 +39,6 @@ const Highlights = ({
           removeSelected={removeSelected}
         />
       ))}
-
-      <HighlightForm
-        highlight={highlight}
-        open={Boolean(highlight)}
-        setOpen={setHighlight}
-        setIsParentUpdated={setIsUpdated}
-      />
     </Box>
   );
 };

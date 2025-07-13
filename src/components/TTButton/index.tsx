@@ -7,6 +7,7 @@ type TTButtonProps = {
   variant?: ButtonOwnProps["variant"];
   startIcon?: React.ReactNode;
   endIcon?: React.ReactNode;
+  disableRipple?: boolean;
   onClick: () => void;
   sx?: SxProps;
 };
@@ -18,6 +19,7 @@ const TTButton = ({
   variant = "contained",
   startIcon,
   endIcon,
+  disableRipple = false,
   onClick,
   sx,
 }: TTButtonProps) => {
@@ -36,6 +38,7 @@ const TTButton = ({
       variant={variant}
       startIcon={startIcon}
       endIcon={endIcon}
+      disableTouchRipple={disableRipple}
       onClick={(e) => {
         e.stopPropagation();
         onClick();
