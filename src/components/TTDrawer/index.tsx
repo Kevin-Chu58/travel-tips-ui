@@ -13,7 +13,7 @@ const TTDrawer = ({
   navTabs,
   navTabValue,
   setNavTabValue,
-  isMobile,
+  isMobile = false,
 }: TTDrawerProps) => {
   const navigate = useNavigate();
 

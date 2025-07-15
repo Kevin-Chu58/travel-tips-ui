@@ -10,6 +10,7 @@ type AttractionV2Basic = {
   lat: number;
   name: string;
   address: string;
+  numHighlights?: number;
 };
 
 export type AttractionV2 = AttractionV2Basic & {
@@ -71,6 +72,14 @@ const getAttractionById = async (id: number): Promise<AttractionV2> => {
   return await http.get(http.apiBaseURLs.api, `attractions/v2/${id}`, undefined, undefined);
 };
 
+const getMyAttractionsByName = async (token: string, name?: string): Promise<AttractionV2[]> => {
+  const params = new URLSearchParams();
+
+  if (name) params.set("name", name);
+
+  return await http.get(http.apiBaseURLs.api, `attractions/v2/my?${params.toString()}`, undefined, token);
+};
+
 const getHighlightsByParams = async (name?: string, osmId?: number): Promise<AttractionSearch> => {
   const params = new URLSearchParams();
 
@@ -101,7 +110,10 @@ const deleteHighlights = async (ids: number[], token: string): Promise<number[]>
 };
 
 export const attractionsService = {
+  // v2
   getAttractionById,
+  getMyAttractionsByName,
+  // v1
   getHighlightsByParams,
   getAttractionHighlightsByUserId,
   postNewHighlight,

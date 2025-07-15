@@ -1,6 +1,6 @@
-import ListTool from "@components/ListTool";
+import ListToolBar from "@components/ListToolBar";
 import type { RootState } from "@redux/store";
-import { attractionsService, type AttractionHighlights } from "@services/attractions";
+import { attractionsService, type AttractionHighlights, type AttractionV2 } from "@services/attractions";
 import SortUtils, {
   sortTypeIdAsc,
   sortTypeIdDesc,
@@ -20,35 +20,35 @@ const sortTypes = [
 type HighlightsToolProps = {
   sortTypeIndex: number;
   setSortTypeIndex: (state: number) => void;
-  setHighlights: (
-    state: AttractionHighlights[] | ((prevState: AttractionHighlights[]) => AttractionHighlights[])
+  setAttractions: (
+    state: AttractionV2[] | ((prevState: AttractionV2[]) => AttractionV2[])
   ) => void;
-  isUpdated: boolean;
+  syncAttractions: boolean;
 };
 
 const HighlightsTool = ({
   sortTypeIndex,
   setSortTypeIndex,
-  setHighlights,
-  isUpdated,
+  setAttractions,
+  syncAttractions,
 }: HighlightsToolProps) => {
   // others
-  const userId = useSelector((state: RootState) => state.user.id);
+  const token = useSelector((state: RootState) => state.auth.accessToken);
 
-  // rerender on access token and isUpdated
+  // rerender on access token and syncAttractions
   useEffect(() => {
     const getMyHighlights = async () => {
-      if (userId) {
-        const myAttractionHighlights = await attractionsService.getAttractionHighlightsByUserId(userId);
-        setHighlights(SortUtils.sortList(myAttractionHighlights, sortTypes, sortTypeIndex));
+      if (token) {
+        const myAttractions = await attractionsService.getMyAttractionsByName(token);
+        setAttractions(SortUtils.sortList(myAttractions, sortTypes, sortTypeIndex));
       }
     };
     getMyHighlights();
-  }, [userId, isUpdated]);
+  }, [token, syncAttractions]);
 
   // rerender on sortTypeIndex to request sorting
   useEffect(() => {
-    setHighlights((prevHighlights) =>
+    setAttractions((prevHighlights) =>
       SortUtils.sortList([...prevHighlights], sortTypes, sortTypeIndex)
     );
   }, [sortTypeIndex]);
@@ -62,7 +62,7 @@ const HighlightsTool = ({
   // }
 
   return (
-    <ListTool
+    <ListToolBar
       showSort
       showFilter
       sortType={sortTypeIndex}

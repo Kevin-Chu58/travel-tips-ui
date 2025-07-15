@@ -3,16 +3,13 @@ import TTDialog from "@components/TTDialog";
 import {
   Box,
   CircularProgress,
-  Container,
   Divider,
-  IconButton,
   Skeleton,
   Tooltip,
   Typography,
 } from "@mui/material";
 import type { RootState } from "@redux/store";
 import { attractionsService, type AttractionV2 } from "@services/attractions";
-import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import React, { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router";
@@ -34,15 +31,20 @@ import AddIcon from "@mui/icons-material/Add";
 import { BehaviorUtils } from "@utils/BehaviorUtils";
 import HighlightForm from "@components/Forms/HighlightForm";
 import TTIconButton from "@components/TTIconButton";
+import { useSnackbar } from "notistack";
 
 const HighlightProfile = () => {
   // window
   const isMobile = useIsMobile();
+  // snackbar
+  const { enqueueSnackbar } = useSnackbar();
   // attraction
   const [attraction, setAttraction] = useState<AttractionV2>();
+  const [isAttractionLoading, setIsAttractionLoading] = useState<boolean>(false);
   // highlight
   const [highlights, setHighlights] = useState<Highlight[]>([]);
   const [syncHighlights, setSyncHighlights] = useState<boolean>(false);
+  const [isHighlightLoading, setIsHighlightLoading] = useState<boolean>(true);
   // post
   const [openPost, setOpenPost] = useState<boolean>(false);
   // delete
@@ -83,10 +85,12 @@ const HighlightProfile = () => {
 
       if (attractionId && !attraction) {
         try {
+          setIsAttractionLoading(true);
           const attraction = await attractionsService.getAttractionById(
             parseInt(attractionId)
           );
           setAttraction(attraction);
+          setIsAttractionLoading(false);
         } catch (_) {
           navigate("/");
         }
@@ -98,11 +102,13 @@ const HighlightProfile = () => {
   useEffect(() => {
     const getHighlights = async () => {
       if (attractionId && userId) {
+        setIsHighlightLoading(true);
         let highlights = await highlightsService.getHighlightsByAttractionId(
           parseInt(attractionId),
           userId
         );
         setHighlights(highlights);
+        setIsHighlightLoading(false);
       }
     };
     getHighlights();
@@ -121,16 +127,17 @@ const HighlightProfile = () => {
         token
       );
 
-      await BehaviorUtils.sleep(600);
+      await BehaviorUtils.sleep();
       setHighlights(highlights.filter((h) => h.id !== deletedHighlight.id));
 
       setIsDeleting(false);
+      enqueueSnackbar("Successfully deleted highlight.", {variant: "success"});
     }
     setDeleteHighlightId(undefined);
   };
 
   return (
-    <Container
+    <Box
       maxWidth="lg"
       sx={{
         color: "black",
@@ -140,21 +147,21 @@ const HighlightProfile = () => {
         justifyContent: "center",
       }}
     >
-      <Box p={2} pt={4}>
+      <Box width="100%" p={2} pt={4}>
         {/* nav back button */}
-        <TTButton
+        {/* <TTButton
           label="back"
           color="info"
           variant="text"
           startIcon={<NavigateBeforeIcon />}
           onClick={() => navigate("/workshop/highlight")}
           sx={{ fontSize: "1rem" }}
-        />
+        /> */}
 
         <Box display="flex" flexDirection="column" gap={2}>
           {/* attraction */}
-          {attraction ? (
-            <Box
+          {!isAttractionLoading ? (
+            (attraction && <Box
               display="flex"
               flexDirection={isMobile ? "column" : "row"}
               gap={2}
@@ -204,20 +211,19 @@ const HighlightProfile = () => {
                 }}
               >
                 <Map
-                  height="100%"
                   readonly
                   updateOnMarkerFocus
                   markers={markers}
-                  correctionZoom={-3}
+                  correctionZoom={3}
                 />
               </Box>
-            </Box>
+            </Box>)
           ) : (
             <Skeleton width="100%" height={240} variant="rectangular" />
           )}
 
           {/* highlights */}
-          {highlights ? (
+          {!isHighlightLoading ? (
             <Box
               display="flex"
               flexDirection="column"
@@ -247,9 +253,8 @@ const HighlightProfile = () => {
                   }}
                 >
                   <TTIconButton
-                    // size="small"
                     onClick={() => setOpenPost(true)}
-                    sx={{ ml: "auto" }}
+                    sx={{ ml: "auto", borderColor: "transparent" }}
                   >
                     <AddIcon />
                   </TTIconButton>
@@ -270,14 +275,18 @@ const HighlightProfile = () => {
                 </React.Fragment>
               )}
 
-              {highlights.map((highlight, i) => (
+              {highlights.length > 0 ? 
+                highlights.map((highlight, i) => (
                 <HighlightItem
                   key={highlight.id}
                   highlight={highlight}
                   isLast={i + 1 === highlights.length}
                   onDelete={setDeleteHighlightId}
                 />
-              ))}
+              ))
+               : (
+                <Typography>No highlights available.</Typography>
+               )}
             </Box>
           ) : (
             <Skeleton width="100%" height={240} variant="rectangular" />
@@ -313,7 +322,7 @@ const HighlightProfile = () => {
           </Box>
         </Box>
       </TTDialog>
-    </Container>
+    </Box>
   );
 };
 

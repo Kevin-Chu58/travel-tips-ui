@@ -1,4 +1,4 @@
-import ListTool from "@components/ListTool";
+import ListTool from "@components/ListToolBar";
 import type { RootState } from "@redux/store";
 import { tripsService, type Trip } from "@services/trips";
 import SortUtils, {

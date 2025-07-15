@@ -1,4 +1,6 @@
 import { Button, type ButtonOwnProps, type SxProps } from "@mui/material";
+import type { ReactNode } from "react";
+import { useNavigate } from "react-router";
 
 type TTButtonProps = {
   label?: string;
@@ -7,9 +9,13 @@ type TTButtonProps = {
   variant?: ButtonOwnProps["variant"];
   startIcon?: React.ReactNode;
   endIcon?: React.ReactNode;
+  to?: string;
+  fullWidth?: boolean;
+  disabled?: boolean;
   disableRipple?: boolean;
-  onClick: () => void;
+  onClick?: () => void;
   sx?: SxProps;
+  children?: ReactNode;
 };
 
 const TTButton = ({
@@ -19,10 +25,16 @@ const TTButton = ({
   variant = "contained",
   startIcon,
   endIcon,
+  to,
+  fullWidth = false,
+  disabled = false,
   disableRipple = false,
-  onClick,
+  onClick = () => {},
   sx,
+  children,
 }: TTButtonProps) => {
+  const navigate = useNavigate();
+
   let muiButtonRootSx = {
     "&.MuiButton-root": {
       textTransform: "capitalize",
@@ -38,14 +50,18 @@ const TTButton = ({
       variant={variant}
       startIcon={startIcon}
       endIcon={endIcon}
+      fullWidth={fullWidth}
+      disabled={disabled}
       disableTouchRipple={disableRipple}
+      href={to}
       onClick={(e) => {
         e.stopPropagation();
-        onClick();
+        to ? navigate(to) : onClick();
       }}
       sx={muiButtonRootSx}
     >
       {label}
+      {children}
     </Button>
   );
 };

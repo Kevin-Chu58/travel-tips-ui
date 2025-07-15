@@ -1,9 +1,4 @@
-import {
-  Box,
-  Drawer,
-  Fab,
-  Typography,
-} from "@mui/material";
+import { Box, Container, Drawer, Fab, Typography } from "@mui/material";
 import { type Trip } from "@services/trips";
 import { useEffect, useState } from "react";
 import AddIcon from "@mui/icons-material/Add";
@@ -14,7 +9,7 @@ import { Route, Routes } from "react-router";
 import Trips from "./Trips";
 import TripsTool from "./Trips/TripsTool";
 import HighlightsTool from "./Highlights/HighlightsTool";
-import { type AttractionHighlights } from "@services/attractions";
+import { type AttractionV2 } from "@services/attractions";
 import Highlights from "./Highlights";
 import AttractionFinder from "@components/AttractionFinder";
 import TTDrawer from "@components/TTDrawer";
@@ -30,8 +25,8 @@ const Main = () => {
   const [trips, setTrips] = useState<Trip[]>([]);
   const [areTripsUpdated, setAreTripsUpdated] = useState<boolean>(false);
   // Highlights
-  const [highlights, setHighlights] = useState<AttractionHighlights[]>([]);
-  const [areHighlightsUpdated, setAreHighlightsUpdated] =
+  const [attractions, setAttractions] = useState<AttractionV2[]>([]);
+  const [areAttractionsUpdated, setAreAttractionsUpdated] =
     useState<boolean>(false);
   // open form status
   const [isAddTripOpen, setIsAddTripOpen] = useState<boolean>(false);
@@ -47,7 +42,7 @@ const Main = () => {
   };
 
   const renderHighlights = () => {
-    setAreHighlightsUpdated((prev) => !prev);
+    setAreAttractionsUpdated((prev) => !prev);
   };
 
   const addSelected = (id: number) => {
@@ -127,19 +122,15 @@ const Main = () => {
       path: "/highlight",
       element: (
         <Highlights
-          highlights={highlights}
-          selected={selected}
-          addSelected={addSelected}
-          removeSelected={removeSelected}
-          setIsUpdated={renderHighlights}
+          attractions={attractions}
         />
       ),
       tool: (
         <HighlightsTool
           sortTypeIndex={sortTypeIndex}
           setSortTypeIndex={setSortTypeIndex}
-          setHighlights={setHighlights}
-          isUpdated={areHighlightsUpdated}
+          setAttractions={setAttractions}
+          syncAttractions={areAttractionsUpdated}
         />
       ),
       addForm: (
@@ -154,6 +145,15 @@ const Main = () => {
     },
   ];
 
+  const drawer = (
+    <TTDrawer
+      navTabs={navTabs}
+      navTabValue={navTabValue}
+      setNavTabValue={setNavTabValue}
+      isMobile={isMobile}
+    />
+  );
+
   return (
     <Routes>
       {workshopMainRoutes.map((route) => (
@@ -162,66 +162,69 @@ const Main = () => {
           index={route.index}
           path={route.path}
           element={
-            <Box
-              display="flex"
-              flexDirection="row"
-              position="relative"
-              sx={{
-                height: `calc(100vh - ${Headers}px)`,
-                bgcolor: "secondary.main",
-                color: "black",
-              }}
+            <Container
+              maxWidth={false}
+              // maxWidth="lg"
+              disableGutters
             >
-              {/* nav drawer */}
-              {openDrawer &&
-                (isMobile ? (
+              <Box
+                width="100%"
+                display="flex"
+                flexDirection="row"
+                position="relative"
+                sx={{
+                  height: `calc(100vh - ${Headers}px)`,
+                  color: "black",
+                }}
+              >
+                {/* nav drawer */}
+                {isMobile ? (
                   <Drawer
                     open={openDrawer}
                     onClose={() => setOpenDrawer(false)}
                     onClick={() => setOpenDrawer(false)}
                   >
                     <Box width={200} bgcolor="secondary.main" height="100vh">
-                      <TTDrawer
-                        navTabs={navTabs}
-                        navTabValue={navTabValue}
-                        setNavTabValue={setNavTabValue}
-                        isMobile
-                      />
+                      {drawer}
                     </Box>
                   </Drawer>
                 ) : (
-                  <Box width={200}>
-                    <TTDrawer
-                      navTabs={navTabs}
-                      navTabValue={navTabValue}
-                      setNavTabValue={setNavTabValue}
-                    />
+                  <Box
+                    width={200}
+                    sx={{
+                      transition: ".2s linear eidth",
+                    }}
+                  >
+                    {drawer}
                   </Box>
-                ))}
+                )}
 
-              {/* content */}
-              <Box
-                display="flex"
-                flex={1}
-                flexDirection="column"
-                sx={{
-                  p: 2,
-                  bgcolor: "white",
-                  overflowY: "auto",
-                }}
-              >
-                <Box display="flex" flexDirection="row" alignItems="center">
-                  <Hamburger toggled={openDrawer} toggle={setOpenDrawer} />
-                  <Typography variant="h4" ml={0.5}>
-                    {route.name}
-                  </Typography>
+                {/* content */}
+                <Box
+                  display="flex"
+                  width="100%"
+                  flexDirection="column"
+                  sx={{
+                    p: 2,
+                    bgcolor: "white",
+                    overflowY: "auto",
+                  }}
+                >
+                  <Box display="flex" flexDirection="row" alignItems="center">
+                    {isMobile && (
+                      <Hamburger toggled={false} toggle={setOpenDrawer} />
+                    )}
+                    <Typography variant="h4" ml={0.5}>
+                      {route.name}
+                    </Typography>
+                  </Box>
+
+                  {/* tools */}
+                  <Box mt={1}>{route.tool}</Box>
+
+                  {/* content list */}
+                  {route.element}
                 </Box>
-                {route.element}
-              </Box>
-
-              {/* tools */}
-              <Box px={1} width={200} bgcolor="secondary.main">
-                {route.tool}
 
                 {/* add icon */}
                 <Fab
@@ -244,11 +247,11 @@ const Main = () => {
                   <AddIcon sx={{ mr: 1 }} />
                   {route.addFabLabel}
                 </Fab>
-              </Box>
 
-              {/* new Item form */}
-              {route.addForm}
-            </Box>
+                {/* new Item form */}
+                {route.addForm}
+              </Box>
+            </Container>
           }
         />
       ))}

@@ -7,7 +7,7 @@ import {
   MenuItem,
   Typography,
 } from "@mui/material";
-import {  type Highlight } from "@services/highlights";
+import { type Highlight } from "@services/highlights";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
@@ -89,12 +89,24 @@ const HighlightItem = ({
       >
         <Avatar alt={_highlight.createdBy?.toString()} src={""} />
 
-        <Box flex="1">
-          <Box display="flex" flexDirection="row">
+        <Box flex={1} display="flex" flexDirection="row">
+          <Box flex={1}>
             {/* user name */}
             <Typography fontSize="1rem" color="dimgrey">
               {_highlight.createdBy?.username}
             </Typography>
+            {/* description */}
+            {isEditing ? (
+              <HighlightForm
+                highlight={_highlight}
+                setHighlight={_setHighlight}
+                onClose={() => setIsEditing(false)}
+              />
+            ) : (
+              <Typography whiteSpace="pre-wrap">{description}</Typography>
+            )}
+          </Box>
+          <Box>
             {!isEditing && (
               <IconButton
                 size="small"
@@ -105,16 +117,6 @@ const HighlightItem = ({
               </IconButton>
             )}
           </Box>
-          {/* description */}
-          {isEditing ? (
-            <HighlightForm
-              highlight={_highlight}
-              setHighlight={_setHighlight}
-              onClose={() => setIsEditing(false)}
-            />
-          ) : (
-            <Typography whiteSpace="pre-wrap">{description}</Typography>
-          )}
         </Box>
       </Box>
       {!isLast && <Divider flexItem />}

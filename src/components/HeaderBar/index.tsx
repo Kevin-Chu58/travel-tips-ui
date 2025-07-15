@@ -19,10 +19,15 @@ import TTSearch from "@components/TTSearch";
 import TLogo from "@assets/T.svg";
 import TBoard from "@assets/TT_Board.svg";
 import Layouts from "@constants/Layouts";
+import { useIsMobile } from "@hooks/useIsMobile";
 
 const HeaderBar = () => {
+  // window
+  const isMobile = useIsMobile();
+  // auth0
   const { isLoading, isAuthenticated, user, loginWithRedirect, logout } =
     useAuth0();
+  // others
   const [anchorElUser, setAnchorElUser] = useState<HTMLElement | null>();
   const location = useLocation();
   const onPage = location.pathname === "/" ? Pages.Main : Pages.Undefined;
@@ -83,7 +88,8 @@ const HeaderBar = () => {
       key="app-bar"
       className={`app-bar ${onPage}`}
       position="sticky"
-      sx={{ width: {sx: "none", md: "100vw"} }}
+      sx={{ width: "100vw" }}
+      // sx={{ width: { sx: "100vw", md: "100vw" } }}
     >
       <Container maxWidth={false} disableGutters>
         <Toolbar disableGutters sx={{ height: Layouts.Header }}>
@@ -168,7 +174,25 @@ const HeaderBar = () => {
           >
             {!isLoading && (
               <>
-                {!isAuthenticated && (
+                {isAuthenticated ? (
+                  isMobile ? (
+                    <Avatar
+                      alt={username}
+                      src={userPicture}
+                      onClick={handleOpenUserMenu}
+                    />
+                  ) : (
+                    <>
+                      <Header
+                        name={username}
+                        color="primary"
+                        toUpperCase={false}
+                        onClick={handleOpenUserMenu}
+                      />
+                      <Avatar alt={username} src={userPicture} />
+                    </>
+                  )
+                ) : (
                   <>
                     <Header name="sign up" onClick={toAuthPortal} />
                     <Typography
@@ -191,17 +215,6 @@ const HeaderBar = () => {
                     >
                       LOGIN
                     </Typography>
-                  </>
-                )}
-                {isAuthenticated && (
-                  <>
-                    <Header
-                      name={username}
-                      color="primary"
-                      toUpperCase={false}
-                      onClick={handleOpenUserMenu}
-                    />
-                    <Avatar alt={username} src={userPicture} />
                   </>
                 )}
               </>

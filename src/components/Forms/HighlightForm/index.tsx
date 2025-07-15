@@ -8,6 +8,7 @@ import DescriptionTextField from "@components/TextField/DescriptionTextField";
 import { highlightsService, type Highlight } from "@services/highlights";
 import TTButton from "@components/TTButton";
 import { BehaviorUtils } from "@utils/BehaviorUtils";
+import { useSnackbar } from "notistack";
 
 type HighlightFormProps = {
   highlight: Highlight;
@@ -24,6 +25,8 @@ const HighlightForm = ({
   onAction,
   onClose,
 }: HighlightFormProps) => {
+  // snackbar
+  const { enqueueSnackbar } = useSnackbar();
   // attributes
   const [_description, _setDescription] = useState<string>(
     highlight.description ?? ""
@@ -43,14 +46,24 @@ const HighlightForm = ({
     const trimedDescription = _description.trim();
 
     if (token && trimedDescription.length > 0) {
-      setIsUpdating(true);
-      let newHighlight = await highlightsService.postHighlight(
-        { ...highlight, description: trimedDescription },
-        token
-      );
-      await BehaviorUtils.sleep();
+      try {
+        setIsUpdating(true);
+        let newHighlight = await highlightsService.postHighlight(
+          { ...highlight, description: trimedDescription },
+          token
+        );
+        await BehaviorUtils.sleep();
 
-      onAction ? onAction() : setHighlight(newHighlight);
+        onAction ? onAction() : setHighlight(newHighlight);
+
+        enqueueSnackbar("Successfully posted highlight.", {
+          variant: "success",
+        });
+        setIsUpdating(false);
+      } catch (e) {
+        if (e instanceof Error)
+          enqueueSnackbar(e.message, { variant: "error" });
+      }
       setIsUpdating(false);
     }
 
@@ -62,15 +75,24 @@ const HighlightForm = ({
     const isChanged = highlight.description !== trimedDescription;
 
     if (isChanged && token && highlight.description) {
-      setIsUpdating(true);
-      let updatedHighlight = await highlightsService.patchHighlight(
-        highlight.id,
-        trimedDescription,
-        token
-      );
-      await BehaviorUtils.sleep();
-      onAction ? onAction() : setHighlight(updatedHighlight);
-      setIsUpdating(false);
+      try {
+        setIsUpdating(true);
+        let updatedHighlight = await highlightsService.patchHighlight(
+          highlight.id,
+          trimedDescription,
+          token
+        );
+        await BehaviorUtils.sleep();
+        onAction ? onAction() : setHighlight(updatedHighlight);
+
+        enqueueSnackbar("Successfully updated highlight.", {
+          variant: "success",
+        });
+        setIsUpdating(false);
+      } catch (e) {
+        if (e instanceof Error)
+          enqueueSnackbar(e.message, { variant: "error" });
+      }
     }
 
     onClose();

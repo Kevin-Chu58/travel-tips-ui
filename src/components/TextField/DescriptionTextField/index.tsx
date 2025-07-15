@@ -85,7 +85,15 @@ const DescriptionTextField = ({
           value={value}
           onChange={(e) => setValue(e.target.value)}
           multiline
-          sx={{ display: "flex", flex: 1, bgcolor: "whitesmoke", m: 2 }}
+          sx={{
+            display: "flex",
+            flex: 1,
+            bgcolor: "whitesmoke",
+            m: 2,
+            "& .MuiOutlinedInput-root textarea": {
+              resize: "vertical",
+            },
+          }}
         />
       )}
     </Box>

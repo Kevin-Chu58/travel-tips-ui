@@ -1,5 +1,5 @@
 import { mild_box_shadow_lg } from "@constants/Shadows";
-import { Box, Dialog, type DialogProps } from "@mui/material";
+import { Box, Dialog, type DialogProps, type SxProps } from "@mui/material";
 import type { ReactNode } from "react";
 
 type TTDialogProps = {
@@ -7,15 +7,19 @@ type TTDialogProps = {
   onClose: () => void;
   maxWidth?: DialogProps["maxWidth"];
   hideBackdrop?: boolean;
+  hidePadding?: boolean;
   children: ReactNode;
+  sx?: SxProps,
 };
 
 const TTDialog = ({
-  maxWidth = "md",
+  maxWidth = false,
   hideBackdrop = false,
+  hidePadding = false,
   open,
   onClose,
   children,
+  sx,
 }: TTDialogProps) => {
   return (
     <Dialog
@@ -30,11 +34,12 @@ const TTDialog = ({
             borderRadius: 2,
             border: "1px solid",
             borderColor: "divider",
+            ...sx,
           },
         },
       }}
     >
-      <Box p={2}>
+      <Box p={hidePadding ? 0 : 2}>
         {/* content */}
         {children}
       </Box>

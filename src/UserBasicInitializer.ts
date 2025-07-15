@@ -13,10 +13,9 @@ export const UserBasicInitializer = () => {
       if (token) {
         const user = await usersService.getUserBasicInfo(token);
         const id = user.id;
-        const username = user.name;
-        const email = user.email;
+        const username = user.username;
 
-        dispatch(setUser({ id, username, email }));
+        dispatch(setUser({ id, username }));
       }
     };
     initUserBasic();
