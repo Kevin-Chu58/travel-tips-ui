@@ -1,0 +1,31 @@
+@use "../../../../stylings/color" as *;
+
+.highlight-profile-highlights-fragment-box {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  background-color: white;
+  padding: 1rem;
+  border: 1px solid $divider;
+  border-radius: 1rem;
+}
+
+.highlight-profile-highlights-fragment-header-bar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.highlight-profile-highlights-fragment-header-title.MuiTypography-root {
+  font-size: 1.2rem;
+}
+
+.highlight-profile-highlights-fragment-header-add-button.MuiIconButton-root {
+  margin-left: auto;
+  border-color: transparent;
+}
+
+.highlight-profile-highlights-fragment-skeleton {
+  width: 100%;
+  height: 240px;
+}

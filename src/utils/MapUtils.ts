@@ -1,4 +1,5 @@
 import { GoogleMapLink, type Direction } from "@constants/Maps";
+import type { GeoCoordinate } from "@constants/Types";
 import L from "leaflet";
 
 const extractAddress = (address: any) => {
@@ -59,23 +60,52 @@ const getLatLonDelta = (
   return new L.LatLng(newLatLng.lat - lat, newLatLng.lng - lng);
 };
 
-const placeRankToZoom = (place_rank: number) => {
-  const minRank = 0;
-  const maxRank = 30;
-  const minZoom = 2;
-  const maxZoom = 18;
+const resultTypeToZoom = (resultType: string) => {
+  switch (resultType) {
+    case "country":
+    case "administrativeArea":
+      return 4;
+    case "state":
+      return 6;
+    case "county":
+      return 8;
+    case "locality":
+      return 10;
+    case "postalCode":
+      return 11;
+    case "street":
+      return 15;
+    case "intersection":
+      return 16;
+    case "houseNumber":
+    case "place":
+      return 17;
+    default:
+      return 12; // fallback
+  }
+};
 
-  const zoom =
-    minZoom +
-    ((place_rank - minRank) / (maxRank - minRank)) * (maxZoom - minZoom);
-  return Math.round(Math.min(Math.max(zoom, minZoom), maxZoom));
+const getCurrentLocation = (): Promise<GeoCoordinate> => {
+  return new Promise((resolve, reject) => {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        resolve({
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude,
+        });
+      },
+      (err) => reject(err),
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
+  });
 };
 
 const MapUtils = {
   extractAddress,
   getGoogleMapLink,
   getLatLonDelta,
-  placeRankToZoom,
+  resultTypeToZoom,
+  getCurrentLocation,
 };
 
 export default MapUtils;

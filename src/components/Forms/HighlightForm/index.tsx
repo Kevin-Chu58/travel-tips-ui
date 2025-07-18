@@ -9,6 +9,7 @@ import { highlightsService, type Highlight } from "@services/highlights";
 import TTButton from "@components/TTButton";
 import { BehaviorUtils } from "@utils/BehaviorUtils";
 import { useSnackbar } from "notistack";
+import "./index.scss";
 
 type HighlightFormProps = {
   highlight: Highlight;
@@ -99,9 +100,9 @@ const HighlightForm = ({
   };
 
   return (
-    <Box display="flex" flexDirection="column" gap={2}>
+    <Box className="highlight-form-box">
       <DescriptionTextField value={_description} setValue={_setDescription} />
-      <Box display="flex" flex={1} justifyContent="right" gap={2}>
+      <Box className="highlight-form-button-box">
         <TTButton
           label="cancel"
           variant="text"

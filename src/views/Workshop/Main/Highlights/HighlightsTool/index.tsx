@@ -4,8 +4,8 @@ import { attractionsService, type AttractionHighlights, type AttractionV2 } from
 import SortUtils, {
   sortTypeIdAsc,
   sortTypeIdDesc,
-  sortTypeNameAsc,
-  sortTypeNameDesc,
+  sortTypeTitleAsc,
+  sortTypeTitleDesc,
 } from "@utils/SortUtils";
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
@@ -13,8 +13,8 @@ import { useSelector } from "react-redux";
 const sortTypes = [
   sortTypeIdAsc,
   sortTypeIdDesc,
-  sortTypeNameAsc,
-  sortTypeNameDesc,
+  sortTypeTitleAsc,
+  sortTypeTitleDesc,
 ];
 
 type HighlightsToolProps = {

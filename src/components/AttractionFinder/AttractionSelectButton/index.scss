@@ -1,0 +1,8 @@
+@use "../../../stylings/box_shadows" as *;
+
+.attraction-select-button.MuiButton-root {
+    color: white;
+    background-color: var(--primary-main);
+    box-shadow: $mild_box_shadow_lg;
+    border-radius: 20rem;
+}

@@ -1,6 +1,7 @@
 import TTButton from "@components/TTButton";
-import { Box, TextField, type SxProps } from "@mui/material";
+import { Box, TextField } from "@mui/material";
 import { useState } from "react";
+import "./index.scss";
 
 type DescriptionTextFieldProps = {
   value: string;
@@ -13,55 +14,32 @@ const DescriptionTextField = ({
 }: DescriptionTextFieldProps) => {
   const [isPreview, setIsPreview] = useState<boolean>(false);
 
-  const buttonHighlightSx = {
-    borderWidth: "1px 1px 0 1px",
-    borderStyle: "solid",
-    borderColor: "divider",
-    bgcolor: "white",
-    zIndex: 5,
-    scale: 1.06,
-  } as SxProps;
-
   return (
-    <Box
-      sx={{
-        border: "1px solid",
-        borderColor: "divider",
-        borderRadius: 2,
-        overflow: "hidden",
-      }}
-    >
-      <Box
-        flex={1}
-        bgcolor="whitesmoke"
-        sx={{ borderBottom: "1px solid", borderColor: "divider" }}
-      >
+    <Box className="description-text-field-box">
+      <Box className="description-text-field-view-box">
         <TTButton
           label="write"
           variant="text"
           onClick={() => setIsPreview(false)}
+          className={`description-text-field-view-button ${
+            !isPreview && "focus"
+          }`}
           disableRipple
-          sx={{
-            borderColor: "transparent",
-            borderRadius: ".5rem .5rem 0 0",
-            ...(!isPreview && buttonHighlightSx),
-          }}
         />
         <TTButton
           label="preview"
           variant="text"
           onClick={() => setIsPreview(true)}
+          className={`description-text-field-view-button ${
+            isPreview && "focus"
+          }`}
           disableRipple
-          sx={{
-            borderColor: "transparent",
-            borderRadius: ".5rem .5rem 0 0",
-            ...(isPreview && buttonHighlightSx),
-          }}
         />
       </Box>
 
       {isPreview ? (
         <TextField
+          className="description-text-field-view-preview-text-field"
           value={value}
           multiline
           slotProps={{
@@ -69,31 +47,13 @@ const DescriptionTextField = ({
               readOnly: true,
             },
           }}
-          sx={{
-            display: "flex",
-            flex: 1,
-            m: 2,
-            "& .MuiOutlinedInput-root": {
-              "& fieldset": {
-                border: "none",
-              },
-            },
-          }}
         />
       ) : (
         <TextField
+          className="description-text-field-view-input-text-field"
           value={value}
           onChange={(e) => setValue(e.target.value)}
           multiline
-          sx={{
-            display: "flex",
-            flex: 1,
-            bgcolor: "whitesmoke",
-            m: 2,
-            "& .MuiOutlinedInput-root textarea": {
-              resize: "vertical",
-            },
-          }}
         />
       )}
     </Box>

@@ -1,19 +1,28 @@
-import { Box, Chip, Divider, TextField, Typography } from "@mui/material";
-import { osmService, type OsmEntity } from "@services/geoMap/osm";
-import { useMemo, useState } from "react";
-import IdentifierUtils from "@utils/IdentifierUtils";
+import { Box, CircularProgress, Typography } from "@mui/material";
+import { useEffect, useMemo, useState } from "react";
 import TTDialog from "@components/TTDialog";
 import Map from "@components/Map";
 import TTIconButton from "@components/TTIconButton";
-import SearchIcon from "@mui/icons-material/Search";
+import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
-import { mild_box_shadow, mild_box_shadow_lg } from "@constants/Shadows";
 import React from "react";
-import TTButton from "@components/TTButton";
-import { CompareUtils } from "@utils/CompareUtils";
-import { HighlighterHelper } from "@helpers/HighlightHelper";
 import { useIsMobile } from "@hooks/useIsMobile";
-import { OsmTypes } from "@constants/Maps";
+import AttractionSearch from "./AttractionSearch";
+import AttractionSelectButton from "./AttractionSelectButton";
+import AttractionList from "./AttractionList";
+import "./index.scss";
+import { attractionsService, type AttractionV2 } from "@services/attractions";
+import MapUtils from "@utils/MapUtils";
+import { useSelector } from "react-redux";
+import type { RootState } from "@redux/store";
+import { BehaviorUtils } from "@utils/BehaviorUtils";
+import AttractionFragment from "@components/Profile/HighlightProfile/AttractionFragment";
+import DescriptionTextField from "@components/TextField/DescriptionTextField";
+import AddIcon from "@mui/icons-material/Add";
+import TTButton from "@components/TTButton";
+import { highlightsService } from "@services/highlights";
+import { useSnackbar } from "notistack";
+import { type GeoCoordinate } from "@constants/Types";
 
 type AttractionFinderProps = {
   open: boolean;
@@ -28,21 +37,70 @@ const AttractionFinder = ({
 }: AttractionFinderProps) => {
   // window
   const isMobile = useIsMobile();
+  // snackbar
+  const { enqueueSnackbar } = useSnackbar();
+  // geo coordinate
+  const [geoCoordinate, setGeoCoordinate] = useState<
+    GeoCoordinate | undefined
+  >();
+  const [isCoordMode, setIsCoordMode] = useState<boolean>(false);
   // search
   const [search, setSearch] = useState<string>("");
-  const [lastSearch, setLastSearch] = useState<string>("");
   // result
-  const [result, setResult] = useState<OsmEntity[]>([]); // result from osm api
+  const [result, setResult] = useState<AttractionV2[]>([]); // result from here map discover api
   // map focus
-  const [focusId, setFocusId] = useState<string | undefined>(); // focused osm id
+  const [focusId, setFocusId] = useState<string | undefined>(); // focused here id
+  // mobile view
+  const [showResult, setShowResult] = useState<boolean>(true);
+  // attraction layer
+  const [attraction, setAttraction] = useState<AttractionV2 | undefined>();
+  const [isAttractionLoading, setIsAttractionLoading] =
+    useState<boolean>(false);
+  const [description, setDescription] = useState<string>("");
+  const [isPosting, setIsPosting] = useState<boolean>(false);
+  // styling
+  const resultBoxClassName = `attraction-finder-result-box-mobile ${
+    showResult && "focus"
+  }`;
+  const attractionBoxClassName = `attraction-finder-attraction-box ${
+    attraction && "focus"
+  }`;
+  // others
+  const token = useSelector((state: RootState) => state.auth.accessToken);
 
-  // update parent attribute on attraction
+  useEffect(() => {
+    const initGeoCoordinate = async () => {
+      if (open) {
+        const geoCoords = await MapUtils.getCurrentLocation();
+        setGeoCoordinate(geoCoords);
+      }
+    };
+    initGeoCoordinate();
+  }, [open]);
 
-  const clear = () => {
+  const clear = async () => {
     setSearch("");
-    setLastSearch("");
     setFocusId(undefined);
     setResult([]);
+    setGeoCoordinate(undefined);
+    // hide the animation of shifting back to right side
+    await BehaviorUtils.sleep(100);
+    setAttraction(undefined);
+  };
+
+  const handleSelectClick = async () => {
+    if (token && focusId) {
+      setIsAttractionLoading(true);
+
+      let attraction = await attractionsService.postNewAttraction(
+        focusId,
+        token
+      );
+
+      await BehaviorUtils.sleep();
+      setAttraction(attraction);
+      setIsAttractionLoading(false);
+    }
   };
 
   const handleClose = () => {
@@ -53,263 +111,190 @@ const AttractionFinder = ({
     if (setIsParentUpdated) setIsParentUpdated();
   };
 
-  const handleSearch = async () => {
-    if (search.toLowerCase().trim() !== lastSearch.toLowerCase().trim()) {
-      const searchResult = await osmService.getOsmEntitiesByName(search);
-      console.log(searchResult);
-      setResult(filterResult(searchResult));
-      setLastSearch(search);
-    }
+  const handleGeoCoordinateClick = (geoCoords: GeoCoordinate) => {
+    setGeoCoordinate(geoCoords);
+    setIsCoordMode(false);
   };
 
-  const handleKeyDown = (event: React.KeyboardEvent) => {
-    if (event.key === "Enter") {
-      handleSearch();
-    }
-  };
+  const actionIcon = isPosting ? (
+    <CircularProgress size="1rem" sx={{ color: "white" }} />
+  ) : (
+    <AddIcon />
+  );
 
-  const filterResult = (result: OsmEntity[]) => {
-    return result.filter(
-      (osm) =>
-        osm.osm_id !== undefined &&
-        CompareUtils.containsSomeWords(search, osm.name)
-    );
+  const handlePost = async () => {
+    const trimedDescription = description.trim();
+
+    if (token && attraction && trimedDescription.length > 0) {
+      try {
+        setIsPosting(true);
+        await highlightsService.postHighlight(
+          { attractionId: attraction.id, description: trimedDescription },
+          token
+        );
+        await BehaviorUtils.sleep();
+
+        enqueueSnackbar("Successfully posted highlight.", {
+          variant: "success",
+        });
+        setIsPosting(false);
+        handleClose();
+      } catch (e) {
+        if (e instanceof Error)
+          enqueueSnackbar(e.message, { variant: "error" });
+      }
+      setIsPosting(false);
+    }
   };
 
   const markers = useMemo(() => {
     return result.map((r) => ({
-      id: IdentifierUtils.getOsmItemId(r),
-      lat: parseFloat(r.lat),
-      lng: parseFloat(r.lon),
-      label: r.name,
-      osmId: r.osm_id,
-      osmType: r.osm_type,
-      zoom: r.place_rank,
+      id: r.hereId,
+      lat: r.lat,
+      lng: r.lng,
+      label: r.title,
+      zoom: MapUtils.resultTypeToZoom(r.resultType),
     }));
   }, [result]);
 
-  const handleAttractionClick = (osmEntity: OsmEntity) => {
-    setFocusId(IdentifierUtils.getOsmItemId(osmEntity));
-  };
-
   // components
   const attractionSearch = (
-    <React.Fragment>
-      {/* search */}
-      <TextField
-        size="small"
-        placeholder="Find Attraction"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        onKeyDown={handleKeyDown}
-        sx={{
-          ".MuiInputBase-root": {
-            borderRadius: 10,
-            bgcolor: "white",
-            boxShadow: mild_box_shadow,
-          },
-        }}
-      />
-      <TTIconButton
-        onClick={handleSearch}
-        sx={{
-          color: "white",
-          bgcolor: "black",
-          borderRadius: 20,
-          boxShadow: mild_box_shadow_lg,
-          ":hover": {
-            bgcolor: "#333333",
-          },
-        }}
-      >
-        <SearchIcon />
-      </TTIconButton>
-    </React.Fragment>
+    <AttractionSearch
+      search={search}
+      setSearch={setSearch}
+      geoCoordinate={geoCoordinate}
+      setIsCoordMode={setIsCoordMode}
+      setResult={setResult}
+      setShowResult={setShowResult}
+    />
   );
 
-  const nextButton = (
-    <TTButton
-      color="primary"
-      endIcon={<NavigateNextIcon />}
-      disabled={!Boolean(focusId)}
-      sx={{ borderRadius: 20, boxShadow: mild_box_shadow_lg }}
-    >
-      Next
-    </TTButton>
+  const selectButton = (
+    <AttractionSelectButton
+      focusId={focusId}
+      isAttractionLoading={isAttractionLoading}
+      onClick={handleSelectClick}
+    />
   );
 
   const attractionList = result.length > 0 && (
-    <Box
-      sx={{
-        width: 320,
-        m: 1,
-        p: 1,
-        pr: 0,
-        borderRadius: 2,
-        bgcolor: "white",
-        boxShadow: mild_box_shadow,
-      }}
+    <AttractionList
+      result={result}
+      setShowResult={setShowResult}
+      focusId={focusId}
+      setFocusId={setFocusId}
+    />
+  );
+
+  const attractionListShowButton = (
+    <TTIconButton
+      className="attraction-finder-show-list-button"
+      onClick={() => setShowResult(true)}
     >
-      {/* title - result */}
-      <Typography fontSize="1.2rem">Result</Typography>
-      {/* attraction items */}
-      <Box
-        sx={{
-          maxHeight: "60vh",
-          overflowY: "auto",
-        }}
-      >
-        {result.map((osmEntity, i) => (
-          <React.Fragment key={IdentifierUtils.getOsmItemId(osmEntity)}>
-            <TTButton
-              fullWidth
-              onClick={() => handleAttractionClick(osmEntity)}
-              variant="text"
-              sx={{
-                textAlign: "left",
-                justifyContent: "flex-start",
-                bgcolor:
-                  focusId === IdentifierUtils.getOsmItemId(osmEntity)
-                    ? "primary.100"
-                    : "white",
-              }}
-            >
-              <Box width="100%" my={0.5}>
-                <Box flex={1} display="flex" flexDirection="row">
-                  <Box flex={1}>
-                    <Typography fontSize="1rem">
-                      {HighlighterHelper.getHighlightedText(
-                        osmEntity.name,
-                        lastSearch
-                      )}
-                    </Typography>
-                  </Box>
-                  <Chip size="small" label={OsmTypes[osmEntity.osm_type]} />
-                </Box>
-                <Box>
-                  <Typography fontSize=".8rem" color="dimgrey">
-                    {HighlighterHelper.getHighlightedText(
-                      osmEntity.display_name,
-                      lastSearch
-                    )}
-                  </Typography>
-                </Box>
-              </Box>
-            </TTButton>
-            {i + 1 < result.length && <Divider flexItem />}
-          </React.Fragment>
-        ))}
-      </Box>
-    </Box>
+      <NavigateNextIcon />
+    </TTIconButton>
   );
 
   return (
     <TTDialog open={open} onClose={handleClose} hidePadding>
-      <Box
-        display="flex"
-        flexDirection="column"
-        position="relative"
-        width="80vw"
-        maxHeight="90vh"
-        sx={{ overflowY: "auto" }}
-      >
-        {/* map layer */}
-        <Box height="90vh">
-          <Map
-            markers={markers}
-            focusId={focusId}
-            correctionZoom={8}
-            updateOnMarkerFocus
-          />
-        </Box>
+      {/* map layer */}
+      <Box className="attraction-finder-map-box">
+        <Map
+          markers={markers}
+          focusId={focusId}
+          currentCoordinate={geoCoordinate}
+          setCurrentCoordinate={
+            isCoordMode ? handleGeoCoordinateClick : undefined
+          }
+          updateOnMarkerFocus
+        />
       </Box>
 
       {/* UI layer */}
-      {!isMobile ? (
+      {!isCoordMode && (
+        isMobile ? (
         <React.Fragment>
           {/* UI layer - search */}
-          <Box
-            position="absolute"
-            display="flex"
-            flexDirection="row"
-            justifyContent="center"
-            zIndex={1100}
-            top={10}
-            left={10}
-            gap={2}
-          >
+          <Box className="attraction-finder-search-box-mobile">
             {attractionSearch}
           </Box>
 
-          {/* UI layer - search */}
-          <Box position="absolute" zIndex={1100} top={10} right={10}>
-            {nextButton}
+          {/* UI layer - next button */}
+          <Box className="attraction-finder-next-button-box-mobile">
+            {selectButton}
           </Box>
 
           {/* UI layer - result */}
-          <Box
-            position="absolute"
-            display="flex"
-            flexDirection="column"
-            zIndex={1100}
-            top={60}
-            left={4}
-            gap={2}
-          >
+          <Box className={resultBoxClassName}>
+            {/* result list - attractions */}
+            {attractionList}
+          </Box>
+
+          {/* UI layer - result button */}
+          {!showResult && (
+            <Box className="attraction-finder-result-button-box-mobile">
+              {/* result list - attractions */}
+              {attractionListShowButton}
+            </Box>
+          )}
+        </React.Fragment>
+      ) : (
+        <React.Fragment>
+          {/* UI layer - search */}
+          <Box className="attraction-finder-search-box">{attractionSearch}</Box>
+
+          {/* UI layer - next button */}
+          <Box className="attraction-finder-next-button-box">
+            {selectButton}
+          </Box>
+
+          {/* UI layer - result */}
+          <Box className="attraction-finder-result-box">
             {/* result list - attractions */}
             {attractionList}
           </Box>
         </React.Fragment>
-      ) : (
-        <></>
+      )
       )}
 
-      {/* <Grid
-        container
-        minWidth={150}
-        height="80vh"
-      > */}
-      {/* left panel */}
-      {/* <Grid
-          container
-          direction="column"
-          display="flex"
-          flexDirection="column"
-          size={4}
-          spacing={2}
-          height="100%"
-          sx={{ overflowY: "auto" }}
-        >
-          <SearchPanel
-            result={result}
-            setResult={setResult}
-            focusId={focusId}
-            setIdFocus={setIdFocus}
-            setOpenHighlight={setOpenHighlight}
-            clearEditAttraction={clearEditAttraction}
-            handleClose={handleClose}
+      {/* attraction layer */}
+      <Box className={attractionBoxClassName}>
+        <Box className="attraction-finder-attraction-box-nav-box">
+          {/* nav back button */}
+          <TTButton
+            className="attraction-finder-attraction-box-nav-back-button"
+            label="back"
+            color="info"
+            variant="text"
+            startIcon={<NavigateBeforeIcon />}
+            onClick={() => setAttraction(undefined)}
           />
-        </Grid> */}
+        </Box>
 
-      {/* right panel */}
-      {/* <Grid size={8}>
-          <MapPanel
-            result={result}
-            attractionResult={attractionResult}
-            attractionFocus={attractionFocus}
-            setAttractionFocus={setAttractionFocus}
-            focusId={focusId}
-            openHighlight={openHighlight}
-            setOpenHighlight={setOpenHighlight}
-            openEditAttraction={openEditAttraction}
-            setOpenEditAttraction={setOpenEditAttraction}
-            description={description}
-            setDescription={setDescription}
-            setIsParentUpdated={() => setIsUpdated(prev => !prev)}
-            clearEditAttraction={clearEditAttraction}
+        <Box className="attraction-finder-attraction-fragment-box">
+          <AttractionFragment
+            attraction={attraction}
+            isAttractionLoading={false}
+            isMobile={isMobile}
           />
-        </Grid> */}
-      {/* </Grid> */}
+        </Box>
+
+        <Box className="attraction-finder-new-highlight-box">
+          <Typography className="attraction-finder-new-highlight-header">
+            New Highlight
+          </Typography>
+          <DescriptionTextField value={description} setValue={setDescription} />
+          <Box className="attraction-finder-new-highlight-button-box">
+            <TTButton
+              label="create"
+              color="primary"
+              startIcon={actionIcon}
+              onClick={handlePost}
+              disabled={!Boolean(description.trim())}
+            />
+          </Box>
+        </Box>
+      </Box>
     </TTDialog>
   );
 };

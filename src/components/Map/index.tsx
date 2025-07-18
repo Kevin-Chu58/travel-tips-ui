@@ -1,10 +1,10 @@
-import { BlueIcon, GreenIcon, GreyIcon, type Direction } from "@constants/Maps";
+import { BlueIcon, GreenIcon, GreyIcon, GoldIcon, type Direction } from "@constants/Maps";
 import { Box, type SxProps } from "@mui/material";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import React, { useEffect, useRef, useState, type ReactNode } from "react";
 import { getHex } from "@constants/Colors";
-import type { Marker, Route } from "@constants/Types";
+import type { GeoCoordinate, Marker, Route } from "@constants/Types";
 import MapUtils from "@utils/MapUtils";
 
 type MapConfigProps = {
@@ -16,6 +16,7 @@ type MapConfigProps = {
 };
 
 type MapMarkerRouteProps = {
+  currentCoordinate?: GeoCoordinate;
   markers?: Marker[];
   mapRoutes?: Route[];
 };
@@ -29,6 +30,7 @@ type MapInteractionProps = {
 
 type MapCallbackProps = {
   setIsParentUpdated?: () => void;
+  setCurrentCoordinate?: (state: GeoCoordinate) => void;
   setFocusId?: (state: string | undefined) => void;
   setMapView?: (state: string) => void;
 };
@@ -50,6 +52,8 @@ const Map = React.memo(
     readonly = false,
     lat = 38.79,
     lng = -106.53,
+    currentCoordinate,
+    setCurrentCoordinate,
     markers = [],
     mapRoutes,
     setIsParentUpdated = () => {},
@@ -69,6 +73,7 @@ const Map = React.memo(
     const mapRef = useRef<HTMLDivElement>(null);
     const mapInstanceRef = useRef<L.Map | null>(null);
     const markersRef = useRef<L.Marker[]>([]);
+    const MyLocationRef = useRef<L.Marker[]>([]);
     const routesRef = useRef<L.Polyline[]>([]);
     // map routes
     const [routeCoords, setRouteCoords] = useState<[number, number][][]>(); // days/taos/corodinates
@@ -95,6 +100,32 @@ const Map = React.memo(
         setRouteCoords(routeCoords);
       }
     }, [mapRoutes]);
+
+    // rerender my location on currentCoordinate
+    useEffect(() => {
+      if (mapInstanceRef.current) {
+        setMyLocation();
+      }
+    }, [currentCoordinate]);
+
+    // render the set coordinate event on mount
+    useEffect(() => {
+      if (mapInstanceRef.current && setCurrentCoordinate) {
+
+        const handler = (e: L.LeafletMouseEvent) => {
+          const { lat, lng } = e.latlng;
+          setCurrentCoordinate({lat, lng});
+        };
+
+        // right click
+        mapInstanceRef.current.on("click", handler);
+
+        return () => {
+          if (mapInstanceRef.current)
+            mapInstanceRef.current.off("click", handler);
+        };
+      }
+    }, [setCurrentCoordinate]);
 
     // renrender the whole map on isUpdated
     useEffect(() => {
@@ -130,6 +161,7 @@ const Map = React.memo(
         if (mapInstanceRef.current && markers.length > 0) {
           setRoutes();
           setMarkers();
+          setMyLocation();
         }
 
         // https://api.maptiler.com/maps/streets-v2/256/{z}/{x}/{y}@2x.png?key=${apiKey}
@@ -215,7 +247,7 @@ const Map = React.memo(
           focusOnRoute && prevMarker && prevMarker.id === focusId;
 
         let icon = isFocus ? GreenIcon : isPrevFocus ? BlueIcon : GreyIcon;
-        let zIndexOffset = isFocus ? 1000 : 0;
+        let zIndexOffset = isFocus ? 100 : 0;
 
         const leafletMarker = L.marker([marker.lat, marker.lng], {
           icon: icon,
@@ -248,7 +280,7 @@ const Map = React.memo(
 
         // set map zoom level
         if (focusOnMarker && isFocus) {
-          const mappedZoom = MapUtils.placeRankToZoom(zoom) + correctionZoom;
+          const mappedZoom = (marker.zoom ?? zoom) + correctionZoom;
           // adjust map view position
           const markerBiased = MapUtils.getLatLonDelta(
             mapInstanceRef.current!,
@@ -268,10 +300,35 @@ const Map = React.memo(
       });
 
       // Optionally fit bounds to markers
-      if (!isFocusFound && markers.length > 0) {
+      if (markers.length === 1) {
+        const marker = markers[0];
+        const zoomLevel = marker.zoom + correctionZoom;
+        mapInstanceRef.current?.setView([marker.lat, marker.lng], zoomLevel, {
+          animate: true,
+        });
+      } else if (markers.length > 1 && !isFocusFound) {
         mapInstanceRef.current?.fitBounds(bounds, { padding: [20, 20] });
       }
     };
+
+    const setMyLocation = () => {
+      // remove old pin points
+      MyLocationRef.current.forEach((m) => mapInstanceRef.current!.removeLayer(m));
+      MyLocationRef.current = [];
+
+      // add the current coordinate pin point if not null
+      if (currentCoordinate) {
+        const leafletMyLocation = L.marker([currentCoordinate.lat, currentCoordinate.lng], {
+          icon: GoldIcon,
+        });
+
+        // add pin point to markerRef
+        MyLocationRef.current.push(leafletMyLocation);
+
+        // add pin point to map
+        leafletMyLocation.addTo(mapInstanceRef.current!);
+      }
+    }
 
     return (
       <Box m={0} ref={mapRef} height="100%" width="100%" sx={sx}>

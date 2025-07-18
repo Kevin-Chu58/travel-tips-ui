@@ -4,7 +4,7 @@ import { BrowserRouter as Router } from "react-router-dom";
 import { Auth0Provider, type AppState } from "@auth0/auth0-react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { SnackbarProvider } from 'notistack';
-import "./index.css";
+import "./index.scss";
 import App from "./App.tsx";
 import { ThemeProvider } from "@mui/material";
 import theme from "./theme.tsx";

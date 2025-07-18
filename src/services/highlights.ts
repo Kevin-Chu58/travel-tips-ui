@@ -12,14 +12,13 @@ export const getDefaultHighlight = (attractionId: number) => {
 export type HighlightPost = {
   attractionId: number;
   description?: string;
-  linkId?: number;
 };
 
 export type Highlight = HighlightPost & {
   id: number;
   isDeprecated: boolean;
   createdBy?: UserBasic;
-}
+};
 
 const getHighlightsByAttractionId = async (
   id: number,

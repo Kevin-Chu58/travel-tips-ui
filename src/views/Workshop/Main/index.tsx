@@ -35,7 +35,7 @@ const Main = () => {
   const [sortTypeIndex, setSortTypeIndex] = useState<number>(0);
   const [selected, setSelected] = useState<number[]>([]);
   // drawer
-  const [openDrawer, setOpenDrawer] = useState<boolean>(!isMobile);
+  const [openDrawer, setOpenDrawer] = useState<boolean>(false);
 
   const renderTrips = () => {
     setAreTripsUpdated((prev) => !prev);
@@ -238,6 +238,7 @@ const Main = () => {
                     right: 20,
                     bgcolor: "primary.main",
                     color: "white",
+                    textTransform: "capitalize",
                     ":hover": {
                       bgcolor: "primary.main",
                       filter: "brightness(.9)",

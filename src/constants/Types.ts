@@ -1,7 +1,7 @@
 // This file includes all types that are UI-related which are not directly related with API requests
 
 import type { JSX } from "react";
-import type { MapRouteType, OsmType } from "./Maps";
+import type { MapRouteType } from "./Maps";
 import type { Dayjs } from "dayjs";
 import type { SxProps } from "@mui/material";
 
@@ -106,16 +106,18 @@ export type RouteRoutes = DayRoutes[];
 // map
 export type Marker = {
   id?: string;
+  label?: string;
   lat: number;
   lng: number;
-  label?: string;
-  osmId: number;
-  osmType: OsmType;
-  zoom?: number;
-  order?: number;
+  zoom: number;
 };
 
 export type MapView = {
   viewType: string;
   icon: any;
+};
+
+export type GeoCoordinate = {
+  lat: number;
+  lng: number;
 };

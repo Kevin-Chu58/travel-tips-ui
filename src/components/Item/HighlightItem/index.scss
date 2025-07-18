@@ -1,0 +1,38 @@
+.highlight-item-box {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  padding: .5rem 0;
+}
+
+.highlight-item-content-box {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+}
+
+.highlight-item-content-header-box {
+  flex: 1;
+}
+
+.highlight-item-username.MuiTypography-root {
+  font-size: 1.2rem;
+  color: dimgrey;
+}
+
+.highlight-item-description.MuiTypography-root {
+  white-space: pre-wrap;
+}
+
+.highlight-item-edit-icon.MuiIconButton-root {
+  margin-left: auto;
+}
+
+.highlight-item-menu-item {
+  width: 120px;
+  display: flex;
+
+  &.hidden {
+    display: none;
+  }
+}

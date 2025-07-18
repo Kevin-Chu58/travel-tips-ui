@@ -1,0 +1,45 @@
+@use "../../../stylings/box_shadows" as *;
+
+.attraction-search-textfield {
+  max-width: 100%;
+}
+
+.attraction-search-textfield-mobile {
+  max-width: 160px;
+}
+
+.attraction-search-textfield,
+.attraction-search-textfield-mobile {
+  .MuiInputBase-root {
+    border-radius: 10rem;
+    background-color: white;
+    box-shadow: $mild_box_shadow;
+  }
+}
+
+.attraction-search-coordinate-button.MuiIconButton-root,
+.attraction-search-search-button.MuiIconButton-root {
+  box-shadow: $mild_box_shadow_lg;
+  border-radius: 20rem;
+  color: white;
+  background-color: black;
+
+  &:hover {
+    background-color: var(--grey-800);
+  } 
+}
+
+.attraction-search-coordinate-tooltip-box {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  padding: .25rem;
+}
+
+.attraction-search-coordinate-tooltip-text.MuiTypography-root {
+  font-size: .8rem;
+}
+
+.attraction-search-coordinate-tooltip-divider {
+  background-color: white;
+}

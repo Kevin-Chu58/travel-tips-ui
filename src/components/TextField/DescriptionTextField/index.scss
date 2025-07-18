@@ -1,0 +1,48 @@
+@use "../../../stylings/color" as *;
+
+.description-text-field-box {
+  border: 1px solid $divider;
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+.description-text-field-view-box {
+  flex: 1;
+  background-color: whitesmoke;
+  border-bottom: 1px solid $divider;
+}
+
+.description-text-field-view-button.MuiButton-root {
+  border-color: transparent;
+  border-radius: .5rem .5rem 0 0;
+
+  &.focus {
+    border-width: 1px 1px 0 1px;
+    border-style: solid;
+    border-color: $divider;
+    background-color: white;
+    z-index: 5;
+    scale: 1.06;
+  }
+}
+
+.description-text-field-view-preview-text-field.MuiTextField-root {
+  display: flex;
+  flex: 1;
+  margin: 1rem;
+  & .MuiOutlinedInput-root {
+    & fieldset {
+      border: none;
+    }
+  }
+}
+
+.description-text-field-view-input-text-field.MuiTextField-root {
+  display: flex;
+  flex: 1;
+  background-color: whitesmoke;
+  margin: 1rem;
+  & .MuiOutlinedInput-root textarea {
+    resize: vertical;
+  }
+}

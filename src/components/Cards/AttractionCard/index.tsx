@@ -1,9 +1,10 @@
 import Map from "@components/Map";
-import { mild_box_shadow } from "@constants/Shadows";
 import { Box, Typography } from "@mui/material";
 import type { AttractionV2 } from "@services/attractions";
+import MapUtils from "@utils/MapUtils";
 import { useState } from "react";
 import { useNavigate } from "react-router";
+import "./index.scss";
 
 type AttractionCardProps = {
   attraction: AttractionV2;
@@ -12,68 +13,37 @@ type AttractionCardProps = {
 const AttractionCard = ({ attraction }: AttractionCardProps) => {
   const [isHover, setIsHover] = useState<boolean>(false);
   const navigate = useNavigate();
+  // styling
+  const attractionCardHoverBoxClassName = `attraction-card-hover-box ${
+    isHover && "hover"
+  }`;
 
   const markers = [
     {
+      title: attraction.title,
       lat: attraction.lat,
       lng: attraction.lng,
-      osmId: attraction.osmId,
-      osmType: attraction.osmType,
+      zoom: MapUtils.resultTypeToZoom(attraction.resultType),
     },
   ];
 
   return (
     <Box
       key={`my-trip-${attraction.id}`}
-      width={240}
+      className="attraction-card-box"
       onMouseEnter={() => setIsHover(true)}
       onMouseLeave={() => setIsHover(false)}
       onClick={() => navigate(`/workshop/highlight/${attraction.id}`)}
-      sx={{
-        cursor: "pointer",
-      }}
     >
       {/* attraction location on map (read-only) */}
-      <Box
-        width={240}
-        height={200}
-        position="relative"
-        sx={{
-          borderLeft: "1px solid",
-          borderColor: "divider",
-          borderRadius: 4,
-          boxShadow: mild_box_shadow,
-          overflow: "hidden",
-        }}
-      >
-        <Map
-          readonly
-          updateOnMarkerFocus
-          markers={markers}
-          correctionZoom={3}
-        />
+      <Box className="attraction-card-map-box">
+        <Map readonly updateOnMarkerFocus markers={markers} />
 
-        <Box
-          width={240}
-          height={200}
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            position: "absolute",
-            justifyContent: "center",
-            alignItems: "center",
-            top: isHover ? 0 : 240,
-            transition: ".2s all linear",
-            bgcolor: "rgba(0, 0, 0, .6)",
-            color: "lightgrey",
-            zIndex: 1100,
-            backdropFilter: "blur(2px)",
-          }}
-        >
-          <Typography fontSize={72} mb={-1}>
+        <Box className={attractionCardHoverBoxClassName}>
+          <Typography className="attraction-card-hover-number">
             {attraction.numHighlights}
           </Typography>
-          <Typography fontSize={24} fontWeight="bold">
+          <Typography className="attraction-card-hover-text">
             {(attraction.numHighlights ?? 0) > 1 ? "Highlights" : "Highlight"}
           </Typography>
           <Typography>Click to view</Typography>
@@ -81,17 +51,12 @@ const AttractionCard = ({ attraction }: AttractionCardProps) => {
       </Box>
 
       {/* attraction info */}
-      <Box mt={2}>
-        <Typography
-          textTransform="capitalize"
-          display="flex"
-          alignItems="center"
-          fontSize={18}
-        >
-          {attraction.name}
+      <Box className="attraction-card-info-box">
+        <Typography className="attraction-card-info-title">
+          {attraction.title}
         </Typography>
 
-        <Typography fontSize={14} color="dimgrey">
+        <Typography className="attraction-card-info-address">
           {attraction.address}
         </Typography>
       </Box>

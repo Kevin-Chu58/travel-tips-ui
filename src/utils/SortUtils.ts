@@ -20,6 +20,18 @@ const sortNameDesc = (items: any[]) => {
   );
 };
 
+const sortTitleAsc = (items: any[]) => {
+  return items.sort((a, b) =>
+    a.title.toLowerCase().localeCompare(b.title.toLowerCase())
+  );
+};
+
+const sortTitleDesc = (items: any[]) => {
+  return items.sort((a, b) =>
+    b.title.toLowerCase().localeCompare(a.title.toLowerCase())
+  );
+};
+
 const sortDayAsc = (items: any[]) => {
   return items.sort((a, b) => a!.numDays - b!.numDays);
 };
@@ -65,6 +77,16 @@ export const sortTypeNameDesc = {
   function: sortNameDesc,
 } as SortType;
 
+export const sortTypeTitleAsc = {
+  label: "Title ASC",
+  function: sortTitleAsc,
+} as SortType;
+
+export const sortTypeTitleDesc = {
+  label: "Title DESC",
+  function: sortTitleDesc,
+} as SortType;
+
 export const sortTypeDayAsc = {
   label: "Days ASC",
   function: sortDayAsc,
@@ -100,6 +122,8 @@ const SortUtils = {
   sortIdDesc,
   sortNameAsc,
   sortNameDesc,
+  sortTitleAsc,
+  sortTitleDesc,
   sortDayAsc,
   sortDayDesc,
   sortLastUpdatedAsc,

@@ -1,5 +1,5 @@
 import type { TripAttractionOrder } from "@services/days";
-import type { OsmEntity } from "@services/geoMap/osm";
+import type { OsmEntity } from "@services/nominatim/nominatim";
 
 const getTaoTimelineItemId = (
   tao: TripAttractionOrder
@@ -10,7 +10,7 @@ const getTaoTimelineItemId = (
 const getOsmItemId = (
   osm: OsmEntity
 ) => {
-  return `${osm.osm_id}-${osm.type}`
+  return `${osm.osm_id}-${osm.osm_type}`
 }
 
 const IdentifierUtils = {

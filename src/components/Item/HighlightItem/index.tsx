@@ -13,6 +13,7 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import type { RootState } from "@redux/store";
 import HighlightForm from "@components/Forms/HighlightForm";
+import "./index.scss";
 
 type HighlightItemProps = {
   highlight: Highlight;
@@ -82,17 +83,15 @@ const HighlightItem = ({
     <React.Fragment>
       <Box
         id={highlight.id.toString()}
-        display="flex"
-        flexDirection="row"
-        gap={2}
-        py={1}
+        className="highlight-item-box"
       >
         <Avatar alt={_highlight.createdBy?.toString()} src={""} />
 
-        <Box flex={1} display="flex" flexDirection="row">
-          <Box flex={1}>
+        <Box className="highlight-item-content-box">
+          {/* header */}
+          <Box className="highlight-item-content-header-box">
             {/* user name */}
-            <Typography fontSize="1rem" color="dimgrey">
+            <Typography className="highlight-item-username">
               {_highlight.createdBy?.username}
             </Typography>
             {/* description */}
@@ -103,15 +102,15 @@ const HighlightItem = ({
                 onClose={() => setIsEditing(false)}
               />
             ) : (
-              <Typography whiteSpace="pre-wrap">{description}</Typography>
+              <Typography className="highlight-item-description">{description}</Typography>
             )}
           </Box>
           <Box>
             {!isEditing && (
               <IconButton
+                className="highlight-item-edit-icon"
                 size="small"
                 onClick={handleOptionsClick}
-                sx={{ ml: "auto" }}
               >
                 <MoreVertIcon fontSize="small" />
               </IconButton>
@@ -132,10 +131,9 @@ const HighlightItem = ({
         {menuOptions.map((option) => (
           <MenuItem
             key={option.label}
+            className={`highlight-item-menu-item ${!option.condition && "hideen"}`}
             onClick={option.onClick}
             sx={{
-              width: 120,
-              display: option.condition ? "flex" : "none",
               ...option.sx,
             }}
           >

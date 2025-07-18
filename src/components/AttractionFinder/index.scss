@@ -1,0 +1,138 @@
+@use "../../stylings/box_shadows" as *;
+@use "../../stylings/color" as *;
+
+.attraction-finder-attraction-box,
+.attraction-finder-map-box {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  width: 80vw;
+  height: 90vh;
+}
+
+.attraction-finder-search-box {
+  justify-content: center;
+  width: 100%;
+  top: 10px;
+  gap: 1rem;
+}
+
+.attraction-finder-search-box-mobile {
+  top: 10px;
+  left: 10px;
+  gap: .5rem;
+}
+
+.attraction-finder-search-box,
+.attraction-finder-search-box-mobile {
+  position: absolute;
+  display: flex;
+  flex-direction: row;
+  z-index: 1100;
+}
+
+.attraction-finder-next-button-box {
+  top: 10px;
+  right: 10px;
+}
+
+.attraction-finder-next-button-box-mobile {
+  top: 65px;
+  left: 10px;
+}
+
+.attraction-finder-next-button-box,
+.attraction-finder-next-button-box-mobile {
+  position: absolute;
+  display: flex;
+  z-index: 1100;
+}
+
+.attraction-finder-result-box {
+  top: 60px;
+  left: 8px;
+}
+
+.attraction-finder-result-box-mobile {
+  top: 120px;
+  left: -400px;
+  transition: 0.2s linear left;
+
+  &.focus {
+    left: 8px;
+  }
+}
+
+.attraction-finder-result-box,
+.attraction-finder-result-box-mobile {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  z-index: 1100;
+  gap: 1rem;
+}
+
+.attraction-finder-result-button-box-mobile {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  z-index: 1100;
+  top: 300px;
+  left: 8px;
+}
+
+.attraction-finder-show-list-button.MuiIconButton-root {
+  background-color: white;
+  box-shadow: $mild_box_shadow;
+  width: 30px;
+  height: 60px;
+  border-radius: 0.5rem;
+}
+
+.attraction-finder-attraction-box {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: var(--secondary-main);
+  z-index: 2000;
+  overflow-y: auto;
+  transform: translateX(100%);
+  transition: .2s linear transform;
+
+  &.focus {
+    transform: translateX(0);
+  }
+}
+
+.attraction-finder-attraction-box-nav-box {
+  padding-left: .5rem;
+  padding-right: .5rem;
+}
+
+.attraction-finder-attraction-box-nav-back-button.MuiButton-root {
+  font-size: 1rem;
+  margin-top: .5rem;
+}
+
+.attraction-finder-attraction-fragment-box {
+  padding: 1rem;
+}
+
+.attraction-finder-new-highlight-box {
+  display: flex;
+  flex-direction: column;
+  margin: 1rem;
+  padding: 1rem;
+  gap: .5rem;
+  background-color: white;
+  border: 1px solid $divider;
+  border-radius: 1rem;
+}
+
+.attraction-finder-new-highlight-header.MuiTypography-root {
+  font-size: 1.6rem;
+}
+
+.attraction-finder-new-highlight-button-box {
+  margin-left: auto;
+}

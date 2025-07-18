@@ -1,0 +1,63 @@
+@use "../../../stylings/box_shadows" as *;
+@use "../../../stylings/color" as *;
+
+.attraction-card-box {
+  width: 240px;
+  cursor: pointer;
+}
+
+.attraction-card-map-box {
+  width: 240px;
+  height: 200px;
+  position: relative;
+  border: 1px solid $divider;
+  border-radius: 1rem;
+  box-shadow: $mild_box_shadow;
+  overflow: hidden;
+}
+
+.attraction-card-hover-box {
+  width: 240px;
+  height: 200px;
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  justify-content: center;
+  align-items: center;
+  top: 240px;
+  transition: .2s linear top;
+  background-color: rgba(0, 0, 0, .6);
+  color: lightgrey;
+  z-index: 1100;
+  backdrop-filter: blur(2px);
+
+  &.hover {
+    top: 0;
+  }
+}
+
+.attraction-card-hover-number.MuiTypography-root {
+  font-size: 5rem;
+  margin-bottom: -.5rem;
+}
+
+.attraction-card-hover-text.MuiTypography-root {
+  font-size: 1.6rem;
+  font-weight: bold;
+}
+
+.attraction-card-info-box {
+  margin-top: 1rem;
+}
+
+.attraction-card-info-title.MuiTypography-root {
+  text-transform: capitalize;
+  display: flex;
+  align-items: center;
+  font-size: 1.1rem;
+}
+
+.attraction-card-info-address.MuiTypography-root {
+  font-size: 0.9rem;
+  color: dimgrey;
+}

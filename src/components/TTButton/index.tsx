@@ -4,6 +4,7 @@ import { useNavigate } from "react-router";
 
 type TTButtonProps = {
   label?: string;
+  className?: string;
   color?: ButtonOwnProps["color"];
   size?: ButtonOwnProps["size"];
   variant?: ButtonOwnProps["variant"];
@@ -20,6 +21,7 @@ type TTButtonProps = {
 
 const TTButton = ({
   label,
+  className,
   color = "inherit",
   size = "medium",
   variant = "contained",
@@ -45,6 +47,7 @@ const TTButton = ({
   return (
     <Button
       role="button"
+      className={className}
       size={size}
       color={color}
       variant={variant}

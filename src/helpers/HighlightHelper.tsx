@@ -1,4 +1,5 @@
 import { Typography } from "@mui/material";
+import "./HighlightHelper.scss";
 
 const generateInputRegex = (input: string) => {
   const words = input
@@ -11,7 +12,11 @@ const generateInputRegex = (input: string) => {
   return new RegExp(pattern, "gi"); // global + case-insensitive
 };
 
-const getHighlightedText = (text: string, matchString: string, color?: string) => {
+const getHighlightedText = (
+  text: string,
+  matchString: string,
+  color?: string
+) => {
   const inputRegex = generateInputRegex(matchString);
 
   const caseInsensitiveRegex = new RegExp(
@@ -23,12 +28,9 @@ const getHighlightedText = (text: string, matchString: string, color?: string) =
     part === "" ? null : (
       <Typography
         component="span"
+        className="highlight-helper-typography"
         sx={{
-          fontSize: "inherit",
-          borderRadius: 1,
-          px: 0.2,
-          mx: -0.2,
-          bgcolor: index % 2 === 1 ? (color ?? "primary.100") : "transparent",
+          bgcolor: index % 2 === 1 ? color ?? "primary.100" : "transparent",
         }}
         key={index}
       >

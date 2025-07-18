@@ -1,6 +1,8 @@
 import markerIconGrey from "@assets/map/marker-icon-grey.png";
 import markerIconBlue from "@assets/map/marker-icon-blue.png";
 import markerIconGreen from "@assets/map/marker-icon-green.png";
+import markerIconGold from "@assets/map/marker-icon-gold.png";
+import markerIconOrange from "@assets/map/marker-icon-orange.png";
 import markerShadow from "@assets/map/marker-shadow.png";
 import L from "leaflet";
 
@@ -59,6 +61,24 @@ export const BlueIcon = new L.Icon({
 
 export const GreenIcon = new L.Icon({
   iconUrl: markerIconGreen,
+  shadowUrl: markerShadow,
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41],
+});
+
+export const GoldIcon = new L.Icon({
+  iconUrl: markerIconGold,
+  shadowUrl: markerShadow,
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41],
+});
+
+export const OrangeIcon = new L.Icon({
+  iconUrl: markerIconOrange,
   shadowUrl: markerShadow,
   iconSize: [25, 41],
   iconAnchor: [12, 41],
