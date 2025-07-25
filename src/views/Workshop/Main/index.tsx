@@ -45,17 +45,6 @@ const Main = () => {
     setAreAttractionsUpdated((prev) => !prev);
   };
 
-  const addSelected = (id: number) => {
-    setSelected([...selected, id]);
-  };
-
-  const removeSelected = (id: number) => {
-    let i = selected.indexOf(id);
-    let _selected = [...selected];
-    _selected.splice(i, 1);
-    setSelected(_selected);
-  };
-
   // render the nav tab index focus when page initializes
   useEffect(() => {
     let pathname = window.location.pathname;
@@ -90,9 +79,6 @@ const Main = () => {
       element: (
         <Trips
           trips={trips}
-          selected={selected}
-          addSelected={addSelected}
-          removeSelected={removeSelected}
           setIsUpdated={renderTrips}
         />
       ),

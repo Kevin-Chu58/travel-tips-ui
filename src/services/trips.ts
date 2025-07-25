@@ -1,21 +1,21 @@
 import http from "@services/http";
 import type { Day } from "./days";
+import type { UserBasic } from "./users";
 
 export type TripPost = {
-    name: string;
+    title: string;
     description?: string;
 }
 
 export type TripPatch = {
-    name?: string;
+    title?: string;
     description?: string;
 }
 
 export type Trip = TripPost & {
     id: number;
-    createdBy: number;
+    createdBy: UserBasic;
     createdAt: Date;
-    lastUpdatedAt: Date;
     numDays?: number;
     isPublic: boolean;
 };
@@ -28,8 +28,8 @@ export type TripDetail = TripPost &  {
     days?: Day[];
 };
 
-const getTripsByName = async (name: string): Promise<Trip[]> => {
-    const params = new URLSearchParams({name: name})
+const getTripsByTitle = async (title: string): Promise<Trip[]> => {
+    const params = new URLSearchParams({title: title})
     return await http.get(http.apiBaseURLs.api, `trips?${params.toString()}`);
 }
 
@@ -45,9 +45,8 @@ const getMyTripById = async (id: number, token: string): Promise<TripDetail> => 
     return await http.get(http.apiBaseURLs.api, `trips/my/${id}`, undefined, token);
 }
 
-const postNewTrip = async (newTrip: TripPost, token: string): Promise<Trip> => {
-    const body = JSON.stringify(newTrip);
-    return await http.post(http.apiBaseURLs.api, "trips", body, undefined, token);
+const postNewTrip = async (name: string, token: string): Promise<Trip> => {
+    return await http.post(http.apiBaseURLs.api, `trips/${name}`, undefined, undefined, token);
 }
 
 const patchTrip = async (id: number, trip: TripPatch, token: string): Promise<Trip> => {
@@ -66,7 +65,7 @@ const patchTripIsHidden = async (ids: number[], isHidden: boolean, token: string
 }
 
 export const tripsService = {
-    getTripsByName,
+    getTripsByTitle,
     getTripDetailById,
     getMyTrips,
     getMyTripById,

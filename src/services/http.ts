@@ -43,13 +43,18 @@ const postImage = <TResponse>(
   apiBaseURL: string,
   endpoint: string,
   imageData: string,
-  headers?: Headers
+  name?: string,
+  headers?: Headers,
+  token?: string,
 ): Promise<TResponse> => {
   const blob = dataURItoBlob(imageData);
   const fileType = blob.type.replace("image/", "");
   const imageDataForm = new FormData();
-  imageDataForm.append("image", blob, `image.${fileType}`);
-  return makeRequest(apiBaseURL, endpoint, "post", imageDataForm, headers);
+  imageDataForm.append("file", blob, `image.${fileType}`);
+  if (name)
+    imageDataForm.append("name", name);
+  
+  return makeRequest(apiBaseURL, endpoint, "post", imageDataForm, headers, token);
 };
 
 const post = <TResponse>(

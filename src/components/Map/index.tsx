@@ -1,4 +1,10 @@
-import { BlueIcon, GreenIcon, GreyIcon, GoldIcon, type Direction } from "@constants/Maps";
+import {
+  BlueIcon,
+  GreenIcon,
+  GreyIcon,
+  GoldIcon,
+  type Direction,
+} from "@constants/Maps";
 import { Box, type SxProps } from "@mui/material";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -111,10 +117,9 @@ const Map = React.memo(
     // render the set coordinate event on mount
     useEffect(() => {
       if (mapInstanceRef.current && setCurrentCoordinate) {
-
         const handler = (e: L.LeafletMouseEvent) => {
           const { lat, lng } = e.latlng;
-          setCurrentCoordinate({lat, lng});
+          setCurrentCoordinate({ lat, lng });
         };
 
         // right click
@@ -166,7 +171,8 @@ const Map = React.memo(
 
         // https://api.maptiler.com/maps/streets-v2/256/{z}/{x}/{y}@2x.png?key=${apiKey}
         L.tileLayer(`https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png`, {
-          attribution: "&copy; OpenStreetMap contributors",
+          attribution:
+            '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors',
         }).addTo(mapInstanceRef.current);
       }
     }, []);
@@ -313,14 +319,19 @@ const Map = React.memo(
 
     const setMyLocation = () => {
       // remove old pin points
-      MyLocationRef.current.forEach((m) => mapInstanceRef.current!.removeLayer(m));
+      MyLocationRef.current.forEach((m) =>
+        mapInstanceRef.current!.removeLayer(m)
+      );
       MyLocationRef.current = [];
 
       // add the current coordinate pin point if not null
       if (currentCoordinate) {
-        const leafletMyLocation = L.marker([currentCoordinate.lat, currentCoordinate.lng], {
-          icon: GoldIcon,
-        });
+        const leafletMyLocation = L.marker(
+          [currentCoordinate.lat, currentCoordinate.lng],
+          {
+            icon: GoldIcon,
+          }
+        );
 
         // add pin point to markerRef
         MyLocationRef.current.push(leafletMyLocation);
@@ -328,7 +339,7 @@ const Map = React.memo(
         // add pin point to map
         leafletMyLocation.addTo(mapInstanceRef.current!);
       }
-    }
+    };
 
     return (
       <Box m={0} ref={mapRef} height="100%" width="100%" sx={sx}>

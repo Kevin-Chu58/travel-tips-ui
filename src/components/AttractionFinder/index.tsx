@@ -23,6 +23,7 @@ import TTButton from "@components/TTButton";
 import { highlightsService } from "@services/highlights";
 import { useSnackbar } from "notistack";
 import { type GeoCoordinate } from "@constants/Types";
+import clsx from "clsx";
 
 type AttractionFinderProps = {
   open: boolean;
@@ -59,12 +60,8 @@ const AttractionFinder = ({
   const [description, setDescription] = useState<string>("");
   const [isPosting, setIsPosting] = useState<boolean>(false);
   // styling
-  const resultBoxClassName = `attraction-finder-result-box-mobile ${
-    showResult && "focus"
-  }`;
-  const attractionBoxClassName = `attraction-finder-attraction-box ${
-    attraction && "focus"
-  }`;
+  const resultBoxClassName = clsx("attraction-finder-result-box-mobile", showResult && "focus");
+  const attractionBoxClassName = clsx("attraction-finder-attraction-box", attraction && "focus");
   // others
   const token = useSelector((state: RootState) => state.auth.accessToken);
 

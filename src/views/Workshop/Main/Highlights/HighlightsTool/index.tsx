@@ -1,9 +1,7 @@
 import ListToolBar from "@components/ListToolBar";
 import type { RootState } from "@redux/store";
-import { attractionsService, type AttractionHighlights, type AttractionV2 } from "@services/attractions";
+import { attractionsService, type AttractionV2 } from "@services/attractions";
 import SortUtils, {
-  sortTypeIdAsc,
-  sortTypeIdDesc,
   sortTypeTitleAsc,
   sortTypeTitleDesc,
 } from "@utils/SortUtils";
@@ -11,8 +9,6 @@ import { useEffect } from "react";
 import { useSelector } from "react-redux";
 
 const sortTypes = [
-  sortTypeIdAsc,
-  sortTypeIdDesc,
   sortTypeTitleAsc,
   sortTypeTitleDesc,
 ];

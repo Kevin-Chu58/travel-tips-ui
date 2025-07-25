@@ -1,4 +1,4 @@
-import { Box, Tooltip, Typography } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import { tripsService, type Trip } from "@services/trips";
 import TimeUtils from "@utils/TimeUtils";
 import { useNavigate } from "react-router";
@@ -84,7 +84,7 @@ const TTTripCard = ({
               textOverflow: "ellipsis",
             }}
           >
-            {trip.name}
+            {trip.title}
           </Typography>
         {/* </Tooltip> */}
 

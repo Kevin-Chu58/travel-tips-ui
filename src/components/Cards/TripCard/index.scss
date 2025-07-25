@@ -1,0 +1,71 @@
+@use "../../../stylings/box_shadows" as *;
+
+.trip-card-box {
+  width: 240px;
+  cursor: pointer;
+}
+
+.trip-card-image-box {
+  width: 240px;
+  height: 200px;
+  border-radius: 1rem;
+  background-color: var(--primary-main);
+  box-shadow: $box-shadow;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  justify-content: center;
+  align-items: center;
+  gap: .5rem;
+}
+
+.trip-card-image {
+  width: 60%;
+  height: 60%;
+  object-fit: cover;
+}
+
+.trip-card-image-creator-info-box {
+  display: flex;
+  position: absolute;
+  align-items: center;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+}
+
+.trip-card-avatar {
+  box-shadow: $mild-box-shadow;
+  margin: .4rem;
+}
+
+.trip-card-username.MuiTypography-root {
+  font-size: .7rem;
+}
+
+.trip-card-username-chip {
+  border-radius: .5rem;
+  background-color: #222222ee;
+  box-shadow: $mild-box-shadow;
+  color: white;
+  margin-top: .5rem;
+}
+
+.trip-card-info-box {
+  margin-top: 1rem;
+}
+
+.trip-card-title {
+  display: -webkit-box;
+  line-clamp: 3;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.trip-card-num-days {
+  font-size: .9rem;
+  color: dimgrey;
+}

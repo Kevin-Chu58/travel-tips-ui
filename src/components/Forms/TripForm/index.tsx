@@ -1,9 +1,18 @@
-import TTTextField from "@components/TTTextField";
-import { Box, Button, Dialog, Typography } from "@mui/material";
+import TTButton from "@components/TTButton";
+import {
+  Box,
+  CircularProgress,
+  Dialog,
+  TextField,
+  Typography,
+} from "@mui/material";
 import type { RootState } from "@redux/store";
+import AddIcon from "@mui/icons-material/Add";
 import { tripsService } from "@services/trips";
 import { useState } from "react";
 import { useSelector } from "react-redux";
+import { BehaviorUtils } from "@utils/BehaviorUtils";
+import "./index.scss";
 
 type TripFormProps = {
   isOpen: boolean;
@@ -14,8 +23,12 @@ type TripFormProps = {
 const TripForm = ({ isOpen, setIsOpen, setIsParentUpdated }: TripFormProps) => {
   // new trip attributes
   const [name, setName] = useState<string>("");
-  const [description, setDescription] = useState<string>("");
-  const [errorParams, setErrorParams] = useState<string[]>([]);
+  const [isCreating, setIsCreating] = useState<boolean>(false);
+  const actionIcon = isCreating ? (
+    <CircularProgress size="1rem" sx={{ color: "white" }} />
+  ) : (
+    <AddIcon />
+  );
   // others
   const token = useSelector((state: RootState) => state.auth.accessToken);
 
@@ -29,39 +42,21 @@ const TripForm = ({ isOpen, setIsOpen, setIsParentUpdated }: TripFormProps) => {
     setName("");
   };
 
-  const handleChangeDescription = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setDescription(event.target.value);
-  };
-
-  const clearDescription = () => {
-    setDescription("");
-  };
-
   const handleCloseMenu = () => {
     setIsOpen(false);
     clearName();
-    clearDescription();
   };
 
-  const handleConfirm = async () => {
-    let invalidParams = [];
-    if (name.length === 0) invalidParams.push("name");
-    if (description.length > 1000) invalidParams.push("description");
+  const handleCreate = async () => {
+    if (token) {
+      setIsCreating(true);
 
-    if (invalidParams.length > 0) setErrorParams(invalidParams);
-    else {
-      const newTrip = {
-        name: name,
-        description: description,
-      };
+      await tripsService.postNewTrip(name, token);
 
-      if (token) {
-        await tripsService.postNewTrip(newTrip, token);
-        handleCloseMenu();
-        setIsParentUpdated();
-      }
+      await BehaviorUtils.sleep();
+      setIsCreating(false);
+      handleCloseMenu();
+      setIsParentUpdated();
     }
   };
 
@@ -70,45 +65,35 @@ const TripForm = ({ isOpen, setIsOpen, setIsParentUpdated }: TripFormProps) => {
       open={isOpen}
       onClose={handleCloseMenu}
       disablePortal={false}
-      maxWidth="md"
+      maxWidth="xs"
     >
-      <Box m={4}>
-        <Typography variant="h4" fontWeight={600} mb={4}>
-          New Trip
+      <Box className="trip-form-box">
+        <Typography className="trip-form-title">New Trip</Typography>
+        <Typography className="trip-form-notice">
+          After creating a trip, you may proceed to edit its description and
+          attach images as needed.
         </Typography>
-        {errorParams.length > 0 && (
-          <Typography variant="body1" color="error">
-            Invalid inputs: {errorParams?.toString()}
-          </Typography>
-        )}
-        <Typography variant="body1">Name*</Typography>
-        <TTTextField
-          id="new-trip-name"
-          input={name}
-          placeholder="name"
+
+        {/* title */}
+        <TextField
+          value={name}
+          placeholder="Title"
           onChange={handleChangeName}
-          clearInput={clearName}
         />
-        <Typography variant="body1">Description</Typography>
-        <TTTextField
-          id="new-trip-description"
-          input={description}
-          placeholder="description"
-          onChange={handleChangeDescription}
-          clearInput={clearDescription}
-        />
-        <Box display="flex" flexDirection="row" mt={2}>
-          <Button onClick={handleCloseMenu} variant="outlined" disableRipple>
+
+        <Box className="trip-form-icon-box">
+          <TTButton onClick={handleCloseMenu} variant="text" color="primary">
             cancel
-          </Button>
-          <Button
-            onClick={handleConfirm}
+          </TTButton>
+          <TTButton
+            onClick={handleCreate}
             variant="contained"
-            sx={{ ml: "auto" }}
-            disableRipple
+            color="primary"
+            startIcon={actionIcon}
+            disabled={!Boolean(name.trim())}
           >
-            confirm
-          </Button>
+            create
+          </TTButton>
         </Box>
       </Box>
     </Dialog>

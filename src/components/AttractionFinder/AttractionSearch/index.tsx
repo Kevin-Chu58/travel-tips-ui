@@ -6,7 +6,6 @@ import {
   CircularProgress,
   Divider,
   TextField,
-  Tooltip,
   Typography,
 } from "@mui/material";
 import type { RootState } from "@redux/store";
@@ -18,8 +17,8 @@ import type { AttractionV2 } from "@services/attractions";
 import { hereMapDiscoverService } from "@services/hereMap/hereMapDiscover";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import type { GeoCoordinate } from "@constants/Types";
-import { mild_box_shadow } from "@constants/Shadows";
 import ActionSpan from "@components/ActionSpan";
+import ToolTip from "@components/ToolTip";
 
 type AttractionSearchProps = {
   search: string;
@@ -82,13 +81,11 @@ const AttractionSearch = ({
         onClick={() => setIsCoordMode(true)}
         className="attraction-search-coordinate-button"
       >
-        <Tooltip
+        <ToolTip
           title={
             <Box className="attraction-search-coordinate-tooltip-box">
               <Typography className="attraction-search-coordinate-tooltip-text">
-                <ActionSpan>Click</ActionSpan> on this, then{" "}
-                <ActionSpan>Click</ActionSpan> on the map to set which region
-                the search will start.
+                <ActionSpan>Click</ActionSpan> on the map to select the location where search begins.
               </Typography>
               {geoCoordinate && (
                 <React.Fragment>
@@ -106,18 +103,9 @@ const AttractionSearch = ({
               )}
             </Box>
           }
-          slotProps={{
-            tooltip: {
-              sx: {
-                borderRadius: ".5rem",
-                backgroundColor: "#222222dd",
-                boxShadow: mild_box_shadow,
-              },
-            },
-          }}
         >
           <LocationOnIcon />
-        </Tooltip>
+        </ToolTip>
       </TTIconButton>
       <TextField
         disabled={isSearchLoading || !Boolean(geoCoordinate)}

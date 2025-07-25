@@ -1,20 +1,14 @@
-import TTTripCard from "@components/TTTripCard";
+import TripCard from "@components/Cards/TripCard";
 import { Box, Grid } from "@mui/material";
 import type { Trip } from "@services/trips";
 
 type TripsProps = {
   trips: Trip[];
-  selected: number[];
-  addSelected: (state: number) => void;
-  removeSelected: (state: number) => void;
   setIsUpdated: () => void;
 }
 
 const Trips = ({
   trips,
-  selected,
-  addSelected,
-  removeSelected,
   setIsUpdated,
 }: TripsProps) => {
 
@@ -23,19 +17,14 @@ const Trips = ({
       display="flex"
       flexWrap="wrap"
       sx={{
-        my: 1,
+        mt: 2,
         gap: 2,
       }}
     >
       {trips.map((trip) => (
-        <TTTripCard
+        <TripCard
           key={`trip-${trip.id}`}
           trip={trip}
-          isFocused={selected.includes(trip.id)}
-          setIsFocused={
-            selected.includes(trip.id) ? removeSelected : addSelected
-          }
-          setParentUpdate={setIsUpdated}
         />
       ))}
       <Grid size={12} height={4} />

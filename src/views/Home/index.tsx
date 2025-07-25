@@ -29,7 +29,7 @@ const Home = () => {
   }, [input]);
 
   const getTrips = async (input: string) => {
-    return await tripsService.getTripsByName(input);
+    return await tripsService.getTripsByTitle(input);
   };
 
   const Recommendation = () => {

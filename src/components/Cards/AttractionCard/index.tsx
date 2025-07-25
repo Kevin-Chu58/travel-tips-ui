@@ -5,6 +5,7 @@ import MapUtils from "@utils/MapUtils";
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import "./index.scss";
+import clsx from "clsx";
 
 type AttractionCardProps = {
   attraction: AttractionV2;
@@ -14,9 +15,10 @@ const AttractionCard = ({ attraction }: AttractionCardProps) => {
   const [isHover, setIsHover] = useState<boolean>(false);
   const navigate = useNavigate();
   // styling
-  const attractionCardHoverBoxClassName = `attraction-card-hover-box ${
+  const attractionCardHoverBoxClassName = clsx(
+    "attraction-card-hover-box",
     isHover && "hover"
-  }`;
+  );
 
   const markers = [
     {
@@ -29,7 +31,6 @@ const AttractionCard = ({ attraction }: AttractionCardProps) => {
 
   return (
     <Box
-      key={`my-trip-${attraction.id}`}
       className="attraction-card-box"
       onMouseEnter={() => setIsHover(true)}
       onMouseLeave={() => setIsHover(false)}

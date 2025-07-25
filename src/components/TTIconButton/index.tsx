@@ -10,7 +10,7 @@ import clsx from "clsx";
 type TTIconButtonProps = {
   className?: string;
   disabled?: boolean;
-  onClick: () => void;
+  onClick: (...state: any[]) => void;
   children: ReactNode;
   sx?: SxProps;
 } & MuiIconButtonProps;

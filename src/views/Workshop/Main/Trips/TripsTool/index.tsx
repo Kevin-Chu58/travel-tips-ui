@@ -4,25 +4,17 @@ import { tripsService, type Trip } from "@services/trips";
 import SortUtils, {
   sortTypeDayAsc,
   sortTypeDayDesc,
-  sortTypeIdAsc,
-  sortTypeIdDesc,
-  sortTypeNameAsc,
-  sortTypeNameDesc,
-  sortTypeUpdatedAsc,
-  sortTypeUpdatedDesc,
+  sortTypeTitleAsc,
+  sortTypeTitleDesc,
 } from "@utils/SortUtils";
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
 
 const sortTypes = [
-  sortTypeIdAsc,
-  sortTypeIdDesc,
-  sortTypeNameAsc,
-  sortTypeNameDesc,
+  sortTypeTitleAsc,
+  sortTypeTitleDesc,
   sortTypeDayAsc,
   sortTypeDayDesc,
-  sortTypeUpdatedAsc,
-  sortTypeUpdatedDesc,
 ];
 
 type TripsToolProps = {

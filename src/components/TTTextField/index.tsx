@@ -6,6 +6,8 @@ import {
 } from "@mui/material";
 import TTIconButton from "@components/TTIconButton";
 import ClearIcon from "@mui/icons-material/Clear";
+import "./index.scss";
+import clsx from "clsx";
 
 type TTTextFieldProps = {
   id?: string;
@@ -73,19 +75,12 @@ const TTTextField = ({
       />
       {clearInput && (
         <TTIconButton
+          className={clsx("TTTextfield-icon-button", !isInputEmpty() && "pointer")}
           onClick={clearInput}
-          sx={{
-            ml: -3.5,
-            mt: -1,
-            cursor: isInputEmpty() ? "unset" : "pointer",
-          }}
         >
           <ClearIcon
-            sx={{
-              color: color,
-              visibility: isInputEmpty() ? "hidden" : "visible",
-              borderRadius: 50,
-            }}
+            className={clsx("TTTextfield-clear-icon", isInputEmpty() && "hidden")}
+            sx={{color: color}}
           />
         </TTIconButton>
       )}

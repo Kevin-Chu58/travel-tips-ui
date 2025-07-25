@@ -14,7 +14,7 @@
 
 .description-text-field-view-button.MuiButton-root {
   border-color: transparent;
-  border-radius: .5rem .5rem 0 0;
+  border-radius: 1rem 1rem 0 0;
 
   &.focus {
     border-width: 1px 1px 0 1px;
@@ -43,6 +43,7 @@
   background-color: whitesmoke;
   margin: 1rem;
   & .MuiOutlinedInput-root textarea {
+    min-height: 100px;
     resize: vertical;
   }
 }

@@ -4,3 +4,23 @@
   flex-grow: 1;
   flex-direction: row;
 }
+
+.TTTextfield-icon-button.MuiIconButton-root {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  border: none;
+  cursor: "unset";
+
+  &.pointer {
+    cursor: pointer;
+  }
+}
+
+.TTTextfield-clear-icon {
+  border-radius: 20rem;
+
+  &.hidden {
+    display: none;
+  }
+}
