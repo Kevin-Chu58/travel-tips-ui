@@ -45,6 +45,18 @@
   --secondary-800: #766548;
   --secondary-900: #3b3224;
 
+  --info-main: #2196f3;
+  --info-50: #e3f2fd;
+  --info-100: #bbdefb;
+  --info-200: #90caf9;
+  --info-300: #64b5f6;
+  --info-400: #42a5f5;
+  --info-500: #2196f3;
+  --info-600: #1e88e5;
+  --info-700: #1976d2;
+  --info-800: #1565c0;
+  --info-900: #0d47a1;
+
   [data-theme="dark"] {
     /* Dark mode overrides */
     --grey-main: #2a2a2a;
@@ -80,6 +92,18 @@
     --secondary-700: #cdc2ae;
     --secondary-800: #e1dcd3;
     --secondary-900: #f2efea;
+
+    --info-main: #90caf9;
+    --info-50: #0d47a1;
+    --info-100: #1565c0;
+    --info-200: #1976d2;
+    --info-300: #1e88e5;
+    --info-400: #2196f3;
+    --info-500: #42a5f5;
+    --info-600: #64b5f6;
+    --info-700: #90caf9;
+    --info-800: #bbdefb;
+    --info-900: #e3f2fd;
   }
 }
 

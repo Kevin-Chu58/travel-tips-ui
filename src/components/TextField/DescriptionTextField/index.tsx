@@ -6,11 +6,13 @@ import "./index.scss";
 type DescriptionTextFieldProps = {
   value: string;
   setValue: (state: string) => void;
+  placeholder?: string;
 };
 
 const DescriptionTextField = ({
   value,
   setValue,
+  placeholder,
 }: DescriptionTextFieldProps) => {
   const [isPreview, setIsPreview] = useState<boolean>(false);
 
@@ -53,6 +55,7 @@ const DescriptionTextField = ({
           className="description-text-field-view-input-text-field"
           value={value}
           onChange={(e) => setValue(e.target.value)}
+          placeholder={placeholder}
           multiline
         />
       )}

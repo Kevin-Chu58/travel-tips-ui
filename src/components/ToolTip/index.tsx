@@ -32,7 +32,7 @@ const ToolTip = ({
         tooltip: {
           sx: {
             borderRadius: ".5rem",
-            backgroundColor: "#222222ee",
+            backgroundColor: "#333333ee",
             boxShadow: mild_box_shadow,
           },
         },

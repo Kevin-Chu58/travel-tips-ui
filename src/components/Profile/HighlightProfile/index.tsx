@@ -63,6 +63,7 @@ const HighlightProfile = () => {
       if (attractionId && !attraction) {
         try {
           setIsAttractionLoading(true);
+          // TODO - update this to HereMap & UpStash API services, with better information returned
           const attraction = await attractionsService.getAttractionById(
             parseInt(attractionId)
           );

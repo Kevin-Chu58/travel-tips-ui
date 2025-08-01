@@ -1,0 +1,14 @@
+.TTChipButton.MuiChip-root {
+  cursor: pointer;
+  background-color: lightgrey;
+  filter: brightness(1.05);
+
+  &:hover {
+    color: white;
+    background-color: var(--info-main);
+
+    .MuiChip-icon {
+      color: white;  
+    }
+  }
+}

@@ -1,4 +1,5 @@
 @use "../../../stylings/box_shadows" as *;
+@use "../../../stylings/color" as *;
 
 .trip-card-box {
   width: 240px;
@@ -44,9 +45,9 @@
   font-size: .7rem;
 }
 
-.trip-card-username-chip {
+.trip-card-username-chip.MuiChip-root {
   border-radius: .5rem;
-  background-color: #222222ee;
+  background-color: $light-black-sx-transparent;
   box-shadow: $mild-box-shadow;
   color: white;
   margin-top: .5rem;

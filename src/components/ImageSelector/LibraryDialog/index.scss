@@ -1,0 +1,100 @@
+@use "../../../stylings/box_shadows" as *;
+
+.library-dialog-box {
+  width: 60vw;
+  height: 80vh;
+  display: flex;
+  flex-direction: column;
+
+  &.mobile {
+    width: 80vw;
+  }
+}
+
+.library-dialog-header-box {
+  padding: 1rem;
+  padding-bottom: .5rem;
+  z-index: 1;
+}
+
+.library-dialog-primary-text.MuiTypography-root {
+  font-size: 1.4rem;
+}
+
+.library-dialog-secondary-text.MuiTypography-root {
+  font-size: .9rem;
+  color: dimgrey;
+}
+
+.library-dialog-image-library {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  padding: 1rem;
+  padding-bottom: 4rem;
+  gap: .5rem;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.library-dialog-image-container {
+  width: 240px;
+  border-radius: 1rem;
+  padding: 1rem;
+  background-color: transparent;
+  cursor: pointer;
+
+  &:hover {
+    background-color: var(--grey-300);
+  }
+
+  &.focus {
+    background-color: var(--primary-100);
+  }
+}
+
+.library-dialog-image-box {
+  border-radius: 1rem;
+  box-shadow: $mild_box_shadow;
+  overflow: hidden;
+  height: 200px;
+  margin-bottom: .5rem;
+}
+
+.library-dialog-image {
+  height: 100%;
+  object-fit: cover;
+}
+
+.library-dialog-image-name.MuiTypography-root {
+  font-size: 1.2rem;
+  overflow-wrap: break-word;
+  word-break: break-all;
+  hyphens: auto;
+}
+
+.library-dialog-image-guid.MuiTypography-root {
+  font-size: .7rem;
+  color: dimgrey;
+}
+
+.library-dialog-no-image-box {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.library-dialog-button-box {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+}
+
+.library-dialog-attach-button.MuiButton-root {
+  border-radius: 20rem;
+
+  &.Mui-disabled {
+    background-color: var(--grey-400);
+  }
+}

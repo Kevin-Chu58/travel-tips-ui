@@ -10,12 +10,11 @@ import TripMain from "./TripMain";
 import TripDays from "./TripDays";
 import ConditionalSuccessIconGroup from "@components/ButtonGroup/ConditionalSuccessButtonGroup";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import Layouts, {
-  Headers,
-} from "@constants/Layouts";
+import Layouts, { Headers } from "@constants/Layouts";
 import TTIconButton from "@components/TTIconButton";
 import type { NavTab } from "@constants/Types";
 import TTTabs from "@components/TTTabs";
+import TripProfile from "@components/Profile/TripProfile";
 
 /**
  * The view of a specific trip in workshop that allows editing,
@@ -34,115 +33,107 @@ const Trip = () => {
 
   /** query functions - trip and trip.name */
 
-  const getTrip = async () => {
-    return await tripsService.getMyTripById(Number(tripId), token!);
-  };
+  // const getTrip = async () => {
+  //   return await tripsService.getMyTripById(Number(tripId), token!);
+  // };
 
-  const updateTripName = async () => {
-    const update = { name: name.trim() };
-    return await tripsService.patchTrip(Number(tripId), update, token!);
-  };
+  // const updateTripName = async () => {
+  //   const update = { title: name.trim() };
+  //   return await tripsService.patchTrip(Number(tripId), update, token!);
+  // };
 
-  let queryKey = ["trip", tripId];
+  // let queryKey = ["trip", tripId];
 
-  const { data: trip } = useQuery({
-    queryKey: queryKey,
-    queryFn: getTrip,
-    enabled: !!tripId && !!token,
-    refetchOnWindowFocus: false,
-  });
+  // const { data: trip } = useQuery({
+  //   queryKey: queryKey,
+  //   queryFn: getTrip,
+  //   enabled: !!tripId && !!token,
+  //   refetchOnWindowFocus: false,
+  // });
 
-  const mutationTripName = useMutation({
-    mutationFn: updateTripName,
-    onMutate: () => {
-      const previousTrip = queryClient.getQueryData(queryKey);
+  // const mutationTripName = useMutation({
+  //   mutationFn: updateTripName,
+  //   onMutate: () => {
+  //     const previousTrip = queryClient.getQueryData(queryKey);
 
-      queryClient.setQueryData(queryKey, (oldData: any) => ({
-        ...oldData,
-        name: name,
-      }));
+  //     queryClient.setQueryData(queryKey, (oldData: any) => ({
+  //       ...oldData,
+  //       name: name,
+  //     }));
 
-      return { previousTrip };
-    },
+  //     return { previousTrip };
+  //   },
 
-    onError: (_err, _variables, context) => {
-      // Rollback if the mutation fails
-      if (context?.previousTrip) {
-        queryClient.setQueryData(queryKey, context.previousTrip);
-      }
-    },
+  //   onError: (_err, _variables, context) => {
+  //     // Rollback if the mutation fails
+  //     if (context?.previousTrip) {
+  //       queryClient.setQueryData(queryKey, context.previousTrip);
+  //     }
+  //   },
 
-    onSuccess: (latestTrip) => {
-      queryClient.setQueryData(queryKey, (oldData: any) => ({
-        ...oldData,
-        name: latestTrip.name,
-      }));
-    },
-  });
+  //   onSuccess: (latestTrip) => {
+  //     queryClient.setQueryData(queryKey, (oldData: any) => ({
+  //       ...oldData,
+  //       name: latestTrip.title,
+  //     }));
+  //   },
+  // });
 
-  /** useEffect */
+  // /** useEffect */
 
-  // render the nav tab index focus when page initializes
-  useEffect(() => {
-    let pathname = window.location.pathname;
-    let navTabIndex = navTabs.findIndex((tab) => tab.to === pathname);
-    setNavTabValue(navTabIndex);
-  }, []);
+  // // render the nav tab index focus when page initializes
+  // useEffect(() => {
+  //   let pathname = window.location.pathname;
+  //   let navTabIndex = navTabs.findIndex((tab) => tab.to === pathname);
+  //   setNavTabValue(navTabIndex);
+  // }, []);
 
-  // rerender on trip name
-  useEffect(() => {
-    if (trip?.name) setName(trip.name);
-  }, [trip?.name]);
+  // // rerender on trip name
+  // useEffect(() => {
+  //   if (trip?.title) setName(trip.title);
+  // }, [trip?.title]);
 
-  /** edit name */
+  // /** edit name */
 
-  const handleUpdateName = async () => {
-    setEditName(false);
+  // const handleUpdateName = async () => {
+  //   setEditName(false);
 
-    if (token && isNewNameValid()) {
-      mutationTripName.mutate();
-    } else {
-      setName(name.trim());
-    }
-  };
+  //   if (token && isNewNameValid()) {
+  //     mutationTripName.mutate();
+  //   } else {
+  //     setName(name.trim());
+  //   }
+  // };
 
-  const isNewNameValid = () => {
-    let input = name.trim();
-    return input.length > 0 && input.length <= 50 && input !== trip?.name;
-  };
+  // const isNewNameValid = () => {
+  //   let input = name.trim();
+  //   return input.length > 0 && input.length <= 50 && input !== trip?.title;
+  // };
 
-  /** constants */
+  // /** constants */
 
-  // nav tab
-  const navTabs = [
-    {
-      name: "General",
-      label: "General",
-      to: `/workshop/trip/${tripId}`,
-    },
-    {
-      name: "Days",
-      label:
-        (trip?.days?.length ?? 0) > 0 ? `Days (${trip!.days!.length})` : "Days",
-      to: `/workshop/trip/${tripId}/days`,
-    },
-  ] as NavTab[];
+  // // nav tab
+  // const navTabs = [
+  //   {
+  //     name: "General",
+  //     label: "General",
+  //     to: `/workshop/trip/${tripId}`,
+  //   },
+  //   {
+  //     name: "Days",
+  //     label:
+  //       (trip?.days?.length ?? 0) > 0 ? `Days (${trip!.days!.length})` : "Days",
+  //     to: `/workshop/trip/${tripId}/days`,
+  //   },
+  // ] as NavTab[];
 
   return (
-    <Container
-      maxWidth={false}
-      disableGutters
-      sx={{
-        maxHeight: `calc(100vh - ${Headers}px)`,
-        overflowX: "hidden",
-        overflowY: "auto",
-        pl: 2,
-      }}
-    >
-      <Box color="black">
+    <Container maxWidth={false} disableGutters>
+      <TripProfile uri="/workshop" />
+      {/* <Box color="black">
         <Grid container direction="column" spacing={2}>
           <Grid size={12} position="relative">
-            {/* trip header */}
+            trip header
             <Grid
               size={12}
               sx={{
@@ -153,7 +144,7 @@ const Trip = () => {
                 bgcolor: "secondary.main",
               }}
             >
-              {/* Name */}
+              Name
               <Grid
                 size={12}
                 display="flex"
@@ -195,7 +186,7 @@ const Trip = () => {
                         fontWeight={600}
                         sx={{ borderBottom: "2px solid transparent" }}
                       >
-                        {trip?.name}
+                        {trip?.title}
                       </Typography>
                       <TTIconButton
                         sx={{
@@ -231,7 +222,7 @@ const Trip = () => {
               </Grid>
             </Grid>
 
-            {/* trip detail pages */}
+            trip detail pages
             <Grid size={12} position="sticky">
               <Routes>
                 <Route
@@ -256,7 +247,7 @@ const Trip = () => {
             </Grid>
           </Grid>
         </Grid>
-      </Box>
+      </Box> */}
     </Container>
   );
 };

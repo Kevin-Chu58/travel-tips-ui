@@ -13,6 +13,7 @@ import { useState } from "react";
 import { useSelector } from "react-redux";
 import { BehaviorUtils } from "@utils/BehaviorUtils";
 import "./index.scss";
+import { useSnackbar } from "notistack";
 
 type TripFormProps = {
   isOpen: boolean;
@@ -21,6 +22,8 @@ type TripFormProps = {
 };
 
 const TripForm = ({ isOpen, setIsOpen, setIsParentUpdated }: TripFormProps) => {
+  // snackbar
+  const { enqueueSnackbar } = useSnackbar();
   // new trip attributes
   const [name, setName] = useState<string>("");
   const [isCreating, setIsCreating] = useState<boolean>(false);
@@ -31,8 +34,6 @@ const TripForm = ({ isOpen, setIsOpen, setIsParentUpdated }: TripFormProps) => {
   );
   // others
   const token = useSelector((state: RootState) => state.auth.accessToken);
-
-  // new trip menu
 
   const handleChangeName = (event: React.ChangeEvent<HTMLInputElement>) => {
     setName(event.target.value);
@@ -49,14 +50,24 @@ const TripForm = ({ isOpen, setIsOpen, setIsParentUpdated }: TripFormProps) => {
 
   const handleCreate = async () => {
     if (token) {
-      setIsCreating(true);
+      try {
+        setIsCreating(true);
 
-      await tripsService.postNewTrip(name, token);
+        await tripsService.postNewTrip(name, token);
 
-      await BehaviorUtils.sleep();
+        await BehaviorUtils.sleep();
+        handleCloseMenu();
+        setIsParentUpdated();
+
+        enqueueSnackbar("Successfully created new trip.", {
+          variant: "success",
+        });
+      } catch (e) {
+        if (e instanceof Error)
+          enqueueSnackbar(e.message, { variant: "error" });
+      }
+
       setIsCreating(false);
-      handleCloseMenu();
-      setIsParentUpdated();
     }
   };
 

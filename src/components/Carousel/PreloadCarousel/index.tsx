@@ -1,0 +1,164 @@
+import React, { useState, useEffect, useRef, type ReactNode } from "react";
+import { Box } from "@mui/material";
+import type { Image } from "@services/images";
+import TTIconButton from "@components/TTIconButton";
+import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
+import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import "./index.scss";
+import clsx from "clsx";
+import { useIsMobile } from "@hooks/useIsMobile";
+
+type PreloadCarouselProps = {
+  images: Image[];
+  onDelete?: (state: number) => void;
+  interval?: number;
+  height?: number;
+  children?: ReactNode;
+};
+
+const PreloadCarousel = ({
+  images,
+  onDelete = () => {},
+  interval = 4000,
+  height = 200,
+  children,
+}: PreloadCarouselProps) => {
+  // window
+  const isMobile = useIsMobile();
+  // settings
+  const slideWidthPercent = 58;
+  const [index, setIndex] = useState<number>(0);
+  const [translate, setTranslate] = useState<number>(-slideWidthPercent);
+  const [animating, setAnimating] = useState<boolean>(false);
+  const slideTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [isHovered, setIsHovered] = useState<boolean>(false);
+
+  if (!images || images.length === 0) return null;
+
+  const prevIndex = (index - 1 + images.length) % images.length;
+  const nextIndex = (index + 1) % images.length;
+
+  const scrollToLeft = () => {
+    setIndex((prev) => (prev - 1 + images.length) % images.length);
+  };
+
+  const scrollToRight = () => {
+    setIndex((prev) => (prev + 1) % images.length);
+  };
+
+  useEffect(() => {
+    setIndex(0);
+  }, [images.length]);
+
+  // set scrolling interval
+  useEffect(() => {
+    intervalRef.current = setInterval(() => {
+      if (images.length > 1) {
+        setAnimating(true);
+        setTranslate(-2 * slideWidthPercent);
+        slideTimeoutRef.current = setTimeout(() => {
+          setAnimating(false);
+          setIndex((prev) => (prev + 1) % images.length);
+          setTranslate(-slideWidthPercent);
+        }, 500);
+      }
+    }, interval);
+
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      if (slideTimeoutRef.current) clearTimeout(slideTimeoutRef.current);
+    };
+  }, [interval, images.length]);
+
+  const imageSrc = [
+    {
+      src: images[prevIndex].url,
+      alt: "prev",
+    },
+    {
+      src: images[index]?.url,
+      alt: "current",
+    },
+    {
+      src: images[nextIndex].url,
+      alt: "next",
+    },
+  ];
+
+  return (
+    <Box
+      className="preload-carousel-box"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      sx={{
+        height: `${height}px`,
+      }}
+    >
+      {/* image-layer */}
+      <Box
+        className={clsx("preload-carousel-image-box", animating && "animate")}
+        sx={{
+          width: `${3 * slideWidthPercent}%`,
+          transform: `translateX(${translate}%)`,
+        }}
+      >
+        {imageSrc.map((image) => (
+          <img
+            key={image.alt}
+            className="preload-carousel-image"
+            src={image.src}
+            alt={image.alt}
+            style={{
+              width: `${slideWidthPercent}%`,
+            }}
+          />
+        ))}
+      </Box>
+
+      {/* action layer */}
+      {(isHovered || isMobile) && (
+        <React.Fragment>
+          {/* scroll buttons */}
+          <Box
+            className="preload-carousel-scroll-left-button-box"
+          >
+            <TTIconButton
+              className="preload-carousel-scroll-button"
+              onClick={scrollToLeft}
+              sx={{
+                
+              }}
+            >
+              <KeyboardArrowLeftIcon />
+            </TTIconButton>
+          </Box>
+          <Box
+            className="preload-carousel-scroll-right-button-box"
+          >
+            <TTIconButton
+              onClick={scrollToRight}
+              className="preload-carousel-scroll-button"
+            >
+              <KeyboardArrowRightIcon />
+            </TTIconButton>
+          </Box>
+          {/* delete button */}
+          <Box className="preload-carousel-delete-button-box">
+            <TTIconButton
+              onClick={() => onDelete(index)}
+              className="preload-carousel-scroll-button"
+            >
+              <DeleteOutlineIcon />
+            </TTIconButton>
+          </Box>
+        </React.Fragment>
+      )}
+
+      {children}
+    </Box>
+  );
+};
+
+export default PreloadCarousel;

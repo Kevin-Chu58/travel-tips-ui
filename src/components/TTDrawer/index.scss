@@ -1,0 +1,77 @@
+.TTDrawer-box {
+  margin: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.TTDrawer-header.MuiTypography-root {
+  font-size: 2.125rem;
+  font-weight: bold;
+}
+
+.TTDrawer-sub-header.MuiTypography-root {
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: var(--primary-main);
+  text-transform: capitalize;
+}
+
+.TTDrawer-nav-tab-box {
+  margin-top: 2rem;
+  margin-left: 2rem;
+}
+
+.TTDrawer-nav-tab {
+  margin-left: 10%;
+  max-width: 90%;
+  cursor: pointer;
+  border-radius: 2rem 0 0 2rem;
+  z-index: 0;
+  background-color: var(--secondary-main);
+
+  &:hover {
+    background-color: var(--secondary-600);
+  }
+
+  &.active {
+    z-index: 5;
+    background-color: white;
+
+    // Only for desktop
+    &::before,
+    &::after {
+      --size: 16px;
+      position: absolute;
+      content: "";
+      width: var(--size);
+      height: var(--size);
+      right: 0;
+    }
+
+    &::before {
+      top: calc(var(--size) * -1);
+      border-radius: 0 0 100vw 0;
+      box-shadow: 4px 4px white;
+    }
+
+    &::after {
+      bottom: calc(var(--size) * -1);
+      border-radius: 0 100vw 0 0;
+      box-shadow: 4px -4px white;
+    }
+
+    &.mobile {
+      &::before,
+      &::after {
+        display: none;
+      }
+    }
+  }
+}
+
+.TTDrawer-nav-tab-label.MuiTypography-root {
+  font-size: 1.25rem;
+  margin-left: 1rem;
+}

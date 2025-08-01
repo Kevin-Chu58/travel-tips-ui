@@ -15,25 +15,18 @@ const TripCard = ({ trip }: TripCardProps) => {
   const navigate = useNavigate();
 
   return (
-    <Box className="trip-card-box">
+    <Box
+      className="trip-card-box"
+      onClick={() => navigate(`/workshop/trip/${trip.id}`)}
+    >
       {/* image container */}
-      <Box
-        className="trip-card-image-box"
-        onClick={() => navigate(`/workshop/trip/${trip.id}`)}
-      >
+      <Box className="trip-card-image-box">
         {/* no images */}
-        <img
-          src={TLogo}
-          className="trip-card-image"
-        />
+        <img src={TLogo} className="trip-card-image" />
 
         {/* creator info */}
-        <Box
-          className="trip-card-image-creator-info-box"
-        >
-          <Avatar
-            className="trip-card-avatar"
-          />
+        <Box className="trip-card-image-creator-info-box">
+          <Avatar className="trip-card-avatar" />
 
           <Chip
             label={
@@ -49,10 +42,7 @@ const TripCard = ({ trip }: TripCardProps) => {
 
       <Box className="trip-card-info-box">
         {/* title */}
-        <Typography
-          fontSize="1.1rem"
-          className="trip-card-title"
-        >
+        <Typography fontSize="1.1rem" className="trip-card-title">
           {trip.title}
         </Typography>
 

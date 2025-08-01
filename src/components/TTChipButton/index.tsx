@@ -1,20 +1,9 @@
 import { Chip, type ChipProps } from "@mui/material";
+import clsx from "clsx";
+import "./index.scss";
 
-const defaultSx = {
-    cursor: "pointer",
-    bgcolor: "lightgrey",
-    filter: "brightness(1.05)",
-    ":hover": {
-        color: "white",
-        bgcolor: "info.main",
-        ".MuiChip-icon": {
-            color: "white",
-        },
-    },
-};
-
-const TTChipButton = ({ sx, ...props }: ChipProps) => {
-    return <Chip {...props} sx={{ ...defaultSx, ...sx }} />;
+const TTChipButton = ({ sx, className, ...props }: ChipProps) => {
+  return <Chip {...props} className={clsx("TTChipButton", className)} />;
 };
 
 export default TTChipButton;

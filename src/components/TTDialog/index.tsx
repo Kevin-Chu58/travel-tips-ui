@@ -1,6 +1,7 @@
 import { Box, Dialog, type DialogProps, type SxProps } from "@mui/material";
 import type { ReactNode } from "react";
 import "./index.scss";
+import clsx from "clsx";
 
 type TTDialogProps = {
   className?: string;
@@ -23,8 +24,6 @@ const TTDialog = ({
   children,
   sx,
 }: TTDialogProps) => {
-  // styling
-  const TTDialogBoxClassName = hidePadding ? "" : "TTDialog-box";
 
   return (
     <Dialog
@@ -39,7 +38,7 @@ const TTDialog = ({
         },
       }}
     >
-      <Box className={TTDialogBoxClassName}>
+      <Box className={clsx(!hidePadding && "TTDialog-box")}>
         {/* content */}
         {children}
       </Box>

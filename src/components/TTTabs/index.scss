@@ -1,0 +1,18 @@
+.TTTabs-tab {
+  &.MuiTab-root {
+    min-height: 0;
+    margin-top: 0.5rem;
+    text-transform: capitalize;
+
+    :hover {
+      color: dimgrey;
+    }
+
+    &.Mui-selected {
+      color: var(--primary-main);
+      background-color: white;
+      :hover {
+      }
+    }
+  }
+}
