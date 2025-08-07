@@ -15,7 +15,7 @@ import UserMenu from "./UserMenu";
 import UserMenuItem from "./UserMenu/UserMenuItem";
 import { useLocation } from "react-router";
 import Pages from "@constants/Pages";
-import TTSearch from "@components/TTSearch";
+// import TTSearch from "@components/TTSearch";
 import TLogo from "@assets/T.svg";
 import TBoard from "@assets/TT_Board.svg";
 import Layouts from "@constants/Layouts";
@@ -113,15 +113,15 @@ const HeaderBar = () => {
                 height="inherit"
                 alignItems="center"
                 display="flex"
-                px={0.5}
+                px={.6}
               >
-                <Link href={"/"}>
+                <Link href={"/"} underline="none">
                   <img
                     className="app-bar-icon-svg"
                     src={TLogo}
                     alt="TravelTips"
-                    height={60}
-                    width={60}
+                    height={64}
+                    width={64}
                   />
                 </Link>
               </Box>
@@ -143,7 +143,7 @@ const HeaderBar = () => {
           </Box>
 
           {/* main page - quick search */}
-          {onPage === Pages.Main && (
+          {/* {onPage === Pages.Main && (
             <Box m={2}>
               <TTSearch
                 color="white"
@@ -162,7 +162,7 @@ const HeaderBar = () => {
                 }}
               />
             </Box>
-          )}
+          )} */}
 
           {/* auth */}
           <Box

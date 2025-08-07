@@ -13,6 +13,9 @@
 
 .highlight-item-content-header-box {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 .highlight-item-username.MuiTypography-root {

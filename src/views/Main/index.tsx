@@ -26,7 +26,7 @@ const Main = () => {
                 fontFamily="lily script one"
                 color="primary"
             >
-                Enjoy
+                Enjoy Peace
             </Typography>
             <Typography
                 variant="h3"

@@ -10,7 +10,6 @@ import { useIsMobile } from "@hooks/useIsMobile";
 import AttractionSearch from "./AttractionSearch";
 import AttractionSelectButton from "./AttractionSelectButton";
 import AttractionList from "./AttractionList";
-import "./index.scss";
 import { attractionsService, type AttractionV2 } from "@services/attractions";
 import MapUtils from "@utils/MapUtils";
 import { useSelector } from "react-redux";
@@ -24,17 +23,20 @@ import { highlightsService } from "@services/highlights";
 import { useSnackbar } from "notistack";
 import { type GeoCoordinate } from "@constants/Types";
 import clsx from "clsx";
+import "./index.scss";
 
 type AttractionFinderProps = {
   open: boolean;
   setOpen: (isOpen: boolean) => void;
   setIsParentUpdated?: () => void;
+  setParentAttraction?: (state: AttractionV2) => void;
 };
 
 const AttractionFinder = ({
   open,
   setOpen,
   setIsParentUpdated,
+  setParentAttraction,
 }: AttractionFinderProps) => {
   // window
   const isMobile = useIsMobile();
@@ -59,9 +61,6 @@ const AttractionFinder = ({
     useState<boolean>(false);
   const [description, setDescription] = useState<string>("");
   const [isPosting, setIsPosting] = useState<boolean>(false);
-  // styling
-  const resultBoxClassName = clsx("attraction-finder-result-box-mobile", showResult && "focus");
-  const attractionBoxClassName = clsx("attraction-finder-attraction-box", attraction && "focus");
   // others
   const token = useSelector((state: RootState) => state.auth.accessToken);
 
@@ -87,15 +86,32 @@ const AttractionFinder = ({
 
   const handleSelectClick = async () => {
     if (token && focusId) {
-      setIsAttractionLoading(true);
+      try {
+        setIsAttractionLoading(true);
 
-      let attraction = await attractionsService.postNewAttraction(
-        focusId,
-        token
-      );
+        let attraction = await attractionsService.postNewAttraction(
+          focusId,
+          token
+        );
 
-      await BehaviorUtils.sleep();
-      setAttraction(attraction);
+        await BehaviorUtils.sleep();
+
+        // if has setParentAttraction, then return the attraction to the parent
+        // then skipping the attraction layer and close the dialog
+        if (setParentAttraction !== undefined) {
+          setParentAttraction(attraction);
+          handleClose();
+        }
+        else {
+          setAttraction(attraction);
+          setIsAttractionLoading(false);
+        }
+      }
+      catch (e) {
+        if (e instanceof Error)
+          enqueueSnackbar(e.message, { variant: "error" });
+      }
+      
       setIsAttractionLoading(false);
     }
   };
@@ -222,7 +238,7 @@ const AttractionFinder = ({
           </Box>
 
           {/* UI layer - result */}
-          <Box className={resultBoxClassName}>
+          <Box className={clsx("attraction-finder-result-box-mobile", showResult && "focus")}>
             {/* result list - attractions */}
             {attractionList}
           </Box>
@@ -255,7 +271,7 @@ const AttractionFinder = ({
       )}
 
       {/* attraction layer */}
-      <Box className={attractionBoxClassName}>
+      <Box className={clsx("attraction-finder-attraction-box", attraction && "focus")}>
         <Box className="attraction-finder-attraction-box-nav-box">
           {/* nav back button */}
           <TTButton

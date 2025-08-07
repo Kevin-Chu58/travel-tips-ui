@@ -17,12 +17,14 @@ import "./index.scss";
 
 type HighlightItemProps = {
   highlight: Highlight;
+  showMenu?: boolean;
   isLast?: boolean;
   onDelete?: (state: number) => void;
 };
 
 const HighlightItem = ({
   highlight,
+  showMenu = true,
   isLast = false,
   onDelete = () => {},
 }: HighlightItemProps) => {
@@ -106,7 +108,7 @@ const HighlightItem = ({
             )}
           </Box>
           <Box>
-            {!isEditing && (
+            {showMenu && !isEditing && (
               <IconButton
                 className="highlight-item-edit-icon"
                 size="small"

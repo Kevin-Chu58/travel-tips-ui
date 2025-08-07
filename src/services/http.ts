@@ -147,6 +147,12 @@ const makeRequest = async <TResponse>(
     // headers: headers ?? new Headers(),
     headers: await handleAuthHeader(headers ?? new Headers(), token),
   });
+
+  if (!response.ok) {
+    // This ensures failed message triggers catch
+    throw new Error(await response.text());
+  }
+
   return parseResponse(response);
 };
 

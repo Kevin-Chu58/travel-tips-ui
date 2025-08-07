@@ -1,14 +1,13 @@
 import { Navigate, Route, Routes } from "react-router";
 import { useEffect, useState } from "react";
-import { type TripDetail, tripsService } from "@services/trips";
+import { tripsService, type Trip } from "@services/trips";
 import { Container, Divider, Grid, Typography } from "@mui/material";
 import { useParams } from "react-router";
 import { Headers } from "@constants/Layouts";
-import { TripTimelineMap } from "@components/TripTimelineMap";
 
 const TripView = () => {
   // components
-  const [trip, setTrip] = useState<TripDetail>();
+  const [trip, setTrip] = useState<Trip>();
   // url
   const { tripId } = useParams();
 
@@ -19,17 +18,17 @@ const TripView = () => {
   let queryKey = ["trip", tripId];
 
   // render the nav tab index focus when page initializes
-  useEffect(() => {
-    const getTrip = async () => {
-      if (tripId) {
-        const trip = await tripsService.getTripDetailById(
-          Number.parseInt(tripId)
-        );
-        setTrip(trip);
-      }
-    };
-    getTrip();
-  }, []);
+  // useEffect(() => {
+  //   const getTrip = async () => {
+  //     if (tripId) {
+  //       const trip = await tripsService.getTripDetailById(
+  //         Number.parseInt(tripId)
+  //       );
+  //       setTrip(trip);
+  //     }
+  //   };
+  //   getTrip();
+  // }, []);
 
   return (
     <Container
@@ -58,9 +57,9 @@ const TripView = () => {
             backdropFilter: "blur(4px)",
           }}
         >
-          <Typography variant="h5" fontWeight="bold">
+          {/* <Typography variant="h5" fontWeight="bold">
             {trip?.name}
-          </Typography>
+          </Typography> */}
         </Grid>
 
         {/* content */}
@@ -92,12 +91,6 @@ const TripView = () => {
             <Typography variant="h4" fontWeight="bold">
               Timeline
             </Typography>
-            <Divider sx={{ borderBottomWidth: 2, borderColor: "black" }} />
-            <TripTimelineMap.TripTimelineMapEdit
-              trip={trip}
-              queryKey={queryKey}
-              readonly
-            />
           </Grid>
         </Grid>
       </Grid>

@@ -34,7 +34,21 @@ const AttractionList = ({
   return (
     <Box className={boxClassName}>
       {/* title - result */}
-      <Typography className="attraction-list-title">Result</Typography>
+      <Box className="attraction-list-header-box">
+        <Typography className="attraction-list-title">Result</Typography>
+        <Typography
+          className="attraction-list-copyright"
+          onClick={() =>
+            window.open(
+              "https://www.here.com/",
+              "_blank",
+              "noopener,noreferrer"
+            )
+          }
+        >
+          {"\u00A9"} Powered by{"\n"}HERE MAP
+        </Typography>
+      </Box>
       {/* attraction items */}
       <Box className="attraction-list-items-box">
         {result.map((a, i) => (
@@ -53,19 +67,19 @@ const AttractionList = ({
               <Box className="attraction-list-item-content">
                 {/* attraction item header */}
                 <Box className="attraction-list-item-header">
-                    <Typography>
-                      {a.title}
-                    </Typography>
-                  </Box>
-                  <Typography className="attraction-list-item-address">
-                    {a.address}
-                  </Typography>
-                
-                  {a.category && <Chip
+                  <Typography>{a.title}</Typography>
+                </Box>
+                <Typography className="attraction-list-item-address">
+                  {a.address}
+                </Typography>
+
+                {a.category && (
+                  <Chip
                     size="small"
                     label={a.category}
                     className="attraction-list-item-chip"
-                  />}
+                  />
+                )}
               </Box>
             </TTButton>
             {i + 1 < result.length && <Divider flexItem />}

@@ -11,6 +11,7 @@ export type NavTab = {
   label: string;
   to?: string;
   condition?: (args: any[]) => boolean;
+  deletable?: boolean;
 };
 
 export type StringArrUpdate = {

@@ -139,7 +139,7 @@ const HighlightProfile = () => {
           />
       </Box>
 
-      {/* dialog - confirm delete */}
+      {/* dialog - confirm delete - TODO: make a delete form in components/form*/}
       <TTDialog open={openDelete} onClose={handleDeleteClose}>
         <Box className="highlight-profile-dialog-box">
           <Box className="highlight-profile-dialog-header-box">

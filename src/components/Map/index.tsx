@@ -306,14 +306,42 @@ const Map = React.memo(
       });
 
       // Optionally fit bounds to markers
-      if (markers.length === 1) {
-        const marker = markers[0];
-        const zoomLevel = marker.zoom + correctionZoom;
-        mapInstanceRef.current?.setView([marker.lat, marker.lng], zoomLevel, {
-          animate: true,
-        });
-      } else if (markers.length > 1 && !isFocusFound) {
+      // if (markers.length === 1) {
+      //   const marker = markers[0];
+      //   const zoomLevel = marker.zoom + correctionZoom;
+      //   mapInstanceRef.current?.setView([marker.lat, marker.lng], zoomLevel, {
+      //     animate: true,
+      //   });
+      // } else if (markers.length > 1 && !isFocusFound) {
+      //   mapInstanceRef.current!.fitBounds(bounds, { padding: [20, 20] });
+      // }
+
+      if (markers.length > 0 && !isFocusFound) {
+        // Get the true bounds (no bias)
+        // const bounds = L.latLngBounds(markers.map((m) => [m.lat, m.lng]));
+        
+        // Fit bounds first (ensures zoom is correct & reset to actual center)
         mapInstanceRef.current?.fitBounds(bounds, { padding: [20, 20] });
+        
+        // Get the center from bounds (true center)
+        const center = bounds.getCenter();
+        const zoom = mapInstanceRef.current!.getZoom() + correctionZoom;
+
+        // Apply bias from *true center*, not from already-biased view
+        const biased = MapUtils.getLatLonDelta(
+          mapInstanceRef.current!,
+          center.lat,
+          center.lng,
+          correctionBias,
+          zoom,
+          correctionDirection
+        );
+
+        // Set view with same zoom but biased center
+        mapInstanceRef.current?.setView(
+          [center.lat + biased.lat, center.lng + biased.lng],
+          zoom
+        )
       }
     };
 

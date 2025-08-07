@@ -25,6 +25,16 @@
   border-color: transparent;
 }
 
+.highlight-profile-highlights-fragment-highlight-select-button.MuiButton-root {
+  text-transform: none !important;
+  justify-content: flex-start !important;
+  color: black;
+
+  &.focus {
+    background-color: var(--info-100);
+  }
+}
+
 .highlight-profile-highlights-fragment-skeleton.MuiSkeleton-root {
   width: 100%;
   height: 200px;

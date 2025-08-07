@@ -1,6 +1,9 @@
-import { HM, hMA, HMS } from "@constants/Times";
+import { ha, HHmm, HHmmss, hmma } from "@constants/Times";
+import customParseFormat from "dayjs/plugin/customParseFormat";
 import type { Dayjs } from "dayjs";
 import dayjs from "dayjs";
+
+dayjs.extend(customParseFormat);
 
 const addMinutesToTime = (timeStr: string, minutesToAdd: number) => {
   const [hours, minutes] = timeStr.split(":").map(Number);
@@ -80,15 +83,31 @@ const updateTimeByMinute = (
 const dayjsToString = (time: Dayjs | null) => {
   // time might be undefined, which is caused by accessing start and end states
   // before initEditDayForm() setups everything
-  return time?.format(HMS) ?? "";
+  return time?.format(HHmmss) ?? "";
 };
 
 const stringToDayjs = (time: string) => {
-  return dayjs(time, HMS);
+  return dayjs(time, HHmmss);
 };
 
-const formatTime = (time: string, ampm: boolean = true) => {
-  return dayjs(time, HM).format(ampm ? hMA : HM);
+const formatTimeHHmmssTohmmA = (time: string) => {
+  return dayjs(time, HHmmss).format(hmma);
+};
+
+const formatTimeHHmmssToHHmm = (time: string) => {
+  return dayjs(time, HHmmss).format(HHmm);
+};
+
+const formatTimeHHmmTohmmA = (time: string) => {
+  return dayjs(time, HHmm).format(hmma);
+};
+
+const formatTimeHHmmTohA = (time: string) => {
+  return dayjs(time, HHmm).format(ha);
+};
+
+const formatTimehmmAToHHmmss = (time: string) => {
+  return dayjs(time, hmma).format(HHmmss);
 };
 
 const TimeUtils = {
@@ -104,7 +123,11 @@ const TimeUtils = {
   // dayjs
   dayjsToString,
   stringToDayjs,
-  formatTime,
+  formatTimeHHmmssTohmmA,
+  formatTimeHHmmssToHHmm,
+  formatTimeHHmmTohmmA,
+  formatTimeHHmmTohA,
+  formatTimehmmAToHHmmss,
 };
 
 export default TimeUtils;

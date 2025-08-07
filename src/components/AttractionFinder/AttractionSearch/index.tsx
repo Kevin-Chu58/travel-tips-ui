@@ -19,6 +19,7 @@ import LocationOnIcon from "@mui/icons-material/LocationOn";
 import type { GeoCoordinate } from "@constants/Types";
 import ActionSpan from "@components/ActionSpan";
 import ToolTip from "@components/ToolTip";
+import { enqueueSnackbar } from "notistack";
 
 type AttractionSearchProps = {
   search: string;
@@ -50,7 +51,8 @@ const AttractionSearch = ({
 
   const handleSearch = async () => {
     if (search.length > 0 && token && geoCoordinate) {
-      setIsSearchLoading(true);
+      try {
+        setIsSearchLoading(true);
 
       const searchResult = await hereMapDiscoverService.searchPlaceByName(
         search,
@@ -62,6 +64,11 @@ const AttractionSearch = ({
       setResult(searchResult);
 
       if (isMobile) setShowResult(true);
+      }
+      catch (e) {
+        if (e instanceof Error)
+          enqueueSnackbar(e.message, { variant: "error" });
+      }
 
       setIsSearchLoading(false);
     }

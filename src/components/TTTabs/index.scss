@@ -1,18 +1,28 @@
+.TTTabs-tabs {
+  .MuiTabScrollButton-root {
+    width: auto;
+    margin-top: 0.5rem;
+
+    &:hover {
+      color: var(--primary-main);
+      opacity: 1;
+    }
+  }
+}
+
 .TTTabs-tab {
   &.MuiTab-root {
     min-height: 0;
     margin-top: 0.5rem;
     text-transform: capitalize;
 
-    :hover {
-      color: dimgrey;
+    &:hover {
+      color: var(--primary-main);
     }
 
     &.Mui-selected {
       color: var(--primary-main);
       background-color: white;
-      :hover {
-      }
     }
   }
 }

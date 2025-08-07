@@ -1,5 +1,4 @@
 import http from "@services/http";
-import type { Day } from "./days";
 import type { UserBasic } from "./users";
 import type { Image, ImageRelation } from "./images";
 
@@ -21,22 +20,10 @@ export type Trip = TripPost & {
   isPublic: boolean;
 };
 
-// export type TripDetail = TripPost &  {
-//     id: number;
-//     createdBy: number;
-//     createdAt: Date;
-//     lastUpdatedAt: Date;
-//     days?: Day[];
-// };
-
 const getTripsByTitle = async (title: string): Promise<Trip[]> => {
   const params = new URLSearchParams({ title: title });
   return await http.get(http.apiBaseURLs.api, `trips?${params.toString()}`);
 };
-
-// const getTripDetailById = async (id: number): Promise<TripDetail> => {
-//     return await http.get(http.apiBaseURLs.api, `trips/${id}`);
-// }
 
 const getMyTrips = async (token: string): Promise<Trip[]> => {
   return await http.get(http.apiBaseURLs.api, "trips/my", undefined, token);
@@ -142,7 +129,6 @@ const deleteTripImage = async (
 
 export const tripsService = {
   getTripsByTitle,
-  // getTripDetailById,
   getMyTrips,
   getMyTripById,
   getImagesByTripId,

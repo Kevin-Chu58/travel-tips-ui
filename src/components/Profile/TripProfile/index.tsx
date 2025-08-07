@@ -1,33 +1,32 @@
 import Map from "@components/Map";
-import type { NavTab } from "@constants/Types";
+import type { Marker, NavTab } from "@constants/Types";
 import { useIsMobile } from "@hooks/useIsMobile";
-import {
-  Box,
-  Button,
-  FormControl,
-  OutlinedInput,
-  Typography,
-} from "@mui/material";
+import { Box, Fab } from "@mui/material";
 import type { RootState } from "@redux/store";
-import { type Trip, type TripPatch, tripsService } from "@services/trips";
-import React, { useEffect, useRef, useState } from "react";
+import { type Trip, tripsService } from "@services/trips";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useSelector } from "react-redux";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { useSnackbar } from "notistack";
-import DescriptionTextField from "@components/TextField/DescriptionTextField";
-import TTButton from "@components/TTButton";
-import "./index.scss";
-import TTTabs from "@components/TTTabs";
-import TimeUtils from "@utils/TimeUtils";
 import ImageSelector from "@components/ImageSelector";
 import TLogo from "@assets/T.svg";
 import AddIcon from "@mui/icons-material/Add";
 import TTChipButton from "@components/TTChipButton";
 import { type Image } from "@services/images";
 import PreloadCarousel from "@components/Carousel/PreloadCarousel";
+import AddDayForm from "@components/Forms/AddDayForm";
+import NameComponent from "./NameComponent";
+import DescriptionComponent from "./DescriptionComponent";
+import DayComponent from "./DayComponent";
+import SectionComponent from "./SectionComponent";
+import { BehaviorUtils } from "@utils/BehaviorUtils";
+import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
+import DeleteDayForm from "@components/Forms/DeleteDayForm";
 import clsx from "clsx";
-import TTIconButton from "@components/TTIconButton";
-import ToolTip from "@components/ToolTip";
+import "./index.scss";
+import { daysService, type Day } from "@services/days";
+import { taosService, type Tao } from "@services/taos";
+import MapUtils from "@utils/MapUtils";
 
 type TripProfileProps = {
   uri?: string;
@@ -42,107 +41,124 @@ const TripProfile = ({ uri = "/" }: TripProfileProps) => {
   const [navTabValue, setNavTabValue] = useState<number>(0);
   // trip basic
   const [tripBasic, setTripBasic] = useState<Trip | undefined>();
+  const [isTripBasicUpdated, setIsTripBasicUpdated] = useState<boolean>(false);
   // trip images
   const [images, setImages] = useState<Image[]>([]);
-  // trip title
-  const [title, setTitle] = useState<string>("");
-  const [isEditingTitle, setIsEditingTitle] = useState<boolean>(false);
-  // trip description
-  const [description, setDescription] = useState<string | undefined>();
-  const [isEditingDescription, setIsEditingDescription] =
-    useState<boolean>(false);
+  // days
+  const [days, setDays] = useState<Day[]>([]);
+  const [areDaysAsync, setAreDaysAsync] = useState<boolean>(false);
+  // day
+  const [day, setDay] = useState<Day | undefined>();
+  // taos
+  const [taos, setTaos] = useState<Tao[] | undefined>();
+  const [areTaosAsync, setAreTaosAsync] = useState<boolean>(false);
+  // form open status
+  const [openDayForm, setOpenDayForm] = useState<boolean>(false);
+  const [openDeleteDayForm, setOpenDeleteDayForm] = useState<boolean>(false);
+  // behavior
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   // others
   const token = useSelector((state: RootState) => state.auth.accessToken);
-  const { tripId } = useParams();
+  const { tripId, dayId } = useParams(); // dayId - day index in days, not day.id
   const inputRef = useRef<HTMLInputElement>(null);
   const correctUri = uri.length > 1 ? uri : "";
+  const navigate = useNavigate();
+
+  const markers = useMemo(() => {
+    return (
+      taos?.map((tao) => {
+        return {
+          id: String(tao.id),
+          label: tao.attraction.title,
+          lat: tao.attraction.lat,
+          lng: tao.attraction.lng,
+          zoom: MapUtils.resultTypeToZoom(tao.attraction.resultType),
+        };
+      }) ?? []
+    );
+  }, [taos]);
 
   const maxImageCount = 4;
   const isMaxImageCountReached = images.length === maxImageCount;
+
+  const isOverview = !Boolean(dayId);
 
   // render trip on initiation
   useEffect(() => {
     const initTrip = async () => {
       if (tripId && token) {
+        setIsLoading(true);
         getTripImages();
 
         // get trip basic
         let tripBasic = await tripsService.getMyTripById(Number(tripId), token);
         setTripBasic(tripBasic);
 
-        setTitle(tripBasic.title);
-        setDescription(tripBasic.description);
+        BehaviorUtils.sleep();
+        setIsLoading(false);
       }
     };
+
     initTrip();
-  }, [tripId, token]);
+  }, [tripId, token, isTripBasicUpdated, areDaysAsync]);
 
-  const navTabs = [
-    {
-      name: "Overview",
-      label: "Overview",
-      to: `${correctUri}/trip/${tripId}`,
-    },
-  ] as NavTab[];
-
-  // title
-  const updateTitle = async () => {
-    const trimmedTitle = title.trim();
-
-    if (trimmedTitle === tripBasic?.title || trimmedTitle.length > 50) {
-      if (trimmedTitle.length > 50) {
-        enqueueSnackbar("Trip title is too long.", { variant: "error" });
+  // rerender days on numDays
+  useEffect(() => {
+    const initDays = async () => {
+      if (tripId && token) {
+        // get days with trip id
+        let days = await daysService.getDaysByTripId(Number(tripId), token);
+        setDays(days);
       }
-      setIsEditingTitle(false);
-      setTitle(tripBasic!.title);
-      return;
-    }
+    };
+    initDays();
+  }, [tripBasic?.numDays, areDaysAsync]);
 
-    if (tripBasic && token) {
-      let tripPatch = { title: trimmedTitle } as TripPatch;
-      tripPatch = await tripsService.patchTrip(tripBasic?.id, tripPatch, token);
-      setTripBasic({ ...tripBasic, title: tripPatch.title ?? title });
-      setIsEditingTitle(false);
+  // rerender navTabValue on dayId
+  useEffect(() => {
+    setNavTabValue(Number(dayId ?? 0));
+  }, [dayId]);
 
-      enqueueSnackbar("Successfully updated trip title.", {
-        variant: "success",
-      });
-    }
+  // rerender day on days update and navTabValue
+  useEffect(() => {
+    setDay(Boolean(navTabValue) ? days[navTabValue - 1] : undefined);
+  }, [navTabValue, days]);
+
+  // rerender taos on day update
+  useEffect(() => {
+    const initTaos = async () => {
+      if (day?.id) {
+        let taos = await taosService.getTaosByDayId(day.id, token ?? undefined);
+        setTaos(taos);
+      }
+    };
+    initTaos();
+  }, [day?.id, areTaosAsync]);
+
+  const overViewNavTab = {
+    name: "Overview",
+    label: "Overview",
+    to: `${correctUri}/trip/${tripId}`,
   };
 
-  const handleTitleKeyDown = (
-    event: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    if (event.key === "Enter") {
-      updateTitle();
-    }
-  };
+  const getNavTabs = () => {
+    let navTabs = [{ ...overViewNavTab }] as NavTab[];
 
-  // description
-  const helperText = "What makes this trip special?\nTell others about it!";
+    if (tripBasic?.numDays) {
+      for (let i = 0; i < tripBasic.numDays; i++) {
+        let dayIndex = i + 1;
+        let navTab = {
+          name: `Day ${dayIndex}`,
+          label: `Day ${dayIndex}`,
+          to: `${correctUri}/trip/${tripId}/day/${dayIndex}`,
+          deletable: Number(dayId) === dayIndex,
+        };
 
-  const handleDescriptionClose = () => {
-    setIsEditingDescription(false);
-  };
-
-  const handleDescriptionUpdate = async () => {
-    const trimmedDescription = description?.trim();
-    if (tripBasic?.description === trimmedDescription) {
-      setIsEditingDescription(false);
-      setDescription(tripBasic?.description);
-      return;
+        navTabs.push(navTab);
+      }
     }
 
-    if (tripBasic && token) {
-      let tripPatch = { description: trimmedDescription } as TripPatch;
-      tripPatch = await tripsService.patchTrip(tripBasic?.id, tripPatch, token);
-      setTripBasic({ ...tripBasic, description: tripPatch.description });
-      setIsEditingDescription(false);
-
-      enqueueSnackbar("Successfully updated trip summary.", {
-        variant: "success",
-      });
-    }
+    return navTabs;
   };
 
   // images
@@ -177,168 +193,159 @@ const TripProfile = ({ uri = "/" }: TripProfileProps) => {
     }
   };
 
-  // components
+  // day form
+  const handleOpenDayForm = () => {
+    setOpenDayForm(true);
+  };
 
-  const NameComponent = (
-    <React.Fragment>
-      {isEditingTitle ? (
-        <FormControl variant="outlined">
-          <OutlinedInput
-            ref={inputRef}
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            endAdornment={`${title.length}/50`}
-            onBlur={updateTitle}
-            onKeyDown={(e) => handleTitleKeyDown(e)}
-            autoFocus
-            size="small"
-            sx={{ ml: -1 }}
-          />
-        </FormControl>
-      ) : (
-        <Button
-          className="trip-profile-title-button"
-          onClick={() => setIsEditingTitle(true)}
-        >
-          <Typography className="trip-profile-title">
-            {tripBasic?.title}
-          </Typography>
-        </Button>
-      )}
-      <Typography className="trip-profile-num-days">
-        {TimeUtils.formatDays(tripBasic?.numDays ?? 0)}
-      </Typography>
-    </React.Fragment>
-  );
+  const handleCloseDayForm = () => {
+    setOpenDayForm(false);
+  };
 
-  const DescriptionComponent = (
-    <React.Fragment>
-      <Typography mb={".5rem"}>Summary</Typography>
-      {isEditingDescription ? (
-        <React.Fragment>
-          <DescriptionTextField
-            value={description ?? ""}
-            setValue={setDescription}
-            placeholder={helperText}
-          />
-          <Box className="trip-profile-description-edit-button-box">
-            <TTButton
-              label="cancel"
-              variant="text"
-              color="primary"
-              onClick={handleDescriptionClose}
-            />
-            <TTButton
-              label="update"
-              color="primary"
-              onClick={handleDescriptionUpdate}
-            />
-          </Box>
-        </React.Fragment>
-      ) : Boolean(description) ? (
-        <Button
-          className="trip-profile-description-button"
-          onClick={() => setIsEditingDescription(true)}
-        >
-          <Typography className="trip-profile-text">
-            {tripBasic?.description}
-          </Typography>
-        </Button>
-      ) : (
-        <Button
-          className="trip-profile-description-empty-button"
-          onClick={() => setIsEditingDescription(true)}
-          fullWidth
-        >
-          <Typography className="trip-profile-text">{helperText}</Typography>
-        </Button>
-      )}
-    </React.Fragment>
-  );
+  // delete day form
+
+  const handleOpenDeleteDayForm = () => {
+    setOpenDeleteDayForm(true);
+  };
+
+  const handleCloseDeleteDayForm = () => {
+    setOpenDeleteDayForm(false);
+  };
 
   return (
     <Box className="trip-profile-box">
-      {false ? (
-        <></>
-      ) : (
-        <React.Fragment>
-          {/* map */}
-          <Box className="trip-profile-map-box">
-            <Map correctionBias={10} correctionDirection="E" />
+      {/* map */}
+      <Box className="trip-profile-map-box">
+        <Map
+          markers={markers}
+          updateOnMarkerFocus
+          correctionBias={6}
+          correctionDirection="W"
+          correctionZoom={-1}
+        />
 
-            {/* content */}
+        {/* content */}
+        <Box className={clsx("trip-profile-content-box", isMobile && "mobile")}>
+          {/* header */}
+          <Box className="trip-profile-header-box">
+            {/* profile images  */}
             <Box
-              className={clsx("trip-profile-content-box", isMobile && "mobile")}
+              className={clsx(
+                "trip-profile-image-box",
+                !Boolean(dayId) && "visible"
+              )}
             >
-              {/* header */}
-              <Box className="trip-profile-header-box">
-                {/* profile images  */}
-                <Box className="trip-profile-image-box">
-                  {images.length > 0 ? (
-                    <PreloadCarousel
-                      images={images}
-                      height={isMobile ? 180 : 200}
-                      onDelete={deleteTripImage}
-                    />
-                  ) : (
-                    <Box
-                      bgcolor="primary.main"
-                      display="flex"
-                      justifyContent="center"
-                    >
-                      {/* image when no images available */}
-                      <img src={TLogo} height={isMobile ? 180 : 200} />
-                    </Box>
-                  )}
-
-                  {/* image selector */}
-                  <Box position="absolute" right={10} bottom={10}>
-                    <ImageSelector
-                      tripId={tripBasic?.id}
-                      imageIds={images.map((image) => image.id)}
-                      disabled={isMaxImageCountReached}
-                      setIsParentUpdated={getTripImages}
-                    >
-                      <TTChipButton
-                        className="trip-profile-image-chip-button"
-                        label={`${images.length}/${maxImageCount}`}
-                        size="small"
-                        icon={isMaxImageCountReached ? undefined : <AddIcon />}
-                      />
-                    </ImageSelector>
-                  </Box>
+              {images.length > 0 ? (
+                <PreloadCarousel
+                  images={images}
+                  height={isMobile ? 180 : 200}
+                  onDelete={deleteTripImage}
+                />
+              ) : (
+                <Box
+                  bgcolor="primary.main"
+                  display="flex"
+                  justifyContent="center"
+                >
+                  {/* image when no images available */}
+                  <img src={TLogo} height={isMobile ? 180 : 200} />
                 </Box>
+              )}
 
-                {/* name */}
-                <Box className="trip-profile-title-box">{NameComponent}</Box>
-
-                {/* section */}
-                <Box className="trip-profile-nav-tab-box">
-                  <TTTabs
-                    navTabs={navTabs}
-                    navTabValue={navTabValue}
-                    setNavTabValue={setNavTabValue}
+              {/* image selector */}
+              <Box position="absolute" right={10} bottom={10}>
+                <ImageSelector
+                  tripId={tripBasic?.id}
+                  imageIds={images.map((image) => image.id)}
+                  disabled={isMaxImageCountReached}
+                  setIsParentUpdated={getTripImages}
+                >
+                  <TTChipButton
+                    className="trip-profile-image-chip-button"
+                    label={`${images.length}/${maxImageCount}`}
+                    size="small"
+                    icon={isMaxImageCountReached ? undefined : <AddIcon />}
                   />
-
-                  {/* add day button */}
-                    <ToolTip title="Add new day" offsetY={-8}>
-                  <Box className="trip-profile-nav-tab-button-box">
-                      <TTIconButton size="small" className="trip-profile-add-day-button" onClick={() => {}}>
-                        <AddIcon />
-                      </TTIconButton>
-                  </Box>
-                    </ToolTip>
-                </Box>
-              </Box>
-
-              {/* description */}
-              <Box className="trip-profile-description-box">
-                {DescriptionComponent}
+                </ImageSelector>
               </Box>
             </Box>
+
+            {/* name */}
+            <Box className="trip-profile-title-box">
+              <NameComponent
+                tripBasic={tripBasic}
+                setTripBasic={setTripBasic}
+                isLoading={isLoading}
+                inputRef={inputRef}
+              />
+            </Box>
+
+            {/* section - nav bar (nav tabs + add day icon button) */}
+            <Box className="trip-profile-section-box">
+              <SectionComponent
+                navTabs={getNavTabs()}
+                navTabValue={navTabValue}
+                setNavTabValue={setNavTabValue}
+                handleOpenDayForm={handleOpenDayForm}
+                isLoading={isLoading}
+              />
+            </Box>
           </Box>
-        </React.Fragment>
-      )}
+
+          {/* content - description / day content */}
+          {!isOverview ? (
+            <Box className="trip-profile-day-box">
+              <DayComponent
+                day={day}
+                taos={taos}
+                navTabValue={navTabValue}
+                setIsParentUpdated={() => setAreDaysAsync((prev) => !prev)}
+                inputRef={inputRef}
+                setAreTaosUpdated={() => setAreTaosAsync((prev) => !prev)}
+              />
+            </Box>
+          ) : (
+            <Box className="trip-profile-description-box">
+              <DescriptionComponent
+                tripBasic={tripBasic}
+                setTripBasic={setTripBasic}
+                isLoading={isLoading}
+              />
+            </Box>
+          )}
+        </Box>
+
+        {/* tool fab group */}
+        <Box
+          className={clsx("trip-profile-tool-fab-group", isMobile && "mobile")}
+        >
+          <Fab
+            className={clsx("trip-profile-tool-fab", !isOverview && "visible")}
+            onClick={handleOpenDeleteDayForm}
+            size="medium"
+          >
+            <DeleteForeverIcon />
+          </Fab>
+        </Box>
+      </Box>
+
+      <AddDayForm
+        tripId={Number(tripId)}
+        open={openDayForm}
+        onClose={handleCloseDayForm}
+        setIsParentUpdated={() => setIsTripBasicUpdated((prev) => !prev)}
+      />
+
+      <DeleteDayForm
+        open={openDeleteDayForm}
+        onClose={handleCloseDeleteDayForm}
+        day={days[Number(dayId ?? 0) - 1]}
+        dayId={Number(dayId)}
+        setIsParentUpdated={() => {
+          setAreDaysAsync((prev) => !prev);
+          navigate(overViewNavTab.to);
+        }}
+      />
     </Box>
   );
 };

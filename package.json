@@ -27,6 +27,7 @@
     "browser-image-compression": "^2.0.2",
     "clsx": "^2.1.1",
     "dayjs": "^1.11.13",
+    "feather-icons": "^4.29.2",
     "hamburger-react": "^2.5.2",
     "immer": "^10.1.1",
     "leaflet": "^1.9.4",
@@ -35,6 +36,7 @@
     "react": "^19.1.0",
     "react-cropper": "^2.3.3",
     "react-dom": "^19.1.0",
+    "react-feather": "^2.0.10",
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.5.3"
   },

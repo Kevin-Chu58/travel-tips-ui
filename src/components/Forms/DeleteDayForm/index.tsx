@@ -1,62 +1,95 @@
-import { useTripTimeline } from "@components/TripTimelineMap/TripTimeline/TripTimelineProvider";
-import { Box, Button, Dialog, Grid, Typography } from "@mui/material";
-import TripUtils from "@utils/TripUtils";
+import { Box, CircularProgress, Typography } from "@mui/material";
+import { daysService, type Day } from "@services/days";
+import WarningIcon from "@mui/icons-material/Warning";
+import DeleteIcon from "@mui/icons-material/Delete";
+import TTButton from "@components/TTButton";
+import { useState } from "react";
+import type { RootState } from "@redux/store";
+import { useSelector } from "react-redux";
+import "./index.scss";
+import TTDialog from "@components/TTDialog";
+import { enqueueSnackbar } from "notistack";
+import { BehaviorUtils } from "@utils/BehaviorUtils";
 
-const DeleteDayForm = () => {
-  const { trip, deleteDay, setDeleteDay, handleDeleteDay } = useTripTimeline();
-  const title = "Delete Day";
-  const open = deleteDay;
-  const onClose = () => setDeleteDay(undefined);
-  const onDelete = () => handleDeleteDay(deleteDay!.id);
+type DeleteDayFormProps = {
+  open: boolean;
+  onClose: () => void;
+  day: Day | undefined;
+  dayId: number | undefined;
+  setIsParentUpdated: () => void;
+};
 
+const DeleteDayForm = ({
+  open,
+  onClose,
+  day,
+  dayId,
+  setIsParentUpdated,
+}: DeleteDayFormProps) => {
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
+  // others
+  const token = useSelector((state: RootState) => state.auth.accessToken);
+
+  const deleteIcon = isDeleting ? (
+    <CircularProgress size="1rem" sx={{ color: "white" }} />
+  ) : (
+    <DeleteIcon />
+  );
+
+  const handleDeleteClose = () => {
+    setIsDeleting(false);
+    onClose();
+  };
+
+  const handleDeleteConfirm = async () => {
+    try {
+      if (day && token) {
+        setIsDeleting(true);
+
+        await daysService.deleteDay(day?.id, token);
+
+        BehaviorUtils.sleep();
+        setIsDeleting(false);
+        
+        enqueueSnackbar("Successfully deleted day.", {variant: "success"});
+        setIsParentUpdated();
+      }
+    } catch (e) {
+      if (e instanceof Error) {
+        enqueueSnackbar(e.message, {variant: "error"});
+      }
+    }
+
+    setIsDeleting(false);
+    onClose();
+  };
+  
   return (
-    <Dialog open={Boolean(open)} onClose={onClose} maxWidth="md">
-      <Grid container direction="column" spacing={1} m={4}>
-        {/* title */}
-        <Grid size={12}>
-          <Typography variant="h4" fontWeight="bold">
-            {title}
-          </Typography>
-        </Grid>
-
-        {/* content */}
-        <Grid size={12}>
-          <Typography variant="h6" color="error">
-            Are you sure you want to delete{" "}
-            <strong>
-              Day{" "}
-              {(TripUtils.getDayIndexFromTrip(trip, deleteDay?.id ?? 0) ?? 0) +
-                1}{" "}
-              {deleteDay?.name && `- ${deleteDay?.name}`}
-            </strong>
-            ?
-          </Typography>
-        </Grid>
-
-        {/* buttons */}
-        <Grid size={12} justifyContent="center">
-          <Box display="flex">
-            <Button
-              variant="outlined"
-              color="primary"
-              onClick={onClose}
-              disableRipple
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="contained"
-              color="error"
-              onClick={onDelete}
-              disableRipple
-              sx={{ ml: "auto" }}
-            >
-              Delete
-            </Button>
+    <TTDialog open={open} onClose={onClose}>
+      <Box className="delete-day-form-header-box">
+            <WarningIcon color="error" />
+            <Typography className="delete-day-form-header" color="error">
+              Permanent Action
+            </Typography>
           </Box>
-        </Grid>
-      </Grid>
-    </Dialog>
+          <Typography>
+            Are you sure you want to delete <strong>Day {dayId}</strong>?
+          </Typography>
+          <Box className="delete-day-form-button-box">
+            <TTButton
+              label="cancel"
+              variant="text"
+              color="error"
+              onClick={handleDeleteClose}
+            />
+            <TTButton
+              label="confirm"
+              color="error"
+              startIcon={deleteIcon}
+              onClick={handleDeleteConfirm}
+            />
+          </Box>
+    </TTDialog>
   );
 };
 
