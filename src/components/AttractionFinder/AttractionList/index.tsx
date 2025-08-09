@@ -36,18 +36,6 @@ const AttractionList = ({
       {/* title - result */}
       <Box className="attraction-list-header-box">
         <Typography className="attraction-list-title">Result</Typography>
-        <Typography
-          className="attraction-list-copyright"
-          onClick={() =>
-            window.open(
-              "https://www.here.com/",
-              "_blank",
-              "noopener,noreferrer"
-            )
-          }
-        >
-          {"\u00A9"} Powered by{"\n"}HERE MAP
-        </Typography>
       </Box>
       {/* attraction items */}
       <Box className="attraction-list-items-box">

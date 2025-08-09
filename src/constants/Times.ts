@@ -1,3 +1,8 @@
+import customParseFormat from "dayjs/plugin/customParseFormat";
+import dayjs from "dayjs";
+
+dayjs.extend(customParseFormat);
+
 export const HHmm = "HH:mm";
 export const HHmmss = "HH:mm:ss";
 export const HHmma = "HH:mm A";
@@ -15,6 +20,14 @@ export type TimeEntry = {
   time: string; // "HH:mm"
   dayOffset: number; // 0 = today, 1 = next day
   isHourly: boolean; // is time a complete hour
+};
+
+export const dayjsFormat = (
+  time: string,
+  oldFormat: string,
+  newFormat: string
+) => {
+  return dayjs(time, oldFormat).format(newFormat);
 };
 
 // Generates once at module load

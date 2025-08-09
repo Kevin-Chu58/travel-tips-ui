@@ -3,7 +3,7 @@ import { Tooltip, type TooltipProps } from "@mui/material";
 import type { JSX } from "react";
 
 type ToolTipProps = {
-  title: JSX.Element | string | number;
+  title?: React.ReactNode;
   offsetX?: number;
   offsetY?: number;
   placement?: TooltipProps["placement"];

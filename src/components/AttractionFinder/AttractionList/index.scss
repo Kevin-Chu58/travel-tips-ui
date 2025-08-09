@@ -29,6 +29,7 @@
 .attraction-list-box,
 .attraction-list-box-mobile {
   max-width: 320px;
+  min-width: 200px;
   padding: 0.5rem;
   padding-right: 0;
   border-radius: 1rem;
@@ -47,6 +48,7 @@
 
 .attraction-list-item,
 .attraction-list-item-focus {
+  min-width: 200px;
   text-align: left;
   justify-content: flex-start;
 }

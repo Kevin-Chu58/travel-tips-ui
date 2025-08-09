@@ -119,7 +119,13 @@ const Map = React.memo(
       if (mapInstanceRef.current && setCurrentCoordinate) {
         const handler = (e: L.LeafletMouseEvent) => {
           const { lat, lng } = e.latlng;
-          setCurrentCoordinate({ lat, lng });
+
+          const normalizedLng = ((lng + 180) % 360 + 360) % 360 - 180;
+
+          setCurrentCoordinate({ lat, lng: normalizedLng });
+          
+          // Instantly move the map to the new coordinate
+          mapInstanceRef.current!.setView([lat, normalizedLng]); 
         };
 
         // right click
@@ -170,9 +176,9 @@ const Map = React.memo(
         }
 
         // https://api.maptiler.com/maps/streets-v2/256/{z}/{x}/{y}@2x.png?key=${apiKey}
-        L.tileLayer(`https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png`, {
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
           attribution:
-            '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors',
+            '&copy; 2025 HERE | &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors'
         }).addTo(mapInstanceRef.current);
       }
     }, []);
@@ -325,7 +331,7 @@ const Map = React.memo(
         
         // Get the center from bounds (true center)
         const center = bounds.getCenter();
-        const zoom = mapInstanceRef.current!.getZoom() + correctionZoom;
+        const zoom = mapInstanceRef.current!.getBoundsZoom(bounds);
 
         // Apply bias from *true center*, not from already-biased view
         const biased = MapUtils.getLatLonDelta(

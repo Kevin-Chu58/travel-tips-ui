@@ -1,4 +1,4 @@
-import { ha, HHmm, HHmmss, hmma } from "@constants/Times";
+import { dayjsFormat, ha, HHmm, HHmmss, hmma } from "@constants/Times";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import type { Dayjs } from "dayjs";
 import dayjs from "dayjs";
@@ -80,34 +80,39 @@ const updateTimeByMinute = (
 
 /** dayjs */
 
-const dayjsToString = (time: Dayjs | null) => {
-  // time might be undefined, which is caused by accessing start and end states
-  // before initEditDayForm() setups everything
-  return time?.format(HHmmss) ?? "";
+const compareTime = (format: string, start?: string, end?: string) => {
+  if (!start || !end) return false;
+
+  const startTime = dayjs(start, format);
+  const endTime = dayjs(end, format);
+
+  return startTime.isBefore(endTime);
 };
 
-const stringToDayjs = (time: string) => {
-  return dayjs(time, HHmmss);
+const dayjsToString = (format: string, time: Dayjs | null) => {
+  // time might be undefined, which is caused by accessing start and end states
+  // before initEditDayForm() setups everything
+  return time?.format(format) ?? "";
 };
 
 const formatTimeHHmmssTohmmA = (time: string) => {
-  return dayjs(time, HHmmss).format(hmma);
+  return dayjsFormat(time, HHmmss, hmma);
 };
 
 const formatTimeHHmmssToHHmm = (time: string) => {
-  return dayjs(time, HHmmss).format(HHmm);
+  return dayjsFormat(time, HHmmss, HHmm);
 };
 
 const formatTimeHHmmTohmmA = (time: string) => {
-  return dayjs(time, HHmm).format(hmma);
+  return dayjsFormat(time, HHmm, hmma);
 };
 
 const formatTimeHHmmTohA = (time: string) => {
-  return dayjs(time, HHmm).format(ha);
+  return dayjsFormat(time, HHmm, ha);
 };
 
 const formatTimehmmAToHHmmss = (time: string) => {
-  return dayjs(time, hmma).format(HHmmss);
+  return dayjsFormat(time, hmma, HHmmss);
 };
 
 const TimeUtils = {
@@ -121,8 +126,8 @@ const TimeUtils = {
   updateTimeByHour,
   updateTimeByMinute,
   // dayjs
+  compareTime,
   dayjsToString,
-  stringToDayjs,
   formatTimeHHmmssTohmmA,
   formatTimeHHmmssToHHmm,
   formatTimeHHmmTohmmA,

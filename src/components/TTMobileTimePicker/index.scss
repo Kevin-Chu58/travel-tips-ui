@@ -1,0 +1,13 @@
+.tt-mobile-time-picker {
+  .MuiPickersSectionList-root {
+    padding: .5rem 0;
+
+    .Mui-disabled {
+      display: none;
+    }
+  }
+}
+
+.MuiPickersLayout-root .MuiClockNumber-root.Mui-disabled {
+  display: none;
+}

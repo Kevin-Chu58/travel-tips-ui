@@ -24,6 +24,7 @@ type DayComponentProps = {
   day: Day | undefined;
   taos: Tao[] | undefined;
   navTabValue: number;
+  setTao: (state: Tao) => void;
   setIsParentUpdated: () => void;
   setAreTaosUpdated: () => void;
   inputRef: React.RefObject<HTMLInputElement | null>;
@@ -33,6 +34,7 @@ const DayComponent = ({
   day,
   taos,
   navTabValue,
+  setTao,
   setIsParentUpdated,
   setAreTaosUpdated,
   inputRef,
@@ -153,7 +155,6 @@ const DayComponent = ({
 
       <Divider variant="middle" flexItem />
 
-      {/** TODO - trip attraction orders */}
       <Box className="trip-profile-day-comp-content-box">
         <Box
           className={clsx(
@@ -161,7 +162,13 @@ const DayComponent = ({
             isMobile && "mobile"
           )}
         >
-          <DaySchedule dayIndex={navTabValue} dayId={day?.id} taos={taos} setIsParentUpdated={setAreTaosUpdated} />
+          <DaySchedule
+            dayIndex={navTabValue}
+            dayId={day?.id}
+            taos={taos}
+            setTao={setTao}
+            setIsParentUpdated={setAreTaosUpdated}
+          />
         </Box>
       </Box>
     </React.Fragment>

@@ -78,7 +78,7 @@ const theme = createTheme({
       "arial",
       "tagesschrift",
       "lily script one",
-      "lexend deca",
+      "fascinate inline",
     ].join(","),
   },
   palette: {

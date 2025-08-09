@@ -12,7 +12,9 @@ import { useSnackbar } from "notistack";
 import "./index.scss";
 
 type HighlightFormProps = {
-  highlight: Highlight;
+  description?: string;
+  setDescription?: (state: string) => void;
+  highlight?: Highlight;
   setHighlight?: (state: Highlight) => void;
   isPost?: boolean;
   onAction?: () => void;
@@ -20,6 +22,8 @@ type HighlightFormProps = {
 };
 
 const HighlightForm = ({
+  description,
+  setDescription,
   highlight,
   setHighlight = () => {},
   isPost,
@@ -30,9 +34,12 @@ const HighlightForm = ({
   const { enqueueSnackbar } = useSnackbar();
   // attributes
   const [_description, _setDescription] = useState<string>(
-    highlight.description ?? ""
+    highlight?.description ?? ""
   );
   const [isUpdating, setIsUpdating] = useState<boolean>(false);
+  // update action
+  const actualDescription = description ?? _description;
+  const updateDescription = setDescription ?? _setDescription;
   // others
   const token = useSelector((state: RootState) => state.auth.accessToken);
 
@@ -46,21 +53,29 @@ const HighlightForm = ({
   const handlePost = async () => {
     const trimedDescription = _description.trim();
 
-    if (token && trimedDescription.length > 0) {
+    if (token) {
       try {
         setIsUpdating(true);
-        let newHighlight = await highlightsService.postHighlight(
-          { ...highlight, description: trimedDescription },
-          token
-        );
-        await BehaviorUtils.sleep();
 
-        onAction ? onAction() : setHighlight(newHighlight);
+        if (highlight || onAction) {
+          if (highlight && trimedDescription.length > 0) {
+            let newHighlight = await highlightsService.postHighlight(
+              { ...highlight, description: trimedDescription },
+              token
+            );
+            await BehaviorUtils.sleep();
+            setHighlight(newHighlight);
 
-        enqueueSnackbar("Successfully posted highlight.", {
-          variant: "success",
-        });
-        setIsUpdating(false);
+            enqueueSnackbar("Successfully posted highlight.", {
+              variant: "success",
+            });
+            setIsUpdating(false);
+          }
+
+          if (onAction) {
+            onAction();
+          }
+        }
       } catch (e) {
         if (e instanceof Error)
           enqueueSnackbar(e.message, { variant: "error" });
@@ -73,9 +88,9 @@ const HighlightForm = ({
 
   const handleUpdate = async () => {
     const trimedDescription = _description.trim();
-    const isChanged = highlight.description !== trimedDescription;
+    const isChanged = highlight?.description !== trimedDescription;
 
-    if (isChanged && token && highlight.description) {
+    if (isChanged && token && highlight && highlight.description) {
       try {
         setIsUpdating(true);
         let updatedHighlight = await highlightsService.patchHighlight(
@@ -101,7 +116,10 @@ const HighlightForm = ({
 
   return (
     <Box className="highlight-form-box">
-      <DescriptionTextField value={_description} setValue={_setDescription} />
+      <DescriptionTextField
+        value={actualDescription}
+        setValue={updateDescription}
+      />
       <Box className="highlight-form-button-box">
         <TTButton
           label="cancel"

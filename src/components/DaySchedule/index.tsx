@@ -5,15 +5,14 @@ import TaoForm from "@components/Forms/TaoForm";
 import TimeUtils from "@utils/TimeUtils";
 import type { Tao } from "@services/taos";
 import { enqueueSnackbar } from "notistack";
-import ToolTip from "@components/ToolTip";
 import clsx from "clsx";
 import "./index.scss";
-import ActionSpan from "@components/ActionSpan";
 
 type DayScheduleProps = {
   dayIndex: number;
   dayId: number | undefined;
   taos: Tao[] | undefined;
+  setTao: (state: Tao) => void;
   showHourMarkers?: boolean;
   setIsParentUpdated?: () => void;
 };
@@ -22,6 +21,7 @@ const DaySchedule = ({
   dayIndex,
   dayId,
   taos,
+  setTao,
   showHourMarkers = true,
   setIsParentUpdated,
 }: DayScheduleProps) => {
@@ -50,7 +50,8 @@ const DaySchedule = ({
     const map = new Map<number, { tao: Tao; interval: [number, number] }>();
     taoTimeIntervals.forEach(([start, end], idx) => {
       if (taos?.[idx]) {
-        map.set(start, { tao: taos[idx], interval: [start, end] });
+        const _end = end - (end === TIMES_WITH_OFFSET.length - 1 ? 1 : 0);
+        map.set(start, { tao: taos[idx], interval: [start, _end] });
       }
     });
     return map;
@@ -196,56 +197,41 @@ const DaySchedule = ({
     setSelectTimeInterval([start, end]);
   };
 
+  // tao content action
+
+  const handleClickTao = (e: React.MouseEvent<HTMLDivElement>, tao: Tao) => {
+    e.stopPropagation();
+    setTao(tao);
+  };
+
   const getTaoContent = (timeIndex: number) => {
     const entry = taoMap.get(timeIndex);
     if (!entry) return null;
 
     const { tao, interval } = entry;
-    const boxHeight = blockHeight * (interval[1] - interval[0] + 1);
+    const _interval = interval[1] - interval[0] + 1;
+    const boxHeight = blockHeight * _interval;
 
     const startTime = TimeUtils.formatTimeHHmmssTohmmA(tao.start);
     const endTime = TimeUtils.formatTimeHHmmssTohmmA(tao.end);
 
-    const handleClickTao = (e: React.MouseEvent<HTMLDivElement>) => {
-      e.stopPropagation();
-      // TODO: open something
-    };
-
     return (
-      <ToolTip
-        offsetX={-4}
-        offsetY={-16}
-        placement="bottom-start"
-        title={
-          <Box onClick={(e) => e.stopPropagation()}>
-            <Typography className="day-schedule-tao-content-tooltip-text">{tao.attraction.title}</Typography>
-            <Typography className={clsx("day-schedule-tao-content-tooltip-text", "bottom-gap")}>
-              {startTime} - {endTime}
-            </Typography>
-            {/* <Typography fontSize=".7rem">{tao.attraction.address}</Typography> */}
-            <Typography className="day-schedule-tao-content-tooltip-text">
-              <ActionSpan>Click</ActionSpan> to see more details.
-            </Typography>
-          </Box>
-        }
-      >
         <Box
           className="day-schedule-tao-content-box"
-          onClick={handleClickTao}
+          onClick={(e) => handleClickTao(e, tao)}
         >
-          <Box
-            height={boxHeight}
-            className="day-schedule-tao-content"
-          >
+          <Box height={boxHeight} className="day-schedule-tao-content">
             <Typography
               className="day-schedule-tao-title"
-              noWrap
+              sx={{ WebkitLineClamp: _interval }}
             >
               {tao.attraction.title}
             </Typography>
+            <Typography className="day-schedule-tao-title">
+              {startTime}-{endTime}
+            </Typography>
           </Box>
         </Box>
-      </ToolTip>
     );
   };
 
@@ -292,8 +278,8 @@ const DaySchedule = ({
         onClose={handleCloseDialog}
         dayIndex={dayIndex}
         dayId={dayId}
-        start={formatTime(start, true)}
-        end={formatTime(end, true)}
+        start={start}
+        end={end}
         setIsParentUpdated={setIsParentUpdated}
       />
     </Box>

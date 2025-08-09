@@ -13,6 +13,8 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import type { RootState } from "@redux/store";
 import HighlightForm from "@components/Forms/HighlightForm";
+import { useIsMobile } from "@hooks/useIsMobile";
+import clsx from "clsx";
 import "./index.scss";
 
 type HighlightItemProps = {
@@ -20,14 +22,18 @@ type HighlightItemProps = {
   showMenu?: boolean;
   isLast?: boolean;
   onDelete?: (state: number) => void;
+  onDetach?: () => void; // detach highlight from tao
 };
 
 const HighlightItem = ({
   highlight,
   showMenu = true,
   isLast = false,
-  onDelete = () => {},
+  onDelete,
+  onDetach,
 }: HighlightItemProps) => {
+  // windows
+  const isMobile = useIsMobile();
   // highlight
   const [_highlight, _setHighlight] = useState<Highlight>(highlight);
   // options
@@ -60,11 +66,21 @@ const HighlightItem = ({
     setAnchorEl(null);
   };
 
-  const handleDeleteClick = () => {
-    onDelete(highlight.id);
-    setAnchorEl(null);
+  const handleDetachClick = () => {
+    if (onDetach) {
+      onDetach();
+      setAnchorEl(null);
+    }
   };
 
+  const handleDeleteClick = () => {
+    if (onDelete) {
+      onDelete(highlight.id);
+      setAnchorEl(null);
+    }
+  };
+
+  // default options: edit, delete
   const menuOptions = [
     {
       label: "Edit",
@@ -72,54 +88,95 @@ const HighlightItem = ({
       condition: isOwner,
     },
     {
+      label: "Detach",
+      onClick: handleDetachClick,
+      condition: onDetach,
+    },
+    {
       label: "Delete",
       onClick: handleDeleteClick,
-      condition: isOwner,
+      condition: onDelete && isOwner,
       sx: {
         color: "red",
       },
     },
   ];
 
+  const highlightDescription = (
+    <Typography className="highlight-item-description">
+      {description}
+    </Typography>
+  );
+
+  const highlightForm = (
+    <HighlightForm
+      highlight={_highlight}
+      setHighlight={_setHighlight}
+      onClose={() => setIsEditing(false)}
+    />
+  );
+
+  const avatar = (
+    <Avatar
+      className={clsx("highlight-item-avatar", isMobile && "mobile")}
+      alt={_highlight.createdBy?.toString()}
+      src={""}
+    />
+  );
+
+  const username = (
+    <Typography className="highlight-item-username">
+      {_highlight.createdBy?.username}
+    </Typography>
+  );
+
+  const menuIconButton = showMenu && !isEditing && (
+    <IconButton
+      className="highlight-item-edit-icon"
+      size="small"
+      onClick={handleOptionsClick}
+    >
+      <MoreVertIcon fontSize="small" />
+    </IconButton>
+  );
+
   return (
     <React.Fragment>
       <Box
         id={highlight.id.toString()}
-        className="highlight-item-box"
+        className={clsx("highlight-item-box", isMobile && "mobile")}
       >
-        <Avatar alt={_highlight.createdBy?.toString()} src={""} />
+        {!isMobile ? (
+          <React.Fragment>
+            {avatar}
 
-        <Box className="highlight-item-content-box">
-          {/* header */}
-          <Box className="highlight-item-content-header-box">
-            {/* user name */}
-            <Typography className="highlight-item-username">
-              {_highlight.createdBy?.username}
-            </Typography>
-            {/* description */}
-            {isEditing ? (
-              <HighlightForm
-                highlight={_highlight}
-                setHighlight={_setHighlight}
-                onClose={() => setIsEditing(false)}
-              />
-            ) : (
-              <Typography className="highlight-item-description">{description}</Typography>
-            )}
-          </Box>
-          <Box>
-            {showMenu && !isEditing && (
-              <IconButton
-                className="highlight-item-edit-icon"
-                size="small"
-                onClick={handleOptionsClick}
-              >
-                <MoreVertIcon fontSize="small" />
-              </IconButton>
-            )}
-          </Box>
-        </Box>
+            <Box className="highlight-item-content-box">
+              {/* header */}
+              <Box className="highlight-item-content-header-box">
+                {/* user name */}
+                {username}
+                {/* description */}
+                {isEditing ? (
+                  <React.Fragment>{highlightForm}</React.Fragment>
+                ) : (
+                  <React.Fragment>{highlightDescription}</React.Fragment>
+                )}
+              </Box>
+              <Box>{menuIconButton}</Box>
+            </Box>
+          </React.Fragment>
+        ) : (
+          <React.Fragment>
+            <Box display="flex" alignItems="center" gap={1}>
+              {avatar}
+              {username}
+              <Box ml="auto">{menuIconButton}</Box>
+            </Box>
+            {description}
+          </React.Fragment>
+        )}
       </Box>
+
       {!isLast && <Divider flexItem />}
 
       {/* menu- options */}
@@ -133,7 +190,9 @@ const HighlightItem = ({
         {menuOptions.map((option) => (
           <MenuItem
             key={option.label}
-            className={`highlight-item-menu-item ${!option.condition && "hideen"}`}
+            className={`highlight-item-menu-item ${
+              !option.condition && "hidden"
+            }`}
             onClick={option.onClick}
             sx={{
               ...option.sx,

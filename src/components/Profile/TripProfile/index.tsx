@@ -1,5 +1,5 @@
 import Map from "@components/Map";
-import type { Marker, NavTab } from "@constants/Types";
+import type { NavTab } from "@constants/Types";
 import { useIsMobile } from "@hooks/useIsMobile";
 import { Box, Fab } from "@mui/material";
 import type { RootState } from "@redux/store";
@@ -20,13 +20,18 @@ import DescriptionComponent from "./DescriptionComponent";
 import DayComponent from "./DayComponent";
 import SectionComponent from "./SectionComponent";
 import { BehaviorUtils } from "@utils/BehaviorUtils";
+import EditIcon from "@mui/icons-material/Edit";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import DeleteDayForm from "@components/Forms/DeleteDayForm";
-import clsx from "clsx";
-import "./index.scss";
 import { daysService, type Day } from "@services/days";
 import { taosService, type Tao } from "@services/taos";
 import MapUtils from "@utils/MapUtils";
+import TaoComponent from "./TaoComponent";
+import ToolTip from "@components/ToolTip";
+import DeleteTaoForm from "@components/Forms/DeleteTaoForm";
+import TaoForm from "@components/Forms/TaoForm";
+import clsx from "clsx";
+import "./index.scss";
 
 type TripProfileProps = {
   uri?: string;
@@ -52,9 +57,13 @@ const TripProfile = ({ uri = "/" }: TripProfileProps) => {
   // taos
   const [taos, setTaos] = useState<Tao[] | undefined>();
   const [areTaosAsync, setAreTaosAsync] = useState<boolean>(false);
+  // tao
+  const [tao, setTao] = useState<Tao | undefined>();
   // form open status
   const [openDayForm, setOpenDayForm] = useState<boolean>(false);
   const [openDeleteDayForm, setOpenDeleteDayForm] = useState<boolean>(false);
+  const [openEditTaoForm, setOpenEditTaoForm] = useState<boolean>(false);
+  const [openDeleteTaoForm, setOpenDeleteTaoForm] = useState<boolean>(false);
   // behavior
   const [isLoading, setIsLoading] = useState<boolean>(true);
   // others
@@ -130,6 +139,11 @@ const TripProfile = ({ uri = "/" }: TripProfileProps) => {
       if (day?.id) {
         let taos = await taosService.getTaosByDayId(day.id, token ?? undefined);
         setTaos(taos);
+
+        if (tao) {
+          let _tao = taos.find(t => t.id === tao.id);
+          setTao(_tao);
+        }
       }
     };
     initTaos();
@@ -193,35 +207,17 @@ const TripProfile = ({ uri = "/" }: TripProfileProps) => {
     }
   };
 
-  // day form
-  const handleOpenDayForm = () => {
-    setOpenDayForm(true);
-  };
-
-  const handleCloseDayForm = () => {
-    setOpenDayForm(false);
-  };
-
-  // delete day form
-
-  const handleOpenDeleteDayForm = () => {
-    setOpenDeleteDayForm(true);
-  };
-
-  const handleCloseDeleteDayForm = () => {
-    setOpenDeleteDayForm(false);
-  };
-
   return (
     <Box className="trip-profile-box">
       {/* map */}
       <Box className="trip-profile-map-box">
         <Map
           markers={markers}
+          focusId={String(tao?.id)}
           updateOnMarkerFocus
           correctionBias={6}
           correctionDirection="W"
-          correctionZoom={-1}
+          correctionZoom={0}
         />
 
         {/* content */}
@@ -286,7 +282,7 @@ const TripProfile = ({ uri = "/" }: TripProfileProps) => {
                 navTabs={getNavTabs()}
                 navTabValue={navTabValue}
                 setNavTabValue={setNavTabValue}
-                handleOpenDayForm={handleOpenDayForm}
+                handleOpenDayForm={() => setOpenDayForm(true)}
                 isLoading={isLoading}
               />
             </Box>
@@ -299,8 +295,9 @@ const TripProfile = ({ uri = "/" }: TripProfileProps) => {
                 day={day}
                 taos={taos}
                 navTabValue={navTabValue}
-                setIsParentUpdated={() => setAreDaysAsync((prev) => !prev)}
+                setTao={setTao}
                 inputRef={inputRef}
+                setIsParentUpdated={() => setAreDaysAsync((prev) => !prev)}
                 setAreTaosUpdated={() => setAreTaosAsync((prev) => !prev)}
               />
             </Box>
@@ -313,37 +310,97 @@ const TripProfile = ({ uri = "/" }: TripProfileProps) => {
               />
             </Box>
           )}
+
+          {/* tao content */}
+          <Box
+            className={clsx("trip-profile-tao-box", Boolean(tao) && "display")}
+          >
+            <TaoComponent
+              tao={tao}
+              onClose={() => setTao(undefined)}
+              setIsParentUpdated={() => setAreTaosAsync((prev) => !prev)}
+            />
+          </Box>
         </Box>
 
         {/* tool fab group */}
         <Box
           className={clsx("trip-profile-tool-fab-group", isMobile && "mobile")}
         >
-          <Fab
-            className={clsx("trip-profile-tool-fab", !isOverview && "visible")}
-            onClick={handleOpenDeleteDayForm}
-            size="medium"
+          {/* edit action - tao */}
+          <ToolTip title="Edit event" placement="right">
+            <Fab
+              color="info"
+              className={clsx(
+                "trip-profile-tool-fab",
+                Boolean(tao) && "visible"
+              )}
+              onClick={() => setOpenEditTaoForm(true)}
+              size="medium"
+            >
+              <EditIcon />
+            </Fab>
+          </ToolTip>
+
+          {/* delete action - day, tao */}
+          <ToolTip
+            title={Boolean(tao) ? "Delete event" : "Delete day"}
+            placement="right"
           >
-            <DeleteForeverIcon />
-          </Fab>
+            <Fab
+              className={clsx(
+                "trip-profile-tool-fab",
+                "delete",
+                !isOverview && "visible"
+              )}
+              onClick={
+                Boolean(tao)
+                  ? () => setOpenDeleteTaoForm(true)
+                  : () => setOpenDeleteDayForm(true)
+              }
+              size="medium"
+            >
+              <DeleteForeverIcon />
+            </Fab>
+          </ToolTip>
         </Box>
       </Box>
 
       <AddDayForm
         tripId={Number(tripId)}
         open={openDayForm}
-        onClose={handleCloseDayForm}
+        onClose={() => setOpenDayForm(false)}
         setIsParentUpdated={() => setIsTripBasicUpdated((prev) => !prev)}
       />
 
       <DeleteDayForm
         open={openDeleteDayForm}
-        onClose={handleCloseDeleteDayForm}
+        onClose={() => setOpenDeleteDayForm(false)}
         day={days[Number(dayId ?? 0) - 1]}
         dayId={Number(dayId)}
         setIsParentUpdated={() => {
           setAreDaysAsync((prev) => !prev);
           navigate(overViewNavTab.to);
+        }}
+      />
+
+      <DeleteTaoForm
+        open={openDeleteTaoForm}
+        onClose={() => setOpenDeleteTaoForm(false)}
+        tao={tao}
+        setIsParentUpdated={() => {
+          setTao(undefined);
+          setAreTaosAsync((prev) => !prev);
+        }}
+      />
+
+      <TaoForm
+        open={openEditTaoForm}
+        onClose={() => setOpenEditTaoForm(false)}
+        dayIndex={Number(dayId)}
+        tao={tao}
+        setIsParentUpdated={() => {
+          setAreTaosAsync((prev) => !prev);
         }}
       />
     </Box>

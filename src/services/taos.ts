@@ -20,6 +20,14 @@ export type Tao = TaoBasic & {
   createdBy: number;
 };
 
+export type TaoPatch = {
+  dayId?: number;
+  attractionId?: number;
+  highlightId?: number;
+  start?: string;
+  end?: string;
+};
+
 const getTaosByDayId = async (
   dayId: number,
   token?: string
@@ -47,7 +55,34 @@ const postTao = async (
   );
 };
 
+const patchTao = async (
+  taoId: number,
+  taoPatch: TaoPatch,
+  token: string
+): Promise<number> => {
+  const body = JSON.stringify(taoPatch);
+  return await http.patch(
+    http.apiBaseURLs.api,
+    `tripAttractionOrders/${taoId}`,
+    body,
+    undefined,
+    token
+  );
+};
+
+const deleteTao = async (taoId: number, token: string): Promise<number> => {
+  return await http.del(
+    http.apiBaseURLs.api,
+    `tripAttractionOrders/${taoId}`,
+    undefined,
+    undefined,
+    token
+  );
+};
+
 export const taosService = {
   getTaosByDayId,
   postTao,
+  patchTao,
+  deleteTao,
 };

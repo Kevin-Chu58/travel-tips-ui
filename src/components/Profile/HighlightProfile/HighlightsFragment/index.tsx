@@ -1,5 +1,5 @@
 import TTIconButton from "@components/TTIconButton";
-import { Box, Divider, Skeleton, Tooltip, Typography } from "@mui/material";
+import { Box, Divider, Tooltip, Typography } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import React, { useState } from "react";
 import HighlightForm from "@components/Forms/HighlightForm";
@@ -13,7 +13,7 @@ import "./index.scss";
 type HighlightsFragmentProps = {
   attraction: AttractionV2 | undefined;
   highlights: Highlight[];
-  isHighlightLoading: boolean;
+  isHighlightLoading?: boolean;
   allowChangeHighlight?: boolean;
   setDeleteHighlightId?: (state: number | undefined) => void;
   selectHighlightId?: number;
@@ -24,7 +24,7 @@ type HighlightsFragmentProps = {
 const HighlightsFragment = ({
   attraction,
   highlights,
-  isHighlightLoading,
+  isHighlightLoading = false,
   allowChangeHighlight = true,
   setDeleteHighlightId,
   selectHighlightId,
@@ -34,12 +34,16 @@ const HighlightsFragment = ({
   // post
   const [openPost, setOpenPost] = useState<boolean>(false);
 
-  let getHighlightItem = (highlight: Highlight, i: number) => (
+  let getHighlightItem = (
+    highlight: Highlight,
+    i: number,
+    noDivider: boolean = false
+  ) => (
     <HighlightItem
       key={highlight.id}
       highlight={highlight}
       showMenu={allowChangeHighlight}
-      isLast={i + 1 === highlights.length}
+      isLast={noDivider || i + 1 === highlights.length}
       onDelete={setDeleteHighlightId}
     />
   );
@@ -48,8 +52,7 @@ const HighlightsFragment = ({
     if (setSelectHighlightId) {
       if (selectHighlightId !== id) {
         setSelectHighlightId(id);
-      }
-      else {
+      } else {
         setSelectHighlightId(undefined);
       }
     }
@@ -65,7 +68,7 @@ const HighlightsFragment = ({
               Highlights
             </Typography>
             {/* add icon */}
-            {allowChangeHighlight && (
+            {allowChangeHighlight ? (
               <Tooltip
                 title="Write a new highlight"
                 slotProps={{
@@ -88,6 +91,8 @@ const HighlightsFragment = ({
                   <AddIcon />
                 </TTIconButton>
               </Tooltip>
+            ) : (
+              <></>
             )}
           </Box>
           <Divider flexItem />
@@ -118,7 +123,7 @@ const HighlightsFragment = ({
                   variant="text"
                   onClick={() => handleClickSelectHighlight(highlight.id)}
                 >
-                  {getHighlightItem(highlight, i)}
+                  {getHighlightItem(highlight, i, true)}
                 </TTButton>
               ) : (
                 getHighlightItem(highlight, i)
@@ -129,10 +134,11 @@ const HighlightsFragment = ({
           )}
         </Box>
       ) : (
-        <Skeleton
-          className="highlight-profile-highlights-fragment-skeleton"
-          variant="rectangular"
-        />
+        undefined
+        // <Skeleton
+        //   className="highlight-profile-highlights-fragment-skeleton"
+        //   variant="rectangular"
+        // />
       )}
     </React.Fragment>
   );

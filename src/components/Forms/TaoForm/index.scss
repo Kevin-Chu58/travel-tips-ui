@@ -1,0 +1,85 @@
+@use "../../../stylings/box_shadows" as *;
+
+.tao-form-box {
+  display: flex;
+  position: relative;
+  flex-direction: column;
+  width: 60vw;
+  height: 80vh;
+
+  &.mobile {
+    width: 80vw;
+  }
+}
+
+.tao-form-header-box {
+  padding: 1rem;
+}
+
+.tao-form-content-box {
+  flex: 1;
+  width: 100%;
+  margin-right: auto;
+  padding: 1rem 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.tao-form-content {
+  margin: 0 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.tao-form-time-box {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 1.2rem;
+}
+
+.tao-form-time-text.MuiTypography-root {
+  font-size: inherit;
+}
+
+.tao-form-header-text.MuiTypography-root {
+  font-size: 1.4rem;
+}
+
+.tao-form-attraction-box {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  margin: 1rem 0;
+  
+  &.mobile {
+    flex-direction: column;
+  }
+}
+
+.tao-form-map-box {
+  width: 240px;
+  height: 200px;
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: $mild_box_shadow_lg;
+
+  &.mobile {
+    width: 100%;
+  }
+}
+
+.tao-form-address.MuiTypography-root {
+  margin-bottom: 1rem;
+}
+
+.tao-form-action-button-box {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+}
+
+.tao-form-action-button.MuiButton-root {
+  border-radius: 20rem;
+}

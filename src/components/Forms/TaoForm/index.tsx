@@ -1,14 +1,11 @@
 import AttractionFinder from "@components/AttractionFinder";
 import Map from "@components/Map";
-import HighlightsFragment from "@components/Profile/HighlightProfile/HighlightsFragment";
 import TTButton from "@components/TTButton";
 import TTDialog from "@components/TTDialog";
-import { mild_box_shadow, mild_box_shadow_lg } from "@constants/Shadows";
 import { useIsMobile } from "@hooks/useIsMobile";
 import { Typography, Box, Divider, CircularProgress } from "@mui/material";
 import type { RootState } from "@redux/store";
 import type { AttractionV2 } from "@services/attractions";
-import { highlightsService, type Highlight } from "@services/highlights";
 import { BehaviorUtils } from "@utils/BehaviorUtils";
 import MapUtils from "@utils/MapUtils";
 import React, { useEffect, useState } from "react";
@@ -16,18 +13,24 @@ import CloseIcon from "@mui/icons-material/Close";
 import AddIcon from "@mui/icons-material/Add";
 import SearchIcon from "@mui/icons-material/Search";
 import { useSelector } from "react-redux";
-import DescriptionTextField from "@components/TextField/DescriptionTextField";
 import { enqueueSnackbar } from "notistack";
-import { taosService } from "@services/taos";
+import { taosService, type Tao } from "@services/taos";
 import TimeUtils from "@utils/TimeUtils";
+import { hmma } from "@constants/Times";
+import TTMobileTimePicker from "@components/TTMobileTimePicker";
+import type { Dayjs } from "dayjs";
+import clsx from "clsx";
+import "./index.scss";
+import dayjs from "dayjs";
 
 type TaoFormProps = {
   open: boolean;
   onClose: () => void;
-  dayIndex: number;
-  dayId: number | undefined;
-  start: string | undefined;
-  end: string | undefined;
+  dayIndex?: number;
+  dayId?: number;
+  tao?: Tao;
+  start?: string;
+  end?: string;
   setIsParentUpdated?: () => void;
 };
 
@@ -36,12 +39,17 @@ const TaoForm = ({
   onClose,
   dayIndex,
   dayId,
+  tao,
   start,
   end,
   setIsParentUpdated,
 }: TaoFormProps) => {
   // windows
   const isMobile = useIsMobile();
+  // start/end time
+  const [_start, _setStart] = useState<string | undefined>();
+  const [_end, _setEnd] = useState<string | undefined>();
+  const areTimesValid = TimeUtils.compareTime(hmma, _start, _end);
   // attraction
   const [attraction, setAttraction] = useState<AttractionV2 | undefined>();
   // attraction finder
@@ -58,114 +66,82 @@ const TaoForm = ({
         },
       ]
     : [];
-  // highlights
-  const [highlights, setHighlights] = useState<Highlight[] | undefined>();
-  const [isHighlightLoading, setIsHighlightLoading] = useState<boolean>(false);
-  // highlight mode
-  // 1 - search for others' highlights, 2 - write your own
-  const [highlightMode, setHighlightMode] = useState<number | undefined>();
-  const [highlightValue, setHiHighlightValue] = useState<string>(""); // the highlight value if you write your own
-  // selected highlight
-  const [selectHighlightId, setSelectHighlightId] = useState<
-    number | undefined
-  >();
   // action button
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
-  const isCustomHighlight =
-    highlightMode === 2 && highlightValue.trim().length > 0;
   const actionButtonIcon = isProcessing ? (
     <CircularProgress size="1rem" sx={{ color: "white" }} />
   ) : (
     <AddIcon />
   );
-  const actionButtonLabel = !Boolean(attraction)
-    ? "create event"
-    : selectHighlightId
-    ? "create event with others highlight"
-    : isCustomHighlight
-    ? "create event with custom highlight"
-    : "create event without highlight";
+  const actionButtonLabel = (tao ? "update" : "create") + " event";
   // others
   const token = useSelector((state: RootState) => state.auth.accessToken);
 
-  // rerender on highlight mode
+  // rerender initial states on tao
   useEffect(() => {
-    const handleHighlightMode = async () => {
-      if (highlightMode === 1) {
-        if (highlights === undefined && attraction?.id) {
-          setIsHighlightLoading(true);
-
-          let highlights = await highlightsService.getHighlightsByAttractionId(
-            attraction.id
-          );
-
-          await BehaviorUtils.sleep();
-          setIsHighlightLoading(false);
-          setHighlights(highlights);
-        }
+    // init patch states
+    if (open) {
+      if (tao) {
+        _setStart(TimeUtils.formatTimeHHmmssTohmmA(tao.start));
+        _setEnd(TimeUtils.formatTimeHHmmssTohmmA(tao.end));
+        setAttraction(tao.attraction);
+      } else {
+        _setStart(TimeUtils.formatTimeHHmmTohmmA(start!));
+        _setEnd(TimeUtils.formatTimeHHmmTohmmA(end!));
       }
+    }
+  }, [open]);
 
-      if (highlightMode !== 1) {
-        setSelectHighlightId(undefined);
-      }
-    };
+  // handle set start/end
+  const handleSetStart = (start: Dayjs | null) => {
+    _setStart(TimeUtils.dayjsToString(hmma, start));
+  };
 
-    handleHighlightMode();
-  }, [highlightMode]);
+  const handleSetEnd = (end: Dayjs | null) => {
+    _setEnd(TimeUtils.dayjsToString(hmma, end));
+  };
 
+  // handle action
   const handleClose = () => {
+    handleClearAttraction();
     onClose();
-    setAttraction(undefined);
-    setHighlights(undefined);
-    setHighlightMode(0);
-    setSelectHighlightId(undefined);
-    setHiHighlightValue("");
   };
 
   const handleClearAttraction = () => {
     setAttraction(undefined);
-    setHighlights(undefined);
-    setHighlightMode(0);
   };
 
-  const handleClickCreateTao = async () => {
-    if (dayId && start && end && attraction && token) {
+  const handleClickActionButton = async () => {
+    let _dayId = dayId || tao?.dayId;
+    if (_dayId && _start && _end && areTimesValid && attraction && token) {
       try {
         setIsProcessing(true);
 
-        // if has custom highlight, post that highlight first, then post tao
-        let highlightId = selectHighlightId;
+        let startTime = TimeUtils.formatTimehmmAToHHmmss(_start);
+        let endTime = TimeUtils.formatTimehmmAToHHmmss(_end);
 
-        if (isCustomHighlight) {
-
-          let newHighlight = {
-            attractionId: attraction.id,
-            description: highlightValue.trim(),
-          };
-
-          let highlightViewModel = await highlightsService.postHighlight(newHighlight, token);
-          highlightId = highlightViewModel.id;
-        }
-
-        let _start = TimeUtils.formatTimehmmAToHHmmss(start);
-        let _end = TimeUtils.formatTimehmmAToHHmmss(end);
-
-        let newTao = {
-          dayId: dayId,
-          start: _start,
-          end: _end,
+        let _tao = {
+          dayId: _dayId,
+          start: startTime,
+          end: endTime,
           attractionId: attraction.id,
-          highlightId: highlightId,
         };
 
-        await taosService.postTao(dayId, newTao, token);
+        if (tao) {
+          await taosService.patchTao(tao.id, _tao, token);
+        } else {
+          await taosService.postTao(_dayId, _tao, token);
+        }
 
         await BehaviorUtils.sleep();
-        enqueueSnackbar("Succesfully created the event.", { variant: "success" });
-        
-        if (setIsParentUpdated)
-          setIsParentUpdated();
+        enqueueSnackbar(
+          `Succesfully ${tao ? "updated" : "created"} the event.`,
+          {
+            variant: "success",
+          }
+        );
 
+        if (setIsParentUpdated) setIsParentUpdated();
       } catch (e) {
         if (e instanceof Error) {
           enqueueSnackbar(e.message, { variant: "error" });
@@ -179,51 +155,67 @@ const TaoForm = ({
 
   return (
     <TTDialog open={open} onClose={handleClose} hidePadding>
-      <Box
-        display="flex"
-        position="relative"
-        flexDirection="column"
-        width={{ xs: "80vw", md: "60vw" }}
-        height="80vh"
-      >
+      <Box className={clsx("tao-form-box", isMobile && "mobile")}>
         {/* tao form header */}
-        <Box p={2}>
-          <Typography fontSize="1.4rem">Plan Event — Day {dayIndex}</Typography>
+        <Box className="tao-form-header-box">
+          <Typography className="tao-form-header-text">
+            Plan Event — Day {dayIndex}
+          </Typography>
         </Box>
 
         <Divider variant="middle" flexItem />
 
-        <Box flex={1} width="100%" mr="auto" py={2} sx={{ overflowY: "auto" }}>
+        <Box className="tao-form-content-box">
           {/* tao form content */}
-          <Box height="100%">
-            <Box ml={4} mr={4} display="flex" flexDirection="column" gap={2}>
-              <Box display="flex" alignItems="left" gap={2} fontSize="1.2rem">
-                <Typography fontSize="inherit">Start Time:</Typography>
-                <Typography fontSize="inherit">{start}</Typography>
+          <Box>
+            <Box className="tao-form-content">
+              {/* start time picker */}
+              <Box className="tao-form-time-box">
+                <Typography className="tao-form-time-text">
+                  Start Time:
+                </Typography>
+                <TTMobileTimePicker
+                  value={dayjs(_start, hmma)}
+                  setValue={handleSetStart}
+                  maxTime={
+                    _end && _end !== "12:00 am" ? dayjs(_end, hmma) : undefined
+                  }
+                  minutesStep={15}
+                />
               </Box>
 
-              <Box display="flex" alignItems="left" gap={2} fontSize="1.2rem">
-                <Typography fontSize="inherit">End Time:</Typography>
-                <Typography fontSize="inherit">{end}</Typography>
+              {/* end time picker */}
+              <Box className="tao-form-time-box">
+                <Typography className="tao-form-time-text">
+                  End Time:
+                </Typography>
+                <TTMobileTimePicker
+                  value={dayjs(_end, hmma)}
+                  setValue={handleSetEnd}
+                  minTime={_start ? dayjs(_start, hmma) : undefined}
+                  minutesStep={15}
+                />
               </Box>
 
-              {/* attraction & highlights*/}
+              {!areTimesValid ? (
+                <Typography mt={-2} color="error">
+                  Start time must be earlier than end time.
+                </Typography>
+              ) : undefined}
+
+              {/* attraction content */}
               {attraction ? (
                 <React.Fragment>
                   {/* attraction */}
                   <Box
-                    display="flex"
-                    flexDirection={isMobile ? "column" : "row"}
-                    gap={2}
-                    my={2}
+                    className={clsx(
+                      "tao-form-attraction-box",
+                      isMobile && "mobile"
+                    )}
                   >
                     {/* map */}
                     <Box
-                      width={isMobile ? "100%" : 240}
-                      height={200}
-                      borderRadius={2}
-                      overflow="hidden"
-                      boxShadow={mild_box_shadow_lg}
+                      className={clsx("tao-form-map-box", isMobile && "mobile")}
                     >
                       <Map
                         readonly
@@ -234,11 +226,11 @@ const TaoForm = ({
                     </Box>
 
                     {/* attraction info */}
-                    <Box flex={1}>
-                      <Typography fontSize="1.4rem">
+                    <Box>
+                      <Typography className="tao-form-header-text">
                         {attraction.title}
                       </Typography>
-                      <Typography fontSize="1rem" mb={2}>
+                      <Typography className="tao-form-address">
                         {attraction.address}
                       </Typography>
 
@@ -251,67 +243,6 @@ const TaoForm = ({
                       </TTButton>
                     </Box>
                   </Box>
-
-                  {/* highlights */}
-                  <Box
-                    display="flex"
-                    flexDirection="column"
-                    justifyContent="center"
-                    borderRadius={2}
-                    p={2}
-                    bgcolor="#0d47a1" // info.900
-                    boxShadow={mild_box_shadow}
-                  >
-                    <Typography
-                      p={2}
-                      color="white"
-                      textAlign="center"
-                      whiteSpace="pre-wrap"
-                      fontFamily="lexend deca"
-                    >
-                      Feel free to pick a highlight —{"\n"} or even better,
-                      create your own!
-                    </Typography>
-
-                    <Box display="flex" justifyContent="center" gap={2}>
-                      <TTButton
-                        color="info"
-                        ariaLabel="option 1: search existing highlights"
-                        onClick={() => setHighlightMode(1)}
-                      >
-                        looking for others
-                      </TTButton>
-                      <TTButton
-                        color="inherit"
-                        ariaLabel="option 2: write you own highlight"
-                        onClick={() => setHighlightMode(2)}
-                      >
-                        write your own
-                      </TTButton>
-                    </Box>
-                  </Box>
-
-                  {/* highlights-mode-content */}
-
-                  {highlightMode === 1 ? (
-                    <HighlightsFragment
-                      attraction={attraction}
-                      highlights={highlights ?? []}
-                      isHighlightLoading={isHighlightLoading}
-                      selectHighlightId={selectHighlightId}
-                      setSelectHighlightId={setSelectHighlightId}
-                      allowChangeHighlight={false}
-                    />
-                  ) : highlightMode === 2 ? (
-                    <DescriptionTextField
-                      value={highlightValue}
-                      setValue={setHiHighlightValue}
-                    />
-                  ) : (
-                    <></>
-                  )}
-
-                  <Box height={30} />
                 </React.Fragment>
               ) : (
                 <Box>
@@ -334,14 +265,14 @@ const TaoForm = ({
         </Box>
 
         {/* action button */}
-        <Box position="absolute" bottom={20} right={20}>
+        <Box className="tao-form-action-button-box">
           <TTButton
+            className="tao-form-action-button"
             color="info"
-            onClick={handleClickCreateTao}
+            onClick={handleClickActionButton}
             startIcon={actionButtonIcon}
             label={actionButtonLabel}
-            disabled={!Boolean(attraction) || isProcessing}
-            sx={{ borderRadius: 20 }}
+            disabled={!Boolean(attraction) || !areTimesValid || isProcessing}
           />
         </Box>
       </Box>
