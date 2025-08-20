@@ -1,7 +1,7 @@
-import Map from "@components/Map";
-import type { NavTab } from "@constants/Types";
+import Mapper from "@components/Map";
+import { type Route, type NavTab } from "@constants/Types";
 import { useIsMobile } from "@hooks/useIsMobile";
-import { Box, Fab } from "@mui/material";
+import { Box } from "@mui/material";
 import type { RootState } from "@redux/store";
 import { type Trip, tripsService } from "@services/trips";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -20,24 +20,28 @@ import DescriptionComponent from "./DescriptionComponent";
 import DayComponent from "./DayComponent";
 import SectionComponent from "./SectionComponent";
 import { BehaviorUtils } from "@utils/BehaviorUtils";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import DeleteDayForm from "@components/Forms/DeleteDayForm";
 import { daysService, type Day } from "@services/days";
 import { taosService, type Tao } from "@services/taos";
 import MapUtils from "@utils/MapUtils";
 import TaoComponent from "./TaoComponent";
-import ToolTip from "@components/ToolTip";
 import DeleteTaoForm from "@components/Forms/DeleteTaoForm";
 import TaoForm from "@components/Forms/TaoForm";
+import {
+  hereMapService,
+  type HereRoutingResponse,
+} from "@services/hereMap/hereMap";
+import UIShowButton from "@components/Button/UIShowButton";
+import FabComponent from "./FabComponent";
 import clsx from "clsx";
 import "./index.scss";
 
 type TripProfileProps = {
   uri?: string;
+  readonly?: boolean;
 };
 
-const TripProfile = ({ uri = "/" }: TripProfileProps) => {
+const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
   // window
   const isMobile = useIsMobile();
   // snackbar
@@ -46,7 +50,7 @@ const TripProfile = ({ uri = "/" }: TripProfileProps) => {
   const [navTabValue, setNavTabValue] = useState<number>(0);
   // trip basic
   const [tripBasic, setTripBasic] = useState<Trip | undefined>();
-  const [isTripBasicUpdated, setIsTripBasicUpdated] = useState<boolean>(false);
+  const [isTripBasicAsync, setIsTripBasicAsync] = useState<boolean>(false);
   // trip images
   const [images, setImages] = useState<Image[]>([]);
   // days
@@ -55,20 +59,29 @@ const TripProfile = ({ uri = "/" }: TripProfileProps) => {
   // day
   const [day, setDay] = useState<Day | undefined>();
   // taos
+  const taoMap = useRef(new Map<number, Tao[]>());
   const [taos, setTaos] = useState<Tao[] | undefined>();
   const [areTaosAsync, setAreTaosAsync] = useState<boolean>(false);
   // tao
   const [tao, setTao] = useState<Tao | undefined>();
+  // map
+  const routeResponseMap = useRef(new Map<number, HereRoutingResponse[]>());
+  const [routeResponses, setRouteResponses] = useState<
+    HereRoutingResponse[] | undefined
+  >();
+  const [routes, setRoutes] = useState<Route[]>();
   // form open status
   const [openDayForm, setOpenDayForm] = useState<boolean>(false);
   const [openDeleteDayForm, setOpenDeleteDayForm] = useState<boolean>(false);
   const [openEditTaoForm, setOpenEditTaoForm] = useState<boolean>(false);
   const [openDeleteTaoForm, setOpenDeleteTaoForm] = useState<boolean>(false);
+  const [openUI, setOpenUI] = useState<boolean>(true);
   // behavior
   const [isLoading, setIsLoading] = useState<boolean>(true);
   // others
   const token = useSelector((state: RootState) => state.auth.accessToken);
   const { tripId, dayId } = useParams(); // dayId - day index in days, not day.id
+  const prevDayId = useRef<number | undefined>(undefined);
   const inputRef = useRef<HTMLInputElement>(null);
   const correctUri = uri.length > 1 ? uri : "";
   const navigate = useNavigate();
@@ -109,7 +122,7 @@ const TripProfile = ({ uri = "/" }: TripProfileProps) => {
     };
 
     initTrip();
-  }, [tripId, token, isTripBasicUpdated, areDaysAsync]);
+  }, [tripId, token, isTripBasicAsync, areDaysAsync]);
 
   // rerender days on numDays
   useEffect(() => {
@@ -131,19 +144,62 @@ const TripProfile = ({ uri = "/" }: TripProfileProps) => {
   // rerender day on days update and navTabValue
   useEffect(() => {
     setDay(Boolean(navTabValue) ? days[navTabValue - 1] : undefined);
+    setTao(undefined);
   }, [navTabValue, days]);
 
   // rerender taos on day update
   useEffect(() => {
     const initTaos = async () => {
       if (day?.id) {
-        let taos = await taosService.getTaosByDayId(day.id, token ?? undefined);
+        // set taos & tao
+        let taos: Tao[] | undefined;
+        taos = taoMap.current.get(day.id);
+        // if taos does not exist in taoMap, request it from API
+        if (!taos) {
+          taos = await taosService.getTaosByDayId(day.id, token ?? undefined);
+          taoMap.current.set(day.id, taos);
+        }
         setTaos(taos);
 
+        // optional - also updates tao component if it is open
         if (tao) {
-          let _tao = taos.find(t => t.id === tao.id);
+          let _tao = taos.find((t) => t.id === tao.id);
           setTao(_tao);
         }
+
+        // set routes
+        // check routeResponseMap first when switches from day to day
+        let routeResponses: HereRoutingResponse[] | undefined;
+        if (prevDayId.current !== dayId) {
+          routeResponses = routeResponseMap.current.get(day.id);
+        }
+
+        // if routeResponseMap has no routing info for that day, get it from API
+        if (!routeResponses) {
+          routeResponses = await hereMapService.searchRouting(day.id);
+          setRouteResponses(routeResponses);
+          routeResponseMap.current.set(day.id, routeResponses);
+        }
+
+        prevDayId.current = day.id;
+
+        let routes = routeResponses
+          .map((res, i) =>
+            res.routes?.map((r) =>
+              r.sections?.map((s) => ({
+                polyline: s.polyline,
+                groupId: i,
+                color: s.transport?.color,
+              }))
+            )
+          )
+          .flat(2) as Route[];
+
+        setRoutes(routes);
+      } else {
+        setTaos(undefined);
+        setRoutes(undefined);
+        prevDayId.current = undefined;
       }
     };
     initTaos();
@@ -197,7 +253,7 @@ const TripProfile = ({ uri = "/" }: TripProfileProps) => {
         let updatedImages = images.filter((i) => i.id !== imageId);
         setImages(updatedImages);
 
-        enqueueSnackbar("Successfully detached image", {
+        enqueueSnackbar("Successfully detached image.", {
           variant: "success",
         });
       } catch (e) {
@@ -209,19 +265,15 @@ const TripProfile = ({ uri = "/" }: TripProfileProps) => {
 
   return (
     <Box className="trip-profile-box">
-      {/* map */}
-      <Box className="trip-profile-map-box">
-        <Map
-          markers={markers}
-          focusId={String(tao?.id)}
-          updateOnMarkerFocus
-          correctionBias={6}
-          correctionDirection="W"
-          correctionZoom={0}
-        />
-
+      <Box className="trip-profile-ui-box">
         {/* content */}
-        <Box className={clsx("trip-profile-content-box", isMobile && "mobile")}>
+        <Box
+          className={clsx(
+            "trip-profile-content-box",
+            isMobile && "mobile",
+            !openUI && "hidden"
+          )}
+        >
           {/* header */}
           <Box className="trip-profile-header-box">
             {/* profile images  */}
@@ -249,7 +301,7 @@ const TripProfile = ({ uri = "/" }: TripProfileProps) => {
               )}
 
               {/* image selector */}
-              <Box position="absolute" right={10} bottom={10}>
+              <Box className="trip-profile-image-selector-box">
                 <ImageSelector
                   tripId={tripBasic?.id}
                   imageIds={images.map((image) => image.id)}
@@ -323,54 +375,53 @@ const TripProfile = ({ uri = "/" }: TripProfileProps) => {
           </Box>
         </Box>
 
+        {/* open button */}
+        <Box
+          className={clsx("trip-profile-open-button-box", !openUI && "hidden")}
+        >
+          <UIShowButton
+            isOpen={openUI}
+            onClick={() => setOpenUI((prev) => !prev)}
+          />
+        </Box>
+
         {/* tool fab group */}
         <Box
-          className={clsx("trip-profile-tool-fab-group", isMobile && "mobile")}
+          className={clsx(
+            "trip-profile-tool-fab-group",
+            isMobile && "mobile",
+            !openUI && "hidden"
+          )}
         >
-          {/* edit action - tao */}
-          <ToolTip title="Edit event" placement="right">
-            <Fab
-              color="info"
-              className={clsx(
-                "trip-profile-tool-fab",
-                Boolean(tao) && "visible"
-              )}
-              onClick={() => setOpenEditTaoForm(true)}
-              size="medium"
-            >
-              <EditIcon />
-            </Fab>
-          </ToolTip>
-
-          {/* delete action - day, tao */}
-          <ToolTip
-            title={Boolean(tao) ? "Delete event" : "Delete day"}
-            placement="right"
-          >
-            <Fab
-              className={clsx(
-                "trip-profile-tool-fab",
-                "delete",
-                !isOverview && "visible"
-              )}
-              onClick={
-                Boolean(tao)
-                  ? () => setOpenDeleteTaoForm(true)
-                  : () => setOpenDeleteDayForm(true)
-              }
-              size="medium"
-            >
-              <DeleteForeverIcon />
-            </Fab>
-          </ToolTip>
+          <FabComponent
+            tripBasic={tripBasic}
+            setTripBasic={setTripBasic}
+            tao={tao}
+            isOverview={isOverview}
+            setOpenDeleteDayForm={setOpenDeleteDayForm}
+            setOpenEditTaoForm={setOpenEditTaoForm}
+            setOpenDeleteTaoForm={setOpenEditTaoForm}
+          />
         </Box>
+      </Box>
+
+      {/* map */}
+      <Box className="trip-profile-map-box">
+        <Mapper
+          markers={markers}
+          mapRoutes={routes}
+          focusId={String(tao?.id)}
+          openUI={openUI}
+          focusRoute
+          openPopUp
+        />
       </Box>
 
       <AddDayForm
         tripId={Number(tripId)}
         open={openDayForm}
         onClose={() => setOpenDayForm(false)}
-        setIsParentUpdated={() => setIsTripBasicUpdated((prev) => !prev)}
+        setIsParentUpdated={() => setIsTripBasicAsync((prev) => !prev)}
       />
 
       <DeleteDayForm

@@ -10,12 +10,12 @@ import GoogleIcon from "@mui/icons-material/Google";
 import HighlightItem from "@components/Item/HighlightItem";
 import { highlightsService, type Highlight } from "@services/highlights";
 import HighlightForm from "@components/Forms/HighlightForm";
+import DiscoverHighlightsForm from "@components/Forms/DiscoverHighlightsForm";
 import { useSelector } from "react-redux";
 import type { RootState } from "@redux/store";
 import { enqueueSnackbar } from "notistack";
 import TTButton from "@components/TTButton";
 import "./index.scss";
-import DiscoverHighlightsForm from "@components/Forms/DiscoverHighlightsForm";
 
 type TaoComponentProps = {
   tao: Tao | undefined;
@@ -43,7 +43,7 @@ const TaoComponent = ({
   // others
   const token = useSelector((state: RootState) => state.auth.accessToken);
 
-  // rerender _tao on tao when is not undefined
+  // rerender _tao on tao when is defined
   useEffect(() => {
     if (tao) {
       _setTao(tao);
@@ -104,14 +104,24 @@ const TaoComponent = ({
     }
   };
 
+  const handleClose = () => {
+    onClose();
+    setDescription("");
+    _setHighlight(undefined);
+  };
+
   return (
     <Box className="trip-profile-tao-comp-box">
       {/* header */}
       <Box className="trip-profile-tao-comp-header-box">
-        <Typography className="trip-profile-tao-comp-header">Event</Typography>
+        {/* start - end time */}
+        <Typography>
+          {TimeUtils.formatTimeHHmmssTohmmA(tao?.start ?? "")} -{" "}
+          {TimeUtils.formatTimeHHmmssTohmmA(tao?.end ?? "")}
+        </Typography>
         <TTIconButton
           className="trip-profile-tao-comp-close-button"
-          onClick={onClose}
+          onClick={handleClose}
         >
           <CloseIcon />
         </TTIconButton>
@@ -122,17 +132,11 @@ const TaoComponent = ({
       {/* tao content */}
       <Box className="trip-profile-tao-comp-content-box">
         <Box>
-          {/* start - end time */}
-          <Typography>
-            {TimeUtils.formatTimeHHmmssTohmmA(tao?.start ?? "")} -{" "}
-            {TimeUtils.formatTimeHHmmssTohmmA(tao?.end ?? "")}
-          </Typography>
-
           {/* title & address */}
-          <Typography>{attraction?.title}</Typography>
-          <Typography className="trip-profile-tao-comp-address">
-            {attraction?.address}
+          <Typography className="trip-profile-tao-comp-title">
+            Visit {attraction?.title}
           </Typography>
+          <Typography>{attraction?.address}</Typography>
 
           {/* attraction category */}
           {attraction?.category ? (
@@ -154,6 +158,7 @@ const TaoComponent = ({
               <HighlightItem
                 highlight={_highlight}
                 isLast={true}
+                onUpdate={setIsParentUpdated}
                 onDelete={undefined}
                 onDetach={handleDetachHighlight}
               />

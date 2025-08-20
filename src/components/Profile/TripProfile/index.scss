@@ -4,8 +4,11 @@
 
 .trip-profile-box {
   display: flex;
+  flex-direction: row;
+  position: relative;
   color: black;
   height: $screen-height;
+  overflow: hidden;
 }
 
 .trip-profile-map-box {
@@ -19,17 +22,12 @@ $trip-profile-content-width-mobile: 280px;
 
 .trip-profile-content-box {
   width: $trip-profile-content-width;
-  max-height: calc($screen-height - 2rem); // reduce the margin and padding
+  height: calc($screen-height); // reduce the margin and padding
   display: flex;
   flex-direction: column;
   position: relative;
   background-color: white;
   color: black;
-  position: absolute;
-  top: 0;
-  left: 0;
-  margin: 1rem;
-  border-radius: 1rem;
   z-index: 1100;
   box-shadow: $mild_box_shadow_lg;
   overflow-x: hidden;
@@ -38,6 +36,10 @@ $trip-profile-content-width-mobile: 280px;
   &.mobile {
     width: 80vw;
     max-width: $trip-profile-content-width-mobile;
+  }
+
+  &.hidden {
+    display: none;
   }
 }
 
@@ -101,6 +103,12 @@ $trip-profile-content-width-mobile: 280px;
   }
 }
 
+.trip-profile-image-selector-box {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+}
+
 .trip-profile-image-chip-button.MuiChip-root {
   color: lightgrey;
   background-color: black;
@@ -149,36 +157,36 @@ $trip-profile-content-width-mobile: 280px;
   font-size: 0.9rem;
 }
 
-$trip-profile-tool-button-group-gap: 40px;
-$trip-profile-tool-button-group-gap-mobile: 20px;
+.trip-profile-ui-box {
+  position: relative;
+}
 
-.trip-profile-tool-fab-group {
+.trip-profile-open-button-box {
   position: absolute;
-  top: 150px;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  left: $trip-profile-content-width + $trip-profile-tool-button-group-gap;
+  top: 40vh;
+  right: -15px;
 
-  &.mobile {
-    left: $trip-profile-content-width-mobile +
-      $trip-profile-tool-button-group-gap-mobile;
+  &.hidden {
+    right: -40px;
   }
 }
 
-.trip-profile-tool-fab.MuiFab-root {
-  display: none;
+$trip-profile-tool-button-group-gap: -80px;
+$trip-profile-tool-button-group-gap-mobile: -70px;
 
-  &.delete {
-    color: white;
-    background-color: black;
+.trip-profile-tool-fab-group {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  top: 150px;
+  right: $trip-profile-tool-button-group-gap;
 
-    &:hover {
-      background-color: var(--grey-800);
-    }
+  &.mobile {
+    right: $trip-profile-tool-button-group-gap-mobile;
   }
 
-  &.visible {
-    display: flex;
+  &.hidden {
+    display: none;
   }
 }

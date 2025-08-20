@@ -16,9 +16,9 @@ import { useIsMobile } from "@hooks/useIsMobile";
 import { enqueueSnackbar } from "notistack";
 import { BehaviorUtils } from "@utils/BehaviorUtils";
 import DaySchedule from "@components/DaySchedule";
+import type { Tao } from "@services/taos";
 import clsx from "clsx";
 import "./index.scss";
-import type { Tao } from "@services/taos";
 
 type DayComponentProps = {
   day: Day | undefined;
@@ -44,6 +44,10 @@ const DayComponent = ({
   // day title
   const [dayTitle, setDayTitle] = useState<string | undefined>();
   const [openDayTitle, setOpenDayTitle] = useState<boolean>(false);
+  // button group
+  // const [groupFocus, setGroupFocus] = useState<string>(
+  //   buttonGroupItems[0].name
+  // );
   // others
   const token = useSelector((state: RootState) => state.auth.accessToken);
 
@@ -156,20 +160,21 @@ const DayComponent = ({
       <Divider variant="middle" flexItem />
 
       <Box className="trip-profile-day-comp-content-box">
+        {/* views */}
         <Box
-          className={clsx(
-            "trip-profile-day-comp-schedule-box",
-            isMobile && "mobile"
-          )}
-        >
-          <DaySchedule
-            dayIndex={navTabValue}
-            dayId={day?.id}
-            taos={taos}
-            setTao={setTao}
-            setIsParentUpdated={setAreTaosUpdated}
-          />
-        </Box>
+            className={clsx(
+              "trip-profile-day-comp-schedule-box",
+              isMobile && "mobile"
+            )}
+          >
+            <DaySchedule
+              dayIndex={navTabValue}
+              dayId={day?.id}
+              taos={taos}
+              setTao={setTao}
+              setIsParentUpdated={setAreTaosUpdated}
+            />
+          </Box>
       </Box>
     </React.Fragment>
   );

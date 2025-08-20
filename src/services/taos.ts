@@ -2,6 +2,8 @@ import type { AttractionV2 } from "./attractions";
 import type { Highlight } from "./highlights";
 import http from "./http";
 
+export type TransportMode = "car" | "truck" | "pedistrian" | "public transit";
+
 type TaoBasic = {
   dayId: number;
   start: string;
@@ -18,6 +20,7 @@ export type Tao = TaoBasic & {
   attraction: AttractionV2;
   highlight?: Highlight;
   createdBy: number;
+  transportMode?: TransportMode;
 };
 
 export type TaoPatch = {
@@ -26,6 +29,7 @@ export type TaoPatch = {
   highlightId?: number;
   start?: string;
   end?: string;
+  transportMode?: TransportMode;
 };
 
 const getTaosByDayId = async (

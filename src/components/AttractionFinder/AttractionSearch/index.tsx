@@ -14,7 +14,7 @@ import { useSelector } from "react-redux";
 import "./index.scss";
 import { BehaviorUtils } from "@utils/BehaviorUtils";
 import type { AttractionV2 } from "@services/attractions";
-import { hereMapDiscoverService } from "@services/hereMap/hereMapDiscover";
+import { hereMapService } from "@services/hereMap/hereMap";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import type { GeoCoordinate } from "@constants/Types";
 import ActionSpan from "@components/ActionSpan";
@@ -54,7 +54,7 @@ const AttractionSearch = ({
       try {
         setIsSearchLoading(true);
 
-      const searchResult = await hereMapDiscoverService.searchPlaceByName(
+      const searchResult = await hereMapService.searchPlaceByName(
         search,
         geoCoordinate.lat,
         geoCoordinate.lng

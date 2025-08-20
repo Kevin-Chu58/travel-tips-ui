@@ -31,6 +31,11 @@
   overflow-y: auto;
 }
 
+.trip-profile-tao-comp-title.MuiTypography-root {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
 .trip-profile-tao-comp-address.MuiTypography-root {
   font-size: .8rem;
 }
@@ -49,7 +54,7 @@
 .trip-profile-tao-comp-highlight-helper-text.MuiTypography-root {
   white-space: pre-wrap;
   text-align: center;
-  font-family: tagesschrift;
+  // font-family: tagesschrift;
 }
 
 .trip-profile-tao-comp-highlight-button-box {

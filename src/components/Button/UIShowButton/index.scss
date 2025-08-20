@@ -1,0 +1,14 @@
+@use "../../../stylings/box_shadows" as *;
+
+.ui-show-button.MuiIconButton-root {
+  background-color: white;
+  box-shadow: $mild_box_shadow;
+  width: 30px;
+  height: 60px;
+  border-radius: 0.5rem;
+  z-index: 1200;
+
+  &:hover {
+    background-color: whitesmoke;
+  }
+}

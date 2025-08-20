@@ -84,25 +84,12 @@ export type RouteOptionParams = {
 };
 
 export type Route = {
-  coords?: [number, number][];
-  distance?: number;
-  duration?: number;
+  polyline?: string;
+  groupId?: number;
+  color?: string;
+  focusColor?: string;
+  weight?: number;
 };
-
-export type TaoRoutes = {
-  taoId: number;
-  driving?: Route;
-  cycling?: Route;
-  walking?: Route;
-  custom?: Route;
-};
-
-export type DayRoutes = {
-  dayId: number;
-  taos: TaoRoutes[];
-};
-
-export type RouteRoutes = DayRoutes[];
 
 // map
 export type Marker = {

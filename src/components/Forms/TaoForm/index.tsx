@@ -49,7 +49,7 @@ const TaoForm = ({
   // start/end time
   const [_start, _setStart] = useState<string | undefined>();
   const [_end, _setEnd] = useState<string | undefined>();
-  const areTimesValid = TimeUtils.compareTime(hmma, _start, _end);
+  const areTimesValid = _end === "12:00 AM" || TimeUtils.compareTime(hmma, _start, _end);
   // attraction
   const [attraction, setAttraction] = useState<AttractionV2 | undefined>();
   // attraction finder
@@ -178,7 +178,7 @@ const TaoForm = ({
                   value={dayjs(_start, hmma)}
                   setValue={handleSetStart}
                   maxTime={
-                    _end && _end !== "12:00 am" ? dayjs(_end, hmma) : undefined
+                    _end && _end !== "12:00 AM" ? dayjs(_end, hmma) : undefined
                   }
                   minutesStep={15}
                 />
@@ -198,7 +198,7 @@ const TaoForm = ({
               </Box>
 
               {!areTimesValid ? (
-                <Typography mt={-2} color="error">
+                <Typography className="tao-form-time-helper-text" color="error">
                   Start time must be earlier than end time.
                 </Typography>
               ) : undefined}
@@ -219,7 +219,6 @@ const TaoForm = ({
                     >
                       <Map
                         readonly
-                        updateOnMarkerFocus
                         markers={markers}
                         focusId={attraction.hereId}
                       />

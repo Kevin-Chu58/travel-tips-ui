@@ -101,17 +101,15 @@ const AttractionFinder = ({
         if (setParentAttraction !== undefined) {
           setParentAttraction(attraction);
           handleClose();
-        }
-        else {
+        } else {
           setAttraction(attraction);
           setIsAttractionLoading(false);
         }
-      }
-      catch (e) {
+      } catch (e) {
         if (e instanceof Error)
           enqueueSnackbar(e.message, { variant: "error" });
       }
-      
+
       setIsAttractionLoading(false);
     }
   };
@@ -219,59 +217,69 @@ const AttractionFinder = ({
           setCurrentCoordinate={
             isCoordMode ? handleGeoCoordinateClick : undefined
           }
-          updateOnMarkerFocus
         />
       </Box>
 
       {/* UI layer */}
-      {!isCoordMode && (
-        isMobile ? (
-        <React.Fragment>
-          {/* UI layer - search */}
-          <Box className="attraction-finder-search-box-mobile">
-            {attractionSearch}
-          </Box>
-
-          {/* UI layer - next button */}
-          <Box className="attraction-finder-next-button-box-mobile">
-            {selectButton}
-          </Box>
-
-          {/* UI layer - result */}
-          <Box className={clsx("attraction-finder-result-box-mobile", showResult && "focus")}>
-            {/* result list - attractions */}
-            {attractionList}
-          </Box>
-
-          {/* UI layer - result button */}
-          {!showResult && (
-            <Box className="attraction-finder-result-button-box-mobile">
-              {/* result list - attractions */}
-              {attractionListShowButton}
+      {!isCoordMode &&
+        (isMobile ? (
+          <React.Fragment>
+            {/* UI layer - search */}
+            <Box className="attraction-finder-search-box-mobile">
+              {attractionSearch}
             </Box>
-          )}
-        </React.Fragment>
-      ) : (
-        <React.Fragment>
-          {/* UI layer - search */}
-          <Box className="attraction-finder-search-box">{attractionSearch}</Box>
 
-          {/* UI layer - next button */}
-          <Box className="attraction-finder-next-button-box">
-            {selectButton}
-          </Box>
+            {/* UI layer - next button */}
+            <Box className="attraction-finder-next-button-box-mobile">
+              {selectButton}
+            </Box>
 
-          {/* UI layer - result */}
-          <Box className="attraction-finder-result-box">
-            {/* result list - attractions */}
-            {attractionList}
-          </Box>
-        </React.Fragment>
-      )
-      )}
+            {/* UI layer - result */}
+            <Box
+              className={clsx(
+                "attraction-finder-result-box-mobile",
+                showResult && "focus"
+              )}
+            >
+              {/* result list - attractions */}
+              {attractionList}
+            </Box>
+
+            {/* UI layer - result button */}
+            {!showResult && (
+              <Box className="attraction-finder-result-button-box-mobile">
+                {/* result list - attractions */}
+                {attractionListShowButton}
+              </Box>
+            )}
+          </React.Fragment>
+        ) : (
+          <React.Fragment>
+            {/* UI layer - search */}
+            <Box className="attraction-finder-search-box">
+              {attractionSearch}
+            </Box>
+
+            {/* UI layer - next button */}
+            <Box className="attraction-finder-next-button-box">
+              {selectButton}
+            </Box>
+
+            {/* UI layer - result */}
+            <Box className="attraction-finder-result-box">
+              {/* result list - attractions */}
+              {attractionList}
+            </Box>
+          </React.Fragment>
+        ))}
 
       {/* attraction layer */}
-      <Box className={clsx("attraction-finder-attraction-box", attraction && "focus")}>
+      <Box
+        className={clsx(
+          "attraction-finder-attraction-box",
+          attraction && "focus"
+        )}
+      >
         <Box className="attraction-finder-attraction-box-nav-box">
           {/* nav back button */}
           <TTButton

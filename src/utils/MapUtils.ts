@@ -23,7 +23,7 @@ const getGoogleMapLink = (address: string) => {
  * Calculate the latitude or lnggitude delta equivalent to cm on screen at the given lat and zoom level,
  * depending on the direction (N, E, S, W).
  */
-const getLatLonDelta = (
+const getLatLngDelta = (
   map: L.Map,
   lat: number,
   lng: number,
@@ -103,7 +103,7 @@ const getCurrentLocation = (): Promise<GeoCoordinate> => {
 const MapUtils = {
   extractAddress,
   getGoogleMapLink,
-  getLatLonDelta,
+  getLatLngDelta,
   resultTypeToZoom,
   getCurrentLocation,
 };

@@ -21,6 +21,7 @@ type HighlightItemProps = {
   highlight: Highlight;
   showMenu?: boolean;
   isLast?: boolean;
+  onUpdate?: () => void;
   onDelete?: (state: number) => void;
   onDetach?: () => void; // detach highlight from tao
 };
@@ -29,13 +30,14 @@ const HighlightItem = ({
   highlight,
   showMenu = true,
   isLast = false,
+  onUpdate,
   onDelete,
   onDetach,
 }: HighlightItemProps) => {
   // windows
   const isMobile = useIsMobile();
   // highlight
-  const [_highlight, _setHighlight] = useState<Highlight>(highlight);
+  const [_highlight, _setHighlight] = useState<Highlight | undefined>();
   // options
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const openOptions = Boolean(anchorEl);
@@ -44,12 +46,15 @@ const HighlightItem = ({
   const [isEditing, setIsEditing] = useState<boolean>(false);
   // others
   const userId = useSelector((state: RootState) => state.user.id);
-  const isOwner = userId === _highlight.createdBy?.id;
+  const isOwner = userId === _highlight?.createdBy?.id;
 
   // render to set description
   useEffect(() => {
-    if (_highlight.description) setDescription(_highlight.description);
-  }, [_highlight]);
+    if (highlight) {
+      _setHighlight(highlight);
+      setDescription(highlight.description ?? "");
+    }
+  }, [highlight]);
 
   const handleOptionsClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -59,11 +64,13 @@ const HighlightItem = ({
   };
 
   const handleEditClick = () => {
-    setIsEditing(true);
-    document
-      .getElementById(_highlight.id.toString())
-      ?.scrollIntoView({ behavior: "smooth", block: "start" });
-    setAnchorEl(null);
+    if (_highlight) {
+      setIsEditing(true);
+      document
+        .getElementById(_highlight.id.toString())
+        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+      setAnchorEl(null);
+    }
   };
 
   const handleDetachClick = () => {
@@ -112,6 +119,7 @@ const HighlightItem = ({
     <HighlightForm
       highlight={_highlight}
       setHighlight={_setHighlight}
+      onAction={onUpdate}
       onClose={() => setIsEditing(false)}
     />
   );
@@ -119,14 +127,14 @@ const HighlightItem = ({
   const avatar = (
     <Avatar
       className={clsx("highlight-item-avatar", isMobile && "mobile")}
-      alt={_highlight.createdBy?.toString()}
+      alt={_highlight?.createdBy?.toString()}
       src={""}
     />
   );
 
   const username = (
     <Typography className="highlight-item-username">
-      {_highlight.createdBy?.username}
+      {_highlight?.createdBy?.username}
     </Typography>
   );
 

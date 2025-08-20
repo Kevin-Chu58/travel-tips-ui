@@ -1,0 +1,16 @@
+.trip-profile-fab-comp-tool-fab.MuiFab-root {
+  display: none;
+
+  &.delete {
+    color: white;
+    background-color: black;
+
+    &:hover {
+      background-color: var(--grey-800);
+    }
+  }
+
+  &.visible {
+    display: flex;
+  }
+}

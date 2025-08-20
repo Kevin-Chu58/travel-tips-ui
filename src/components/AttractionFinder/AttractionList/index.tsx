@@ -1,9 +1,9 @@
 import TTButton from "@components/TTButton";
 import { useIsMobile } from "@hooks/useIsMobile";
 import { Box, Chip, Divider, Typography } from "@mui/material";
+import type { AttractionV2 } from "@services/attractions";
 import React from "react";
 import "./index.scss";
-import type { AttractionV2 } from "@services/attractions";
 
 type AttractionListProps = {
   result: AttractionV2[];

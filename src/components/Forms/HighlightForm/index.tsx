@@ -87,7 +87,7 @@ const HighlightForm = ({
   };
 
   const handleUpdate = async () => {
-    const trimedDescription = _description.trim();
+    const trimedDescription = actualDescription.trim();
     const isChanged = highlight?.description !== trimedDescription;
 
     if (isChanged && token && highlight && highlight.description) {
