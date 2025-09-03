@@ -54,13 +54,48 @@
 .trip-profile-tao-comp-highlight-helper-text.MuiTypography-root {
   white-space: pre-wrap;
   text-align: center;
-  // font-family: tagesschrift;
 }
 
 .trip-profile-tao-comp-highlight-button-box {
   display: flex;
   justify-content: center;
   gap: 1rem;
+}
+
+.trip-profile-tao-comp-selected-transport-mode.Mui-selected {
+  background-color: var(--info-100) !important;
+}
+
+.trip-profile-tao-comp-accordion.MuiAccordion-root {
+  box-shadow: none;
+
+  &.Mui-expanded {
+    margin: 0;
+
+    &::before {
+      opacity: 1;
+    }
+  }
+}
+
+.trip-profile-tao-comp-accordion-summary .MuiAccordionSummary-content {
+  &.Mui-expanded {
+    margin: 12px 0;
+  }
+}
+
+.trip-profile-tao-comp-accordion-summary-box {
+  display: flex;
+  flex-direction: column;
+}
+
+.trip-profile-tao-comp-accordion-summary-inner-box {
+  display: flex;
+  gap: .5rem;
+}
+
+.trip-profile-tao-comp-accordion-summary-transport-mode {
+  text-transform: capitalize;
 }
 
 .trip-profile-tao-comp-link-box {

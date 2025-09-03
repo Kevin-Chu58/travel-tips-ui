@@ -4,6 +4,7 @@
 .trip-card-box {
   width: 240px;
   cursor: pointer;
+  gap: .5rem;
 }
 
 .trip-card-image-box {
@@ -69,4 +70,15 @@
 .trip-card-num-days {
   font-size: .9rem;
   color: dimgrey;
+}
+
+.trip-card-delete-chip.MuiChip-root {
+  &:hover {
+    color: var(--error-100);
+    background-color: var(--error-main);
+
+    .MuiChip-icon {
+      color: var(--error-100);
+    }
+  }
 }

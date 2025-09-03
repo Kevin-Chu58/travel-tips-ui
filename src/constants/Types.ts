@@ -1,7 +1,6 @@
 // This file includes all types that are UI-related which are not directly related with API requests
 
 import type { JSX } from "react";
-import type { MapRouteType } from "./Maps";
 import type { Dayjs } from "dayjs";
 import type { SxProps } from "@mui/material";
 
@@ -80,15 +79,13 @@ export type TaoParams = TaoId & {
 export type RouteOptionParams = {
   name: string;
   element: JSX.Element;
-  routeType: MapRouteType;
+  routeType: string;
 };
 
 export type Route = {
   polyline?: string;
   groupId?: number;
   color?: string;
-  focusColor?: string;
-  weight?: number;
 };
 
 // map

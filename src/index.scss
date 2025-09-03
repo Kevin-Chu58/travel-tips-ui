@@ -69,6 +69,18 @@
   --success-800: #2e7d32;
   --success-900: #1b5e20;
 
+  --error-main: #f44336;
+  --error-50: #ffebee;
+  --error-100: #ffcdd2;
+  --error-200: #ef9a9a;
+  --error-300: #e57373;
+  --error-400: #ef5350;
+  --error-500: #f44336;
+  --error-600: #e53935;
+  --error-700: #d32f2f;
+  --error-800: #c62828;
+  --error-900: #b71c1c;
+
   [data-theme="dark"] {
     /* Dark mode overrides */
     --grey-main: #2a2a2a;
@@ -128,6 +140,18 @@
     --success-700: #a5d6a7;
     --success-800: #c8e6c9;
     --success-900: #e8f5e9;
+
+    --error-main: #f44336;
+    --error-50: #ffebee;
+    --error-100: #ffcdd2;
+    --error-200: #ef9a9a;
+    --error-300: #e57373;
+    --error-400: #ef5350;
+    --error-500: #f44336;
+    --error-600: #e53935;
+    --error-700: #d32f2f;
+    --error-800: #c62828;
+    --error-900: #b71c1c;
   }
 }
 

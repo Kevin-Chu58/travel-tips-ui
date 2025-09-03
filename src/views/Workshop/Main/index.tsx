@@ -1,6 +1,6 @@
 import { Box, Container, Drawer, Fab, Typography } from "@mui/material";
 import { type Trip } from "@services/trips";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import AddIcon from "@mui/icons-material/Add";
 import type { NavTab } from "@constants/Types";
 import { Headers } from "@constants/Layouts";
@@ -22,6 +22,7 @@ const Main = () => {
   // basic strcutures
   const [navTabValue, setNavTabValue] = useState<number>(0);
   // Trips
+  const tripsRef = useRef<Trip[]>([]);
   const [trips, setTrips] = useState<Trip[]>([]);
   const [areTripsUpdated, setAreTripsUpdated] = useState<boolean>(false);
   // Highlights
@@ -58,6 +59,11 @@ const Main = () => {
     setSelected([]);
   }, [navTabValue]);
 
+  const asyncTrips = (trips: Trip[]) => {
+    tripsRef.current = trips;
+    setTrips(trips);
+  };
+
   const navTabs = [
     {
       name: "Trips",
@@ -88,7 +94,8 @@ const Main = () => {
           setSortTypeIndex={setSortTypeIndex}
           selected={selected}
           setSelected={setSelected}
-          setTrips={setTrips}
+          tripsRef={tripsRef}
+          asyncTrips={asyncTrips}
           isUpdated={areTripsUpdated}
           setIsUpdated={renderTrips}
         />

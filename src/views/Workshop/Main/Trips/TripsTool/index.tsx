@@ -22,7 +22,8 @@ type TripsToolProps = {
   setSortTypeIndex: (state: number) => void;
   selected: number[];
   setSelected: (state: number[]) => void;
-  setTrips: (state: Trip[] | ((prevState: Trip[]) => Trip[])) => void;
+  tripsRef: React.RefObject<Trip[]>;
+  asyncTrips: (state: Trip[]) => void;
   isUpdated: boolean;
   setIsUpdated: () => void;
 };
@@ -32,7 +33,8 @@ const TripsTool = ({
   setSortTypeIndex,
   selected,
   setSelected,
-  setTrips,
+  tripsRef,
+  asyncTrips,
   isUpdated,
   setIsUpdated,
 }: TripsToolProps) => {
@@ -44,7 +46,7 @@ const TripsTool = ({
     const getMyTrips = async () => {
       if (token) {
         const myTrips = await tripsService.getMyTrips(token);
-        setTrips(SortUtils.sortList(myTrips, sortTypes, sortTypeIndex));
+        asyncTrips(SortUtils.sortList(myTrips, sortTypes, sortTypeIndex));
       }
     };
     getMyTrips();
@@ -52,9 +54,7 @@ const TripsTool = ({
 
   // rerender on sortTypeIndex to request sorting
   useEffect(() => {
-    setTrips((prevTrips) =>
-      SortUtils.sortList([...prevTrips], sortTypes, sortTypeIndex)
-    );
+    asyncTrips(SortUtils.sortList(tripsRef.current, sortTypes, sortTypeIndex));
   }, [sortTypeIndex]);
 
   const handlePublish = async (isPublished: boolean) => {

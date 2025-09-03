@@ -59,13 +59,13 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
   // day
   const [day, setDay] = useState<Day | undefined>();
   // taos
-  const taoMap = useRef(new Map<number, Tao[]>());
+  const taoMap = useRef(new Map<number, Tao[]>()); // day.id => tao[]
   const [taos, setTaos] = useState<Tao[] | undefined>();
   const [areTaosAsync, setAreTaosAsync] = useState<boolean>(false);
   // tao
   const [tao, setTao] = useState<Tao | undefined>();
   // map
-  const routeResponseMap = useRef(new Map<number, HereRoutingResponse[]>());
+  const routeResponsesMap = useRef(new Map<number, HereRoutingResponse[]>()); // day.id => routing response[]
   const [routeResponses, setRouteResponses] = useState<
     HereRoutingResponse[] | undefined
   >();
@@ -105,22 +105,83 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
 
   const isOverview = !Boolean(dayId);
 
+  const initTrip = async () => {
+    if (tripId && token) {
+      setIsLoading(true);
+      getTripImages();
+
+      // get trip basic
+      let tripBasic = await tripsService.getMyTripById(Number(tripId), token);
+      setTripBasic(tripBasic);
+
+      BehaviorUtils.sleep();
+      setIsLoading(false);
+    }
+  };
+
+  const initTaos = async () => {
+    if (day?.id) {
+      // set taos & tao
+      let taos: Tao[] | undefined;
+      let isSameDay = prevDayId.current === day.id;
+      // try to get taos of a day from cache if day is switched
+      if (!isSameDay) taos = taoMap.current.get(day.id);
+      // if taos does not exist in taoMap, request it from API
+      if (isSameDay || !taos) {
+        taos = await taosService.getTaosByDayId(day.id, token ?? undefined);
+        taoMap.current.set(day.id, taos);
+      }
+      setTaos(taos);
+
+      // optional - also updates tao component if it is open
+      if (tao) {
+        updateTao(tao);
+      }
+
+      // set routes
+      // check routeResponsesMap first when switches from day to day
+      let routeResponses: HereRoutingResponse[] | undefined;
+      if (prevDayId.current !== day.id) {
+        routeResponses = routeResponsesMap.current.get(day.id);
+        setRouteResponses(routeResponses);
+      }
+
+      // if routeResponsesMap has no routing info for that day, get it from API
+      if (!routeResponses) {
+        routeResponses = await hereMapService.getRoutingsOnDay(day.id);
+        setRouteResponses(routeResponses);
+        routeResponsesMap.current.set(day.id, routeResponses);
+      }
+
+      prevDayId.current = day.id;
+
+      initRoutes(routeResponses);
+    } else {
+      setTaos(undefined);
+      setRoutes(undefined);
+      prevDayId.current = undefined;
+    }
+  };
+
+  const initRoutes = (routeResponses: HereRoutingResponse[]) => {
+    let routes = routeResponses
+        .map((res, i) =>
+          res.routes?.map((r) =>
+            r.sections?.map((s) => ({
+              polyline: s.polyline,
+              groupId: i,
+              color: s.transport?.color,
+            }))
+          )
+        )
+        .flat(2) as Route[];
+
+      setRoutes(routes);
+      setRouteResponses(routeResponses);
+  };
+
   // render trip on initiation
   useEffect(() => {
-    const initTrip = async () => {
-      if (tripId && token) {
-        setIsLoading(true);
-        getTripImages();
-
-        // get trip basic
-        let tripBasic = await tripsService.getMyTripById(Number(tripId), token);
-        setTripBasic(tripBasic);
-
-        BehaviorUtils.sleep();
-        setIsLoading(false);
-      }
-    };
-
     initTrip();
   }, [tripId, token, isTripBasicAsync, areDaysAsync]);
 
@@ -144,66 +205,22 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
   // rerender day on days update and navTabValue
   useEffect(() => {
     setDay(Boolean(navTabValue) ? days[navTabValue - 1] : undefined);
-    setTao(undefined);
+    updateTao(undefined);
   }, [navTabValue, days]);
 
   // rerender taos on day update
   useEffect(() => {
-    const initTaos = async () => {
-      if (day?.id) {
-        // set taos & tao
-        let taos: Tao[] | undefined;
-        taos = taoMap.current.get(day.id);
-        // if taos does not exist in taoMap, request it from API
-        if (!taos) {
-          taos = await taosService.getTaosByDayId(day.id, token ?? undefined);
-          taoMap.current.set(day.id, taos);
-        }
-        setTaos(taos);
-
-        // optional - also updates tao component if it is open
-        if (tao) {
-          let _tao = taos.find((t) => t.id === tao.id);
-          setTao(_tao);
-        }
-
-        // set routes
-        // check routeResponseMap first when switches from day to day
-        let routeResponses: HereRoutingResponse[] | undefined;
-        if (prevDayId.current !== dayId) {
-          routeResponses = routeResponseMap.current.get(day.id);
-        }
-
-        // if routeResponseMap has no routing info for that day, get it from API
-        if (!routeResponses) {
-          routeResponses = await hereMapService.searchRouting(day.id);
-          setRouteResponses(routeResponses);
-          routeResponseMap.current.set(day.id, routeResponses);
-        }
-
-        prevDayId.current = day.id;
-
-        let routes = routeResponses
-          .map((res, i) =>
-            res.routes?.map((r) =>
-              r.sections?.map((s) => ({
-                polyline: s.polyline,
-                groupId: i,
-                color: s.transport?.color,
-              }))
-            )
-          )
-          .flat(2) as Route[];
-
-        setRoutes(routes);
-      } else {
-        setTaos(undefined);
-        setRoutes(undefined);
-        prevDayId.current = undefined;
-      }
-    };
     initTaos();
   }, [day?.id, areTaosAsync]);
+
+  const updateTao = (tao: Tao | undefined) => {
+    if (!tao) {
+      setTao(undefined);
+    } else if (taos) {
+      let _tao = taos.find((t) => t.id === tao.id);
+      setTao(_tao);
+    }
+  };
 
   const overViewNavTab = {
     name: "Overview",
@@ -291,6 +308,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
                 />
               ) : (
                 <Box
+                // TODO - change to className
                   bgcolor="primary.main"
                   display="flex"
                   justifyContent="center"
@@ -347,7 +365,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
                 day={day}
                 taos={taos}
                 navTabValue={navTabValue}
-                setTao={setTao}
+                setTao={updateTao}
                 inputRef={inputRef}
                 setIsParentUpdated={() => setAreDaysAsync((prev) => !prev)}
                 setAreTaosUpdated={() => setAreTaosAsync((prev) => !prev)}
@@ -368,8 +386,12 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
             className={clsx("trip-profile-tao-box", Boolean(tao) && "display")}
           >
             <TaoComponent
+              taos={taos}
               tao={tao}
-              onClose={() => setTao(undefined)}
+              routeResponsesMapRef={routeResponsesMap}
+              routeResponses={routeResponses}
+              setRouteResponses={initRoutes}
+              onClose={() => updateTao(undefined)}
               setIsParentUpdated={() => setAreTaosAsync((prev) => !prev)}
             />
           </Box>
@@ -400,7 +422,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
             isOverview={isOverview}
             setOpenDeleteDayForm={setOpenDeleteDayForm}
             setOpenEditTaoForm={setOpenEditTaoForm}
-            setOpenDeleteTaoForm={setOpenEditTaoForm}
+            setOpenDeleteTaoForm={setOpenDeleteTaoForm}
           />
         </Box>
       </Box>

@@ -45,6 +45,10 @@ const secondToMinute = (seconds: number) => {
 
 const secondToMinuteStr = (seconds: number) => {
   const minutes = Math.round(seconds / 60);
+
+  if (seconds > 0 && minutes === 0)
+    return `${seconds} secs`;
+
   return `${minutes} min${minutes === 1 ? "" : "s"}`;
 };
 

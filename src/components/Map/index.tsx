@@ -160,10 +160,14 @@ const Map = React.memo(
         }
 
         // https://api.maptiler.com/maps/streets-v2/256/{z}/{x}/{y}@2x.png?key=${apiKey}
-        // L.tileLayer(
-        //   `https://api.maptiler.com/maps/streets-v2/256/{z}/{x}/{y}@2x.png?key=${apiKey}`,
-        //   {
-            L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        L.tileLayer(
+          `https://api.maptiler.com/maps/streets-v2/256/{z}/{x}/{y}@2x.png?key=${apiKey}`,
+          {
+            // L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            maxZoom: 18,
+            updateWhenIdle: true,      // load tiles only after user stops moving
+            updateWhenZooming: false,  // don’t load intermediate zoom tiles
+            keepBuffer: 1,
             attribution:
               '&copy; 2025 HERE | &copy; <a href="https://www.maptiler.com/copyright/" target="_blank" rel="noopener noreferrer">MapTiler</a> &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors',
           }
@@ -191,12 +195,10 @@ const Map = React.memo(
 
         // create polyline for each route coords array
         const polyline = L.polyline(coords as L.LatLngExpression[], {
-          color: mapRoute.color
-            ? mapRoute.color
-            : isFocused
-            ? "#1976d2"
+          color: isFocused
+            ? (mapRoute.color ?? "#1976d2")
             : "#bdbdbd",
-          weight: mapRoute.weight ?? 8,
+          weight: 8,
           opacity: 1,
         });
 
@@ -207,7 +209,7 @@ const Map = React.memo(
         polyline.addTo(mapInstanceRef.current!);
 
         // update the z-index
-        if (indexFocused !== i) polyline.bringToBack();
+        if (!isFocused) polyline.bringToBack();
       });
     };
 
@@ -268,7 +270,7 @@ const Map = React.memo(
 
       mapInstanceRef.current?.fitBounds(bounds, {
         padding: [20, 20],
-        maxZoom: markers.length === 1 ? markers[0].zoom : 14,
+        maxZoom: markers.length === 1 ? markers[0].zoom : 15,
       });
 
       if (focusId && focusMapShift) {

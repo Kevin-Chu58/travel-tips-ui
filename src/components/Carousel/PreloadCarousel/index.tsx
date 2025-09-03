@@ -11,6 +11,7 @@ import { useIsMobile } from "@hooks/useIsMobile";
 
 type PreloadCarouselProps = {
   images: Image[];
+  readonly?: boolean;
   onDelete?: (state: number) => void;
   interval?: number;
   height?: number;
@@ -19,6 +20,7 @@ type PreloadCarouselProps = {
 
 const PreloadCarousel = ({
   images,
+  readonly = false,
   onDelete = () => {},
   interval = 4000,
   height = 200,
@@ -40,11 +42,13 @@ const PreloadCarousel = ({
   const prevIndex = (index - 1 + images.length) % images.length;
   const nextIndex = (index + 1) % images.length;
 
-  const scrollToLeft = () => {
+  const scrollToLeft = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
     setIndex((prev) => (prev - 1 + images.length) % images.length);
   };
 
-  const scrollToRight = () => {
+  const scrollToRight = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
     setIndex((prev) => (prev + 1) % images.length);
   };
 
@@ -121,38 +125,34 @@ const PreloadCarousel = ({
       {(isHovered || isMobile) && (
         <React.Fragment>
           {/* scroll buttons */}
-          <Box
-            className="preload-carousel-scroll-left-button-box"
-          >
+          <Box className="preload-carousel-scroll-left-button-box">
             <TTIconButton
               className="preload-carousel-scroll-button"
-              onClick={scrollToLeft}
-              sx={{
-                
-              }}
+              onClick={(e) => scrollToLeft(e)}
+              sx={{}}
             >
               <KeyboardArrowLeftIcon />
             </TTIconButton>
           </Box>
-          <Box
-            className="preload-carousel-scroll-right-button-box"
-          >
+          <Box className="preload-carousel-scroll-right-button-box">
             <TTIconButton
-              onClick={scrollToRight}
+              onClick={(e) => scrollToRight(e)}
               className="preload-carousel-scroll-button"
             >
               <KeyboardArrowRightIcon />
             </TTIconButton>
           </Box>
           {/* delete button */}
-          <Box className="preload-carousel-delete-button-box">
-            <TTIconButton
-              onClick={() => onDelete(index)}
-              className="preload-carousel-scroll-button"
-            >
-              <DeleteOutlineIcon />
-            </TTIconButton>
-          </Box>
+          {!readonly ? (
+            <Box className="preload-carousel-delete-button-box">
+              <TTIconButton
+                onClick={() => onDelete(index)}
+                className="preload-carousel-scroll-button"
+              >
+                <DeleteOutlineIcon />
+              </TTIconButton>
+            </Box>
+          ) : undefined}
         </React.Fragment>
       )}
 

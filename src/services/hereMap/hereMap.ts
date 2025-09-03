@@ -21,9 +21,9 @@ export type Route = {
 export type Section = {
   id?: string;
   type?: string;
-  // preActions?: RouteAction[];
-  // postActions?: RouteAction[];
-  // actions?: RouteAction[];
+  preActions?: RouteAction[];
+  postActions?: RouteAction[];
+  actions?: RouteAction[];
   departure?: RouteEvent;
   arrival?: RouteEvent;
   summary?: RouteSummary;
@@ -119,13 +119,24 @@ const searchPlaceByName = async (
   );
 };
 
-const searchRouting = async (
+const getRoutingByTaoId = async (
+  taoId: number,
+): Promise<HereRoutingResponse | null> => {
+  return await http.get(
+    http.apiBaseURLs.api,
+    `hereMap/routing/${taoId}`,
+    undefined,
+    undefined,
+  );
+};
+
+const getRoutingsOnDay = async (
   dayId: number
 ): Promise<HereRoutingResponse[]> => {
 
   return await http.get(
     http.apiBaseURLs.api,
-    `hereMap/routing/${dayId}`,
+    `hereMap/routing/day/${dayId}`,
     undefined,
     undefined
   );
@@ -133,5 +144,6 @@ const searchRouting = async (
 
 export const hereMapService = {
   searchPlaceByName,
-  searchRouting,
+  getRoutingByTaoId,
+  getRoutingsOnDay,
 };

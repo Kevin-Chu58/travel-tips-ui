@@ -25,6 +25,7 @@ const Trips = ({
         <TripCard
           key={`trip-${trip.id}`}
           trip={trip}
+          setIsParentUpdated={setIsUpdated}
         />
       ))}
       <Grid size={12} height={4} />

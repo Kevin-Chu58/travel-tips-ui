@@ -8,34 +8,6 @@ import L from "leaflet";
 
 export type Direction = "N" | "E" | "S" | "W";
 
-export type LRSide = "left" | "right";
-
-export type OsmType = "node" | "way" | "relation";
-
-export type OsrmRouteType = "driving" | "walking" | "cycling";
-
-export type MapRouteType = OsrmRouteType | "custom";
-
-export const OsmTypes: Record<OsmType, string> = {
-  node: "location",
-  way: "area",
-  relation: "region",
-};
-
-export const OsmTypePrefixes: Record<OsmType, string> = {
-  node: "N",
-  way: "W",
-  relation: "R",
-};
-
-export type OsrmCode =
-  | "Ok"
-  | "Bad Request"
-  | "Not Found"
-  | "Too Many Requests"
-  | "Internal Server Error"
-  | "Not Implemented";
-
 export const GoogleMapLink = "https://www.google.com/maps/search/?api=1&query=";
 
 // different color markers
@@ -86,9 +58,10 @@ export const OrangeIcon = new L.Icon({
   shadowSize: [41, 41],
 });
 
-export const MapPin = (color: string = "var(--grey-600)") => new L.DivIcon({
-  html: `
-    <svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+export const MapPin = (color: string = "var(--grey-700)") =>
+  new L.DivIcon({
+    html: `
+    <svg width="36" height="36" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
       <g transform="scale(1.4)">
         <defs>
           <filter id="pinShadow" x="-50%" y="-50%" width="200%" height="200%">
@@ -96,7 +69,7 @@ export const MapPin = (color: string = "var(--grey-600)") => new L.DivIcon({
               dx="1"
               dy="1"
               stdDeviation="2"
-              flood-color="rgba(0,0,0,.7)"
+              flood-color="rgba(0,0,0,.5)"
             />
           </filter>
         </defs>
@@ -107,7 +80,7 @@ export const MapPin = (color: string = "var(--grey-600)") => new L.DivIcon({
       </g>
     </svg>
   `,
-  className: "neat-pin",
-  iconSize: [24, 36],
-  iconAnchor: [12, 28], // anchor at tip
-});
+    className: "neat-pin",
+    iconSize: [24, 36],
+    iconAnchor: [12, 28], // anchor at tip
+  });

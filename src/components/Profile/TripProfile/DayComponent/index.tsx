@@ -44,10 +44,6 @@ const DayComponent = ({
   // day title
   const [dayTitle, setDayTitle] = useState<string | undefined>();
   const [openDayTitle, setOpenDayTitle] = useState<boolean>(false);
-  // button group
-  // const [groupFocus, setGroupFocus] = useState<string>(
-  //   buttonGroupItems[0].name
-  // );
   // others
   const token = useSelector((state: RootState) => state.auth.accessToken);
 
