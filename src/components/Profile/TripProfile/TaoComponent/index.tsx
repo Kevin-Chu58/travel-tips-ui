@@ -26,11 +26,15 @@ import { useSelector } from "react-redux";
 import type { RootState } from "@redux/store";
 import { enqueueSnackbar } from "notistack";
 import TTButton from "@components/TTButton";
-import { hereMapService, type HereRoutingResponse } from "@services/hereMap/hereMap";
+import {
+  hereMapService,
+  type HereRoutingResponse,
+} from "@services/hereMap/hereMap";
 import DistanceUtils from "@utils/DistanceUtils";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import "./index.scss";
 import ActionSpan from "@components/ActionSpan";
+import "./index.scss";
+import DirectionAccordion from "@components/Accordions/DirectionAccordion";
 
 type TaoComponentProps = {
   taos: Tao[] | undefined;
@@ -61,7 +65,9 @@ const TaoComponent = ({
   const [description, setDescription] = useState<string>("");
   const [isCreating, setIsCreating] = useState<boolean>(false);
   // transport mode
-  const [transportMode, setTransportMode] = useState<string>(tao?.transportMode ?? TransportModes[0]);
+  const [transportMode, setTransportMode] = useState<string>(
+    tao?.transportMode ?? TransportModes[0]
+  );
   // open form states
   const [openDiscoverHighlights, setOpenDiscoverHighlights] =
     useState<boolean>(false);
@@ -70,6 +76,9 @@ const TaoComponent = ({
 
   const taoIndex = taos?.findIndex((t) => t.id === tao?.id);
   const routeResponse = taoIndex ? routeResponses?.at(taoIndex - 1) : undefined;
+  const formatedSections = routeResponse
+    ? MapUtils.mergeRoutingSections(routeResponse.routes![0])
+    : undefined;
 
   // rerender _tao on tao when is defined
   useEffect(() => {
@@ -156,10 +165,12 @@ const TaoComponent = ({
         });
 
         setTransportMode(newTransportMode);
-        
-        let updatedRouteResponse = await hereMapService.getRoutingByTaoId(tao.id);
+
+        let updatedRouteResponse = await hereMapService.getRoutingByTaoId(
+          tao.id
+        );
         if (!updatedRouteResponse) {
-          updatedRouteResponse = {routes: []};
+          updatedRouteResponse = { routes: [] };
         }
 
         let routeResponses = routeResponsesMapRef.current.get(tao.dayId);
@@ -169,7 +180,6 @@ const TaoComponent = ({
           routeResponsesMapRef.current.set(tao.dayId, routeResponses);
           setRouteResponses(routeResponses);
         }
-
       } catch (e) {
         if (e instanceof Error) {
           enqueueSnackbar(e.message, { variant: "error" });
@@ -309,76 +319,9 @@ const TaoComponent = ({
                   Routing information © HERE
                 </Typography>
                 {/* direction - time, distance, actions, agency, etc. */}
-                {(routeResponse?.routes?.at(0)?.sections ?? []).map(
-                  (section) => {
-                    let isExpandable = section.actions ?
-                      section.actions.filter(
-                        (action) => action.instruction !== null
-                      ).length > 0 : false;
-                    return (
-                      <Accordion
-                        key={`tao-${tao?.id}-section-${section.id}`}
-                        className="trip-profile-tao-comp-accordion"
-                        expanded={isExpandable ? undefined : false}
-                      >
-                        <AccordionSummary
-                          className="trip-profile-tao-comp-accordion-summary"
-                          expandIcon={
-                            isExpandable ? <ExpandMoreIcon /> : undefined
-                          }
-                        >
-                          <Box className="trip-profile-tao-comp-accordion-summary-box">
-                            <Box className="trip-profile-tao-comp-accordion-summary-inner-box">
-                              {/* transport mode */}
-                              <Typography>
-                                <ActionSpan
-                                  className="trip-profile-tao-comp-accordion-summary-transport-mode"
-                                  textColor={section.transport?.textColor}
-                                  fillColor={section.transport?.color}
-                                >
-                                  {section.transport?.name ??
-                                    section.transport?.mode}
-                                </ActionSpan>
-                              </Typography>
-                              {/* agency name */}
-                              <Typography
-                                component="a"
-                                href={section.agency?.website}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                              >
-                                {section.agency?.name}
-                              </Typography>
-                            </Box>
-                            <Box display="flex" gap={1}>
-                              {/* distance */}
-                              <Typography>
-                                {DistanceUtils.meterToKmStr(
-                                  section.summary?.length ??
-                                    section.travelSummary?.length!
-                                )}
-                              </Typography>
-                              {/* time */}
-                              <Typography>
-                                {TimeUtils.secondToMinuteStr(
-                                  section.summary?.duration ??
-                                    section.travelSummary?.duration!
-                                )}
-                              </Typography>
-                            </Box>
-                          </Box>
-                        </AccordionSummary>
-                        <AccordionDetails>
-                          {section.actions?.map((action) => (
-                            <Typography key={`action-${action.offset}`}>
-                              {action.instruction}
-                            </Typography>
-                          ))}
-                        </AccordionDetails>
-                      </Accordion>
-                    );
-                  }
-                )}
+                {(formatedSections ?? []).map((section) => (
+                  <DirectionAccordion section={section} />
+                ))}
               </Box>
             </Box>
           </React.Fragment>

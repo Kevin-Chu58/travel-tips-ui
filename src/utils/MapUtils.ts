@@ -1,5 +1,10 @@
 import { GoogleMapLink, type Direction } from "@constants/Maps";
 import type { GeoCoordinate } from "@constants/Types";
+import type {
+  HereRoutingResponse,
+  Route,
+  Section,
+} from "@services/hereMap/hereMap";
 import L from "leaflet";
 
 const extractAddress = (address: any) => {
@@ -100,12 +105,57 @@ const getCurrentLocation = (): Promise<GeoCoordinate> => {
   });
 };
 
+const mergeRoutingSections = (route: Route) => {
+  const mergedSections: Section[] = [];
+  let pedestrianBuffer: Section[] = [];
+
+  function flushPedestrianBuffer() {
+    if (pedestrianBuffer.length === 0) return;
+
+    const merged: Section = {
+      id: undefined,
+      transport: {mode: "pedestrian"},
+      travelSummary: { duration: 0, length: 0 },
+      actions: [],
+    };
+
+    // Collect travelSummary and actions (also id)
+    for (const sec of pedestrianBuffer) {
+      merged.id = merged.id ?? sec.id;
+      merged.travelSummary!.duration += sec.travelSummary?.duration ?? 0;
+      merged.travelSummary!.length += sec.travelSummary?.length ?? 0;
+
+      if (sec.actions) {
+        merged.actions!.push(...sec.actions);
+      }
+    }
+
+    mergedSections.push(merged);
+    pedestrianBuffer = [];
+  }
+
+  for (const section of route.sections!) {
+    if (section.type === "pedestrian") {
+      pedestrianBuffer.push(section);
+    } else {
+      flushPedestrianBuffer();
+      mergedSections.push(section);
+    }
+  }
+
+  // flush remaining pedestrian sections at the end
+  flushPedestrianBuffer();
+
+  return mergedSections;
+};
+
 const MapUtils = {
   extractAddress,
   getGoogleMapLink,
   getLatLngDelta,
   resultTypeToZoom,
   getCurrentLocation,
+  mergeRoutingSections,
 };
 
 export default MapUtils;
