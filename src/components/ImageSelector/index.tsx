@@ -14,12 +14,13 @@ import { enqueueSnackbar } from "notistack";
 import LibraryDialog from "./LibraryDialog";
 import CropperDialog from "./CropperDialog";
 import "./index.scss";
+import type { Image } from "@services/images";
 
 type ImageSelectorProps = {
   tripId?: number;
   imageIds: number[];
   disabled?: boolean;
-  setIsParentUpdated?: () => void;
+  syncAddImage: (state: Image) => void;
   children: ReactNode;
 };
 
@@ -27,7 +28,7 @@ const ImageSelector = ({
   tripId,
   imageIds,
   disabled = false,
-  setIsParentUpdated,
+  syncAddImage,
   children,
 }: ImageSelectorProps) => {
   // popover
@@ -142,7 +143,7 @@ const ImageSelector = ({
         onClose={handleCloseLibraryDialog}
         imageIds={imageIds}
         tripId={tripId}
-        setIsParentUpdated={setIsParentUpdated}
+        syncAddImage={syncAddImage}
       />
 
       {/* dialog - cropper */}
@@ -151,7 +152,7 @@ const ImageSelector = ({
         onClose={handleCloseCropperDialog}
         imageSrc={imageSrc}
         tripId={tripId}
-        setIsParentUpdated={setIsParentUpdated}
+        syncAddImage={syncAddImage}
       />
     </React.Fragment>
   );

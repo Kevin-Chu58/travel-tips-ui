@@ -10,25 +10,28 @@ import {
 import AddIcon from "@mui/icons-material/Add";
 import { useState } from "react";
 import { Sunrise } from "react-feather";
-import "./index.scss";
 import { useSelector } from "react-redux";
 import type { RootState } from "@redux/store";
 import { enqueueSnackbar } from "notistack";
 import { daysService } from "@services/days";
 import { BehaviorUtils } from "@utils/BehaviorUtils";
+import type { Trip } from "@services/trips";
+import "./index.scss";
 
 type AddDayFormProps = {
   tripId?: number;
+  tripBasicRef: React.RefObject<Trip | undefined>;
+  syncTrip: () => void;
   open: boolean;
   onClose: () => void;
-  setIsParentUpdated?: () => void;
 };
 
 const AddDayForm = ({
   tripId,
+  tripBasicRef,
+  syncTrip,
   open,
   onClose,
-  setIsParentUpdated,
 }: AddDayFormProps) => {
   // params
   const [title, setTitle] = useState<string>("");
@@ -58,9 +61,11 @@ const AddDayForm = ({
         await daysService.postNewDay(token, tripId, trimmedTitle);
 
         BehaviorUtils.sleep();
-        enqueueSnackbar("Successfully create a day.", { variant: "success" });
 
-        if (setIsParentUpdated) setIsParentUpdated();
+        tripBasicRef.current!.numDays! += 1;
+        syncTrip();
+        
+        enqueueSnackbar("Successfully create a day.", { variant: "success" });
       } catch (e) {
         if (e instanceof Error) {
           enqueueSnackbar(e.message, { variant: "error" });

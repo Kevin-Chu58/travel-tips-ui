@@ -103,7 +103,7 @@ const postTripImage = async (
   tripId: number,
   imageId: number,
   token: string
-): Promise<ImageRelation> => {
+): Promise<Image> => {
   return await http.post(
     http.apiBaseURLs.api,
     `trips/${tripId}/image/${imageId}`,

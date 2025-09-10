@@ -1,9 +1,6 @@
 import TTIconButton from "@components/TTIconButton";
 import CloseIcon from "@mui/icons-material/Close";
 import {
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
   Box,
   Chip,
   Divider,
@@ -22,6 +19,7 @@ import HighlightItem from "@components/Item/HighlightItem";
 import { highlightsService, type Highlight } from "@services/highlights";
 import HighlightForm from "@components/Forms/HighlightForm";
 import DiscoverHighlightsForm from "@components/Forms/DiscoverHighlightsForm";
+import DirectionAccordion from "@components/Accordions/DirectionAccordion";
 import { useSelector } from "react-redux";
 import type { RootState } from "@redux/store";
 import { enqueueSnackbar } from "notistack";
@@ -30,11 +28,7 @@ import {
   hereMapService,
   type HereRoutingResponse,
 } from "@services/hereMap/hereMap";
-import DistanceUtils from "@utils/DistanceUtils";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import ActionSpan from "@components/ActionSpan";
 import "./index.scss";
-import DirectionAccordion from "@components/Accordions/DirectionAccordion";
 
 type TaoComponentProps = {
   taos: Tao[] | undefined;
@@ -42,9 +36,9 @@ type TaoComponentProps = {
   routeResponsesMapRef: React.RefObject<Map<number, HereRoutingResponse[]>>;
   routeResponses: HereRoutingResponse[] | undefined;
   setRouteResponses: (state: HereRoutingResponse[]) => void;
+  syncEditDayTaos: (state: Tao) => void;
   onClose: () => void;
   readonly?: boolean;
-  setIsParentUpdated: () => void;
 };
 
 const TaoComponent = ({
@@ -53,15 +47,15 @@ const TaoComponent = ({
   routeResponsesMapRef,
   routeResponses,
   setRouteResponses,
+  syncEditDayTaos,
   onClose,
   readonly = false,
-  setIsParentUpdated,
 }: TaoComponentProps) => {
   // tao
   const [_tao, _setTao] = useState<Tao | undefined>();
   const attraction = _tao?.attraction;
   // highlight
-  const [_highlight, _setHighlight] = useState<Highlight | undefined>();
+  const [highlight, setHighlight] = useState<Highlight | undefined>();
   const [description, setDescription] = useState<string>("");
   const [isCreating, setIsCreating] = useState<boolean>(false);
   // transport mode
@@ -84,10 +78,12 @@ const TaoComponent = ({
   useEffect(() => {
     if (tao) {
       _setTao(tao);
-      _setHighlight(tao.highlight);
+      setHighlight(tao.highlight);
       setTransportMode(tao.transportMode ?? TransportModes[0]);
+
+      console.log(tao);
     }
-  }, [tao]);
+  }, [tao?.id, tao?.attraction.id, tao?.highlight?.id, tao?.start, tao?.end]);
 
   const handlePostHighlight = async () => {
     if (isCreating && tao && description && token) {
@@ -107,13 +103,25 @@ const TaoComponent = ({
           highlightId: newHighlight.id,
         };
 
-        // TODO - make patchTao return whether the order or attraction has changed (a boolean)
-        await taosService.patchTao(tao.id, taoPatch, token);
+        let updatedTao = await taosService.patchTao(tao.id, taoPatch, token);
+        syncEditDayTaos(updatedTao);
 
         enqueueSnackbar("Successfully created highlight for this event.", {
           variant: "success",
         });
-        setIsParentUpdated();
+      } catch (e) {
+        if (e instanceof Error) {
+          enqueueSnackbar(e.message, { variant: "error" });
+        }
+      }
+    }
+  };
+
+  const handleUpdateHighlight = async () => {
+    if (tao && token) {
+      try {
+        let updatedTao = await taosService.getTaoById(tao.id, tao.dayId);
+        syncEditDayTaos(updatedTao);
       } catch (e) {
         if (e instanceof Error) {
           enqueueSnackbar(e.message, { variant: "error" });
@@ -125,14 +133,10 @@ const TaoComponent = ({
   const handleDetachHighlight = async () => {
     if (tao && token) {
       try {
-        let _tao = {
-          highlightId: undefined,
-        };
 
-        await taosService.patchTao(tao.id, _tao, token);
+        let updatedTao = await taosService.patchTaoDetachHighlight(tao.id, token);
+        syncEditDayTaos(updatedTao);
 
-        // TODO - edit taos and remove the highlight of the tao
-        setIsParentUpdated();
         enqueueSnackbar("Successfully detached highlight.", {
           variant: "success",
         });
@@ -191,7 +195,7 @@ const TaoComponent = ({
   const handleClose = () => {
     onClose();
     setDescription("");
-    _setHighlight(undefined);
+    setHighlight(undefined);
   };
 
   return (
@@ -232,7 +236,7 @@ const TaoComponent = ({
         </Box>
 
         {/* highlight */}
-        {_highlight?.description ? (
+        {highlight?.description ? (
           <React.Fragment>
             <Divider flexItem />
             <Box>
@@ -240,9 +244,9 @@ const TaoComponent = ({
                 Highlight
               </Typography>
               <HighlightItem
-                highlight={_highlight}
+                highlight={highlight}
                 isLast={true}
-                onUpdate={setIsParentUpdated}
+                onUpdate={handleUpdateHighlight}
                 onDelete={undefined}
                 onDetach={handleDetachHighlight}
               />
@@ -320,7 +324,7 @@ const TaoComponent = ({
                 </Typography>
                 {/* direction - time, distance, actions, agency, etc. */}
                 {(formatedSections ?? []).map((section) => (
-                  <DirectionAccordion section={section} />
+                  <DirectionAccordion key={section.id} section={section} />
                 ))}
               </Box>
             </Box>
@@ -351,7 +355,7 @@ const TaoComponent = ({
         tao={tao}
         open={openDiscoverHighlights}
         onClose={() => setOpenDiscoverHighlights(false)}
-        setIsParentUpdated={setIsParentUpdated}
+        syncEditDayTaos={syncEditDayTaos}
       />
     </Box>
   );

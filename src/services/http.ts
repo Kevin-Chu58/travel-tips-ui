@@ -140,11 +140,9 @@ const makeRequest = async <TResponse>(
   headers?: Headers,
   token?: string
 ): Promise<TResponse> => {
-  // console.log(`${method} request to endpoint ${endpoint}`);
   const response = await fetch(`${apiBaseURL}/${endpoint}`, {
     method,
-    body,
-    // headers: headers ?? new Headers(),
+    body: body as BodyInit,
     headers: await handleAuthHeader(headers ?? new Headers(), token),
   });
 

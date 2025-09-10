@@ -18,10 +18,12 @@ const TTTabs = ({ navTabValue, navTabs, setNavTabValue }: TTTabsProps) => {
     if (navigateTo) navigate(navigateTo);
   };
 
+  const adjustedNavTabValue = navTabValue < navTabs.length ? navTabValue : 0;
+
   return (
     <Tabs
       className="TTTabs-tabs"
-      value={navTabValue}
+      value={adjustedNavTabValue}
       onChange={(_, val) => handleChange(val)}
       variant="scrollable"
     >

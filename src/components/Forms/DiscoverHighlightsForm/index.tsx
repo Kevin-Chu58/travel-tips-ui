@@ -16,16 +16,16 @@ import "./index.scss";
 
 type DiscoverHighlightsFormProps = {
   tao: Tao | undefined;
+  syncEditDayTaos: (state: Tao) => void;
   open: boolean;
   onClose: () => void;
-  setIsParentUpdated: () => void;
 };
 
 const DiscoverHighlightsForm = ({
   tao,
+  syncEditDayTaos,
   open,
   onClose,
-  setIsParentUpdated,
 }: DiscoverHighlightsFormProps) => {
   // windows
   const isMobile = useIsMobile();
@@ -69,10 +69,10 @@ const DiscoverHighlightsForm = ({
 
         let taoPatch = { highlightId: selectedHighlightId };
 
-        await taosService.patchTao(tao.id, taoPatch, token);
+        let updatedTao = await taosService.patchTao(tao.id, taoPatch, token);
 
         await BehaviorUtils.sleep();
-        setIsParentUpdated();
+        syncEditDayTaos(updatedTao);
 
         enqueueSnackbar("Successfully attached highlight.", {
           variant: "success",
@@ -94,11 +94,15 @@ const DiscoverHighlightsForm = ({
 
   return (
     <TTDialog open={open} onClose={handleClose} hidePadding>
-      <Box className={clsx("discover-highlights-form-box", isMobile && "mobile")}>
+      <Box
+        className={clsx("discover-highlights-form-box", isMobile && "mobile")}
+      >
         <Box className="discover-highlights-form-content-box">
           {/* header */}
           <Box className="discover-highlights-form-header-box">
-            <Typography className="discover-highlights-form-large-text">Discover Highlights</Typography>
+            <Typography className="discover-highlights-form-large-text">
+              Discover Highlights
+            </Typography>
             <Typography>{attraction?.title}</Typography>
           </Box>
           <Divider flexItem />
@@ -106,14 +110,14 @@ const DiscoverHighlightsForm = ({
           {/* highlight list */}
           <Box className="discover-highlights-form-highlight-list-box">
             {highlights ? (
-            <HighlightsFragment
-              attraction={attraction}
-              highlights={highlights}
-              allowChangeHighlight={false}
-              selectHighlightId={selectedHighlightId}
-              setSelectHighlightId={setSelectHighlightId}
-            />
-          ) : undefined}
+              <HighlightsFragment
+                attraction={attraction}
+                highlights={highlights}
+                allowChangeHighlight={false}
+                selectHighlightId={selectedHighlightId}
+                setSelectHighlightId={setSelectHighlightId}
+              />
+            ) : undefined}
           </Box>
         </Box>
 

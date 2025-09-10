@@ -16,7 +16,7 @@ import { tripsService } from "@services/trips";
 import imageCompression from "browser-image-compression";
 import type { RootState } from "@redux/store";
 import { useSelector } from "react-redux";
-import { ImagesService } from "@services/images";
+import { ImagesService, type Image } from "@services/images";
 import { BehaviorUtils } from "@utils/BehaviorUtils";
 import clsx from "clsx";
 import "./index.scss";
@@ -26,7 +26,7 @@ type CropperDialogProps = {
   onClose: () => void;
   imageSrc: string | null;
   tripId?: number;
-  setIsParentUpdated?: () => void;
+  syncAddImage: (state: Image) => void;
 };
 
 const CropperDialog = ({
@@ -34,7 +34,7 @@ const CropperDialog = ({
   onClose,
   imageSrc = null,
   tripId,
-  setIsParentUpdated,
+  syncAddImage,
 }: CropperDialogProps) => {
   // window
   const isMobile = useIsMobile();
@@ -112,7 +112,14 @@ const CropperDialog = ({
           );
 
           if (tripId) {
-            await tripsService.postTripImage(tripId, imageViewModel.id, token);
+            let newImage = await tripsService.postTripImage(
+              tripId,
+              imageViewModel.id,
+              token
+            );
+
+            syncAddImage(newImage);
+
             enqueueSnackbar("Successfully uploaded image.", {
               variant: "success",
             });
@@ -124,9 +131,6 @@ const CropperDialog = ({
         }
       }
       BehaviorUtils.sleep();
-
-      // enforce reload on images
-      if (setIsParentUpdated) setIsParentUpdated();
 
       // close the dialog
       handleClose();
@@ -164,7 +168,12 @@ const CropperDialog = ({
           />
         </Box>
         {/* new image form */}
-        <Box className={clsx("cropper-dialog-image-form-box", isMobile && "mobile")}>
+        <Box
+          className={clsx(
+            "cropper-dialog-image-form-box",
+            isMobile && "mobile"
+          )}
+        >
           <Box>
             {/* name */}
             <Typography className="cropper-dialog-primary-text">

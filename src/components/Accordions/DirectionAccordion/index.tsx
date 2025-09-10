@@ -10,6 +10,7 @@ import ActionSpan from "@components/ActionSpan";
 import TimeUtils from "@utils/TimeUtils";
 import DistanceUtils from "@utils/DistanceUtils";
 import type { Section } from "@services/hereMap/hereMap";
+import { useState } from "react";
 import "./index.scss";
 
 type DirectionAccordionProps = {
@@ -17,19 +18,28 @@ type DirectionAccordionProps = {
 };
 
 const DirectionAccordion = ({ section }: DirectionAccordionProps) => {
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+
   let isExpandable = section.actions
-    ? section.actions.filter((action) => action.instruction !== null).length > 0
+    ? section.actions.some((action) => action.instruction !== null)
     : false;
+
+  const expandAccordionOnClick = () => {
+    if (isExpandable) {
+      setIsOpen((prev) => !prev);
+    }
+  };
 
   return (
     <Accordion
       key={`direction-accordion-section-${section.id}`}
       className="direction-accordion"
-      expanded={isExpandable ? undefined : false}
+      expanded={isOpen}
     >
       <AccordionSummary
         className="direction-accordion-summary"
         expandIcon={isExpandable ? <ExpandMoreIcon /> : undefined}
+        onClick={expandAccordionOnClick}
       >
         <Box className="direction-accordion-summary-box">
           <Box className="direction-accordion-summary-inner-box">

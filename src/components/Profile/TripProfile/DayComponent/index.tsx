@@ -25,8 +25,9 @@ type DayComponentProps = {
   taos: Tao[] | undefined;
   navTabValue: number;
   setTao: (state: Tao) => void;
-  setIsParentUpdated: () => void;
-  setAreTaosUpdated: () => void;
+  syncEditDay: (state: Day) => void;
+  syncAddDayTaos: (state: Tao) => void;
+  syncEditDayTaos: (state: Tao) => void;
   inputRef: React.RefObject<HTMLInputElement | null>;
 };
 
@@ -35,8 +36,9 @@ const DayComponent = ({
   taos,
   navTabValue,
   setTao,
-  setIsParentUpdated,
-  setAreTaosUpdated,
+  syncEditDay,
+  syncAddDayTaos,
+  syncEditDayTaos,
   inputRef,
 }: DayComponentProps) => {
   // window
@@ -59,13 +61,14 @@ const DayComponent = ({
 
       if (day?.title !== trimmedDayTitle && day?.id && token) {
         let dayPatch = { title: trimmedDayTitle };
-        await daysService.patchDay(day.id, dayPatch, token);
+        let updatedDay = await daysService.patchDay(day.id, dayPatch, token);
 
         BehaviorUtils.sleep();
+
+        syncEditDay(updatedDay);
         enqueueSnackbar("Successfully updated day title.", {
           variant: "success",
         });
-        setIsParentUpdated();
       }
     } catch (e) {
       if (e instanceof Error) {
@@ -168,7 +171,8 @@ const DayComponent = ({
               dayId={day?.id}
               taos={taos}
               setTao={setTao}
-              setIsParentUpdated={setAreTaosUpdated}
+              syncAddDayTaos={syncAddDayTaos}
+              syncEditDayTaos={syncEditDayTaos}
             />
           </Box>
       </Box>

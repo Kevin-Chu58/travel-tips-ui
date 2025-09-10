@@ -9,13 +9,13 @@ import { useSelector } from "react-redux";
 import type { RootState } from "@redux/store";
 import { tripsService, type Trip } from "@services/trips";
 import type { Tao } from "@services/taos";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import clsx from "clsx";
 import "./index.scss";
 
 type FabComponentProps = {
+  tripBasicRef: React.RefObject<Trip | undefined>;
   tripBasic: Trip | undefined;
-  setTripBasic: (state: Trip) => void;
   tao: Tao | undefined;
   isOverview: boolean;
   setOpenDeleteDayForm: (state: boolean) => void;
@@ -24,36 +24,47 @@ type FabComponentProps = {
 };
 
 const FabComponent = ({
+  tripBasicRef,
   tripBasic,
-  setTripBasic,
   tao,
   isOverview,
   setOpenDeleteDayForm,
   setOpenEditTaoForm,
   setOpenDeleteTaoForm,
 }: FabComponentProps) => {
+  // status
+  const [isPublished, setIsPublished] = useState<boolean>(false);
   // others
   const token = useSelector((state: RootState) => state.auth.accessToken);
 
+  useEffect(() => {
+    if (tripBasic) {
+      setIsPublished(tripBasic.isPublic);
+    }
+  }, [tripBasic])
+
   const togglePublishStatus = async () => {
-    if (tripBasic && token) {
+    if (tripBasicRef.current && token) {
       try {
+        let newPublishState = !(tripBasicRef.current.isPublic);
+
         await tripsService.patchTripIsPublic(
-          [tripBasic.id],
-          !tripBasic.isPublic,
+          [tripBasicRef.current.id],
+          newPublishState,
           token
         );
 
+        tripBasicRef.current.isPublic = newPublishState;
+        setIsPublished(newPublishState);
+
         enqueueSnackbar(
           `Successfully ${
-            tripBasic.isPublic ? "unpublished" : "published"
+            tripBasicRef.current.isPublic ? "published" : "unpublished"
           } the trip.`,
           {
             variant: "success",
           }
         );
-
-        setTripBasic({ ...tripBasic, isPublic: !tripBasic.isPublic });
       } catch (e) {
         if (e instanceof Error)
           enqueueSnackbar(e.message, { variant: "error" });
@@ -65,16 +76,23 @@ const FabComponent = ({
     <React.Fragment>
       {/* publish action - private/public status */}
       <ToolTip
-        title={tripBasic?.isPublic ? "Unpublish" : "Publish"}
+        title={tripBasicRef.current?.isPublic ? "Unpublish" : "Publish"}
         placement="right"
       >
         <Fab
           color="primary"
-          className={clsx("trip-profile-fab-comp-tool-fab", !Boolean(tao) && "visible")}
+          className={clsx(
+            "trip-profile-fab-comp-tool-fab",
+            !Boolean(tao) && "visible"
+          )}
           onClick={togglePublishStatus}
           size="medium"
         >
-          {tripBasic?.isPublic ? <VisibilityIcon /> : <VisibilityOffIcon />}
+          {isPublished ? (
+            <VisibilityIcon />
+          ) : (
+            <VisibilityOffIcon />
+          )}
         </Fab>
       </ToolTip>
 
@@ -82,7 +100,10 @@ const FabComponent = ({
       <ToolTip title="Edit event" placement="right">
         <Fab
           color="info"
-          className={clsx("trip-profile-fab-comp-tool-fab", Boolean(tao) && "visible")}
+          className={clsx(
+            "trip-profile-fab-comp-tool-fab",
+            Boolean(tao) && "visible"
+          )}
           onClick={() => setOpenEditTaoForm(true)}
           size="medium"
         >

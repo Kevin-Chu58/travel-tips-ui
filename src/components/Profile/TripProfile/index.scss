@@ -86,6 +86,12 @@ $trip-profile-content-width-mobile: 280px;
   }
 }
 
+.trip-profile-default-image-box {
+  background-color: var(--primary-main);
+  display: flex;
+  justify-content: center;
+}
+
 .trip-profile-tao-box {
   position: absolute;
   top: 0;

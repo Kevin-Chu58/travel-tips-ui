@@ -13,7 +13,6 @@ type DayPatch = {
 
 export type Day = DayPost & {
   id: number;
-  isOverNight: boolean;
 };
 
 const getDaysByTripId = async (
@@ -32,7 +31,7 @@ const postNewDay = async (
   token: string,
   tripId: number,
   title?: string
-): Promise<Day> => {
+): Promise<void> => {
   const body = JSON.stringify(title);
   return await http.post(
     http.apiBaseURLs.api,
@@ -58,7 +57,7 @@ const patchDay = async (
   );
 };
 
-const deleteDay = async (id: number, token: string): Promise<Day> => {
+const deleteDay = async (id: number, token: string): Promise<void> => {
   return await http.del(
     http.apiBaseURLs.api,
     `days/${id}`,

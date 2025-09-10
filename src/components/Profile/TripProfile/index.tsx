@@ -4,7 +4,7 @@ import { useIsMobile } from "@hooks/useIsMobile";
 import { Box } from "@mui/material";
 import type { RootState } from "@redux/store";
 import { type Trip, tripsService } from "@services/trips";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router";
 import { useSnackbar } from "notistack";
@@ -35,6 +35,8 @@ import UIShowButton from "@components/Button/UIShowButton";
 import FabComponent from "./FabComponent";
 import clsx from "clsx";
 import "./index.scss";
+import TimeUtils from "@utils/TimeUtils";
+import { isEqual } from "lodash";
 
 type TripProfileProps = {
   uri?: string;
@@ -49,23 +51,22 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
   // nav tab
   const [navTabValue, setNavTabValue] = useState<number>(0);
   // trip basic
+  const tripBasicRef = useRef<Trip | undefined>(undefined);
   const [tripBasic, setTripBasic] = useState<Trip | undefined>();
-  const [isTripBasicAsync, setIsTripBasicAsync] = useState<boolean>(false);
   // trip images
+  const imagesRef = useRef<Image[]>([]);
   const [images, setImages] = useState<Image[]>([]);
   // days
   const [days, setDays] = useState<Day[]>([]);
-  const [areDaysAsync, setAreDaysAsync] = useState<boolean>(false);
   // day
   const [day, setDay] = useState<Day | undefined>();
   // taos
-  const taoMap = useRef(new Map<number, Tao[]>()); // day.id => tao[]
+  const taosMapRef = useRef(new Map<number, Tao[]>()); // day.id => tao[]
   const [taos, setTaos] = useState<Tao[] | undefined>();
-  const [areTaosAsync, setAreTaosAsync] = useState<boolean>(false);
   // tao
   const [tao, setTao] = useState<Tao | undefined>();
   // map
-  const routeResponsesMap = useRef(new Map<number, HereRoutingResponse[]>()); // day.id => routing response[]
+  const routeResponsesMapRef = useRef(new Map<number, HereRoutingResponse[]>()); // day.id => routing response[]
   const [routeResponses, setRouteResponses] = useState<
     HereRoutingResponse[] | undefined
   >();
@@ -86,8 +87,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
   const correctUri = uri.length > 1 ? uri : "";
   const navigate = useNavigate();
 
-  const markers = useMemo(() => {
-    return (
+  const markers = 
       taos?.map((tao) => {
         return {
           id: String(tao.id),
@@ -96,9 +96,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
           lng: tao.attraction.lng,
           zoom: MapUtils.resultTypeToZoom(tao.attraction.resultType),
         };
-      }) ?? []
-    );
-  }, [taos]);
+      }) ?? [];
 
   const maxImageCount = 4;
   const isMaxImageCountReached = images.length === maxImageCount;
@@ -112,10 +110,58 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
 
       // get trip basic
       let tripBasic = await tripsService.getMyTripById(Number(tripId), token);
-      setTripBasic(tripBasic);
+      tripBasicRef.current = tripBasic;
+      syncTrip();
 
       BehaviorUtils.sleep();
       setIsLoading(false);
+    }
+  };
+
+  const getTripImages = async () => {
+    if (token) {
+      // get trip image
+      let tripImages = await tripsService.getImagesByTripId(
+        Number(tripId),
+        token
+      );
+      imagesRef.current = tripImages;
+      syncImages();
+    }
+  };
+
+  const deleteTripImage = async (index: number) => {
+    if (tripBasic && token) {
+      try {
+        let imageId = images[index].id;
+        await tripsService.deleteTripImage(tripBasic.id, imageId, token);
+
+        syncDetachImage(imageId);
+
+        enqueueSnackbar("Successfully detached image.", {
+          variant: "success",
+        });
+      } catch (e) {
+        if (e instanceof Error)
+          enqueueSnackbar(e.message, { variant: "error" });
+      }
+    }
+  };
+
+  const initDays = async () => {
+    if (tripId && token) {
+      // get days with trip id
+      let days = await daysService.getDaysByTripId(Number(tripId), token);
+      setDays(days);
+    }
+  };
+
+  const initTao = (tao: Tao | undefined) => {
+    if (!tao) {
+      setTao(undefined);
+    } else if (taos) {
+      let _tao = taos.find((t) => t.id === tao.id);
+      setTao(_tao);
     }
   };
 
@@ -125,77 +171,165 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
       let taos: Tao[] | undefined;
       let isSameDay = prevDayId.current === day.id;
       // try to get taos of a day from cache if day is switched
-      if (!isSameDay) taos = taoMap.current.get(day.id);
-      // if taos does not exist in taoMap, request it from API
+      if (!isSameDay) taos = taosMapRef.current.get(day.id);
+      // if taos does not exist in taosMapRef, request it from API
       if (isSameDay || !taos) {
         taos = await taosService.getTaosByDayId(day.id, token ?? undefined);
-        taoMap.current.set(day.id, taos);
+        taosMapRef.current.set(day.id, taos);
       }
       setTaos(taos);
 
       // optional - also updates tao component if it is open
       if (tao) {
-        updateTao(tao);
+        initTao(tao);
       }
-
-      // set routes
-      // check routeResponsesMap first when switches from day to day
-      let routeResponses: HereRoutingResponse[] | undefined;
-      if (prevDayId.current !== day.id) {
-        routeResponses = routeResponsesMap.current.get(day.id);
-        setRouteResponses(routeResponses);
-      }
-
-      // if routeResponsesMap has no routing info for that day, get it from API
-      if (!routeResponses) {
-        routeResponses = await hereMapService.getRoutingsOnDay(day.id);
-        setRouteResponses(routeResponses);
-        routeResponsesMap.current.set(day.id, routeResponses);
-      }
-
-      prevDayId.current = day.id;
-
-      initRoutes(routeResponses);
     } else {
       setTaos(undefined);
-      setRoutes(undefined);
       prevDayId.current = undefined;
     }
   };
 
-  const initRoutes = (routeResponses: HereRoutingResponse[]) => {
-    let routes = routeResponses
-        .map((res, i) =>
-          res.routes?.map((r) =>
-            r.sections?.map((s) => ({
-              polyline: s.polyline,
-              groupId: i,
-              color: s.transport?.color,
-            }))
-          )
-        )
-        .flat(2) as Route[];
+  const initRouteResponses = async () => {
+    if (day) {
+      // check routeResponsesMapRef first when switches from day to day
+      let routeResponses: HereRoutingResponse[] | undefined;
+      if (prevDayId.current !== day.id) {
+        // routeResponses = routeResponsesMapRef.current.get(day.id);
+        setRouteResponses(routeResponses);
+      }
 
-      setRoutes(routes);
-      setRouteResponses(routeResponses);
+      // if routeResponsesMapRef has no routing info for that day, get it from API
+      if (!routeResponses) {
+        routeResponses = await hereMapService.getRoutingsOnDay(day.id);
+        // setRouteResponses(routeResponses);
+        routeResponsesMapRef.current.set(day.id, routeResponses);
+      }
+
+      prevDayId.current = day.id;
+
+      await initRoutes(routeResponses);
+    } else {
+      setRoutes(undefined);
+    }
+  };
+
+  const initRoutes = async (routeResponses: HereRoutingResponse[]) => {
+    let routes = routeResponses
+      .map((res, i) =>
+        res.routes?.map((r) =>
+          r.sections?.map((s) => ({
+            polyline: s.polyline,
+            groupId: i,
+            color: s.transport?.color,
+          }))
+        )
+      )
+      .flat(2) as Route[];
+
+    setRoutes(routes);
+    setRouteResponses(routeResponses);
+  };
+
+  // ref sync functions
+
+  const syncTrip = () => {
+    setTripBasic(tripBasicRef.current);
+  };
+
+  const syncImages = () => {
+    setImages(imagesRef.current);
+  };
+
+  const syncAddImage = (image: Image) => {
+    imagesRef.current.push(image);
+    syncImages();
+  };
+
+  const syncDetachImage = (imageId: number) => {
+    imagesRef.current = imagesRef.current.filter((i) => i.id !== imageId);
+    syncImages();
+  };
+
+  // add day and delete day auto-reflects on daysRef by useEffect triggered on tripBasic.numDays
+
+  const syncEditDay = (day: Day) => {
+    let _days = [...days];
+    _days[navTabValue - 1] = day;
+    setDays(_days);
+  };
+
+  const syncAddDayTaos = (tao: Tao) => {
+    if (day) {
+      let dayTaos = taosMapRef.current.get(day.id);
+
+      if (dayTaos) {
+        dayTaos.push(tao);
+        TimeUtils.orderTaos(dayTaos);
+        
+        taosMapRef.current.set(day.id, dayTaos);
+        setTaos(dayTaos);
+
+        initRouteResponses();
+      }
+    }
+  };
+
+  const syncEditDayTaos = async (tao: Tao) => {
+    if (day) {
+      let dayTaos = taosMapRef.current.get(day.id);
+
+      if (dayTaos) {
+        let index = dayTaos.findIndex((_tao) => _tao.id === tao.id);
+        let isAttractionSame =
+          dayTaos[index].attraction.id === tao.attraction.id;
+        dayTaos[index] = tao;
+
+        taosMapRef.current.set(day.id, dayTaos);
+        setTaos(dayTaos);
+        setTao(tao);
+
+        if (!isAttractionSame) {
+          initRouteResponses();
+          return;
+        }
+
+        let prevTaoOrder = dayTaos.map((tao) => tao.id);
+        TimeUtils.orderTaos(dayTaos);
+        let currTaoOrder = dayTaos.map((tao) => tao.id);
+
+        let orderChanged = isEqual(prevTaoOrder, currTaoOrder);
+
+        if (orderChanged) {
+          initRouteResponses();
+        }
+      }
+    }
+  };
+
+  const syncDeleteDayTaos = (tao: Tao | undefined) => {
+    if (day && tao) {
+      let dayTaos = taosMapRef.current.get(day.id);
+
+      if (dayTaos) {
+        dayTaos = dayTaos.filter((t) => t.id !== tao.id);
+        taosMapRef.current.set(day.id, dayTaos);
+        setTaos(dayTaos);
+        setTao(undefined);
+
+        initRouteResponses();
+      }
+    }
   };
 
   // render trip on initiation
   useEffect(() => {
     initTrip();
-  }, [tripId, token, isTripBasicAsync, areDaysAsync]);
+  }, [tripId, token]);
 
   // rerender days on numDays
   useEffect(() => {
-    const initDays = async () => {
-      if (tripId && token) {
-        // get days with trip id
-        let days = await daysService.getDaysByTripId(Number(tripId), token);
-        setDays(days);
-      }
-    };
     initDays();
-  }, [tripBasic?.numDays, areDaysAsync]);
+  }, [tripBasic?.numDays]);
 
   // rerender navTabValue on dayId
   useEffect(() => {
@@ -205,22 +339,14 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
   // rerender day on days update and navTabValue
   useEffect(() => {
     setDay(Boolean(navTabValue) ? days[navTabValue - 1] : undefined);
-    updateTao(undefined);
+    initTao(undefined);
   }, [navTabValue, days]);
 
   // rerender taos on day update
   useEffect(() => {
     initTaos();
-  }, [day?.id, areTaosAsync]);
-
-  const updateTao = (tao: Tao | undefined) => {
-    if (!tao) {
-      setTao(undefined);
-    } else if (taos) {
-      let _tao = taos.find((t) => t.id === tao.id);
-      setTao(_tao);
-    }
-  };
+    initRouteResponses();
+  }, [day?.id]);
 
   const overViewNavTab = {
     name: "Overview",
@@ -246,38 +372,6 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
     }
 
     return navTabs;
-  };
-
-  // images
-
-  const getTripImages = async () => {
-    if (token) {
-      // get trip image
-      let tripImages = await tripsService.getImagesByTripId(
-        Number(tripId),
-        token
-      );
-      setImages(tripImages);
-    }
-  };
-
-  const deleteTripImage = async (index: number) => {
-    if (tripBasic && token) {
-      try {
-        let imageId = images[index].id;
-        await tripsService.deleteTripImage(tripBasic.id, imageId, token);
-
-        let updatedImages = images.filter((i) => i.id !== imageId);
-        setImages(updatedImages);
-
-        enqueueSnackbar("Successfully detached image.", {
-          variant: "success",
-        });
-      } catch (e) {
-        if (e instanceof Error)
-          enqueueSnackbar(e.message, { variant: "error" });
-      }
-    }
   };
 
   return (
@@ -307,12 +401,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
                   onDelete={deleteTripImage}
                 />
               ) : (
-                <Box
-                // TODO - change to className
-                  bgcolor="primary.main"
-                  display="flex"
-                  justifyContent="center"
-                >
+                <Box className="trip-profile-default-image-box">
                   {/* image when no images available */}
                   <img src={TLogo} height={isMobile ? 180 : 200} />
                 </Box>
@@ -324,7 +413,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
                   tripId={tripBasic?.id}
                   imageIds={images.map((image) => image.id)}
                   disabled={isMaxImageCountReached}
-                  setIsParentUpdated={getTripImages}
+                  syncAddImage={syncAddImage}
                 >
                   <TTChipButton
                     className="trip-profile-image-chip-button"
@@ -339,8 +428,8 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
             {/* name */}
             <Box className="trip-profile-title-box">
               <NameComponent
-                tripBasic={tripBasic}
-                setTripBasic={setTripBasic}
+                tripBasicRef={tripBasicRef}
+                syncTrip={syncTrip}
                 isLoading={isLoading}
                 inputRef={inputRef}
               />
@@ -365,17 +454,18 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
                 day={day}
                 taos={taos}
                 navTabValue={navTabValue}
-                setTao={updateTao}
+                setTao={initTao}
                 inputRef={inputRef}
-                setIsParentUpdated={() => setAreDaysAsync((prev) => !prev)}
-                setAreTaosUpdated={() => setAreTaosAsync((prev) => !prev)}
+                syncEditDay={syncEditDay}
+                syncAddDayTaos={syncAddDayTaos}
+                syncEditDayTaos={syncEditDayTaos}
               />
             </Box>
           ) : (
             <Box className="trip-profile-description-box">
               <DescriptionComponent
-                tripBasic={tripBasic}
-                setTripBasic={setTripBasic}
+                tripBasicRef={tripBasicRef}
+                syncTrip={syncTrip}
                 isLoading={isLoading}
               />
             </Box>
@@ -388,11 +478,11 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
             <TaoComponent
               taos={taos}
               tao={tao}
-              routeResponsesMapRef={routeResponsesMap}
+              routeResponsesMapRef={routeResponsesMapRef}
               routeResponses={routeResponses}
               setRouteResponses={initRoutes}
-              onClose={() => updateTao(undefined)}
-              setIsParentUpdated={() => setAreTaosAsync((prev) => !prev)}
+              onClose={() => initTao(undefined)}
+              syncEditDayTaos={syncEditDayTaos}
             />
           </Box>
         </Box>
@@ -416,8 +506,8 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
           )}
         >
           <FabComponent
+            tripBasicRef={tripBasicRef}
             tripBasic={tripBasic}
-            setTripBasic={setTripBasic}
             tao={tao}
             isOverview={isOverview}
             setOpenDeleteDayForm={setOpenDeleteDayForm}
@@ -440,10 +530,11 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
       </Box>
 
       <AddDayForm
-        tripId={Number(tripId)}
+        tripId={tripBasic?.id}
+        tripBasicRef={tripBasicRef}
+        syncTrip={syncTrip}
         open={openDayForm}
         onClose={() => setOpenDayForm(false)}
-        setIsParentUpdated={() => setIsTripBasicAsync((prev) => !prev)}
       />
 
       <DeleteDayForm
@@ -451,8 +542,8 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
         onClose={() => setOpenDeleteDayForm(false)}
         day={days[Number(dayId ?? 0) - 1]}
         dayId={Number(dayId)}
-        setIsParentUpdated={() => {
-          setAreDaysAsync((prev) => !prev);
+        tripBasicRef={tripBasicRef}
+        syncDeleteDay={() => {
           navigate(overViewNavTab.to);
         }}
       />
@@ -463,7 +554,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
         tao={tao}
         setIsParentUpdated={() => {
           setTao(undefined);
-          setAreTaosAsync((prev) => !prev);
+          syncDeleteDayTaos(tao);
         }}
       />
 
@@ -472,9 +563,8 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
         onClose={() => setOpenEditTaoForm(false)}
         dayIndex={Number(dayId)}
         tao={tao}
-        setIsParentUpdated={() => {
-          setAreTaosAsync((prev) => !prev);
-        }}
+        syncAddDayTaos={syncAddDayTaos}
+        syncEditDayTaos={syncEditDayTaos}
       />
     </Box>
   );

@@ -32,6 +32,19 @@ export type TaoPatch = {
   transportMode?: string;
 };
 
+const getTaoById = async (
+  id: number,
+  dayId: number,
+  token?: string
+): Promise<Tao> => {
+  return await http.get(
+    http.apiBaseURLs.api,
+    `tripAttractionOrders/${id}/day/${dayId}`,
+    undefined,
+    token
+  );
+};
+
 const getTaosByDayId = async (
   dayId: number,
   token?: string
@@ -48,7 +61,7 @@ const postTao = async (
   dayId: number,
   newTao: TaoPost,
   token: string
-): Promise<number> => {
+): Promise<Tao> => {
   const body = JSON.stringify(newTao);
   return await http.post(
     http.apiBaseURLs.api,
@@ -63,12 +76,25 @@ const patchTao = async (
   taoId: number,
   taoPatch: TaoPatch,
   token: string
-): Promise<number> => {
+): Promise<Tao> => {
   const body = JSON.stringify(taoPatch);
   return await http.patch(
     http.apiBaseURLs.api,
     `tripAttractionOrders/${taoId}`,
     body,
+    undefined,
+    token
+  );
+};
+
+const patchTaoDetachHighlight = async (
+  taoId: number,
+  token: string
+): Promise<Tao> => {
+  return await http.patch(
+    http.apiBaseURLs.api,
+    `tripAttractionOrders/${taoId}/detach-highlight`,
+    undefined,
     undefined,
     token
   );
@@ -85,8 +111,10 @@ const deleteTao = async (taoId: number, token: string): Promise<number> => {
 };
 
 export const taosService = {
+  getTaoById,
   getTaosByDayId,
   postTao,
   patchTao,
+  patchTaoDetachHighlight,
   deleteTao,
 };

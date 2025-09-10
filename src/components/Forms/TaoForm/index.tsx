@@ -19,9 +19,9 @@ import TimeUtils from "@utils/TimeUtils";
 import { hmma } from "@constants/Times";
 import TTMobileTimePicker from "@components/TTMobileTimePicker";
 import type { Dayjs } from "dayjs";
+import dayjs from "dayjs";
 import clsx from "clsx";
 import "./index.scss";
-import dayjs from "dayjs";
 
 type TaoFormProps = {
   open: boolean;
@@ -31,7 +31,8 @@ type TaoFormProps = {
   tao?: Tao;
   start?: string;
   end?: string;
-  setIsParentUpdated?: () => void;
+  syncAddDayTaos: (state: Tao) => void;
+  syncEditDayTaos: (state: Tao) => void;
 };
 
 const TaoForm = ({
@@ -42,14 +43,16 @@ const TaoForm = ({
   tao,
   start,
   end,
-  setIsParentUpdated,
+  syncAddDayTaos,
+  syncEditDayTaos,
 }: TaoFormProps) => {
   // windows
   const isMobile = useIsMobile();
   // start/end time
   const [_start, _setStart] = useState<string | undefined>();
   const [_end, _setEnd] = useState<string | undefined>();
-  const areTimesValid = _end === "12:00 AM" || TimeUtils.compareTime(hmma, _start, _end);
+  const areTimesValid =
+    _end === "12:00 AM" || TimeUtils.compareTime(hmma, _start, _end);
   // attraction
   const [attraction, setAttraction] = useState<AttractionV2 | undefined>();
   // attraction finder
@@ -120,17 +123,28 @@ const TaoForm = ({
         let startTime = TimeUtils.formatTimehmmAToHHmmss(_start);
         let endTime = TimeUtils.formatTimehmmAToHHmmss(_end);
 
-        let _tao = {
-          dayId: _dayId,
-          start: startTime,
-          end: endTime,
-          attractionId: attraction.id,
-        };
-
         if (tao) {
-          await taosService.patchTao(tao.id, _tao, token);
+          let isSameAttraction = tao?.attraction.id === attraction.id;
+          let _tao = {
+            dayId: _dayId,
+            start: startTime,
+            end: endTime,
+            attractionId: isSameAttraction ? undefined : attraction.id,
+          };
+
+          let updatedTao = await taosService.patchTao(tao.id, _tao, token);
+
+          syncEditDayTaos(updatedTao);
         } else {
-          await taosService.postTao(_dayId, _tao, token);
+          let _tao = {
+            dayId: _dayId,
+            start: startTime,
+            end: endTime,
+            attractionId: attraction.id,
+          };
+          let newTao = await taosService.postTao(_dayId, _tao, token);
+
+          syncAddDayTaos(newTao);
         }
 
         await BehaviorUtils.sleep();
@@ -140,8 +154,6 @@ const TaoForm = ({
             variant: "success",
           }
         );
-
-        if (setIsParentUpdated) setIsParentUpdated();
       } catch (e) {
         if (e instanceof Error) {
           enqueueSnackbar(e.message, { variant: "error" });

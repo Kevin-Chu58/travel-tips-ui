@@ -1,7 +1,6 @@
 import { GoogleMapLink, type Direction } from "@constants/Maps";
 import type { GeoCoordinate } from "@constants/Types";
 import type {
-  HereRoutingResponse,
   Route,
   Section,
 } from "@services/hereMap/hereMap";

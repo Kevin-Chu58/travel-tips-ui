@@ -2,6 +2,7 @@ import { dayjsFormat, ha, HHmm, HHmmss, hmma } from "@constants/Times";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import type { Dayjs } from "dayjs";
 import dayjs from "dayjs";
+import type { Tao } from "@services/taos";
 
 dayjs.extend(customParseFormat);
 
@@ -46,8 +47,7 @@ const secondToMinute = (seconds: number) => {
 const secondToMinuteStr = (seconds: number) => {
   const minutes = Math.round(seconds / 60);
 
-  if (seconds > 0 && minutes === 0)
-    return `${seconds} secs`;
+  if (seconds > 0 && minutes === 0) return `${seconds} secs`;
 
   return `${minutes} min${minutes === 1 ? "" : "s"}`;
 };
@@ -93,6 +93,12 @@ const compareTime = (format: string, start?: string, end?: string) => {
   return startTime.isBefore(endTime);
 };
 
+const orderTaos = (taos: Tao[]) => {
+  if (taos.length === 0) return [];
+
+  taos.sort((a, b) => a.start.localeCompare(b.start));
+};
+
 const dayjsToString = (format: string, time: Dayjs | null) => {
   // time might be undefined, which is caused by accessing start and end states
   // before initEditDayForm() setups everything
@@ -131,6 +137,7 @@ const TimeUtils = {
   updateTimeByMinute,
   // dayjs
   compareTime,
+  orderTaos,
   dayjsToString,
   formatTimeHHmmssTohmmA,
   formatTimeHHmmssToHHmm,

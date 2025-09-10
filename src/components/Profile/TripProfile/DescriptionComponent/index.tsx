@@ -9,14 +9,14 @@ import { useSelector } from "react-redux";
 import "./index.scss";
 
 type DescriptionComponentProps = {
-  tripBasic: Trip | undefined;
-  setTripBasic: (state: Trip | undefined) => void;
+  tripBasicRef: React.RefObject<Trip | undefined>;
+  syncTrip: () => void;
   isLoading: boolean;
 };
 
 const DescriptionComponent = ({
-  tripBasic,
-  setTripBasic,
+  tripBasicRef,
+  syncTrip,
   isLoading,
 }: DescriptionComponentProps) => {
   const [description, setDescription] = useState<string | undefined>();
@@ -29,8 +29,8 @@ const DescriptionComponent = ({
 
   // render title on trip basic
   useEffect(() => {
-    setDescription(tripBasic?.description);
-  }, [tripBasic?.description]);
+    setDescription(tripBasicRef.current?.description);
+  }, [tripBasicRef.current?.description]);
 
   const handleDescriptionClose = () => {
     setIsEditingDescription(false);
@@ -38,21 +38,32 @@ const DescriptionComponent = ({
 
   const handleDescriptionUpdate = async () => {
     const trimmedDescription = description?.trim();
-    if (tripBasic?.description === trimmedDescription) {
+    if (tripBasicRef.current?.description === trimmedDescription) {
       setIsEditingDescription(false);
-      setDescription(tripBasic?.description);
+      setDescription(tripBasicRef.current?.description);
       return;
     }
 
-    if (tripBasic && token) {
-      let tripPatch = { description: trimmedDescription } as TripPatch;
-      tripPatch = await tripsService.patchTrip(tripBasic?.id, tripPatch, token);
-      setTripBasic({ ...tripBasic, description: tripPatch.description });
-      setIsEditingDescription(false);
+    if (tripBasicRef.current && token) {
+      try {
+        let tripPatch = { description: trimmedDescription } as TripPatch;
+        tripPatch = await tripsService.patchTrip(
+          tripBasicRef.current.id,
+          tripPatch,
+          token
+        );
 
-      enqueueSnackbar("Successfully updated trip summary.", {
-        variant: "success",
-      });
+        enqueueSnackbar("Successfully updated trip summary.", {
+          variant: "success",
+        });
+
+        tripBasicRef.current.description = tripPatch.description;
+        syncTrip();
+        setIsEditingDescription(false);
+      } catch (e) {
+        if (e instanceof Error)
+          enqueueSnackbar(e.message, { variant: "error" });
+      }
     }
   };
 
@@ -90,7 +101,7 @@ const DescriptionComponent = ({
               onClick={() => setIsEditingDescription(true)}
             >
               <Typography className="trip-profile-text">
-                {tripBasic?.description}
+                {tripBasicRef.current?.description}
               </Typography>
             </Button>
           ) : (

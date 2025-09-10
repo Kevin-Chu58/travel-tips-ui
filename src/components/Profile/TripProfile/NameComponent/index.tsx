@@ -14,15 +14,15 @@ import { useSelector } from "react-redux";
 import "./index.scss";
 
 type NameComponentProps = {
-  tripBasic: Trip | undefined;
-  setTripBasic: (state: Trip | undefined) => void;
+  tripBasicRef: React.RefObject<Trip | undefined>;
+  syncTrip: () => void;
   isLoading: boolean;
   inputRef: React.RefObject<HTMLInputElement | null>;
 };
 
 const NameComponent = ({
-  tripBasic,
-  setTripBasic,
+  tripBasicRef,
+  syncTrip,
   isLoading,
   inputRef,
 }: NameComponentProps) => {
@@ -33,8 +33,8 @@ const NameComponent = ({
 
   // render title on trip basic
   useEffect(() => {
-    setTitle(tripBasic?.title);
-  }, [tripBasic?.title]);
+    setTitle(tripBasicRef.current?.title);
+  }, [tripBasicRef.current?.title]);
 
   const updateTitle = async () => {
     if (!title) {
@@ -44,23 +44,37 @@ const NameComponent = ({
 
     const trimmedTitle = title.trim();
 
-    if (trimmedTitle === tripBasic?.title || trimmedTitle.length > 50) {
+    if (
+      trimmedTitle === tripBasicRef.current?.title ||
+      trimmedTitle.length > 50
+    ) {
       if (trimmedTitle.length > 50) {
         enqueueSnackbar("Trip title is too long.", { variant: "error" });
       }
       setIsEditingTitle(false);
-      setTitle(tripBasic!.title);
+      setTitle(tripBasicRef.current!.title);
       return;
     }
 
-    if (tripBasic && token) {
-      let tripPatch = { title: trimmedTitle } as TripPatch;
-      tripPatch = await tripsService.patchTrip(tripBasic?.id, tripPatch, token);
-      setTripBasic({ ...tripBasic, title: tripPatch.title ?? title });
+    if (tripBasicRef.current && token) {
+      try {
+        let tripPatch = { title: trimmedTitle } as TripPatch;
+        tripPatch = await tripsService.patchTrip(
+          tripBasicRef.current.id,
+          tripPatch,
+          token
+        );
 
-      enqueueSnackbar("Successfully updated trip title.", {
-        variant: "success",
-      });
+        enqueueSnackbar("Successfully updated trip title.", {
+          variant: "success",
+        });
+
+        tripBasicRef.current.title = tripPatch.title!;
+        syncTrip();
+      } catch (e) {
+        if (e instanceof Error)
+          enqueueSnackbar(e.message, { variant: "error" });
+      }
     }
 
     setIsEditingTitle(false);
@@ -98,12 +112,12 @@ const NameComponent = ({
               onClick={() => setIsEditingTitle(true)}
             >
               <Typography className="trip-profile-name-comp-title">
-                {tripBasic?.title}
+                {tripBasicRef.current?.title}
               </Typography>
             </Button>
           )}
           <Typography className="trip-profile-name-comp-num-days">
-            {TimeUtils.formatDays(tripBasic?.numDays ?? 0)}
+            {TimeUtils.formatDays(tripBasicRef.current?.numDays ?? 0)}
           </Typography>
         </React.Fragment>
       ) : (

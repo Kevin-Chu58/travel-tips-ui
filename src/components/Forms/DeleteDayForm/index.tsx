@@ -10,13 +10,15 @@ import "./index.scss";
 import TTDialog from "@components/TTDialog";
 import { enqueueSnackbar } from "notistack";
 import { BehaviorUtils } from "@utils/BehaviorUtils";
+import type { Trip } from "@services/trips";
 
 type DeleteDayFormProps = {
   open: boolean;
   onClose: () => void;
   day: Day | undefined;
   dayId: number | undefined;
-  setIsParentUpdated: () => void;
+  tripBasicRef: React.RefObject<Trip | undefined>;
+  syncDeleteDay: () => void;
 };
 
 const DeleteDayForm = ({
@@ -24,7 +26,8 @@ const DeleteDayForm = ({
   onClose,
   day,
   dayId,
-  setIsParentUpdated,
+  tripBasicRef,
+  syncDeleteDay,
 }: DeleteDayFormProps) => {
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
   // others
@@ -49,10 +52,13 @@ const DeleteDayForm = ({
         await daysService.deleteDay(day?.id, token);
 
         BehaviorUtils.sleep();
+
         setIsDeleting(false);
+
+        tripBasicRef.current!.numDays! -= 1;
+        syncDeleteDay();
         
         enqueueSnackbar("Successfully deleted day.", {variant: "success"});
-        setIsParentUpdated();
       }
     } catch (e) {
       if (e instanceof Error) {

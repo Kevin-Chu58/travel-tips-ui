@@ -14,7 +14,8 @@ type DayScheduleProps = {
   taos: Tao[] | undefined;
   setTao: (state: Tao) => void;
   showHourMarkers?: boolean;
-  setIsParentUpdated?: () => void;
+  syncAddDayTaos: (state: Tao) => void;
+  syncEditDayTaos: (state: Tao) => void;
 };
 
 const DaySchedule = ({
@@ -23,7 +24,8 @@ const DaySchedule = ({
   taos,
   setTao,
   showHourMarkers = true,
-  setIsParentUpdated,
+  syncAddDayTaos,
+  syncEditDayTaos,
 }: DayScheduleProps) => {
   // behavior - index of time entries
   const [isSelecting, setIsSelecting] = useState<boolean>(false);
@@ -83,7 +85,7 @@ const DaySchedule = ({
     });
 
     setTaoTimeIntervals(taoTimeIntervalIndexes);
-  }, [taos]);
+  }, [taos?.map(t => `${t.id}/${t.attraction.id}/${t.start}/${t.end}`).join(",")]);
 
   // user interactions
 
@@ -280,7 +282,8 @@ const DaySchedule = ({
         dayId={dayId}
         start={start}
         end={end}
-        setIsParentUpdated={setIsParentUpdated}
+        syncAddDayTaos={syncAddDayTaos}
+        syncEditDayTaos={syncEditDayTaos}
       />
     </Box>
   );

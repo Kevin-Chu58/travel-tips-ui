@@ -18,7 +18,7 @@ type LibraryDialogProps = {
   onClose: () => void;
   imageIds: number[];
   tripId?: number;
-  setIsParentUpdated?: () => void;
+  syncAddImage: (state: Image) => void;
 };
 
 const LibraryDialog = ({
@@ -26,7 +26,7 @@ const LibraryDialog = ({
   onClose,
   imageIds,
   tripId,
-  setIsParentUpdated,
+  syncAddImage,
 }: LibraryDialogProps) => {
   // window
   const isMobile = useIsMobile();
@@ -63,7 +63,14 @@ const LibraryDialog = ({
       try {
         setIsLoading(true);
 
-        await tripsService.postTripImage(tripId, selectedImageId, token);
+        let newImage = await tripsService.postTripImage(
+          tripId,
+          selectedImageId,
+          token
+        );
+
+        syncAddImage(newImage);
+
         enqueueSnackbar("Successfully attached image.", { variant: "success" });
       } catch (e) {
         if (e instanceof Error) {
@@ -71,9 +78,6 @@ const LibraryDialog = ({
         }
       }
       BehaviorUtils.sleep();
-
-      // enforce reload on images
-      if (setIsParentUpdated) setIsParentUpdated();
 
       // close the dialog
       handleClose();
