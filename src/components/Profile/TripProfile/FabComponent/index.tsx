@@ -21,6 +21,7 @@ type FabComponentProps = {
   setOpenDeleteDayForm: (state: boolean) => void;
   setOpenEditTaoForm: (state: boolean) => void;
   setOpenDeleteTaoForm: (state: boolean) => void;
+  readonly?: boolean;
 };
 
 const FabComponent = ({
@@ -31,6 +32,7 @@ const FabComponent = ({
   setOpenDeleteDayForm,
   setOpenEditTaoForm,
   setOpenDeleteTaoForm,
+  readonly = false,
 }: FabComponentProps) => {
   // status
   const [isPublished, setIsPublished] = useState<boolean>(false);
@@ -41,12 +43,12 @@ const FabComponent = ({
     if (tripBasic) {
       setIsPublished(tripBasic.isPublic);
     }
-  }, [tripBasic])
+  }, [tripBasic]);
 
   const togglePublishStatus = async () => {
     if (tripBasicRef.current && token) {
       try {
-        let newPublishState = !(tripBasicRef.current.isPublic);
+        let newPublishState = !tripBasicRef.current.isPublic;
 
         await tripsService.patchTripIsPublic(
           [tripBasicRef.current.id],
@@ -75,63 +77,65 @@ const FabComponent = ({
   return (
     <React.Fragment>
       {/* publish action - private/public status */}
-      <ToolTip
-        title={tripBasicRef.current?.isPublic ? "Unpublish" : "Publish"}
-        placement="right"
-      >
-        <Fab
-          color="primary"
-          className={clsx(
-            "trip-profile-fab-comp-tool-fab",
-            !Boolean(tao) && "visible"
-          )}
-          onClick={togglePublishStatus}
-          size="medium"
+      {!readonly ? (
+        <ToolTip
+          title={tripBasicRef.current?.isPublic ? "Unpublish" : "Publish"}
+          placement="right"
         >
-          {isPublished ? (
-            <VisibilityIcon />
-          ) : (
-            <VisibilityOffIcon />
-          )}
-        </Fab>
-      </ToolTip>
+          <Fab
+            color="primary"
+            className={clsx(
+              "trip-profile-fab-comp-tool-fab",
+              !Boolean(tao) && "visible"
+            )}
+            onClick={togglePublishStatus}
+            size="medium"
+          >
+            {isPublished ? <VisibilityIcon /> : <VisibilityOffIcon />}
+          </Fab>
+        </ToolTip>
+      ) : undefined}
 
       {/* edit action - tao */}
-      <ToolTip title="Edit event" placement="right">
-        <Fab
-          color="info"
-          className={clsx(
-            "trip-profile-fab-comp-tool-fab",
-            Boolean(tao) && "visible"
-          )}
-          onClick={() => setOpenEditTaoForm(true)}
-          size="medium"
-        >
-          <EditIcon />
-        </Fab>
-      </ToolTip>
+      {!readonly ? (
+        <ToolTip title="Edit event" placement="right">
+          <Fab
+            color="info"
+            className={clsx(
+              "trip-profile-fab-comp-tool-fab",
+              Boolean(tao) && "visible"
+            )}
+            onClick={() => setOpenEditTaoForm(true)}
+            size="medium"
+          >
+            <EditIcon />
+          </Fab>
+        </ToolTip>
+      ) : undefined}
 
       {/* delete action - day, tao */}
-      <ToolTip
-        title={Boolean(tao) ? "Delete event" : "Delete day"}
-        placement="right"
-      >
-        <Fab
-          className={clsx(
-            "trip-profile-fab-comp-tool-fab",
-            "delete",
-            !isOverview && "visible"
-          )}
-          onClick={
-            Boolean(tao)
-              ? () => setOpenDeleteTaoForm(true)
-              : () => setOpenDeleteDayForm(true)
-          }
-          size="medium"
+      {!readonly ? (
+        <ToolTip
+          title={Boolean(tao) ? "Delete event" : "Delete day"}
+          placement="right"
         >
-          <DeleteForeverIcon />
-        </Fab>
-      </ToolTip>
+          <Fab
+            className={clsx(
+              "trip-profile-fab-comp-tool-fab",
+              "delete",
+              !isOverview && "visible"
+            )}
+            onClick={
+              Boolean(tao)
+                ? () => setOpenDeleteTaoForm(true)
+                : () => setOpenDeleteDayForm(true)
+            }
+            size="medium"
+          >
+            <DeleteForeverIcon />
+          </Fab>
+        </ToolTip>
+      ) : undefined}
     </React.Fragment>
   );
 };

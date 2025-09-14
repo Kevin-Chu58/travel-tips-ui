@@ -21,9 +21,10 @@ type HighlightItemProps = {
   highlight: Highlight;
   showMenu?: boolean;
   isLast?: boolean;
-  onUpdate?: () => void;
+  onUpdate?: (state?: Highlight) => void;
   onDelete?: (state: number) => void;
   onDetach?: () => void; // detach highlight from tao
+  readonly?: boolean;
 };
 
 const HighlightItem = ({
@@ -33,6 +34,7 @@ const HighlightItem = ({
   onUpdate,
   onDelete,
   onDetach,
+  readonly = false,
 }: HighlightItemProps) => {
   // windows
   const isMobile = useIsMobile();
@@ -54,7 +56,7 @@ const HighlightItem = ({
       _setHighlight(highlight);
       setDescription(highlight.description ?? "");
     }
-  }, [highlight]);
+  }, [highlight.id, highlight.description]);
 
   const handleOptionsClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -138,7 +140,7 @@ const HighlightItem = ({
     </Typography>
   );
 
-  const menuIconButton = showMenu && !isEditing && (
+  const menuIconButton = !readonly && showMenu && !isEditing && (
     <IconButton
       className="highlight-item-edit-icon"
       size="small"

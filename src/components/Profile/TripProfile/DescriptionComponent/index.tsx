@@ -12,12 +12,14 @@ type DescriptionComponentProps = {
   tripBasicRef: React.RefObject<Trip | undefined>;
   syncTrip: () => void;
   isLoading: boolean;
+  readonly?: boolean;
 };
 
 const DescriptionComponent = ({
   tripBasicRef,
   syncTrip,
   isLoading,
+  readonly = false,
 }: DescriptionComponentProps) => {
   const [description, setDescription] = useState<string | undefined>();
   const [isEditingDescription, setIsEditingDescription] =
@@ -74,46 +76,53 @@ const DescriptionComponent = ({
           <Typography className="trip-profile-description-comp-header">
             Summary
           </Typography>
-          {isEditingDescription ? (
-            <React.Fragment>
-              <DescriptionTextField
-                value={description ?? ""}
-                setValue={setDescription}
-                placeholder={helperText}
-              />
-              <Box className="trip-profile-description-comp-edit-button-box">
-                <TTButton
-                  label="cancel"
-                  variant="text"
-                  color="primary"
-                  onClick={handleDescriptionClose}
+
+          {!readonly ? (
+            isEditingDescription ? (
+              <React.Fragment>
+                <DescriptionTextField
+                  value={description ?? ""}
+                  setValue={setDescription}
+                  placeholder={helperText}
                 />
-                <TTButton
-                  label="update"
-                  color="primary"
-                  onClick={handleDescriptionUpdate}
-                />
-              </Box>
-            </React.Fragment>
-          ) : Boolean(description) ? (
-            <Button
-              className="trip-profile-description-comp-button"
-              onClick={() => setIsEditingDescription(true)}
-            >
-              <Typography className="trip-profile-text">
-                {tripBasicRef.current?.description}
-              </Typography>
-            </Button>
+                <Box className="trip-profile-description-comp-edit-button-box">
+                  <TTButton
+                    label="cancel"
+                    variant="text"
+                    color="primary"
+                    onClick={handleDescriptionClose}
+                  />
+                  <TTButton
+                    label="update"
+                    color="primary"
+                    onClick={handleDescriptionUpdate}
+                  />
+                </Box>
+              </React.Fragment>
+            ) : Boolean(description) ? (
+              <Button
+                className="trip-profile-description-comp-button"
+                onClick={() => setIsEditingDescription(true)}
+              >
+                <Typography className="trip-profile-text">
+                  {tripBasicRef.current?.description}
+                </Typography>
+              </Button>
+            ) : (
+              <Button
+                className="trip-profile-description-comp-empty-button"
+                onClick={() => setIsEditingDescription(true)}
+                fullWidth
+              >
+                <Typography className="trip-profile-text">
+                  {helperText}
+                </Typography>
+              </Button>
+            )
           ) : (
-            <Button
-              className="trip-profile-description-comp-empty-button"
-              onClick={() => setIsEditingDescription(true)}
-              fullWidth
-            >
-              <Typography className="trip-profile-text">
-                {helperText}
-              </Typography>
-            </Button>
+            <Typography className="trip-profile-text-readonly">
+              {tripBasicRef.current?.description}
+            </Typography>
           )}
         </React.Fragment>
       ) : (

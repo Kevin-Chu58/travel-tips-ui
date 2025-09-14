@@ -10,14 +10,15 @@ import ActionSpan from "@components/ActionSpan";
 import TimeUtils from "@utils/TimeUtils";
 import DistanceUtils from "@utils/DistanceUtils";
 import type { Section } from "@services/hereMap/hereMap";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./index.scss";
 
 type DirectionAccordionProps = {
   section: Section;
+  taoId: number | undefined;
 };
 
-const DirectionAccordion = ({ section }: DirectionAccordionProps) => {
+const DirectionAccordion = ({ section, taoId }: DirectionAccordionProps) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
   let isExpandable = section.actions
@@ -29,6 +30,10 @@ const DirectionAccordion = ({ section }: DirectionAccordionProps) => {
       setIsOpen((prev) => !prev);
     }
   };
+
+  useEffect(() => {
+    setIsOpen(false);
+  }, [taoId]);
 
   return (
     <Accordion

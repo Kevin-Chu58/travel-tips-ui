@@ -21,6 +21,7 @@ type ImageSelectorProps = {
   imageIds: number[];
   disabled?: boolean;
   syncAddImage: (state: Image) => void;
+  readonly?: boolean;
   children: ReactNode;
 };
 
@@ -29,6 +30,7 @@ const ImageSelector = ({
   imageIds,
   disabled = false,
   syncAddImage,
+  readonly = false,
   children,
 }: ImageSelectorProps) => {
   // popover
@@ -61,6 +63,8 @@ const ImageSelector = ({
 
   // popover
   const handleClickPopover = (event: React.MouseEvent<HTMLButtonElement>) => {
+    if (readonly) return;
+
     if (disabled)
       enqueueSnackbar("You can only attach up to 4 images to a trip.", {
         variant: "error",

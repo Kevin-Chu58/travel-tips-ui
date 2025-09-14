@@ -33,10 +33,10 @@ import {
 } from "@services/hereMap/hereMap";
 import UIShowButton from "@components/Button/UIShowButton";
 import FabComponent from "./FabComponent";
-import clsx from "clsx";
-import "./index.scss";
 import TimeUtils from "@utils/TimeUtils";
 import { isEqual } from "lodash";
+import clsx from "clsx";
+import "./index.scss";
 
 type TripProfileProps = {
   uri?: string;
@@ -56,6 +56,8 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
   // trip images
   const imagesRef = useRef<Image[]>([]);
   const [images, setImages] = useState<Image[]>([]);
+  // image carousel
+  const [imageIndex, setImageIndex] = useState<number>(0);
   // days
   const [days, setDays] = useState<Day[]>([]);
   // day
@@ -87,16 +89,16 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
   const correctUri = uri.length > 1 ? uri : "";
   const navigate = useNavigate();
 
-  const markers = 
-      taos?.map((tao) => {
-        return {
-          id: String(tao.id),
-          label: tao.attraction.title,
-          lat: tao.attraction.lat,
-          lng: tao.attraction.lng,
-          zoom: MapUtils.resultTypeToZoom(tao.attraction.resultType),
-        };
-      }) ?? [];
+  const markers =
+    taos?.map((tao) => {
+      return {
+        id: String(tao.id),
+        label: tao.attraction.title,
+        lat: tao.attraction.lat,
+        lng: tao.attraction.lng,
+        zoom: MapUtils.resultTypeToZoom(tao.attraction.resultType),
+      };
+    }) ?? [];
 
   const maxImageCount = 4;
   const isMaxImageCountReached = images.length === maxImageCount;
@@ -189,19 +191,16 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
     }
   };
 
-  const initRouteResponses = async () => {
+  const initRouteResponses = async (refresh: boolean = false) => {
     if (day) {
       // check routeResponsesMapRef first when switches from day to day
       let routeResponses: HereRoutingResponse[] | undefined;
-      if (prevDayId.current !== day.id) {
-        // routeResponses = routeResponsesMapRef.current.get(day.id);
-        setRouteResponses(routeResponses);
-      }
+      if (!refresh)
+        routeResponses = routeResponsesMapRef.current.get(day.id);
 
       // if routeResponsesMapRef has no routing info for that day, get it from API
       if (!routeResponses) {
         routeResponses = await hereMapService.getRoutingsOnDay(day.id);
-        // setRouteResponses(routeResponses);
         routeResponsesMapRef.current.set(day.id, routeResponses);
       }
 
@@ -237,7 +236,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
   };
 
   const syncImages = () => {
-    setImages(imagesRef.current);
+    setImages([...imagesRef.current]); // ensure new reference
   };
 
   const syncAddImage = (image: Image) => {
@@ -265,11 +264,11 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
       if (dayTaos) {
         dayTaos.push(tao);
         TimeUtils.orderTaos(dayTaos);
-        
+
         taosMapRef.current.set(day.id, dayTaos);
         setTaos(dayTaos);
 
-        initRouteResponses();
+        initRouteResponses(true);
       }
     }
   };
@@ -316,7 +315,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
         setTaos(dayTaos);
         setTao(undefined);
 
-        initRouteResponses();
+        initRouteResponses(true);
       }
     }
   };
@@ -397,8 +396,11 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
               {images.length > 0 ? (
                 <PreloadCarousel
                   images={images}
+                  index={imageIndex}
+                  setIndex={setImageIndex}
                   height={isMobile ? 180 : 200}
                   onDelete={deleteTripImage}
+                  readonly={readonly}
                 />
               ) : (
                 <Box className="trip-profile-default-image-box">
@@ -414,12 +416,19 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
                   imageIds={images.map((image) => image.id)}
                   disabled={isMaxImageCountReached}
                   syncAddImage={syncAddImage}
+                  readonly={readonly}
                 >
                   <TTChipButton
                     className="trip-profile-image-chip-button"
-                    label={`${images.length}/${maxImageCount}`}
+                    label={`${readonly ? imageIndex + 1 : images.length}/${
+                      readonly ? images.length : maxImageCount
+                    }`}
                     size="small"
-                    icon={isMaxImageCountReached ? undefined : <AddIcon />}
+                    icon={
+                      isMaxImageCountReached || readonly ? undefined : (
+                        <AddIcon />
+                      )
+                    }
                   />
                 </ImageSelector>
               </Box>
@@ -432,6 +441,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
                 syncTrip={syncTrip}
                 isLoading={isLoading}
                 inputRef={inputRef}
+                readonly={readonly}
               />
             </Box>
 
@@ -443,6 +453,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
                 setNavTabValue={setNavTabValue}
                 handleOpenDayForm={() => setOpenDayForm(true)}
                 isLoading={isLoading}
+                readonly={readonly}
               />
             </Box>
           </Box>
@@ -459,6 +470,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
                 syncEditDay={syncEditDay}
                 syncAddDayTaos={syncAddDayTaos}
                 syncEditDayTaos={syncEditDayTaos}
+                readonly={readonly}
               />
             </Box>
           ) : (
@@ -467,6 +479,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
                 tripBasicRef={tripBasicRef}
                 syncTrip={syncTrip}
                 isLoading={isLoading}
+                readonly={readonly}
               />
             </Box>
           )}
@@ -483,6 +496,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
               setRouteResponses={initRoutes}
               onClose={() => initTao(undefined)}
               syncEditDayTaos={syncEditDayTaos}
+              readonly={readonly}
             />
           </Box>
         </Box>
@@ -513,6 +527,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
             setOpenDeleteDayForm={setOpenDeleteDayForm}
             setOpenEditTaoForm={setOpenEditTaoForm}
             setOpenDeleteTaoForm={setOpenDeleteTaoForm}
+            readonly={readonly}
           />
         </Box>
       </Box>

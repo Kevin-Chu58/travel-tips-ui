@@ -18,6 +18,7 @@ type NameComponentProps = {
   syncTrip: () => void;
   isLoading: boolean;
   inputRef: React.RefObject<HTMLInputElement | null>;
+  readonly?: boolean;
 };
 
 const NameComponent = ({
@@ -25,6 +26,7 @@ const NameComponent = ({
   syncTrip,
   isLoading,
   inputRef,
+  readonly = false,
 }: NameComponentProps) => {
   const [title, setTitle] = useState<string | undefined>();
   const [isEditingTitle, setIsEditingTitle] = useState<boolean>(false);
@@ -92,29 +94,35 @@ const NameComponent = ({
     <React.Fragment>
       {!isLoading ? (
         <React.Fragment>
-          {isEditingTitle ? (
-            <FormControl variant="outlined">
-              <OutlinedInput
-                className="trip-profile-name-comp-input"
-                ref={inputRef}
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                endAdornment={`${title?.length ?? 0}/50`}
-                onBlur={updateTitle}
-                onKeyDown={(e) => handleTitleKeyDown(e)}
-                autoFocus
-                size="small"
-              />
-            </FormControl>
+          {!readonly ? (
+            isEditingTitle ? (
+              <FormControl variant="outlined">
+                <OutlinedInput
+                  className="trip-profile-name-comp-input"
+                  ref={inputRef}
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  endAdornment={`${title?.length ?? 0}/50`}
+                  onBlur={updateTitle}
+                  onKeyDown={(e) => handleTitleKeyDown(e)}
+                  autoFocus
+                  size="small"
+                />
+              </FormControl>
+            ) : (
+              <Button
+                className="trip-profile-name-comp-title-button"
+                onClick={() => setIsEditingTitle(true)}
+              >
+                <Typography className="trip-profile-name-comp-title">
+                  {tripBasicRef.current?.title}
+                </Typography>
+              </Button>
+            )
           ) : (
-            <Button
-              className="trip-profile-name-comp-title-button"
-              onClick={() => setIsEditingTitle(true)}
-            >
-              <Typography className="trip-profile-name-comp-title">
-                {tripBasicRef.current?.title}
-              </Typography>
-            </Button>
+            <Typography className="trip-profile-name-comp-title-readonly">
+              {tripBasicRef.current?.title}
+            </Typography>
           )}
           <Typography className="trip-profile-name-comp-num-days">
             {TimeUtils.formatDays(tripBasicRef.current?.numDays ?? 0)}

@@ -11,6 +11,8 @@ import { useIsMobile } from "@hooks/useIsMobile";
 
 type PreloadCarouselProps = {
   images: Image[];
+  index: number;
+  setIndex: React.Dispatch<React.SetStateAction<number>>;
   readonly?: boolean;
   onDelete?: (state: number) => void;
   interval?: number;
@@ -20,6 +22,8 @@ type PreloadCarouselProps = {
 
 const PreloadCarousel = ({
   images,
+  index,
+  setIndex,
   readonly = false,
   onDelete = () => {},
   interval = 4000,
@@ -30,7 +34,6 @@ const PreloadCarousel = ({
   const isMobile = useIsMobile();
   // settings
   const slideWidthPercent = 58;
-  const [index, setIndex] = useState<number>(0);
   const [translate, setTranslate] = useState<number>(-slideWidthPercent);
   const [animating, setAnimating] = useState<boolean>(false);
   const slideTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);

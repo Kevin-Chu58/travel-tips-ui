@@ -22,6 +22,7 @@ type TripCardProps = {
 const TripCard = ({ trip, setIsParentUpdated }: TripCardProps) => {
   // trip images
   const [images, setImages] = useState<Image[]>([]);
+  const [imageIndex, setImageIndex] = useState<number>(0);
   // others
   const token = useSelector((state: RootState) => state.auth.accessToken);
   const navigate = useNavigate();
@@ -69,7 +70,13 @@ const TripCard = ({ trip, setIsParentUpdated }: TripCardProps) => {
       <Box className="trip-card-image-box">
         {/* images */}
         {images.length > 0 ? (
-          <PreloadCarousel images={images} readonly height={200} />
+          <PreloadCarousel
+            images={images}
+            index={imageIndex}
+            setIndex={setImageIndex}
+            readonly
+            height={200}
+          />
         ) : (
           <img src={TLogo} className="trip-card-image" />
         )}

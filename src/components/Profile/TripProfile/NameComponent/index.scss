@@ -20,6 +20,7 @@
   }
 }
 
+.trip-profile-name-comp-title-readonly.MuiTypography-root,
 .trip-profile-name-comp-title.MuiTypography-root {
   text-transform: none;
   margin: -0.5rem 0;
@@ -27,6 +28,10 @@
   overflow-wrap: break-word; // ensure breaking works across browsers
   hyphens: auto; // auto-insert hyphens if language supports
   font-size: 1.2rem;
+}
+
+.trip-profile-name-comp-title-readonly.MuiTypography-root {
+  margin: .32rem 0;
 }
 
 .trip-profile-name-comp-num-days.MuiTypography-root {

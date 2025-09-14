@@ -16,6 +16,7 @@ type DayScheduleProps = {
   showHourMarkers?: boolean;
   syncAddDayTaos: (state: Tao) => void;
   syncEditDayTaos: (state: Tao) => void;
+  readonly?: boolean;
 };
 
 const DaySchedule = ({
@@ -26,6 +27,7 @@ const DaySchedule = ({
   showHourMarkers = true,
   syncAddDayTaos,
   syncEditDayTaos,
+  readonly = false,
 }: DayScheduleProps) => {
   // behavior - index of time entries
   const [isSelecting, setIsSelecting] = useState<boolean>(false);
@@ -101,6 +103,8 @@ const DaySchedule = ({
   };
 
   const handleClickTimeEntryBox = (timeIndex: number) => {
+    if (readonly) return;
+
     if (occupiedSet.has(timeIndex)) {
       enqueueSnackbar("This time slot is occupied.", { variant: "error" });
       return;

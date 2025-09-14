@@ -80,8 +80,6 @@ const TaoComponent = ({
       _setTao(tao);
       setHighlight(tao.highlight);
       setTransportMode(tao.transportMode ?? TransportModes[0]);
-
-      console.log(tao);
     }
   }, [tao?.id, tao?.attraction.id, tao?.highlight?.id, tao?.start, tao?.end]);
 
@@ -117,11 +115,13 @@ const TaoComponent = ({
     }
   };
 
-  const handleUpdateHighlight = async () => {
-    if (tao && token) {
+  const handleUpdateHighlight = async (highlight: Highlight | undefined) => {
+    if (tao) {
       try {
-        let updatedTao = await taosService.getTaoById(tao.id, tao.dayId);
+        let updatedTao = {...tao, highlight: highlight};
         syncEditDayTaos(updatedTao);
+        console.log(highlight);
+        setHighlight(highlight);
       } catch (e) {
         if (e instanceof Error) {
           enqueueSnackbar(e.message, { variant: "error" });
@@ -169,6 +169,9 @@ const TaoComponent = ({
         });
 
         setTransportMode(newTransportMode);
+
+        let updatedTao = {...tao, transportMode: newTransportMode};
+        syncEditDayTaos(updatedTao);
 
         let updatedRouteResponse = await hereMapService.getRoutingByTaoId(
           tao.id
@@ -249,6 +252,7 @@ const TaoComponent = ({
                 onUpdate={handleUpdateHighlight}
                 onDelete={undefined}
                 onDetach={handleDetachHighlight}
+                readonly={readonly}
               />
             </Box>
           </React.Fragment>
@@ -303,7 +307,7 @@ const TaoComponent = ({
               <Typography className="trip-profile-tao-comp-large-text">
                 Directions
               </Typography>
-              <Select
+              {!readonly ? <Select
                 color="info"
                 size="small"
                 value={transportMode}
@@ -317,14 +321,14 @@ const TaoComponent = ({
                     {mode}
                   </MenuItem>
                 ))}
-              </Select>
+              </Select> : <Typography variant="h6">{transportMode}</Typography>}
               <Box>
                 <Typography variant="caption" color="textSecondary">
                   Routing information © HERE
                 </Typography>
                 {/* direction - time, distance, actions, agency, etc. */}
                 {(formatedSections ?? []).map((section) => (
-                  <DirectionAccordion key={section.id} section={section} />
+                  <DirectionAccordion key={section.id} section={section} taoId={tao?.id} />
                 ))}
               </Box>
             </Box>

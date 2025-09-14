@@ -17,7 +17,7 @@ type HighlightFormProps = {
   highlight?: Highlight;
   setHighlight?: (state: Highlight) => void;
   isPost?: boolean;
-  onAction?: () => void;
+  onAction?: (state?: Highlight) => void;
   onClose: () => void;
 };
 
@@ -99,7 +99,7 @@ const HighlightForm = ({
           token
         );
         await BehaviorUtils.sleep();
-        onAction ? onAction() : setHighlight(updatedHighlight);
+        onAction ? onAction(updatedHighlight) : setHighlight(updatedHighlight);
 
         enqueueSnackbar("Successfully updated highlight.", {
           variant: "success",

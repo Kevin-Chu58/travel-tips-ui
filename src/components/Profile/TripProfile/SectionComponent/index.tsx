@@ -13,6 +13,7 @@ type SectionComponentProps = {
   setNavTabValue: (state: number) => void;
   handleOpenDayForm: () => void;
   isLoading: boolean;
+  readonly?: boolean;
 };
 
 const SectionComponent = ({
@@ -21,6 +22,7 @@ const SectionComponent = ({
   setNavTabValue,
   handleOpenDayForm,
   isLoading,
+  readonly = false,
 }: SectionComponentProps) => {
   return (
     <React.Fragment>
@@ -42,17 +44,19 @@ const SectionComponent = ({
       />
 
       {/* add day button */}
-      <ToolTip title="Add new day" offsetY={-8}>
-        <Box>
-          <TTIconButton
-            size="small"
-            className="trip-profile-section-comp-add-day-button"
-            onClick={handleOpenDayForm}
-          >
-            <AddIcon fontSize="small" />
-          </TTIconButton>
-        </Box>
-      </ToolTip>
+      {!readonly ? (
+        <ToolTip title="Add new day" offsetY={-8}>
+          <Box>
+            <TTIconButton
+              size="small"
+              className="trip-profile-section-comp-add-day-button"
+              onClick={handleOpenDayForm}
+            >
+              <AddIcon fontSize="small" />
+            </TTIconButton>
+          </Box>
+        </ToolTip>
+      ) : undefined}
     </React.Fragment>
   );
 };

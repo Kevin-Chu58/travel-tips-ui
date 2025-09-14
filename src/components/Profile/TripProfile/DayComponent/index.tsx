@@ -29,6 +29,7 @@ type DayComponentProps = {
   syncAddDayTaos: (state: Tao) => void;
   syncEditDayTaos: (state: Tao) => void;
   inputRef: React.RefObject<HTMLInputElement | null>;
+  readonly?: boolean;
 };
 
 const DayComponent = ({
@@ -40,6 +41,7 @@ const DayComponent = ({
   syncAddDayTaos,
   syncEditDayTaos,
   inputRef,
+  readonly = false,
 }: DayComponentProps) => {
   // window
   const isMobile = useIsMobile();
@@ -127,32 +129,38 @@ const DayComponent = ({
               />
             </FormControl>
           </React.Fragment>
-        ) : day?.title ? (
-          <React.Fragment>
-            <Button
+        ) : !readonly ? (
+          day?.title ? (
+            <React.Fragment>
+              <Button
+                className={clsx(
+                  "trip-profile-day-comp-title-button",
+                  isMobile && "mobile"
+                )}
+                onClick={handleOpenDayTitle}
+              >
+                <Typography className="trip-profile-day-comp-title">
+                  {day?.title}
+                </Typography>
+              </Button>
+            </React.Fragment>
+          ) : (
+            <TTButton
               className={clsx(
-                "trip-profile-day-comp-title-button",
+                "trip-profile-day-comp-add-title-button",
                 isMobile && "mobile"
               )}
+              startIcon={<AddIcon />}
+              color="primary"
               onClick={handleOpenDayTitle}
             >
-              <Typography className="trip-profile-day-comp-title">
-                {day?.title}
-              </Typography>
-            </Button>
-          </React.Fragment>
+              add title
+            </TTButton>
+          )
         ) : (
-          <TTButton
-            className={clsx(
-              "trip-profile-day-comp-add-title-button",
-              isMobile && "mobile"
-            )}
-            startIcon={<AddIcon />}
-            color="primary"
-            onClick={handleOpenDayTitle}
-          >
-            add title
-          </TTButton>
+          <Typography className="trip-profile-day-comp-title">
+            {day?.title}
+          </Typography>
         )}
       </Box>
 
@@ -161,20 +169,21 @@ const DayComponent = ({
       <Box className="trip-profile-day-comp-content-box">
         {/* views */}
         <Box
-            className={clsx(
-              "trip-profile-day-comp-schedule-box",
-              isMobile && "mobile"
-            )}
-          >
-            <DaySchedule
-              dayIndex={navTabValue}
-              dayId={day?.id}
-              taos={taos}
-              setTao={setTao}
-              syncAddDayTaos={syncAddDayTaos}
-              syncEditDayTaos={syncEditDayTaos}
-            />
-          </Box>
+          className={clsx(
+            "trip-profile-day-comp-schedule-box",
+            isMobile && "mobile"
+          )}
+        >
+          <DaySchedule
+            dayIndex={navTabValue}
+            dayId={day?.id}
+            taos={taos}
+            setTao={setTao}
+            syncAddDayTaos={syncAddDayTaos}
+            syncEditDayTaos={syncEditDayTaos}
+            readonly={readonly}
+          />
+        </Box>
       </Box>
     </React.Fragment>
   );
