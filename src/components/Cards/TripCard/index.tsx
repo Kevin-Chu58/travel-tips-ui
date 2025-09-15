@@ -4,28 +4,33 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import TimeUtils from "@utils/TimeUtils";
 import TLogo from "@assets/T.svg";
-import { useNavigate } from "react-router";
 import PreloadCarousel from "@components/Carousel/PreloadCarousel";
 import { useEffect, useState } from "react";
 import type { Image } from "@services/images";
 import { useSelector } from "react-redux";
 import type { RootState } from "@redux/store";
 import DeleteIcon from "@mui/icons-material/Delete";
-import "./index.scss";
 import { enqueueSnackbar } from "notistack";
+import "./index.scss";
 
 type TripCardProps = {
   trip: Trip;
-  setIsParentUpdated: () => void;
+  readonly?: boolean;
+  onClick: () => void;
+  setIsParentUpdated?: () => void;
 };
 
-const TripCard = ({ trip, setIsParentUpdated }: TripCardProps) => {
+const TripCard = ({
+  trip,
+  readonly = false,
+  onClick,
+  setIsParentUpdated,
+}: TripCardProps) => {
   // trip images
   const [images, setImages] = useState<Image[]>([]);
   const [imageIndex, setImageIndex] = useState<number>(0);
   // others
   const token = useSelector((state: RootState) => state.auth.accessToken);
-  const navigate = useNavigate();
   const [isHovered, setIsHovered] = useState<boolean>(false);
 
   useEffect(() => {
@@ -48,7 +53,7 @@ const TripCard = ({ trip, setIsParentUpdated }: TripCardProps) => {
     if (trip && token) {
       try {
         await tripsService.patchTripIsHidden([trip.id], true, token);
-        setIsParentUpdated();
+        if (setIsParentUpdated) setIsParentUpdated();
 
         enqueueSnackbar("Successfully deleted trip.", { variant: "success" });
       } catch (e) {
@@ -62,7 +67,7 @@ const TripCard = ({ trip, setIsParentUpdated }: TripCardProps) => {
   return (
     <Box
       className="trip-card-box"
-      onClick={() => navigate(`/workshop/trip/${trip.id}`)}
+      onClick={onClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -109,22 +114,24 @@ const TripCard = ({ trip, setIsParentUpdated }: TripCardProps) => {
         </Typography>
       </Box>
 
-      <Box display="flex" my={0.5} gap=".5rem">
-        <Chip
-          icon={trip.isPublic ? <VisibilityIcon /> : <VisibilityOffIcon />}
-          label={trip.isPublic ? "public" : "private"}
-          size="small"
-        />
-        {isHovered ? (
+      {!readonly ? (
+        <Box display="flex" my={0.5} gap=".5rem">
           <Chip
-            className="trip-card-delete-chip"
-            icon={<DeleteIcon />}
-            label="delete"
+            icon={trip.isPublic ? <VisibilityIcon /> : <VisibilityOffIcon />}
+            label={trip.isPublic ? "public" : "private"}
             size="small"
-            onClick={(e) => handleDeleteTripClick(e)}
           />
-        ) : undefined}
-      </Box>
+          {isHovered ? (
+            <Chip
+              className="trip-card-delete-chip"
+              icon={<DeleteIcon />}
+              label="delete"
+              size="small"
+              onClick={(e) => handleDeleteTripClick(e)}
+            />
+          ) : undefined}
+        </Box>
+      ) : undefined}
     </Box>
   );
 };

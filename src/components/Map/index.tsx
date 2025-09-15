@@ -88,7 +88,7 @@ const Map = React.memo(
         setMarkers();
         setView();
       }
-    }, [markers, mapRoutes, focusId, focusRoute]);
+    }, [markers.toString(), mapRoutes, focusId, focusRoute]);
 
     // rerender my location on currentCoordinate
     useEffect(() => {
@@ -247,7 +247,7 @@ const Map = React.memo(
         // bind popup to markers
         leafletMarker.bindPopup(marker.label || "Attraction", {
           autoPan: false,
-          offset: [6, -20],
+          offset: [0, -20],
         });
 
         // add markers to the map

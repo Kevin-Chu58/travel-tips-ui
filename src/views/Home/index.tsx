@@ -1,15 +1,19 @@
 import { Chip, Container, Grid, Typography } from "@mui/material";
-import TripGallery from "@components/TripGallery";
 import TTSearch from "@components/TTSearch";
 import { useEffect, useState } from "react";
 import { tripsService, type Trip } from "@services/trips";
 import { useNavigate, useSearchParams } from "react-router";
+import TripCard from "@components/Cards/TripCard";
 
 const Home = () => {
+  // trips - search result
   const [trips, setTrips] = useState<Trip[]>([]);
+  // input
   const [input, setInput] = useState<string>("");
+  // uri
   const [searchParams] = useSearchParams();
   const search = searchParams.get("search") ?? "";
+  // others
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -51,14 +55,25 @@ const Home = () => {
           </Typography>
         </Grid>
         <Grid size={12} mt={-2}>
-          <Chip label={
-            <Typography variant="body2">
-              search: <strong>{input}</strong>
-            </Typography>
-          } size="small" onDelete={() => navigate("/home")} />
+          <Chip
+            label={
+              <Typography variant="body2">
+                search: <strong>{input}</strong>
+              </Typography>
+            }
+            size="small"
+            onDelete={() => navigate("/home")}
+          />
         </Grid>
-        <Grid size={12}>
-          <TripGallery trips={trips} />
+        <Grid size={12} display="flex" flexWrap="wrap" gap={2}>
+          {trips.map((trip) => (
+            <TripCard
+              key={trip.id}
+              trip={trip}
+              onClick={() => navigate(`/trip/${trip.id}`)}
+              readonly
+            />
+          ))}
         </Grid>
       </>
     );
@@ -68,13 +83,12 @@ const Home = () => {
     <Container
       className="home-page"
       maxWidth="lg"
-      sx={{ color: "black", p: 2 }}
+      sx={{ color: "black", py: 2 }}
       disableGutters
     >
       <Grid container spacing={2}>
         <Grid size={12}>
           <TTSearch
-            // defaultInput={input}
             color="black"
             autoFocus={true}
             fullWidth={true}

@@ -1,6 +1,7 @@
 import TripCard from "@components/Cards/TripCard";
 import { Box, Grid } from "@mui/material";
 import type { Trip } from "@services/trips";
+import { useNavigate } from "react-router";
 
 type TripsProps = {
   trips: Trip[];
@@ -11,6 +12,7 @@ const Trips = ({
   trips,
   setIsUpdated,
 }: TripsProps) => {
+  const navigate = useNavigate();
 
   return (
     <Box
@@ -25,6 +27,7 @@ const Trips = ({
         <TripCard
           key={`trip-${trip.id}`}
           trip={trip}
+          onClick={() => navigate(`/workshop/trip/${trip.id}`)}
           setIsParentUpdated={setIsUpdated}
         />
       ))}

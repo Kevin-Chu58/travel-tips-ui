@@ -106,12 +106,15 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
   const isOverview = !Boolean(dayId);
 
   const initTrip = async () => {
-    if (tripId && token) {
+    if (tripId) {
       setIsLoading(true);
       getTripImages();
 
       // get trip basic
-      let tripBasic = await tripsService.getMyTripById(Number(tripId), token);
+      let tripBasic = await tripsService.getTripById(
+        Number(tripId),
+        token ?? undefined
+      );
       tripBasicRef.current = tripBasic;
       syncTrip();
 
@@ -121,15 +124,13 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
   };
 
   const getTripImages = async () => {
-    if (token) {
       // get trip image
       let tripImages = await tripsService.getImagesByTripId(
         Number(tripId),
-        token
+        token ?? undefined
       );
       imagesRef.current = tripImages;
       syncImages();
-    }
   };
 
   const deleteTripImage = async (index: number) => {
@@ -151,9 +152,9 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
   };
 
   const initDays = async () => {
-    if (tripId && token) {
+    if (tripId) {
       // get days with trip id
-      let days = await daysService.getDaysByTripId(Number(tripId), token);
+      let days = await daysService.getDaysByTripId(Number(tripId), token ?? undefined);
       setDays(days);
     }
   };
@@ -195,8 +196,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
     if (day) {
       // check routeResponsesMapRef first when switches from day to day
       let routeResponses: HereRoutingResponse[] | undefined;
-      if (!refresh)
-        routeResponses = routeResponsesMapRef.current.get(day.id);
+      if (!refresh) routeResponses = routeResponsesMapRef.current.get(day.id);
 
       // if routeResponsesMapRef has no routing info for that day, get it from API
       if (!routeResponses) {

@@ -61,8 +61,8 @@ export const OrangeIcon = new L.Icon({
 export const MapPin = (color: string = "var(--grey-700)") =>
   new L.DivIcon({
     html: `
-    <svg width="36" height="36" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
-      <g transform="scale(1.4)">
+    <svg width="36" height="36" viewBox="0 -10 40 40" xmlns="http://www.w3.org/2000/svg">
+      <g transform="translate(12, 12) scale(1.4) translate(-12, -12)">
         <defs>
           <filter id="pinShadow" x="-50%" y="-50%" width="200%" height="200%">
             <feDropShadow 

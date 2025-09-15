@@ -29,10 +29,10 @@ const getMyTrips = async (token: string): Promise<Trip[]> => {
   return await http.get(http.apiBaseURLs.api, "trips/my", undefined, token);
 };
 
-const getMyTripById = async (id: number, token: string): Promise<Trip> => {
+const getTripById = async (id: number, token?: string): Promise<Trip> => {
   return await http.get(
     http.apiBaseURLs.api,
-    `trips/my/${id}`,
+    `trips/${id}`,
     undefined,
     token
   );
@@ -130,7 +130,7 @@ const deleteTripImage = async (
 export const tripsService = {
   getTripsByTitle,
   getMyTrips,
-  getMyTripById,
+  getTripById,
   getImagesByTripId,
   postNewTrip,
   patchTrip,

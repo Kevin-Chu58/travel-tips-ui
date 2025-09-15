@@ -38,7 +38,7 @@ const AttractionCard = ({ attraction }: AttractionCardProps) => {
     >
       {/* attraction location on map (read-only) */}
       <Box className="attraction-card-map-box">
-        <Map readonly updateOnMarkerFocus markers={markers} />
+        <Map readonly markers={markers} />
 
         <Box className={attractionCardHoverBoxClassName}>
           <Typography className="attraction-card-hover-number">

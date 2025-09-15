@@ -118,7 +118,7 @@ const TaoComponent = ({
   const handleUpdateHighlight = async (highlight: Highlight | undefined) => {
     if (tao) {
       try {
-        let updatedTao = {...tao, highlight: highlight};
+        let updatedTao = { ...tao, highlight: highlight };
         syncEditDayTaos(updatedTao);
         console.log(highlight);
         setHighlight(highlight);
@@ -133,8 +133,10 @@ const TaoComponent = ({
   const handleDetachHighlight = async () => {
     if (tao && token) {
       try {
-
-        let updatedTao = await taosService.patchTaoDetachHighlight(tao.id, token);
+        let updatedTao = await taosService.patchTaoDetachHighlight(
+          tao.id,
+          token
+        );
         syncEditDayTaos(updatedTao);
 
         enqueueSnackbar("Successfully detached highlight.", {
@@ -170,7 +172,7 @@ const TaoComponent = ({
 
         setTransportMode(newTransportMode);
 
-        let updatedTao = {...tao, transportMode: newTransportMode};
+        let updatedTao = { ...tao, transportMode: newTransportMode };
         syncEditDayTaos(updatedTao);
 
         let updatedRouteResponse = await hereMapService.getRoutingByTaoId(
@@ -241,11 +243,13 @@ const TaoComponent = ({
         {/* highlight */}
         {highlight?.description ? (
           <React.Fragment>
-            <Divider flexItem />
-            <Box>
+            <Divider flexItem>
               <Typography className="trip-profile-tao-comp-large-text">
                 Highlight
               </Typography>
+            </Divider>
+
+            <Box>
               <HighlightItem
                 highlight={highlight}
                 isLast={true}
@@ -258,12 +262,13 @@ const TaoComponent = ({
           </React.Fragment>
         ) : !readonly ? (
           <React.Fragment>
-            <Divider flexItem />
-            <Box>
+            <Divider flexItem>
               <Typography className="trip-profile-tao-comp-large-text">
                 Highlight
               </Typography>
+            </Divider>
 
+            <Box>
               {!isCreating ? (
                 <React.Fragment>
                   <Box className="trip-profile-tao-comp-highlight-helper-box">
@@ -302,33 +307,43 @@ const TaoComponent = ({
         {/* ways of transport */}
         {routeResponse ? (
           <React.Fragment>
-            <Divider flexItem />
-            <Box>
+            <Divider flexItem>
               <Typography className="trip-profile-tao-comp-large-text">
                 Directions
               </Typography>
-              {!readonly ? <Select
-                color="info"
-                size="small"
-                value={transportMode}
-                onChange={handleTransportModeChange}
-              >
-                {TransportModes.map((mode: string) => (
-                  <MenuItem
-                    className="trip-profile-tao-comp-selected-transport-mode"
-                    value={mode}
-                  >
-                    {mode}
-                  </MenuItem>
-                ))}
-              </Select> : <Typography variant="h6">{transportMode}</Typography>}
+            </Divider>
+
+            <Box>
+              {!readonly ? (
+                <Select
+                  color="info"
+                  size="small"
+                  value={transportMode}
+                  onChange={handleTransportModeChange}
+                >
+                  {TransportModes.map((mode: string) => (
+                    <MenuItem
+                      className="trip-profile-tao-comp-selected-transport-mode"
+                      value={mode}
+                    >
+                      {mode}
+                    </MenuItem>
+                  ))}
+                </Select>
+              ) : (
+                <Typography variant="h6">{transportMode}</Typography>
+              )}
               <Box>
                 <Typography variant="caption" color="textSecondary">
                   Routing information © HERE
                 </Typography>
                 {/* direction - time, distance, actions, agency, etc. */}
                 {(formatedSections ?? []).map((section) => (
-                  <DirectionAccordion key={section.id} section={section} taoId={tao?.id} />
+                  <DirectionAccordion
+                    key={section.id}
+                    section={section}
+                    taoId={tao?.id}
+                  />
                 ))}
               </Box>
             </Box>
@@ -336,12 +351,13 @@ const TaoComponent = ({
         ) : undefined}
 
         {/* links to other resources */}
-        <Divider flexItem />
-        <Box className="trip-profile-tao-comp-link-box">
+        <Divider flexItem>
           <Typography className="trip-profile-tao-comp-large-text">
             Other Resources
           </Typography>
+        </Divider>
 
+        <Box className="trip-profile-tao-comp-link-box">
           {/* links */}
           <Box>
             <a
