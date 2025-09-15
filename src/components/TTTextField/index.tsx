@@ -4,9 +4,10 @@ import {
   type SxProps,
   type Theme,
 } from "@mui/material";
-import IconButton from "@components/TTIconButton";
+import TTIconButton from "@components/TTIconButton";
 import ClearIcon from "@mui/icons-material/Clear";
-import { getHex } from "@constants/Colors";
+import "./index.scss";
+import clsx from "clsx";
 
 type TTTextFieldProps = {
   id?: string;
@@ -52,7 +53,7 @@ const TTTextField = ({
   };
 
   return (
-    <Box display="flex" position="relative" flexGrow={1}>
+    <Box className="TTTextfield-box">
       <MuiTextField
         id={id}
         className={className}
@@ -73,28 +74,15 @@ const TTTextField = ({
         }
       />
       {clearInput && (
-        <IconButton
+        <TTIconButton
+          className={clsx("TTTextfield-icon-button", !isInputEmpty() && "pointer")}
           onClick={clearInput}
-          sx={{
-            ml: -3.5,
-            mt: -1,
-            borderWidth: 0,
-            cursor: isInputEmpty() ? "unset" : "pointer",
-          }}
         >
           <ClearIcon
-            sx={{
-              color: color,
-              visibility: isInputEmpty() ? "hidden" : "visible",
-              border: "1px solid transparent",
-              borderRadius: 50,
-              scale: 1.1,
-              ":hover": {
-                bgcolor: getHex(color) + "33",
-              },
-            }}
+            className={clsx("TTTextfield-clear-icon", isInputEmpty() && "hidden")}
+            sx={{color: color}}
           />
-        </IconButton>
+        </TTIconButton>
       )}
     </Box>
   );

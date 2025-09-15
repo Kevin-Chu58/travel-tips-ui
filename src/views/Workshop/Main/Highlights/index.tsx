@@ -1,56 +1,30 @@
-import HighlightForm from "@components/Forms/HighlightForm";
-import TTHighlightCard from "@components/TTHighlightCard";
-import { WorkshopToNavTab } from "@constants/Layouts";
-import { Grid } from "@mui/material";
-import { type Attraction, type AttractionHighlights } from "@services/attractions";
-import { useState } from "react";
+import AttractionCard from "@components/Cards/AttractionCard";
+import { Box } from "@mui/material";
+import { type AttractionV2 } from "@services/attractions";
 
 type HighlightsProps = {
-  highlights: AttractionHighlights[];
-  selected: number[];
-  addSelected: (state: number) => void;
-  removeSelected: (state: number) => void;
-  setIsUpdated: () => void;
+  attractions: AttractionV2[];
 };
 
 const Highlights = ({
-  highlights,
-  selected,
-  addSelected,
-  removeSelected,
-  setIsUpdated,
+  attractions,
 }: HighlightsProps) => {
-  const [highlight, setHighlight] = useState<Attraction | undefined>();
 
   return (
-    <Grid
-      container
-      spacing={8}
-      columns={12}
-      p={2}
-      sx={{
-        maxHeight: `calc(100vh - ${WorkshopToNavTab}px)`,
-      }}
+    <Box
+      display="flex"
+      alignItems="flex-start"
+      flexWrap="wrap"
+      gap={2}
+      mt={2}
     >
-      {highlights.map((ah) => (
-        <TTHighlightCard
-          key={`attraction-${ah.id}`}
-          attractionHighlights={ah}
-          setHighlight={setHighlight}
-          selected={selected}
-          addSelected={addSelected}
-          removeSelected={removeSelected}
+      {attractions.map((a) => (
+        <AttractionCard
+          key={`attraction-${a.id}`}
+          attraction={a}
         />
       ))}
-      <Grid size={12} height={4} />
-
-      <HighlightForm
-        highlight={highlight}
-        open={Boolean(highlight)}
-        setOpen={setHighlight}
-        setIsParentUpdated={setIsUpdated}
-      />
-    </Grid>
+    </Box>
   );
 };
 

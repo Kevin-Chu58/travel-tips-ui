@@ -1,9 +1,8 @@
-// import { TextField } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import { useEffect, useRef, useState } from "react";
-import IconButton from "@components/TTIconButton";
+// import IconButton from "@components/TTIconButton";
 import TTTextField from "@components/TTTextField";
-import { Box, type SxProps, type Theme } from "@mui/material";
+import { Box, IconButton, type SxProps, type Theme } from "@mui/material";
 import { useSearchParams } from "react-router";
 
 type TTSearchProps = {
@@ -42,11 +41,13 @@ const TTSearch = ({
   };
 
   const handleSearch = () => {
-     if (isTripSearch) {
-      setSearchParams(prev => {
+    if (isTripSearch) {
+      setSearchParams((prev) => {
         const newParams = new URLSearchParams(prev);
-        if (input.trim()) {
-          newParams.set("search", input.trim());
+        let trimmedInput = input.trim();
+
+        if (trimmedInput) {
+          newParams.set("search", trimmedInput);
         } else {
           newParams.delete("search");
         }
@@ -73,7 +74,7 @@ const TTSearch = ({
         size="small"
         onClick={handleSearch}
         sx={{
-          ml: -1,
+          ml: 1,
           color: color,
           scale: 1.1,
           borderWidth: 0,

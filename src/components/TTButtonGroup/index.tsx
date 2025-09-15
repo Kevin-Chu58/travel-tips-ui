@@ -1,32 +1,46 @@
 import {
-  Button,
-  ButtonGroup,
+  ToggleButton,
+  ToggleButtonGroup,
+  type ToggleButtonGroupProps,
 } from "@mui/material";
+import "./index.scss";
 
 type ButtonGroupProps = {
   items: any[];
   focus: any;
   focusParam: string;
+  color?: ToggleButtonGroupProps["color"];
   onClick: (...args: any[]) => void;
 };
 
-const TTButtonGroup = ({items, focus, focusParam, onClick}: ButtonGroupProps) => {
+const TTButtonGroup = ({
+  items,
+  focus,
+  focusParam,
+  color = "primary",
+  onClick,
+}: ButtonGroupProps) => {
   return (
-    <ButtonGroup>
+    <ToggleButtonGroup
+      className="tt-button-group-toggle-button-group"
+      color={color}
+      value={focus}
+      exclusive
+    >
       {items.map((item) => (
-        <Button
+        <ToggleButton
+          className="tt-button-group-toggle-button"
           key={item.name}
           size="small"
-          color="secondary"
-          variant={focus === item[focusParam] ? "contained" : "outlined"}
+          value={item.name}
           onClick={() => onClick(item[focusParam])}
           disableRipple
         >
           {item.element}
-        </Button>
+        </ToggleButton>
       ))}
-    </ButtonGroup>
-  )
+    </ToggleButtonGroup>
+  );
 };
 
 export default TTButtonGroup;

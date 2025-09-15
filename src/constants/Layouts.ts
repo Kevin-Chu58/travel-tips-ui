@@ -4,7 +4,7 @@ const Layouts = {
   Header: 64,
   SubHeader: 32,
   // workshop - main
-  WorkshopName: 40,
+  WorkshopName: 60,
   WorkshopNameMt: 16,
   WorkshopNavTab: 48,
   WorkshopToolBar: 32,

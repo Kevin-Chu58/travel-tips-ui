@@ -3,7 +3,8 @@ import { createRoot } from "react-dom/client";
 import { BrowserRouter as Router } from "react-router-dom";
 import { Auth0Provider, type AppState } from "@auth0/auth0-react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import "./index.css";
+import { SnackbarProvider } from 'notistack';
+import "./index.scss";
 import App from "./App.tsx";
 import { ThemeProvider } from "@mui/material";
 import theme from "./theme.tsx";
@@ -18,7 +19,6 @@ const queryClient = new QueryClient();
 
 const Auth0Layer = (): JSX.Element => {
   const onRedirectCallback = (appState?: AppState) => {
-    // window.location.href = appState?.returnTo || "/";
     window.history.replaceState(
       {},
       document.title,
@@ -41,9 +41,11 @@ const Auth0Layer = (): JSX.Element => {
       <Provider store={store}>
         <QueryClientProvider client={queryClient}>
           <Router>
+            <SnackbarProvider maxSnack={3}>
             <ThemeProvider theme={theme}>
               <App />
             </ThemeProvider>
+            </SnackbarProvider>
           </Router>
         </QueryClientProvider>
       </Provider>

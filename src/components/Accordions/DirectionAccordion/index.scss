@@ -1,0 +1,31 @@
+.direction-accordion.MuiAccordion-root {
+  box-shadow: none;
+
+  &.Mui-expanded {
+    margin: 0;
+
+    &::before {
+      opacity: 1;
+    }
+  }
+}
+
+.direction-accordion-summary .MuiAccordionSummary-content {
+  &.Mui-expanded {
+    margin: 12px 0;
+  }
+}
+
+.direction-accordion-summary-box {
+  display: flex;
+  flex-direction: column;
+}
+
+.direction-accordion-summary-inner-box {
+  display: flex;
+  gap: .5rem;
+}
+
+.direction-accordion-summary-transport-mode {
+  text-transform: capitalize;
+}

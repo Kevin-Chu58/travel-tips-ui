@@ -1,0 +1,59 @@
+@use "../../../stylings/box_shadows" as *;
+
+.preload-carousel-box {
+  width: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.preload-carousel-image-box {
+  display: flex;
+  height: 100%;
+  transition: none;
+
+  &.animate {
+    transition: transform .5s ease;
+  }
+}
+
+.preload-carousel-image {
+  height: 100%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.preload-carousel-scroll-left-button-box {
+  left: 5px;
+}
+
+.preload-carousel-scroll-right-button-box {
+  right: 5px;
+}
+
+.preload-carousel-scroll-left-button-box,
+.preload-carousel-scroll-right-button-box {
+  position: absolute;
+  top: 10px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.preload-carousel-scroll-button.MuiIconButton-root {
+  color: lightgrey;
+  background-color: black;
+  box-shadow: $mild_box_shadow_lg;
+  border: none;
+
+  &:hover {
+    color: white;
+    background-color: black;
+  }
+}
+
+.preload-carousel-delete-button-box {
+  position: absolute;
+  right: 5px;
+  top: 5px;
+}

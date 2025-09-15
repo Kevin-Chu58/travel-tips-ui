@@ -1,29 +1,38 @@
-import { forwardRef } from "react";
-import type { Theme } from "@emotion/react";
-import { IconButton, type SxProps, type IconButtonProps as MuiIconButtonProps } from "@mui/material";
+import {
+  IconButton,
+  type IconButtonProps as MuiIconButtonProps,
+  type SxProps,
+} from "@mui/material";
+import type { ReactNode } from "react";
+import "./index.scss";
+import clsx from "clsx";
 
 type TTIconButtonProps = {
-  sx?: SxProps<Theme>;
-} & MuiIconButtonProps; // extend MUI's IconButtonProps
+  className?: string;
+  disabled?: boolean;
+  onClick: (...state: any[]) => void;
+  children: ReactNode;
+  sx?: SxProps;
+} & MuiIconButtonProps;
 
-// use forwardRef to show the parent mui-Tooltip that wraps around TTIconButton
-const TTIconButton = forwardRef<HTMLButtonElement, TTIconButtonProps>(
-  ({ sx, ...props }, ref) => {
-    return (
-      <IconButton
-        ref={ref}
-        disableRipple
-        sx={{
-          border: "1px solid",
-          borderColor: "divider",
-          borderRadius: 2,
-          scale: 0.7,
-          ...sx,
-        }}
-        {...props}
-      />
-    );
-  }
-);
+const TTIconButton = ({
+  className,
+  disabled = false,
+  onClick,
+  children,
+  sx,
+}: TTIconButtonProps) => {
+  return (
+    <IconButton
+      disabled={disabled}
+      className={clsx("TTIconButton", className)}
+      onClick={onClick}
+      sx={sx}
+    >
+      {children}
+    </IconButton>
+  );
+};
 
 export default TTIconButton;
+ 

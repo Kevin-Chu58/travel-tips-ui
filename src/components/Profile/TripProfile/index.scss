@@ -1,0 +1,203 @@
+@use "../../../stylings/layout" as *;
+@use "../../../stylings/box_shadows" as *;
+@use "../../../stylings/color" as *;
+
+.trip-profile-box {
+  display: flex;
+  flex-direction: row;
+  position: relative;
+  color: black;
+  height: $screen-height;
+  overflow: hidden;
+}
+
+.trip-profile-map-box {
+  position: relative;
+  flex: 1;
+  height: 100%;
+}
+
+$trip-profile-content-width: 480px;
+$trip-profile-content-width-mobile: 280px;
+
+.trip-profile-content-box {
+  width: $trip-profile-content-width;
+  height: calc($screen-height); // reduce the margin and padding
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  background-color: white;
+  color: black;
+  z-index: 1100;
+  box-shadow: $mild_box_shadow_lg;
+  overflow-x: hidden;
+  overflow-y: auto;
+
+  &.mobile {
+    width: 80vw;
+    max-width: $trip-profile-content-width-mobile;
+  }
+
+  &.hidden {
+    display: none;
+  }
+}
+
+.trip-profile-header-box {
+  box-shadow: $mild_box_shadow;
+  z-index: 100;
+}
+
+.trip-profile-title-box {
+  padding: 0.5rem 1rem;
+  padding-bottom: 0;
+}
+
+.trip-profile-section-box {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-top: -0.5rem;
+  padding: 0;
+}
+
+.trip-profile-day-box {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.trip-profile-description-box {
+  flex: 1;
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+.trip-profile-image-box {
+  height: 0;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+
+  &.visible {
+    height: auto;
+  }
+}
+
+.trip-profile-default-image-box {
+  background-color: var(--primary-main);
+  display: flex;
+  justify-content: center;
+}
+
+.trip-profile-tao-box {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 1200;
+  background-color: white;
+  transform: translateX(100%);
+  transition: .2s ease transform;
+
+  &.display {
+    transform: translateX(0);
+  }
+}
+
+.trip-profile-image-selector-box {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+}
+
+.trip-profile-image-chip-button.MuiChip-root {
+  color: lightgrey;
+  background-color: black;
+  box-shadow: $box_shadow_light;
+
+  .MuiChip-icon {
+    color: inherit;
+  }
+
+  &:hover {
+    color: whitesmoke;
+    background-color: black;
+  }
+}
+
+.trip-profile-title-button.MuiButton-root {
+  color: black;
+  background-color: transparent;
+  border-radius: 0.5rem;
+  text-align: left;
+  margin-left: -0.5rem;
+
+  &:hover {
+    background-color: lightgrey;
+  }
+}
+
+.trip-profile-title-button.MuiButton-root {
+  padding: 0.85rem 0.5rem;
+}
+
+.trip-profile-title.MuiTypography-root {
+  text-transform: none;
+  margin: -0.5rem 0;
+  word-break: break-all; // allow long words to break
+  overflow-wrap: break-word; // ensure breaking works across browsers
+  hyphens: auto; // auto-insert hyphens if language supports
+}
+
+.trip-profile-title.MuiTypography-root {
+  font-size: 1.2rem;
+}
+
+.trip-profile-text-readonly.MuiTypography-root,
+.trip-profile-text.MuiTypography-root {
+  white-space: pre-wrap;
+  font-size: 0.9rem;
+}
+
+.trip-profile-text-readonly.MuiTypography-root {
+  padding: .3rem .27rem;
+}
+
+.trip-profile-ui-box {
+  position: relative;
+}
+
+.trip-profile-open-button-box {
+  position: absolute;
+  top: 40vh;
+  right: -15px;
+
+  &.hidden {
+    right: -40px;
+  }
+}
+
+$trip-profile-tool-button-group-gap: -80px;
+$trip-profile-tool-button-group-gap-mobile: -70px;
+
+.trip-profile-tool-fab-group {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  top: 150px;
+  right: $trip-profile-tool-button-group-gap;
+
+  &.mobile {
+    right: $trip-profile-tool-button-group-gap-mobile;
+  }
+
+  &.hidden {
+    display: none;
+  }
+}

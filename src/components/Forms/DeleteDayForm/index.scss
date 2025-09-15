@@ -1,0 +1,18 @@
+.delete-day-form-header-box {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: .5rem;
+}
+
+
+.delete-day-form-header.MuiTypography-root {
+  font-size: 1.2rem;
+}
+
+.delete-day-form-button-box {
+  display: flex;
+  justify-content: right;
+  margin-top: 1rem;
+  gap: .5rem;
+}

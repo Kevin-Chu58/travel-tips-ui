@@ -1,0 +1,43 @@
+@use "../../../../stylings/box_shadows" as *;
+@use "../../../../stylings/color" as *;
+
+.highlight-profile-attraction-fragment-box {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+
+  &.mobile {
+    flex-direction: column;
+  }
+}
+
+.highlight-profile-attraction-fragment-title.MuiTypography-root {
+  text-transform: capitalize;
+  display: flex;
+  align-items: center;
+  font-size: 1.6rem;
+}
+
+.highlight-profile-attraction-fragment-address.MuiTypography-root {
+  font-size: 0.9rem;
+  color: dimgrey;
+}
+
+.highlight-profile-attraction-fragment-map-box {
+  width: 240px;
+  height: 200px;
+  margin-left: auto;
+  border-radius: 1rem;
+  border: 1px solid $divider;
+  overflow: hidden;
+  box-shadow: $mild_box_shadow;
+
+  &.mobile {
+    width: 100%;
+  }
+}
+
+.highlight-profile-attraction-fragment-skeleton.MuiSkeleton-root {
+  width: 100%;
+  height: 200px;
+}

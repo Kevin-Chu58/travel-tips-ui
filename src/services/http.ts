@@ -13,7 +13,14 @@ const get = <TResponse>(
   headers = new Headers(),
   token?: string
 ): Promise<TResponse> =>
-  makeRequest(apiBaseURL, endpoint, "get", undefined, setContentTypeJSON(headers), token);
+  makeRequest(
+    apiBaseURL,
+    endpoint,
+    "get",
+    undefined,
+    setContentTypeJSON(headers),
+    token
+  );
 
 const put = <TResponse>(
   apiBaseURL: string,
@@ -42,14 +49,29 @@ const put = <TResponse>(
 const postImage = <TResponse>(
   apiBaseURL: string,
   endpoint: string,
-  imageData: string,
-  headers?: Headers
+  imageFile: Blob | File,
+  name?: string,
+  headers?: Headers,
+  token?: string
 ): Promise<TResponse> => {
-  const blob = dataURItoBlob(imageData);
-  const fileType = blob.type.replace("image/", "");
+  // Ensure we have a File, because FormData likes having a filename
+  const file =
+    imageFile instanceof File
+      ? imageFile
+      : new File([imageFile], "image.jpeg", { type: "image/jpeg" });
+
   const imageDataForm = new FormData();
-  imageDataForm.append("image", blob, `image.${fileType}`);
-  return makeRequest(apiBaseURL, endpoint, "post", imageDataForm, headers);
+  imageDataForm.append("file", file);
+  if (name) imageDataForm.append("name", name);
+
+  return makeRequest(
+    apiBaseURL,
+    endpoint,
+    "post",
+    imageDataForm,
+    headers,
+    token
+  );
 };
 
 const post = <TResponse>(
@@ -118,13 +140,17 @@ const makeRequest = async <TResponse>(
   headers?: Headers,
   token?: string
 ): Promise<TResponse> => {
-  // console.log(`${method} request to endpoint ${endpoint}`);
   const response = await fetch(`${apiBaseURL}/${endpoint}`, {
     method,
-    body,
-    // headers: headers ?? new Headers(),
+    body: body as BodyInit,
     headers: await handleAuthHeader(headers ?? new Headers(), token),
   });
+
+  if (!response.ok) {
+    // This ensures failed message triggers catch
+    throw new Error(await response.text());
+  }
+
   return parseResponse(response);
 };
 
@@ -158,8 +184,7 @@ const handleAuthHeader = async (
   headers: Headers,
   token?: string
 ): Promise<Headers> => {
-  if (token)
-    headers.append("Authorization", `Bearer ${token}`);
+  if (token) headers.append("Authorization", `Bearer ${token}`);
   // headers.append('Accept', 'application/json');
   return headers;
 };
@@ -169,25 +194,25 @@ const setContentTypeJSON = (headers: Headers) => {
   return headers;
 };
 
-const dataURItoBlob = (dataURI: string) => {
-  // convert base64/URLEncoded data component to raw binary data held in a string
-  let byteString;
-  if (dataURI.split(",")[0].indexOf("base64") >= 0)
-    byteString = atob(dataURI.split(",")[1]);
-  // this may be unused. Can't find a place where this else is called.
-  else byteString = decodeURIComponent(dataURI.split(",")[1]);
+// const dataURItoBlob = (dataURI: string) => {
+//   // convert base64/URLEncoded data component to raw binary data held in a string
+//   let byteString;
+//   if (dataURI.split(",")[0].indexOf("base64") >= 0)
+//     byteString = atob(dataURI.split(",")[1]);
+//   // this may be unused. Can't find a place where this else is called.
+//   else byteString = decodeURIComponent(dataURI.split(",")[1]);
 
-  // separate out the mime component
-  let mimeString = dataURI.split(",")[0].split(":")[1].split(";")[0];
+//   // separate out the mime component
+//   let mimeString = dataURI.split(",")[0].split(":")[1].split(";")[0];
 
-  // write the bytes of the string to a typed array
-  let ia = new Uint8Array(byteString.length);
-  for (let i = 0; i < byteString.length; i++) {
-    ia[i] = byteString.charCodeAt(i);
-  }
+//   // write the bytes of the string to a typed array
+//   let ia = new Uint8Array(byteString.length);
+//   for (let i = 0; i < byteString.length; i++) {
+//     ia[i] = byteString.charCodeAt(i);
+//   }
 
-  return new Blob([ia], { type: mimeString });
-};
+//   return new Blob([ia], { type: mimeString });
+// };
 
 type QueryStringPrimitive = string | number | boolean;
 type QueryStringSerializable =
@@ -236,21 +261,17 @@ const toQueryString = (
 
 const apiBaseURLs = {
   api:
-    // import.meta.env.VITE_API_URL_LOCAL ??
+    import.meta.env.VITE_API_URL_LOCAL ??
     import.meta.env.VITE_API_URL_PRODUCTION ??
     "",
-  osm:
-    import.meta.env.VITE_OSM_API ?? "",
-  osrm:
-    import.meta.env.VITE_OSRM_API ?? "",
-  mapbox:
-    import.meta.env.VITE_MAPBOX_API ?? "",
+  osm: import.meta.env.VITE_OSM_API ?? "",
+  osrm: import.meta.env.VITE_OSRM_API ?? "",
+  mapbox: import.meta.env.VITE_MAPBOX_API ?? "",
 };
 
 const apiTokens = {
-  mapbox:
-    import.meta.env.VITE_MAPBOX_API_TOKEN ?? "",
-}
+  mapbox: import.meta.env.VITE_MAPBOX_API_TOKEN ?? "",
+};
 
 const http = {
   del,

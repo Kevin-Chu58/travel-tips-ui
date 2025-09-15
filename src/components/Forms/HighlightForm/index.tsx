@@ -1,89 +1,149 @@
-import {
-  Box,
-  Dialog,
-  Grid,
-  IconButton,
-  TextField,
-  Typography,
-} from "@mui/material";
+import { Box, CircularProgress } from "@mui/material";
 import type { RootState } from "@redux/store";
-import {
-  attractionsService,
-  type Attraction,
-  type AttractionPatch,
-} from "@services/attractions";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useSelector } from "react-redux";
-import CheckIcon from "@mui/icons-material/Check";
-import CloseIcon from "@mui/icons-material/Close";
+import FileUploadIcon from "@mui/icons-material/FileUpload";
+import AddIcon from "@mui/icons-material/Add";
+import DescriptionTextField from "@components/TextField/DescriptionTextField";
+import { highlightsService, type Highlight } from "@services/highlights";
+import TTButton from "@components/TTButton";
+import { BehaviorUtils } from "@utils/BehaviorUtils";
+import { useSnackbar } from "notistack";
+import "./index.scss";
 
 type HighlightFormProps = {
-  highlight: Attraction | undefined;
-  open: boolean;
-  setOpen: (state: Attraction | undefined) => void;
-  setIsParentUpdated?: () => void;
+  description?: string;
+  setDescription?: (state: string) => void;
+  highlight?: Highlight;
+  setHighlight?: (state: Highlight) => void;
+  isPost?: boolean;
+  onAction?: (state?: Highlight) => void;
+  onClose: () => void;
 };
 
 const HighlightForm = ({
+  description,
+  setDescription,
   highlight,
-  open,
-  setOpen,
-  setIsParentUpdated,
+  setHighlight = () => {},
+  isPost,
+  onAction,
+  onClose,
 }: HighlightFormProps) => {
+  // snackbar
+  const { enqueueSnackbar } = useSnackbar();
   // attributes
-  const [description, setDescription] = useState<string>();
+  const [_description, _setDescription] = useState<string>(
+    highlight?.description ?? ""
+  );
+  const [isUpdating, setIsUpdating] = useState<boolean>(false);
+  // update action
+  const actualDescription = description ?? _description;
+  const updateDescription = setDescription ?? _setDescription;
   // others
   const token = useSelector((state: RootState) => state.auth.accessToken);
 
-  // rerender on highlight to init attributes
-  useEffect(() => {
-    if (highlight) {
-      setDescription(highlight.description);
-    }
-  }, [highlight]);
+  const actionIconDefault = isPost ? <AddIcon /> : <FileUploadIcon />;
+  const actionIcon = isUpdating ? (
+    <CircularProgress size="1rem" sx={{ color: "white" }} />
+  ) : (
+    actionIconDefault
+  );
 
-  const handleUpdate = async () => {
-    const isChanged = description !== highlight?.description;
+  const handlePost = async () => {
+    const trimedDescription = _description.trim();
 
-    if (isChanged && token && highlight) {
-      await attractionsService.patchHighlight(
-        highlight.id,
-        { ...highlight, description } as AttractionPatch,
-        token
-      );
-      handleClose();
-      if (setIsParentUpdated) setIsParentUpdated();
+    if (token) {
+      try {
+        setIsUpdating(true);
+
+        if (highlight || onAction) {
+          if (highlight && trimedDescription.length > 0) {
+            let newHighlight = await highlightsService.postHighlight(
+              { ...highlight, description: trimedDescription },
+              token
+            );
+            await BehaviorUtils.sleep();
+            setHighlight(newHighlight);
+
+            enqueueSnackbar("Successfully posted highlight.", {
+              variant: "success",
+            });
+            setIsUpdating(false);
+          }
+
+          if (onAction) {
+            onAction();
+          }
+        }
+      } catch (e) {
+        if (e instanceof Error)
+          enqueueSnackbar(e.message, { variant: "error" });
+      }
+      setIsUpdating(false);
     }
+
+    onClose();
   };
 
-  const handleClose = () => {
-    setOpen(undefined);
+  const handleUpdate = async () => {
+    const trimedDescription = actualDescription.trim();
+    const isChanged = highlight?.description !== trimedDescription;
+
+    if (isChanged && token && highlight && highlight.description) {
+      try {
+        setIsUpdating(true);
+        let updatedHighlight = await highlightsService.patchHighlight(
+          highlight.id,
+          trimedDescription,
+          token
+        );
+        await BehaviorUtils.sleep();
+        onAction ? onAction(updatedHighlight) : setHighlight(updatedHighlight);
+
+        enqueueSnackbar("Successfully updated highlight.", {
+          variant: "success",
+        });
+        setIsUpdating(false);
+      } catch (e) {
+        if (e instanceof Error)
+          enqueueSnackbar(e.message, { variant: "error" });
+      }
+    }
+
+    onClose();
   };
 
   return (
-    <Dialog open={open} onClose={handleClose}>
-      <Grid container direction="column" size={12} p={1} px={3} pb={2}>
-        <Grid container size={12} display="flex" alignItems="center" mb={4}>
-          <Typography variant="h5" fontWeight="bold">
-            Edit Highlight
-          </Typography>
-          <Box ml="auto">
-            <IconButton disableRipple color="error" onClick={handleClose}>
-              <CloseIcon />
-            </IconButton>
-            <IconButton disableRipple color="success" onClick={handleUpdate}>
-              <CheckIcon />
-            </IconButton>
-          </Box>
-        </Grid>
-        <TextField
-          label="Description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          multiline
+    <Box className="highlight-form-box">
+      <DescriptionTextField
+        value={actualDescription}
+        setValue={updateDescription}
+      />
+      <Box className="highlight-form-button-box">
+        <TTButton
+          label="cancel"
+          variant="text"
+          color="primary"
+          onClick={onClose}
         />
-      </Grid>
-    </Dialog>
+        {isPost ? (
+          <TTButton
+            label="create"
+            color="primary"
+            startIcon={actionIcon}
+            onClick={handlePost}
+          />
+        ) : (
+          <TTButton
+            label="update"
+            color="primary"
+            startIcon={actionIcon}
+            onClick={handleUpdate}
+          />
+        )}
+      </Box>
+    </Box>
   );
 };
 

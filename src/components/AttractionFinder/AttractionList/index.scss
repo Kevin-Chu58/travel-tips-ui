@@ -1,0 +1,76 @@
+@use "../../../stylings/box_shadows" as *;
+
+.attraction-list-header-box {
+  display: flex;
+}
+
+.attraction-list-title.MuiTypography-root {
+  font-size: 1.2rem;
+}
+
+.attraction-list-copyright.MuiTypography-root {
+  margin-left: auto;
+  margin-right: 1rem;
+  font-size: .7rem;
+  color: var(--info-main);
+  white-space: pre-wrap;
+  text-align: right;
+  cursor: pointer;
+}
+
+.attraction-list-box {
+  width: 320px;
+}
+
+.attraction-list-box-mobile {
+  width: 80%;
+}
+
+.attraction-list-box,
+.attraction-list-box-mobile {
+  max-width: 320px;
+  min-width: 200px;
+  padding: 0.5rem;
+  padding-right: 0;
+  border-radius: 1rem;
+  background-color: white;
+  box-shadow: $mild_box_shadow;
+}
+
+.attraction-list-items-box {
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.attraction-list-item-focus.MuiButton-root {
+  background-color: var(--primary-100);
+}
+
+.attraction-list-item,
+.attraction-list-item-focus {
+  min-width: 200px;
+  text-align: left;
+  justify-content: flex-start;
+}
+
+.attraction-list-item-content {
+  width: 100%;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.attraction-list-item-header {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+}
+
+.attraction-list-item-chip {
+  margin-left: -.2rem;
+  text-transform: capitalize;
+}
+
+.attraction-list-item-address.MuiTypography-root {
+  font-size: 0.8rem;
+  color: dimgrey;
+}

@@ -1,0 +1,14 @@
+@use "../../stylings/box_shadows" as *;
+@use "../../stylings/color" as *;
+
+.TTDialog {
+  .MuiPaper-root {
+    overflow: hidden;
+    border-radius: 1rem;
+    box-shadow: $mild_box_shadow_lg;
+  }
+}
+
+.TTDialog-box {
+   padding: 1rem;
+}

@@ -1,0 +1,21 @@
+.trip-form-box {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  gap: 1rem;
+}
+
+.trip-form-title.MuiTypography-root {
+  font-size: 1.4rem;
+}
+
+.trip-form-notice.MuiTypography-root {
+  color: dimgrey;
+}
+
+.trip-form-icon-box {
+  display: flex;
+  flex-direction: row;
+  margin-left: auto;
+  gap: 1rem;
+}

@@ -1,0 +1,143 @@
+import ToolTip from "@components/ToolTip";
+import { Fab } from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+import { enqueueSnackbar } from "notistack";
+import { useSelector } from "react-redux";
+import type { RootState } from "@redux/store";
+import { tripsService, type Trip } from "@services/trips";
+import type { Tao } from "@services/taos";
+import React, { useEffect, useState } from "react";
+import clsx from "clsx";
+import "./index.scss";
+
+type FabComponentProps = {
+  tripBasicRef: React.RefObject<Trip | undefined>;
+  tripBasic: Trip | undefined;
+  tao: Tao | undefined;
+  isOverview: boolean;
+  setOpenDeleteDayForm: (state: boolean) => void;
+  setOpenEditTaoForm: (state: boolean) => void;
+  setOpenDeleteTaoForm: (state: boolean) => void;
+  readonly?: boolean;
+};
+
+const FabComponent = ({
+  tripBasicRef,
+  tripBasic,
+  tao,
+  isOverview,
+  setOpenDeleteDayForm,
+  setOpenEditTaoForm,
+  setOpenDeleteTaoForm,
+  readonly = false,
+}: FabComponentProps) => {
+  // status
+  const [isPublished, setIsPublished] = useState<boolean>(false);
+  // others
+  const token = useSelector((state: RootState) => state.auth.accessToken);
+
+  useEffect(() => {
+    if (tripBasic) {
+      setIsPublished(tripBasic.isPublic);
+    }
+  }, [tripBasic]);
+
+  const togglePublishStatus = async () => {
+    if (tripBasicRef.current && token) {
+      try {
+        let newPublishState = !tripBasicRef.current.isPublic;
+
+        await tripsService.patchTripIsPublic(
+          [tripBasicRef.current.id],
+          newPublishState,
+          token
+        );
+
+        tripBasicRef.current.isPublic = newPublishState;
+        setIsPublished(newPublishState);
+
+        enqueueSnackbar(
+          `Successfully ${
+            tripBasicRef.current.isPublic ? "published" : "unpublished"
+          } the trip.`,
+          {
+            variant: "success",
+          }
+        );
+      } catch (e) {
+        if (e instanceof Error)
+          enqueueSnackbar(e.message, { variant: "error" });
+      }
+    }
+  };
+
+  return (
+    <React.Fragment>
+      {/* publish action - private/public status */}
+      {!readonly ? (
+        <ToolTip
+          title={tripBasicRef.current?.isPublic ? "Unpublish" : "Publish"}
+          placement="right"
+        >
+          <Fab
+            color="primary"
+            className={clsx(
+              "trip-profile-fab-comp-tool-fab",
+              !Boolean(tao) && "visible"
+            )}
+            onClick={togglePublishStatus}
+            size="medium"
+          >
+            {isPublished ? <VisibilityIcon /> : <VisibilityOffIcon />}
+          </Fab>
+        </ToolTip>
+      ) : undefined}
+
+      {/* edit action - tao */}
+      {!readonly ? (
+        <ToolTip title="Edit event" placement="right">
+          <Fab
+            color="info"
+            className={clsx(
+              "trip-profile-fab-comp-tool-fab",
+              Boolean(tao) && "visible"
+            )}
+            onClick={() => setOpenEditTaoForm(true)}
+            size="medium"
+          >
+            <EditIcon />
+          </Fab>
+        </ToolTip>
+      ) : undefined}
+
+      {/* delete action - day, tao */}
+      {!readonly ? (
+        <ToolTip
+          title={Boolean(tao) ? "Delete event" : "Delete day"}
+          placement="right"
+        >
+          <Fab
+            className={clsx(
+              "trip-profile-fab-comp-tool-fab",
+              "delete",
+              !isOverview && "visible"
+            )}
+            onClick={
+              Boolean(tao)
+                ? () => setOpenDeleteTaoForm(true)
+                : () => setOpenDeleteDayForm(true)
+            }
+            size="medium"
+          >
+            <DeleteForeverIcon />
+          </Fab>
+        </ToolTip>
+      ) : undefined}
+    </React.Fragment>
+  );
+};
+
+export default FabComponent;

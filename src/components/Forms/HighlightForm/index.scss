@@ -1,0 +1,13 @@
+.highlight-form-box {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+}
+
+.highlight-form-button-box {
+  display: flex;
+  flex: 1;
+  justify-content: right;
+  gap: 1rem;
+}

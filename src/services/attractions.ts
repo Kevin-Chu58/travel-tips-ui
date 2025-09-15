@@ -1,6 +1,28 @@
 import type { OsmType } from "@constants/Maps";
 import http from "./http";
 
+// v2
+
+type AttractionV2Basic = {
+  hereId: string;
+  title: string;
+  resultType: string;
+  category?: string;
+  lat: number;
+  lng: number;
+  address: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  numHighlights?: number;
+};
+
+export type AttractionV2 = AttractionV2Basic & {
+  id: number;
+};
+
+// v1
+
 type AttractionBasic = {
   // attractions
   osmId: number;
@@ -50,18 +72,75 @@ export type AttractionHighlights = AttractionBasic & {
   highlights: Highlight[];
 };
 
-const getHighlightsByParams = async (name?: string, osmId?: number): Promise<AttractionSearch> => {
+// v2
+
+const getAttractionById = async (id: number): Promise<AttractionV2> => {
+  return await http.get(
+    http.apiBaseURLs.api,
+    `attractions/${id}`,
+    undefined,
+    undefined
+  );
+};
+
+const getMyAttractionsByName = async (
+  token: string,
+  name?: string
+): Promise<AttractionV2[]> => {
+  const params = new URLSearchParams();
+
+  if (name) params.set("name", name);
+
+  return await http.get(
+    http.apiBaseURLs.api,
+    `attractions/my?${params.toString()}`,
+    undefined,
+    token
+  );
+};
+
+const postNewAttraction = async (
+  hereId: string,
+  token: string
+): Promise<AttractionV2> => {
+  return await http.post(
+    http.apiBaseURLs.api,
+    `attractions/${hereId}`,
+    undefined,
+    undefined,
+    token
+  );
+};
+
+// v1
+
+const getHighlightsByParams = async (
+  name?: string,
+  osmId?: number
+): Promise<AttractionSearch> => {
   const params = new URLSearchParams();
 
   if (name) params.set("name", name);
   if (osmId) params.set("osmId", osmId.toString());
   params.set("timestamp", Date.now().toString());
 
-  return await http.get(http.apiBaseURLs.api, `attractions?${params.toString()}`, undefined, undefined);
+  return await http.get(
+    http.apiBaseURLs.api,
+    `attractions?${params.toString()}`,
+    undefined,
+    undefined
+  );
 };
 
-const getAttractionHighlightsByUserId = async (userId: number): Promise<AttractionHighlights[]> => {
-  return await http.get(http.apiBaseURLs.api, `attractions/${userId}`, undefined, undefined);
+const getAttractionHighlightsByUserId = async (
+  userId: number
+): Promise<AttractionHighlights[]> => {
+  return await http.get(
+    http.apiBaseURLs.api,
+    `attractions/${userId}`,
+    undefined,
+    undefined
+  );
 };
 
 const postNewHighlight = async (newAttraction: AttractionPost, token: string): Promise<Attraction> => {
@@ -69,17 +148,41 @@ const postNewHighlight = async (newAttraction: AttractionPost, token: string): P
   return await http.post(http.apiBaseURLs.api, "attractions", body, undefined, token);
 };
 
-const patchHighlight = async (id: number, attraction: AttractionPatch, token: string) : Promise<Attraction> => {
+const patchHighlight = async (
+  id: number,
+  attraction: AttractionPatch,
+  token: string
+): Promise<Attraction> => {
   const body = JSON.stringify(attraction);
-  return await http.patch(http.apiBaseURLs.api, `attractions/${id}`, body, undefined, token);
+  return await http.patch(
+    http.apiBaseURLs.api,
+    `attractions/${id}`,
+    body,
+    undefined,
+    token
+  );
 };
 
-const deleteHighlights = async (ids: number[], token: string): Promise<number[]> => {
+const deleteHighlights = async (
+  ids: number[],
+  token: string
+): Promise<number[]> => {
   const body = JSON.stringify(ids);
-  return await http.del(http.apiBaseURLs.api, "attractions", body, undefined, token);
+  return await http.del(
+    http.apiBaseURLs.api,
+    "attractions",
+    body,
+    undefined,
+    token
+  );
 };
 
 export const attractionsService = {
+  // v2
+  getAttractionById,
+  getMyAttractionsByName,
+  postNewAttraction,
+  // v1
   getHighlightsByParams,
   getAttractionHighlightsByUserId,
   postNewHighlight,

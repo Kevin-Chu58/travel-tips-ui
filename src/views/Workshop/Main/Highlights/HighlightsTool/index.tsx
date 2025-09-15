@@ -1,82 +1,69 @@
-import ListTool from "@components/ListTool";
+import ListToolBar from "@components/ListToolBar";
 import type { RootState } from "@redux/store";
-import { attractionsService, type AttractionHighlights } from "@services/attractions";
+import { attractionsService, type AttractionV2 } from "@services/attractions";
 import SortUtils, {
-  sortTypeIdAsc,
-  sortTypeIdDesc,
-  sortTypeNameAsc,
-  sortTypeNameDesc,
+  sortTypeTitleAsc,
+  sortTypeTitleDesc,
 } from "@utils/SortUtils";
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
 
 const sortTypes = [
-  sortTypeIdAsc,
-  sortTypeIdDesc,
-  sortTypeNameAsc,
-  sortTypeNameDesc,
+  sortTypeTitleAsc,
+  sortTypeTitleDesc,
 ];
 
 type HighlightsToolProps = {
   sortTypeIndex: number;
   setSortTypeIndex: (state: number) => void;
-  selected: number[];
-  setSelected: (state: number[]) => void;
-  setHighlights: (
-    state: AttractionHighlights[] | ((prevState: AttractionHighlights[]) => AttractionHighlights[])
+  setAttractions: (
+    state: AttractionV2[] | ((prevState: AttractionV2[]) => AttractionV2[])
   ) => void;
-  isUpdated: boolean;
-  setIsUpdated: () => void;
+  syncAttractions: boolean;
 };
 
 const HighlightsTool = ({
   sortTypeIndex,
   setSortTypeIndex,
-  selected,
-  setSelected,
-  setHighlights,
-  isUpdated,
-  setIsUpdated,
+  setAttractions,
+  syncAttractions,
 }: HighlightsToolProps) => {
   // others
   const token = useSelector((state: RootState) => state.auth.accessToken);
 
-  // rerender on access token and isUpdated
+  // rerender on access token and syncAttractions
   useEffect(() => {
-    const getMyTrips = async () => {
+    const getMyHighlights = async () => {
       if (token) {
-        const myAttractionHighlights = await attractionsService.getAttractionHighlightsByUserId(4);
-        setHighlights(SortUtils.sortList(myAttractionHighlights, sortTypes, sortTypeIndex));
+        const myAttractions = await attractionsService.getMyAttractionsByName(token);
+        setAttractions(SortUtils.sortList(myAttractions, sortTypes, sortTypeIndex));
       }
     };
-    getMyTrips();
-  }, [token, isUpdated]);
+    getMyHighlights();
+  }, [token, syncAttractions]);
 
   // rerender on sortTypeIndex to request sorting
   useEffect(() => {
-    setHighlights((prevHighlights) =>
+    setAttractions((prevHighlights) =>
       SortUtils.sortList([...prevHighlights], sortTypes, sortTypeIndex)
     );
   }, [sortTypeIndex]);
 
-  const handleDelete = async () => {
-    if (token && selected.length > 0) {
-      await attractionsService.deleteHighlights(selected, token);
-      setIsUpdated();
-      setSelected([]);
-    }
-  }
+  // const handleDelete = async () => {
+  //   if (token && selected.length > 0) {
+  //     await attractionsService.deleteHighlights(selected, token);
+  //     setIsUpdated();
+  //     setSelected([]);
+  //   }
+  // }
 
   return (
-    <ListTool
+    <ListToolBar
       showSort
       showFilter
-      showSelect
       sortType={sortTypeIndex}
       setSortType={setSortTypeIndex}
       sortTypes={sortTypes}
-      selected={selected}
-      handleDelete={handleDelete}
     />
   );
 };

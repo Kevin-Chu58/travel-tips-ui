@@ -1,0 +1,16 @@
+@use "../../stylings/color" as *;
+
+.TTIconButton.MuiIconButton-root {
+  border: 1px solid $divider;
+  border-radius: 2rem;
+
+  &.no-border {
+    border: none;
+  }
+}
+
+
+.TTIconButton.MuiIconButton-root.Mui-disabled {
+  background-color: dimgrey;
+}
+

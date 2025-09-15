@@ -16,6 +16,8 @@
       "@components/*": ["src/components/*"],
       "@services/*": ["src/services/*"],
       "@views/*": ["src/views/*"],
+      "@hooks/*": ["src/hooks/*"],
+      "@helpers/*": ["src/helpers/*"],
       "@react-queries/*": ["src/react-queries/*"],
     },
 

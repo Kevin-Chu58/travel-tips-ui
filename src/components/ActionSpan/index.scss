@@ -1,0 +1,26 @@
+@use "../../stylings/color" as *;
+
+.action-span {
+  position: relative;
+  padding: .1rem .3rem;
+  background-color: lightgrey;
+  color: $light-black;
+  border-radius: .2rem;
+  font-family: monospace;
+  font-weight: bold;
+
+  &.keyboard {
+    &:after {
+    content: "";
+    position: absolute;
+    bottom: 1px;
+    left: 3px;
+    margin: 0;
+    width: calc(100% - 8px);
+    height: 3px;
+    border-width: 0 2px 2px 2px;
+    border-color: $light-black;
+    border-style: solid;
+  }
+  }
+}

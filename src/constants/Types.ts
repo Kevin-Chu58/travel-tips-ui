@@ -1,8 +1,8 @@
 // This file includes all types that are UI-related which are not directly related with API requests
 
 import type { JSX } from "react";
-import type { MapRouteType, OsmType } from "./Maps";
 import type { Dayjs } from "dayjs";
+import type { SxProps } from "@mui/material";
 
 // UI
 export type NavTab = {
@@ -10,12 +10,19 @@ export type NavTab = {
   label: string;
   to?: string;
   condition?: (args: any[]) => boolean;
+  deletable?: boolean;
 };
 
 export type StringArrUpdate = {
   stringArr: string[];
   update: React.Dispatch<React.SetStateAction<string[]>>;
 }; // used in map coords update, i think
+
+export type IndicatorItem = {
+  label: string;
+  isIcon?: boolean;
+  sx: SxProps;
+};
 
 // form
 
@@ -72,43 +79,30 @@ export type TaoParams = TaoId & {
 export type RouteOptionParams = {
   name: string;
   element: JSX.Element;
-  routeType: MapRouteType;
+  routeType: string;
 };
 
 export type Route = {
-  coords?: [number, number][];
-  distance?: number;
-  duration?: number;
+  polyline?: string;
+  groupId?: number;
+  color?: string;
 };
-
-export type TaoRoutes = {
-  taoId: number;
-  driving?: Route;
-  cycling?: Route;
-  walking?: Route;
-  custom?: Route;
-};
-
-export type DayRoutes = {
-  dayId: number;
-  taos: TaoRoutes[];
-};
-
-export type RouteRoutes = DayRoutes[];
 
 // map
 export type Marker = {
   id?: string;
+  label?: string;
   lat: number;
   lng: number;
-  label?: string;
-  osmId: number;
-  osmType: OsmType;
-  zoom?: number;
-  order?: number;
+  zoom: number;
 };
 
 export type MapView = {
   viewType: string;
   icon: any;
+};
+
+export type GeoCoordinate = {
+  lat: number;
+  lng: number;
 };

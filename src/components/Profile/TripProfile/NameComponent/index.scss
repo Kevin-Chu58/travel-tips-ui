@@ -1,0 +1,54 @@
+.trip-profile-name-comp-input {
+  margin-left: -0.5rem;
+
+  .MuiOutlinedInput-input {
+    font-size: 1.2rem;
+    padding: 0.38rem;
+  }
+}
+
+.trip-profile-name-comp-title-button.MuiButton-root {
+  color: black;
+  background-color: transparent;
+  border-radius: 0.5rem;
+  text-align: left;
+  margin-left: -0.5rem;
+  padding: 0.85rem 0.5rem;
+
+  &:hover {
+    background-color: lightgrey;
+  }
+}
+
+.trip-profile-name-comp-title-readonly.MuiTypography-root,
+.trip-profile-name-comp-title.MuiTypography-root {
+  text-transform: none;
+  margin: -0.5rem 0;
+  word-break: break-all; // allow long words to break
+  overflow-wrap: break-word; // ensure breaking works across browsers
+  hyphens: auto; // auto-insert hyphens if language supports
+  font-size: 1.2rem;
+}
+
+.trip-profile-name-comp-title-readonly.MuiTypography-root {
+  margin: .32rem 0;
+}
+
+.trip-profile-name-comp-num-days.MuiTypography-root {
+  font-size: 0.8rem;
+  color: dimgrey;
+  margin-top: -0.2rem;
+}
+
+.trip-profile-name-comp-title-skeleton.MuiSkeleton-root,
+.trip-profile-name-comp-days-skeleton.MuiSkeleton-root {
+  width: 240px;
+}
+
+.trip-profile-name-comp-title-skeleton.MuiSkeleton-root {
+  height: 40px;
+}
+
+.trip-profile-name-comp-days-skeleton.MuiSkeleton-root {
+  height: 16px;
+}

@@ -1,145 +1,203 @@
-import type { Direction } from "@constants/Maps";
+import {
+  MapPin,
+} from "@constants/Maps";
 import { Box, type SxProps } from "@mui/material";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import React, { useEffect, useRef, useState, type ReactNode } from "react";
-import markerIconGrey from "@assets/map/marker-icon-grey.png";
-import markerIconBlue from "@assets/map/marker-icon-blue.png";
-import markerIconGreen from "@assets/map/marker-icon-green.png";
-import markerShadow from "@assets/map/marker-shadow.png";
-import { getHex } from "@constants/Colors";
-import type { Marker, Route } from "@constants/Types";
+import React, { useEffect, useRef, type ReactNode } from "react";
+import type { GeoCoordinate, Marker, Route } from "@constants/Types";
+import { decode } from "@here/flexpolyline";
+import "./index.scss";
 
-type MapProps = {
+type MapConfigProps = {
+  openUI?: boolean;
   readonly?: boolean;
-  height?: number | string;
   lat?: number;
   lng?: number;
-  markers?: Marker[];
-  mapRoutes?: Route[];
-  setIsParentUpdated?: () => void;
-  focusId?: string;
-  focusRoute?: boolean;
-  setFocusId?: (state: string | undefined) => void;
-  setMapView?: (state: string) => void;
-  openPopUp?: boolean;
-  updateOnMarkerFocus?: boolean;
-  correctionBias?: number;
-  correctionDirection?: Direction;
-  correctionZoom?: number;
-  children?: ReactNode;
   sx?: SxProps;
+  children?: ReactNode;
 };
 
-// TODO - add a option dropdown to select which day to view: [all, day 1, day 2, ...]
+type MapMarkerRouteProps = {
+  currentCoordinate?: GeoCoordinate;
+  markers?: Marker[];
+  mapRoutes?: Route[];
+};
 
-const Map = React.memo(({
-  readonly = false,
-  height = 200,
-  lat = 38.79,
-  lng = -106.53,
-  markers = [],
-  mapRoutes,
-  setIsParentUpdated = () => {},
-  focusId = undefined,
-  focusRoute = false,
-  setFocusId = () => {},
-  setMapView = () => {},
-  openPopUp = false,
-  updateOnMarkerFocus = false,
-  correctionBias = 0,
-  correctionDirection = "S",
-  correctionZoom = 0,
-  children,
-  sx,
-}: MapProps) => {
-  // map refs
-  const mapRef = useRef<HTMLDivElement>(null);
-  const mapInstanceRef = useRef<L.Map | null>(null);
-  const markersRef = useRef<L.Marker[]>([]);
-  const routesRef = useRef<L.Polyline[]>([]);
-  // map routes
-  const [routeCoords, setRouteCoords] = useState<[number, number][][]>(); // days/taos/corodinates
+type MapInteractionProps = {
+  focusId?: string;
+  focusRoute?: boolean;
+  focusMapShift?: boolean;
+  openPopUp?: boolean;
+};
 
-  const focusOnMarker = updateOnMarkerFocus && !focusRoute;
-  const focusOnRoute = focusRoute;
+type MapCallbackProps = {
+  setCurrentCoordinate?: (state: GeoCoordinate) => void;
+};
 
-  //   const apiKey = import.meta.env.VITE_MAP_TILER_API_KEY;
+type MapProps = MapConfigProps &
+  MapMarkerRouteProps &
+  MapInteractionProps &
+  MapCallbackProps;
 
-  /** useEffect */
+const Map = React.memo(
+  ({
+    openUI = true,
+    readonly = false,
+    lat = 38.79,
+    lng = -106.53,
+    currentCoordinate,
+    setCurrentCoordinate,
+    markers = [],
+    mapRoutes,
+    focusId = undefined,
+    focusRoute = false,
+    focusMapShift = true,
+    openPopUp = false,
+    children,
+    sx,
+  }: MapProps) => {
+    // map refs
+    const mapRef = useRef<HTMLDivElement>(null);
+    const mapInstanceRef = useRef<L.Map | null>(null);
+    const markersRef = useRef<L.Marker[]>([]);
+    const MyLocationRef = useRef<L.Marker[]>([]);
+    const routesRef = useRef<L.Polyline[]>([]);
 
-  // update on markers, taoId, focusRoute and routeCoords to update the overall map
-  useEffect(() => {
-    if (mapInstanceRef.current) {
-      setRoutes();
-      setMarkers();
-    }
-  }, [markers, focusId, focusRoute, routeCoords]);
+    const focusOnRoute = focusRoute;
 
-  // rerender route coordinates on osrmRoute
-  useEffect(() => {
-    if (mapRoutes) {
-      const routeCoords = mapRoutes.map((taoRoute) => taoRoute?.coords ?? []);
-      setRouteCoords(routeCoords);
-    }
-  }, [mapRoutes]);
+    const apiKey = import.meta.env.VITE_MAP_TILER_API_KEY;
 
-  // renrender the whole map on isUpdated
-  useEffect(() => {
-    if (mapRef.current && !mapInstanceRef.current) {
-      let mapOptions: L.MapOptions = {
-        maxZoom: 18,
-      };
+    /** useEffect */
 
-      let mapOptionsReadonly: L.MapOptions = {
-        ...mapOptions,
-        zoomControl: false, // hide zoom buttons
-        dragging: false, // disable dragging
-        scrollWheelZoom: false, // disable wheel zoom
-        doubleClickZoom: false, // disable double-click
-        boxZoom: false, // disable shift-drag zoom
-        keyboard: false, // disable keyboard navigation
-        touchZoom: false, // disable pinch zoom on mobile
-      };
+    useEffect(() => {
+      if (mapInstanceRef.current) {
+        // delay slightly if you have a CSS transition for the UI sliding
+        const timer = setTimeout(() => {
+          mapInstanceRef.current!.invalidateSize();
+        }, 0); // adjust to match your UI transition duration
 
-      mapInstanceRef.current = L.map(
-        mapRef.current,
-        readonly ? mapOptionsReadonly : mapOptions
-      ).setView([lat, lng], 4);
+        return () => clearTimeout(timer);
+      }
+    }, [openUI]);
 
-      if (mapInstanceRef.current && markers.length > 0) {
+    // update on markers, taoId, focusRoute and routeCoords to update the overall map
+    useEffect(() => {
+      if (mapInstanceRef.current) {
         setRoutes();
         setMarkers();
+        setView();
       }
+    }, [markers.toString(), mapRoutes, focusId, focusRoute]);
 
-      // https://api.maptiler.com/maps/streets-v2/256/{z}/{x}/{y}@2x.png?key=${apiKey}
-      L.tileLayer(`https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png`, {
-        attribution: "&copy; OpenStreetMap contributors",
-      }).addTo(mapInstanceRef.current);
-    }
-  }, []);
+    // rerender my location on currentCoordinate
+    useEffect(() => {
+      if (mapInstanceRef.current) {
+        setMyLocation();
+      }
+    }, [currentCoordinate]);
 
-  const setRoutes = () => {
+    // render the set coordinate event on mount
+    useEffect(() => {
+      if (mapInstanceRef.current && setCurrentCoordinate) {
+        const handler = (e: L.LeafletMouseEvent) => {
+          const { lat, lng } = e.latlng;
 
-    // remove old polyline routes
-    routesRef.current.forEach((m) => mapInstanceRef.current!.removeLayer(m));
-    routesRef.current = [];
+          const normalizedLng = ((((lng + 180) % 360) + 360) % 360) - 180;
 
-    // Draw polyline
-    let markerIndex = markers.findIndex(
-      (marker) => marker.id === focusId
-    );
+          setCurrentCoordinate({ lat, lng: normalizedLng });
 
-    let indexFocused = focusOnRoute && markerIndex;
+          // Instantly move the map to the new coordinate
+          mapInstanceRef.current!.setView([lat, normalizedLng]);
+        };
 
-    let polyBound: L.LatLngBounds | undefined = undefined;
+        // right click
+        mapInstanceRef.current.on("click", handler);
 
-    routeCoords?.forEach((coords, i) => {
-        let marker = markers.at(i);
+        return () => {
+          if (mapInstanceRef.current)
+            mapInstanceRef.current.off("click", handler);
+        };
+      }
+    }, [setCurrentCoordinate]);
+
+    // renrender the whole map on isUpdated
+    useEffect(() => {
+      if (mapRef.current && !mapInstanceRef.current) {
+        let mapOptions: L.MapOptions = {
+          maxZoom: 18,
+          zoomControl: false, // hide zoom buttons
+        };
+
+        let mapOptionsReadonly: L.MapOptions = {
+          ...mapOptions,
+          dragging: false, // disable dragging
+          scrollWheelZoom: false, // disable wheel zoom
+          doubleClickZoom: false, // disable double-click
+          boxZoom: false, // disable shift-drag zoom
+          keyboard: false, // disable keyboard navigation
+          touchZoom: false, // disable pinch zoom on mobile
+        };
+
+        mapInstanceRef.current = L.map(
+          mapRef.current,
+          readonly ? mapOptionsReadonly : mapOptions
+        ).setView([lat, lng], 4);
+
+        if (!readonly) {
+          L.control
+            .zoom({
+              position: "bottomright", // options: 'topleft', 'topright', 'bottomleft', 'bottomright'
+            })
+            .addTo(mapInstanceRef.current);
+        }
+
+        if (mapInstanceRef.current && markers.length > 0) {
+          setRoutes();
+          setMarkers();
+          setView();
+          setMyLocation();
+        }
+
+        // https://api.maptiler.com/maps/streets-v2/256/{z}/{x}/{y}@2x.png?key=${apiKey}
+        L.tileLayer(
+          `https://api.maptiler.com/maps/streets-v2/256/{z}/{x}/{y}@2x.png?key=${apiKey}`,
+          {
+            // L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            maxZoom: 18,
+            updateWhenIdle: true,      // load tiles only after user stops moving
+            updateWhenZooming: false,  // don’t load intermediate zoom tiles
+            keepBuffer: 1,
+            attribution:
+              '&copy; 2025 HERE | &copy; <a href="https://www.maptiler.com/copyright/" target="_blank" rel="noopener noreferrer">MapTiler</a> &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors',
+          }
+        ).addTo(mapInstanceRef.current);
+      }
+    }, []);
+
+    const setRoutes = () => {
+      // remove old polyline routes
+      routesRef.current.forEach((m) => mapInstanceRef.current!.removeLayer(m));
+      routesRef.current = [];
+
+      // Draw polyline
+      let markerIndex =
+        markers.findIndex((marker) => marker.id === focusId) - 1;
+
+      let indexFocused = focusOnRoute && markerIndex;
+
+      let routeCoords =
+        mapRoutes?.map((r) => decode(r.polyline ?? "").polyline) ?? [];
+
+      mapRoutes?.forEach((mapRoute, i) => {
+        let coords = routeCoords[i];
+        let isFocused = indexFocused === (mapRoute.groupId ?? 0 + 1);
 
         // create polyline for each route coords array
-        const polyline = L.polyline(coords, {
-          color: indexFocused === i ? getHex("dimgray") : getHex("darkgray"),
+        const polyline = L.polyline(coords as L.LatLngExpression[], {
+          color: isFocused
+            ? (mapRoute.color ?? "#1976d2")
+            : "#bdbdbd",
           weight: 8,
           opacity: 1,
         });
@@ -148,193 +206,109 @@ const Map = React.memo(({
         routesRef.current.push(polyline);
 
         // show polyline route on the map
-        polyline.addTo(mapInstanceRef.current!).on("click", () => {
-          setFocusId(marker?.id);
-          setMapView("route");
-          setIsParentUpdated();
-        });
+        polyline.addTo(mapInstanceRef.current!);
 
         // update the z-index
-        if (indexFocused !== i) polyline.bringToBack();
-        else {
-          polyBound = polyline.getBounds();
-        }
-      }
-    );
-
-    if (focusOnRoute) {
-      let isPolyBoundInvalid =
-        polyBound === undefined || !(polyBound as L.LatLngBounds).isValid();
-
-      let bounds = !isPolyBoundInvalid
-        ? (polyBound! as L.LatLngBounds)
-        : L.latLngBounds(markers.map((m) => [m.lat, m.lng]));
-      if (bounds.isValid()) {
-        mapInstanceRef.current?.fitBounds(bounds, { padding: [70, 70] });
-      }
-    }
-  };
-
-  const setMarkers = () => {
-    let isFocusFound = false;
-
-    // remove old markers
-    markersRef.current.forEach((m) => mapInstanceRef.current!.removeLayer(m));
-    markersRef.current = [];
-
-    // calculate the fitting zoom level according to the bounds
-    const bounds = L.latLngBounds(markers.map((m) => [m.lat, m.lng]));
-    const boundsZoom =
-      markers.length > 0
-        ? mapInstanceRef.current?.getBoundsZoom(bounds)
-        : mapInstanceRef.current?.getZoom();
-
-    markers.forEach((marker, i) => {
-      let zoom = boundsZoom!;
-      let isFocus = marker.id === focusId;
-      isFocusFound = isFocusFound || isFocus;
-
-      let prevMarker = i > 0 ? markers[i - 1] : undefined;
-      let isPrevFocus =
-        focusOnRoute &&
-        prevMarker &&
-        prevMarker.id === focusId;
-
-      let icon = isFocus ? greenIcon : isPrevFocus ? blueIcon : greyIcon;
-      let zIndexOffset = isFocus ? 1000 : 0;
-
-      const leafletMarker = L.marker([marker.lat, marker.lng], {
-        icon: icon,
-        zIndexOffset: zIndexOffset, // This makes the focused marker appear on top
-        title: marker.label,
+        if (!isFocused) polyline.bringToBack();
       });
+    };
 
-      // add markers to markerRef
-      markersRef.current.push(leafletMarker);
+    const setMarkers = () => {
+      let isFocusFound = false;
 
-      // bind popup to markers
-      leafletMarker.bindPopup(marker.label || "Attraction", { autoPan: false });
+      // remove old markers
+      markersRef.current.forEach((m) => mapInstanceRef.current!.removeLayer(m));
+      markersRef.current = [];
 
-      // add markers to the map
-      leafletMarker.addTo(mapInstanceRef.current!).on("click", () => {
-        setFocusId(marker?.id);
-        setMapView("location");
-        setIsParentUpdated();
-      });
+      markers.forEach((marker, i) => {
+        let isFocus = marker.id === focusId;
+        isFocusFound = isFocusFound || isFocus;
 
-      if (focusOnRoute && openPopUp) {
-        if (isPrevFocus) {
-          // open popup when focused
-          leafletMarker.setPopupContent("Destination");
-          leafletMarker.openPopup();
-        }
-      }
+        let nextMarker = i < markers.length ? markers[i + 1] : undefined;
+        let isNextFocus =
+          focusOnRoute && nextMarker && nextMarker.id === focusId;
 
-      // set map zoom level
-      if (focusOnMarker && isFocus) {
-        // adjust map view position
-        const markerBiased = getLatLonDelta(
-          mapInstanceRef.current!,
-          marker.lat,
-          marker.lng,
-          correctionBias,
-          zoom + correctionZoom,
-          correctionDirection
-        );
-        mapInstanceRef.current?.whenReady(() => {
-          mapInstanceRef.current?.setView(
-            [marker.lat + markerBiased.lat, marker.lng + markerBiased.lng],
-            zoom + correctionZoom
-          );
+        let icon = isFocus
+          ? MapPin("var(--success-main)")
+          : isNextFocus
+          ? MapPin("var(--info-main)")
+          : MapPin();
+        let zIndexOffset = isFocus ? 100 : 0;
+
+        const leafletMarker = L.marker([marker.lat, marker.lng], {
+          icon: icon,
+          zIndexOffset: zIndexOffset, // This makes the focused marker appear on top
+          title: marker.label,
         });
+
+        // add markers to markerRef
+        markersRef.current.push(leafletMarker);
+
+        // bind popup to markers
+        leafletMarker.bindPopup(marker.label || "Attraction", {
+          autoPan: false,
+          offset: [0, -20],
+        });
+
+        // add markers to the map
+        leafletMarker.addTo(mapInstanceRef.current!);
+
+        if (focusOnRoute && openPopUp) {
+          if (isFocus) {
+            // open popup when focused
+            leafletMarker.setPopupContent("Destination");
+            leafletMarker.openPopup();
+          }
+        }
+      });
+    };
+
+    const setView = () => {
+      // Get the center from bounds (true center)
+      const bounds = L.latLngBounds(markers.map((m) => [m.lat, m.lng]));
+      if (!bounds.isValid()) return;
+
+      mapInstanceRef.current?.fitBounds(bounds, {
+        padding: [20, 20],
+        maxZoom: markers.length === 1 ? markers[0].zoom : 15,
+      });
+
+      if (focusId && focusMapShift) {
+        let marker = markers.find((m) => m.id === focusId);
+        if (marker) mapInstanceRef.current?.panTo([marker.lat, marker.lng]);
       }
-    });
+    };
 
-    // Optionally fit bounds to markers
-    if (!isFocusFound && markers.length > 0) {
-      mapInstanceRef.current?.fitBounds(bounds, { padding: [20, 20] });
-    }
-  };
+    const setMyLocation = () => {
+      // remove old pin points
+      MyLocationRef.current.forEach((m) =>
+        mapInstanceRef.current!.removeLayer(m)
+      );
+      MyLocationRef.current = [];
 
-  // different color markers
-  // ref: https://github.com/pointhi/leaflet-color-markers
+      // add the current coordinate pin point if not null
+      if (currentCoordinate) {
+        const leafletMyLocation = L.marker(
+          [currentCoordinate.lat, currentCoordinate.lng],
+          {
+            icon: MapPin("gold"),
+          }
+        );
 
-  const greyIcon = new L.Icon({
-    iconUrl: markerIconGrey,
-    shadowUrl: markerShadow,
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-    shadowSize: [41, 41],
-  });
+        // add pin point to markerRef
+        MyLocationRef.current.push(leafletMyLocation);
 
-  const blueIcon = new L.Icon({
-    iconUrl: markerIconBlue,
-    shadowUrl: markerShadow,
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-    shadowSize: [41, 41],
-  });
+        // add pin point to map
+        leafletMyLocation.addTo(mapInstanceRef.current!);
+      }
+    };
 
-  const greenIcon = new L.Icon({
-    iconUrl: markerIconGreen,
-    shadowUrl: markerShadow,
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-    shadowSize: [41, 41],
-  });
-
-  // calculation
-  // *credit to ChatGpt
-
-  /**
-   * Calculate the latitude or lnggitude delta equivalent to cm on screen at the given lat and zoom level,
-   * depending on the direction (N, E, S, W).
-   */
-  const getLatLonDelta = (
-    map: L.Map,
-    lat: number,
-    lng: number,
-    cm: number,
-    zoom: number,
-    direction: Direction
-  ): L.LatLng => {
-    if (cm <= 0) return new L.LatLng(0, 0);
-
-    // 1 cm in pixels (screen units) — assuming 96 DPI
-    const pixels = (96 / 2.54) * cm; // ~37.8px per cm
-
-    const originalPoint = map.project([lat, lng], zoom);
-
-    let offsetPoint: L.Point;
-
-    switch (direction) {
-      case "N":
-        offsetPoint = L.point(originalPoint.x, originalPoint.y - pixels);
-        break;
-      case "S":
-        offsetPoint = L.point(originalPoint.x, originalPoint.y + pixels);
-        break;
-      case "E":
-        offsetPoint = L.point(originalPoint.x + pixels, originalPoint.y);
-        break;
-      case "W":
-        offsetPoint = L.point(originalPoint.x - pixels, originalPoint.y);
-        break;
-    }
-
-    const newLatLng = map.unproject(offsetPoint, zoom);
-
-    return new L.LatLng(newLatLng.lat - lat, newLatLng.lng - lng);
-  };
-
-  return (
-    <Box m={0} ref={mapRef} height={height} width="100%" sx={sx}>
-      {children}
-    </Box>
-  );
-});
+    return (
+      <Box className="map-box" ref={mapRef} sx={sx}>
+        {children}
+      </Box>
+    );
+  }
+);
 
 export default React.memo(Map);
