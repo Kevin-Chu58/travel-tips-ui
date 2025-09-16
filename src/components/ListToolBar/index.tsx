@@ -1,21 +1,21 @@
-import TTCard from "@components/TTCard";
+// import TTCard from "@components/TTCard";
 import SortIcon from "@mui/icons-material/Sort";
-import FilterAltIcon from "@mui/icons-material/FilterAlt";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+// import FilterAltIcon from "@mui/icons-material/FilterAlt";
+// import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import {
   Box,
   MenuItem,
   Select,
-  Tooltip,
-  Typography,
+  // Tooltip,
+  // Typography,
   type SelectChangeEvent,
 } from "@mui/material";
-import TTIconButton from "@components/TTIconButton";
-import VisibilityIcon from "@mui/icons-material/Visibility";
-import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
-import DeleteIcon from "@mui/icons-material/Delete";
+// import TTIconButton from "@components/TTIconButton";
+// import VisibilityIcon from "@mui/icons-material/Visibility";
+// import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+// import DeleteIcon from "@mui/icons-material/Delete";
 import type { SortType } from "@constants/Types";
-import { mild_box_shadow } from "@constants/Shadows";
+// import { mild_box_shadow } from "@constants/Shadows";
 
 type ListToolBarSortProps = {
   showSort?: boolean;
@@ -47,22 +47,22 @@ const ListToolBar = ({
   setSortType,
   sortTypes,
   // filter props
-  showFilter = false,
+  // showFilter = false,
   // select props
-  showSelect = false,
-  selected = [],
-  handlePublish,
-  handleDelete,
+  // showSelect = false,
+  // selected = [],
+  // handlePublish,
+  // handleDelete,
 }: ListToolBarProps) => {
   // others
-  const selectButtonSx = { scale: 0.9, height: 32 };
+  // const selectButtonSx = { scale: 0.9, height: 32 };
 
-  const isSelectedEmpty = () => selected.length === 0;
+  // const isSelectedEmpty = () => selected.length === 0;
 
-  const displayNumSelected = () =>
-    isSelectedEmpty()
-      ? "No item selected"
-      : `${selected.length} ${selected.length > 1 ? "items" : "item"} selected`;
+  // const displayNumSelected = () =>
+  //   isSelectedEmpty()
+  //     ? "No item selected"
+  //     : `${selected.length} ${selected.length > 1 ? "items" : "item"} selected`;
 
   // sort operations
 
