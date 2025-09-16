@@ -70,7 +70,6 @@ const AttractionFragment = ({
             <Box className={attractionFragmentMapBoxClassName}>
               <Map
                 readonly
-                updateOnMarkerFocus
                 markers={markers}
                 focusId={attraction.hereId}
               />

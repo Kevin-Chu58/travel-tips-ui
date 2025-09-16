@@ -1,5 +1,4 @@
 import { Navigate, Route, Routes } from "react-router";
-import { type Trip } from "@services/trips";
 import { Container } from "@mui/material";
 import { useParams } from "react-router";
 import { Headers } from "@constants/Layouts";

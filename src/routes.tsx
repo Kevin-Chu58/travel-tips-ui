@@ -1,7 +1,7 @@
 import Workshop from "@views/Workshop";
 import Home from "./views/Home";
 import Main from "./views/Main";
-import Trip from "./views/Trip";
+import Trip from "@views/Trip";
 
 const routes = [{
     name: "Main",
