@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { TIMES_WITH_OFFSET } from "@constants/Times";
 import { Box, Typography } from "@mui/material";
 import TaoForm from "@components/Forms/TaoForm";
@@ -41,6 +41,9 @@ const DaySchedule = ({
   // taos
   const blockHeight = 15; // 15px each time interval block
   const [taoTimeIntervals, setTaoTimeIntervals] = useState<number[][]>([]);
+  // others
+  const containerRef = useRef<HTMLDivElement>(null);
+  const boxHeightRef = useRef<number>(0);
 
   const occupiedSet = useMemo(() => {
     const set = new Set<number>();
@@ -87,7 +90,11 @@ const DaySchedule = ({
     });
 
     setTaoTimeIntervals(taoTimeIntervalIndexes);
-  }, [taos?.map(t => `${t.id}/${t.attraction.id}/${t.start}/${t.end}`).join(",")]);
+  }, [
+    taos
+      ?.map((t) => `${t.id}/${t.attraction.id}/${t.start}/${t.end}`)
+      .join(","),
+  ]);
 
   // user interactions
 
@@ -222,28 +229,50 @@ const DaySchedule = ({
     const endTime = TimeUtils.formatTimeHHmmssTohmmA(tao.end);
 
     return (
-        <Box
-          className="day-schedule-tao-content-box"
-          onClick={(e) => handleClickTao(e, tao)}
-        >
-          <Box height={boxHeight} className="day-schedule-tao-content">
-            <Typography
-              className="day-schedule-tao-title"
-              sx={{ WebkitLineClamp: _interval }}
-            >
-              {tao.attraction.title}
-            </Typography>
-            <Typography className="day-schedule-tao-title">
-              {startTime}-{endTime}
-            </Typography>
-          </Box>
+      <Box
+        className="day-schedule-tao-content-box"
+        onClick={(e) => handleClickTao(e, tao)}
+      >
+        <Box height={boxHeight} className="day-schedule-tao-content">
+          <Typography
+            className="day-schedule-tao-title"
+            sx={{ WebkitLineClamp: _interval }}
+          >
+            {tao.attraction.title}
+          </Typography>
+          <Typography className="day-schedule-tao-title">
+            {startTime}-{endTime}
+          </Typography>
         </Box>
+      </Box>
     );
+  };
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLElement>) => {
+    if (isOpen) return;
+
+    const rect = containerRef.current?.getBoundingClientRect();
+    if (rect) {
+      const firstBox = containerRef.current
+        ?.firstElementChild as HTMLElement | null;
+      if (!firstBox) return;
+
+      if (boxHeightRef.current === 0)
+        boxHeightRef.current = firstBox.getBoundingClientRect().height;
+
+      const offsetY = e.clientY - rect.top;
+      const index = Math.floor(offsetY / boxHeightRef.current);
+      if (index >= 0 && index < TIMES_WITH_OFFSET.length) {
+        setHoverIndex(index);
+      }
+    }
   };
 
   return (
     <Box
+      ref={containerRef}
       className="day-schedule-box"
+      onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeaveDayScheduleBox}
     >
       {TIMES_WITH_OFFSET.map(
@@ -258,9 +287,8 @@ const DaySchedule = ({
                   "highlight",
                 occupiedSet.has(i) && "unclickable"
               )}
-              key={`time-entry-${i}`}
+              key={i}
               onClick={() => handleClickTimeEntryBox(i)}
-              onMouseEnter={() => setHoverIndex(i)}
             >
               {/* tao content */}
               {getTaoContent(i)}

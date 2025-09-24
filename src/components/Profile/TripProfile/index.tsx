@@ -124,13 +124,13 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
   };
 
   const getTripImages = async () => {
-      // get trip image
-      let tripImages = await tripsService.getImagesByTripId(
-        Number(tripId),
-        token ?? undefined
-      );
-      imagesRef.current = tripImages;
-      syncImages();
+    // get trip image
+    let tripImages = await tripsService.getImagesByTripId(
+      Number(tripId),
+      token ?? undefined
+    );
+    imagesRef.current = tripImages;
+    syncImages();
   };
 
   const deleteTripImage = async (index: number) => {
@@ -154,7 +154,10 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
   const initDays = async () => {
     if (tripId) {
       // get days with trip id
-      let days = await daysService.getDaysByTripId(Number(tripId), token ?? undefined);
+      let days = await daysService.getDaysByTripId(
+        Number(tripId),
+        token ?? undefined
+      );
       setDays(days);
     }
   };
@@ -411,18 +414,29 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
 
               {/* image selector */}
               <Box className="trip-profile-image-selector-box">
-                <ImageSelector
-                  tripId={tripBasic?.id}
-                  imageIds={images.map((image) => image.id)}
-                  disabled={isMaxImageCountReached}
-                  syncAddImage={syncAddImage}
-                  readonly={readonly}
-                >
+                {!readonly ? (
+                  <ImageSelector
+                    tripId={tripBasic?.id}
+                    imageIds={images.map((image) => image.id)}
+                    disabled={isMaxImageCountReached}
+                    syncAddImage={syncAddImage}
+                    readonly={readonly}
+                  >
+                    <TTChipButton
+                      className="trip-profile-image-chip-button"
+                      label={`${images.length}/${maxImageCount}`}
+                      size="small"
+                      icon={
+                        isMaxImageCountReached || readonly ? undefined : (
+                          <AddIcon />
+                        )
+                      }
+                    />
+                  </ImageSelector>
+                ) : images.length > 0 ? (
                   <TTChipButton
                     className="trip-profile-image-chip-button"
-                    label={`${readonly ? imageIndex + 1 : images.length}/${
-                      readonly ? images.length : maxImageCount
-                    }`}
+                    label={`${imageIndex + 1}/${images.length}`}
                     size="small"
                     icon={
                       isMaxImageCountReached || readonly ? undefined : (
@@ -430,7 +444,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
                       )
                     }
                   />
-                </ImageSelector>
+                ) : undefined}
               </Box>
             </Box>
 
