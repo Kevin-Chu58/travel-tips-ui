@@ -1,5 +1,4 @@
 import ListTool from "@components/ListToolBar";
-import type { RootState } from "@redux/store";
 import { tripsService, type Trip } from "@services/trips";
 import SortUtils, {
   sortTypeDayAsc,
@@ -8,7 +7,6 @@ import SortUtils, {
   sortTypeTitleDesc,
 } from "@utils/SortUtils";
 import { useEffect } from "react";
-import { useSelector } from "react-redux";
 
 const sortTypes = [
   sortTypeTitleAsc,
@@ -38,19 +36,14 @@ const TripsTool = ({
   isUpdated,
   setIsUpdated,
 }: TripsToolProps) => {
-  // others
-  const token = useSelector((state: RootState) => state.auth.accessToken);
-
   // rerender on access token and isUpdated
   useEffect(() => {
     const getMyTrips = async () => {
-      if (token) {
-        const myTrips = await tripsService.getMyTrips(token);
-        asyncTrips(SortUtils.sortList(myTrips, sortTypes, sortTypeIndex));
-      }
+      const myTrips = await tripsService.getMyTrips();
+      asyncTrips(SortUtils.sortList(myTrips, sortTypes, sortTypeIndex));
     };
     getMyTrips();
-  }, [token, isUpdated]);
+  }, [isUpdated]);
 
   // rerender on sortTypeIndex to request sorting
   useEffect(() => {
@@ -58,16 +51,16 @@ const TripsTool = ({
   }, [sortTypeIndex]);
 
   const handlePublish = async (isPublished: boolean) => {
-    if (token && selected.length > 0) {
-      await tripsService.patchTripIsPublic(selected, isPublished, token);
+    if (selected.length > 0) {
+      await tripsService.patchTripIsPublic(selected, isPublished);
       if (setIsUpdated) setIsUpdated();
       setSelected([]);
     }
   };
 
   const handleDelete = async () => {
-    if (token && selected.length > 0) {
-      await tripsService.patchTripIsHidden(selected, true, token);
+    if (selected.length > 0) {
+      await tripsService.patchTripIsHidden(selected, true);
       if (setIsUpdated) setIsUpdated();
       setSelected([]);
     }

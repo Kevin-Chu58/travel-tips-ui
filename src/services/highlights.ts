@@ -31,30 +31,21 @@ const getHighlightsByAttractionId = async (
   return await http.get(
     http.apiBaseURLs.api,
     `highlights/${id}?${params.toString()}`,
-    undefined,
     undefined
   );
 };
 
 const postHighlight = async (
-  newHighlight: HighlightPost,
-  token: string,
+  newHighlight: HighlightPost
 ): Promise<Highlight> => {
   const body = JSON.stringify(newHighlight);
 
-  return await http.post(
-    http.apiBaseURLs.api,
-    "highlights",
-    body,
-    undefined,
-    token,
-  )
+  return await http.post(http.apiBaseURLs.api, "highlights", body, undefined);
 };
 
 const patchHighlight = async (
   id: number,
-  description: string,
-  token: string
+  description: string
 ): Promise<Highlight> => {
   const body = JSON.stringify(description);
 
@@ -62,21 +53,16 @@ const patchHighlight = async (
     http.apiBaseURLs.api,
     `highlights/${id}`,
     body,
-    undefined,
-    token
+    undefined
   );
 };
 
-const deleteHighlight = async (
-  id: number,
-  token: string,
-): Promise<Highlight> => {
+const deleteHighlight = async (id: number): Promise<Highlight> => {
   return await http.del(
     http.apiBaseURLs.api,
     `highlights/${id}`,
     undefined,
-    undefined,
-    token,
+    undefined
   );
 };
 

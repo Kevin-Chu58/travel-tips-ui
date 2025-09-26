@@ -5,8 +5,8 @@ export type UserBasic = {
   username: string;
 };
 
-const getUserBasicInfo = async (token: string): Promise<UserBasic> => {
-  return await http.get(http.apiBaseURLs.api, "users/me", undefined, token);
+const getUserBasicInfo = async (): Promise<UserBasic> => {
+  return await http.get(http.apiBaseURLs.api, "users/me", undefined);
 };
 
 export const usersService = {

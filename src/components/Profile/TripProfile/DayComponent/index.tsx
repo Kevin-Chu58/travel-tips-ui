@@ -10,8 +10,6 @@ import {
 import AddIcon from "@mui/icons-material/Add";
 import { daysService, type Day } from "@services/days";
 import React, { useState } from "react";
-import { useSelector } from "react-redux";
-import type { RootState } from "@redux/store";
 import { useIsMobile } from "@hooks/useIsMobile";
 import { enqueueSnackbar } from "notistack";
 import { BehaviorUtils } from "@utils/BehaviorUtils";
@@ -48,8 +46,6 @@ const DayComponent = ({
   // day title
   const [dayTitle, setDayTitle] = useState<string | undefined>();
   const [openDayTitle, setOpenDayTitle] = useState<boolean>(false);
-  // others
-  const token = useSelector((state: RootState) => state.auth.accessToken);
 
   const updateDayTitle = async () => {
     try {
@@ -61,9 +57,9 @@ const DayComponent = ({
         return;
       }
 
-      if (day?.title !== trimmedDayTitle && day?.id && token) {
+      if (day?.title !== trimmedDayTitle && day?.id) {
         let dayPatch = { title: trimmedDayTitle };
-        let updatedDay = await daysService.patchDay(day.id, dayPatch, token);
+        let updatedDay = await daysService.patchDay(day.id, dayPatch);
 
         BehaviorUtils.sleep();
 

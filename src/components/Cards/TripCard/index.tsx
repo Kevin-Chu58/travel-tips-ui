@@ -7,8 +7,6 @@ import TLogo from "@assets/T.svg";
 import PreloadCarousel from "@components/Carousel/PreloadCarousel";
 import { useEffect, useState } from "react";
 import type { Image } from "@services/images";
-import { useSelector } from "react-redux";
-import type { RootState } from "@redux/store";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { enqueueSnackbar } from "notistack";
 import "./index.scss";
@@ -30,29 +28,25 @@ const TripCard = ({
   const [images, setImages] = useState<Image[]>([]);
   const [imageIndex, setImageIndex] = useState<number>(0);
   // others
-  const token = useSelector((state: RootState) => state.auth.accessToken);
   const [isHovered, setIsHovered] = useState<boolean>(false);
 
   useEffect(() => {
     const initTripImages = async () => {
-      if (trip && (trip.isPublic || token)) {
+      if (trip && trip.isPublic) {
         // get trip image
-        let tripImages = await tripsService.getImagesByTripId(
-          trip.id,
-          token ?? undefined
-        );
-        setImages(tripImages), token;
+        let tripImages = await tripsService.getImagesByTripId(trip.id);
+        setImages(tripImages);
       }
     };
     initTripImages();
-  }, [trip, token]);
+  }, [trip]);
 
   const handleDeleteTripClick = async (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation();
 
-    if (trip && token) {
+    if (trip) {
       try {
-        await tripsService.patchTripIsHidden([trip.id], true, token);
+        await tripsService.patchTripIsHidden([trip.id], true);
         if (setIsParentUpdated) setIsParentUpdated();
 
         enqueueSnackbar("Successfully deleted trip.", { variant: "success" });

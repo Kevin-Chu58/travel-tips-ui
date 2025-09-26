@@ -5,8 +5,6 @@ import AttachFileIcon from "@mui/icons-material/AttachFile";
 import { ImagesService, type Image } from "@services/images";
 import { useEffect, useState } from "react";
 import { BehaviorUtils } from "@utils/BehaviorUtils";
-import type { RootState } from "@redux/store";
-import { useSelector } from "react-redux";
 import { tripsService } from "@services/trips";
 import { enqueueSnackbar } from "notistack";
 import { useIsMobile } from "@hooks/useIsMobile";
@@ -41,14 +39,12 @@ const LibraryDialog = ({
   ) : (
     <AttachFileIcon />
   );
-  // others
-  const token = useSelector((state: RootState) => state.auth.accessToken);
 
   // rerender library images on openLibraryDialog
   useEffect(() => {
     const initLibraryImages = async () => {
-      if (open && token) {
-        let imageViewModels = await ImagesService.getMyImages(token);
+      if (open) {
+        let imageViewModels = await ImagesService.getMyImages();
         let unattachedImages = imageViewModels.filter(
           (image) => !imageIds.includes(image.id)
         );
@@ -59,14 +55,13 @@ const LibraryDialog = ({
   }, [open]);
 
   const handleImageAttach = async () => {
-    if (tripId && selectedImageId && token) {
+    if (tripId && selectedImageId) {
       try {
         setIsLoading(true);
 
         let newImage = await tripsService.postTripImage(
           tripId,
-          selectedImageId,
-          token
+          selectedImageId
         );
 
         syncAddImage(newImage);

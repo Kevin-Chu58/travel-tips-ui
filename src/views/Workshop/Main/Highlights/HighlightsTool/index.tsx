@@ -1,17 +1,12 @@
 import ListToolBar from "@components/ListToolBar";
-import type { RootState } from "@redux/store";
 import { attractionsService, type AttractionV2 } from "@services/attractions";
 import SortUtils, {
   sortTypeTitleAsc,
   sortTypeTitleDesc,
 } from "@utils/SortUtils";
 import { useEffect } from "react";
-import { useSelector } from "react-redux";
 
-const sortTypes = [
-  sortTypeTitleAsc,
-  sortTypeTitleDesc,
-];
+const sortTypes = [sortTypeTitleAsc, sortTypeTitleDesc];
 
 type HighlightsToolProps = {
   sortTypeIndex: number;
@@ -28,19 +23,16 @@ const HighlightsTool = ({
   setAttractions,
   syncAttractions,
 }: HighlightsToolProps) => {
-  // others
-  const token = useSelector((state: RootState) => state.auth.accessToken);
-
   // rerender on access token and syncAttractions
   useEffect(() => {
     const getMyHighlights = async () => {
-      if (token) {
-        const myAttractions = await attractionsService.getMyAttractionsByName(token);
-        setAttractions(SortUtils.sortList(myAttractions, sortTypes, sortTypeIndex));
-      }
+      const myAttractions = await attractionsService.getMyAttractionsByName();
+      setAttractions(
+        SortUtils.sortList(myAttractions, sortTypes, sortTypeIndex)
+      );
     };
     getMyHighlights();
-  }, [token, syncAttractions]);
+  }, [syncAttractions]);
 
   // rerender on sortTypeIndex to request sorting
   useEffect(() => {
@@ -48,14 +40,6 @@ const HighlightsTool = ({
       SortUtils.sortList([...prevHighlights], sortTypes, sortTypeIndex)
     );
   }, [sortTypeIndex]);
-
-  // const handleDelete = async () => {
-  //   if (token && selected.length > 0) {
-  //     await attractionsService.deleteHighlights(selected, token);
-  //     setIsUpdated();
-  //     setSelected([]);
-  //   }
-  // }
 
   return (
     <ListToolBar

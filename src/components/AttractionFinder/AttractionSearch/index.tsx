@@ -8,10 +8,6 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import type { RootState } from "@redux/store";
-import React, { useState } from "react";
-import { useSelector } from "react-redux";
-import "./index.scss";
 import { BehaviorUtils } from "@utils/BehaviorUtils";
 import type { AttractionV2 } from "@services/attractions";
 import { hereMapService } from "@services/hereMap/hereMap";
@@ -20,6 +16,8 @@ import type { GeoCoordinate } from "@constants/Types";
 import ActionSpan from "@components/ActionSpan";
 import ToolTip from "@components/ToolTip";
 import { enqueueSnackbar } from "notistack";
+import React, { useState } from "react";
+import "./index.scss";
 
 type AttractionSearchProps = {
   search: string;
@@ -46,26 +44,23 @@ const AttractionSearch = ({
     : "attraction-search-textfield";
   // search
   const [isSearchLoading, setIsSearchLoading] = useState<boolean>(false);
-  // others
-  const token = useSelector((state: RootState) => state.auth.accessToken);
 
   const handleSearch = async () => {
-    if (search.length > 0 && token && geoCoordinate) {
+    if (search.length > 0 && geoCoordinate) {
       try {
         setIsSearchLoading(true);
 
-      const searchResult = await hereMapService.searchPlaceByName(
-        search,
-        geoCoordinate.lat,
-        geoCoordinate.lng
-      );
+        const searchResult = await hereMapService.searchPlaceByName(
+          search,
+          geoCoordinate.lat,
+          geoCoordinate.lng
+        );
 
-      await BehaviorUtils.sleep();
-      setResult(searchResult);
+        await BehaviorUtils.sleep();
+        setResult(searchResult);
 
-      if (isMobile) setShowResult(true);
-      }
-      catch (e) {
+        if (isMobile) setShowResult(true);
+      } catch (e) {
         if (e instanceof Error)
           enqueueSnackbar(e.message, { variant: "error" });
       }
@@ -92,7 +87,8 @@ const AttractionSearch = ({
           title={
             <Box className="attraction-search-coordinate-tooltip-box">
               <Typography className="attraction-search-coordinate-tooltip-text">
-                <ActionSpan>Click</ActionSpan> on the map to select the location where search begins.
+                <ActionSpan>Click</ActionSpan> on the map to select the location
+                where search begins.
               </Typography>
               {geoCoordinate && (
                 <React.Fragment>

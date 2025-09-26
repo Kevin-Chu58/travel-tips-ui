@@ -1,19 +1,12 @@
 import TTButton from "@components/TTButton";
 import TTDialog from "@components/TTDialog";
-import {
-  Box,
-  CircularProgress,
-  Typography,
-} from "@mui/material";
+import { Box, CircularProgress, Typography } from "@mui/material";
 import type { RootState } from "@redux/store";
 import { attractionsService, type AttractionV2 } from "@services/attractions";
 import { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router";
-import {
-  highlightsService,
-  type Highlight,
-} from "@services/highlights";
+import { highlightsService, type Highlight } from "@services/highlights";
 import { useIsMobile } from "@hooks/useIsMobile";
 import WarningIcon from "@mui/icons-material/Warning";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -43,7 +36,6 @@ const HighlightProfile = () => {
   const openDelete = Boolean(deleteHighlightId);
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
   // others
-  const token = useSelector((state: RootState) => state.auth.accessToken);
   const userId = useSelector((state: RootState) => state.user.id);
   const { attractionId } = useParams();
   const hasFetchedRef = useRef(false);
@@ -97,12 +89,11 @@ const HighlightProfile = () => {
   };
 
   const handleDeleteConfirm = async () => {
-    if (token && deleteHighlightId) {
+    if (deleteHighlightId) {
       setIsDeleting(true);
 
       const deletedHighlight = await highlightsService.deleteHighlight(
-        deleteHighlightId,
-        token
+        deleteHighlightId
       );
 
       await BehaviorUtils.sleep();
@@ -117,26 +108,23 @@ const HighlightProfile = () => {
   };
 
   return (
-    <Box
-      className="highlight-profile-box"
-      maxWidth="lg"
-    >
+    <Box className="highlight-profile-box" maxWidth="lg">
       <Box className="highlight-profile-content-box">
-          {/* attraction */}
-          <AttractionFragment
-            attraction={attraction}
-            isAttractionLoading={isAttractionLoading}
-            isMobile={isMobile}
-          />
+        {/* attraction */}
+        <AttractionFragment
+          attraction={attraction}
+          isAttractionLoading={isAttractionLoading}
+          isMobile={isMobile}
+        />
 
-          {/* highlights */}
-          <HighlightsFragment
-            attraction={attraction}
-            highlights={highlights}
-            isHighlightLoading={isHighlightLoading}
-            setDeleteHighlightId={setDeleteHighlightId}
-            setSyncHighlights={() => setSyncHighlights(prev => !prev)}
-          />
+        {/* highlights */}
+        <HighlightsFragment
+          attraction={attraction}
+          highlights={highlights}
+          isHighlightLoading={isHighlightLoading}
+          setDeleteHighlightId={setDeleteHighlightId}
+          setSyncHighlights={() => setSyncHighlights((prev) => !prev)}
+        />
       </Box>
 
       {/* dialog - confirm delete - TODO: make a delete form in components/form*/}
@@ -144,7 +132,10 @@ const HighlightProfile = () => {
         <Box className="highlight-profile-dialog-box">
           <Box className="highlight-profile-dialog-header-box">
             <WarningIcon color="error" />
-            <Typography className="highlight-profile-dialog-header" color="error">
+            <Typography
+              className="highlight-profile-dialog-header"
+              color="error"
+            >
               Permanent Action
             </Typography>
           </Box>

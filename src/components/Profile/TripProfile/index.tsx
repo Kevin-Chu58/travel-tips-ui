@@ -2,10 +2,8 @@ import Mapper from "@components/Map";
 import { type Route, type NavTab } from "@constants/Types";
 import { useIsMobile } from "@hooks/useIsMobile";
 import { Box } from "@mui/material";
-import type { RootState } from "@redux/store";
 import { type Trip, tripsService } from "@services/trips";
 import { useEffect, useRef, useState } from "react";
-import { useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router";
 import { useSnackbar } from "notistack";
 import ImageSelector from "@components/ImageSelector";
@@ -34,10 +32,10 @@ import {
 import UIShowButton from "@components/Button/UIShowButton";
 import FabComponent from "./FabComponent";
 import TimeUtils from "@utils/TimeUtils";
+import { max_day_per_trip } from "@constants/Restrictions";
 import { isEqual } from "lodash";
 import clsx from "clsx";
 import "./index.scss";
-import { max_day_per_trip } from "@constants/Restrictions";
 
 type TripProfileProps = {
   uri?: string;
@@ -83,7 +81,6 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
   // behavior
   const [isLoading, setIsLoading] = useState<boolean>(true);
   // others
-  const token = useSelector((state: RootState) => state.auth.accessToken);
   const { tripId, dayId } = useParams(); // dayId - day index in days, not day.id
   const prevDayId = useRef<number | undefined>(undefined);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -112,10 +109,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
       getTripImages();
 
       // get trip basic
-      let tripBasic = await tripsService.getTripById(
-        Number(tripId),
-        token ?? undefined
-      );
+      let tripBasic = await tripsService.getTripById(Number(tripId));
       tripBasicRef.current = tripBasic;
       syncTrip();
 
@@ -126,19 +120,16 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
 
   const getTripImages = async () => {
     // get trip image
-    let tripImages = await tripsService.getImagesByTripId(
-      Number(tripId),
-      token ?? undefined
-    );
+    let tripImages = await tripsService.getImagesByTripId(Number(tripId));
     imagesRef.current = tripImages;
     syncImages();
   };
 
   const deleteTripImage = async (index: number) => {
-    if (tripBasic && token) {
+    if (tripBasic) {
       try {
         let imageId = images[index].id;
-        await tripsService.deleteTripImage(tripBasic.id, imageId, token);
+        await tripsService.deleteTripImage(tripBasic.id, imageId);
 
         syncDetachImage(imageId);
 
@@ -155,10 +146,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
   const initDays = async () => {
     if (tripId) {
       // get days with trip id
-      let days = await daysService.getDaysByTripId(
-        Number(tripId),
-        token ?? undefined
-      );
+      let days = await daysService.getDaysByTripId(Number(tripId));
       setDays(days);
     }
   };
@@ -181,7 +169,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
       if (!isSameDay) taos = taosMapRef.current.get(day.id);
       // if taos does not exist in taosMapRef, request it from API
       if (isSameDay || !taos) {
-        taos = await taosService.getTaosByDayId(day.id, token ?? undefined);
+        taos = await taosService.getTaosByDayId(day.id);
         taosMapRef.current.set(day.id, taos);
       }
       setTaos(taos);
@@ -327,7 +315,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
   // render trip on initiation
   useEffect(() => {
     initTrip();
-  }, [tripId, token]);
+  }, [tripId]);
 
   // rerender days on numDays
   useEffect(() => {
@@ -377,7 +365,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
     return navTabs;
   };
 
-   const handleOpenDayForm = () => {
+  const handleOpenDayForm = () => {
     // check if max taos per day is reached
     if (taos && taos.length >= max_day_per_trip) {
       enqueueSnackbar("Max number of events reached per day.", {

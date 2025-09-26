@@ -20,8 +20,6 @@ import { highlightsService, type Highlight } from "@services/highlights";
 import HighlightForm from "@components/Forms/HighlightForm";
 import DiscoverHighlightsForm from "@components/Forms/DiscoverHighlightsForm";
 import DirectionAccordion from "@components/Accordions/DirectionAccordion";
-import { useSelector } from "react-redux";
-import type { RootState } from "@redux/store";
 import { enqueueSnackbar } from "notistack";
 import TTButton from "@components/TTButton";
 import {
@@ -65,8 +63,6 @@ const TaoComponent = ({
   // open form states
   const [openDiscoverHighlights, setOpenDiscoverHighlights] =
     useState<boolean>(false);
-  // others
-  const token = useSelector((state: RootState) => state.auth.accessToken);
 
   const taoIndex = taos?.findIndex((t) => t.id === tao?.id);
   const routeResponse = taoIndex ? routeResponses?.at(taoIndex - 1) : undefined;
@@ -84,24 +80,21 @@ const TaoComponent = ({
   }, [tao?.id, tao?.attraction.id, tao?.highlight?.id, tao?.start, tao?.end]);
 
   const handlePostHighlight = async () => {
-    if (isCreating && tao && description && token) {
+    if (isCreating && tao && description) {
       try {
         let highlightPost = {
           attractionId: tao.attraction.id,
           description: description,
         };
 
-        let newHighlight = await highlightsService.postHighlight(
-          highlightPost,
-          token
-        );
+        let newHighlight = await highlightsService.postHighlight(highlightPost);
 
         let taoPatch = {
           ...tao,
           highlightId: newHighlight.id,
         };
 
-        let updatedTao = await taosService.patchTao(tao.id, taoPatch, token);
+        let updatedTao = await taosService.patchTao(tao.id, taoPatch);
         syncEditDayTaos(updatedTao);
 
         enqueueSnackbar("Successfully created highlight for this event.", {
@@ -131,12 +124,9 @@ const TaoComponent = ({
   };
 
   const handleDetachHighlight = async () => {
-    if (tao && token) {
+    if (tao) {
       try {
-        let updatedTao = await taosService.patchTaoDetachHighlight(
-          tao.id,
-          token
-        );
+        let updatedTao = await taosService.patchTaoDetachHighlight(tao.id);
         syncEditDayTaos(updatedTao);
 
         enqueueSnackbar("Successfully detached highlight.", {
@@ -158,13 +148,9 @@ const TaoComponent = ({
       return;
     }
 
-    if (tao && token) {
+    if (tao) {
       try {
-        await taosService.patchTao(
-          tao.id,
-          { transportMode: newTransportMode },
-          token
-        );
+        await taosService.patchTao(tao.id, { transportMode: newTransportMode });
 
         enqueueSnackbar(`Transport mode updated to ${newTransportMode}.`, {
           variant: "success",

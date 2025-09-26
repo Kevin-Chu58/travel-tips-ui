@@ -13,8 +13,8 @@ import FileUploadIcon from "@mui/icons-material/FileUpload";
 import { enqueueSnackbar } from "notistack";
 import LibraryDialog from "./LibraryDialog";
 import CropperDialog from "./CropperDialog";
-import "./index.scss";
 import type { Image } from "@services/images";
+import "./index.scss";
 
 type ImageSelectorProps = {
   tripId?: number;

@@ -1,11 +1,9 @@
 import DescriptionTextField from "@components/TextField/DescriptionTextField";
 import TTButton from "@components/TTButton";
 import { Box, Button, Skeleton, Typography } from "@mui/material";
-import type { RootState } from "@redux/store";
 import { tripsService, type Trip, type TripPatch } from "@services/trips";
 import { enqueueSnackbar } from "notistack";
 import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
 import "./index.scss";
 
 type DescriptionComponentProps = {
@@ -24,8 +22,6 @@ const DescriptionComponent = ({
   const [description, setDescription] = useState<string | undefined>();
   const [isEditingDescription, setIsEditingDescription] =
     useState<boolean>(false);
-  // others
-  const token = useSelector((state: RootState) => state.auth.accessToken);
 
   const helperText = "What makes this trip special?\nTell others about it!";
 
@@ -46,13 +42,12 @@ const DescriptionComponent = ({
       return;
     }
 
-    if (tripBasicRef.current && token) {
+    if (tripBasicRef.current) {
       try {
         let tripPatch = { description: trimmedDescription } as TripPatch;
         tripPatch = await tripsService.patchTrip(
           tripBasicRef.current.id,
-          tripPatch,
-          token
+          tripPatch
         );
 
         enqueueSnackbar("Successfully updated trip summary.", {

@@ -14,12 +14,11 @@ export type ImageRelation = {
   imageId: number;
 };
 
-const getMyImages = async (token: string): Promise<Image[]> => {
-  return await http.get(http.apiBaseURLs.api, "images/my", undefined, token);
+const getMyImages = async (): Promise<Image[]> => {
+  return await http.get(http.apiBaseURLs.api, "images/my", undefined);
 };
 
 const uploadImage = async (
-  token: string,
   file: Blob | File,
   name?: string
 ): Promise<Image> => {
@@ -28,8 +27,7 @@ const uploadImage = async (
     "images/upload",
     file,
     name,
-    undefined,
-    token
+    undefined
   );
 };
 

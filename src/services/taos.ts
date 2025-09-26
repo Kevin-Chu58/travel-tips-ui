@@ -32,81 +32,57 @@ export type TaoPatch = {
   transportMode?: string;
 };
 
-const getTaoById = async (
-  id: number,
-  dayId: number,
-  token?: string
-): Promise<Tao> => {
+const getTaoById = async (id: number, dayId: number): Promise<Tao> => {
   return await http.get(
     http.apiBaseURLs.api,
     `tripAttractionOrders/${id}/day/${dayId}`,
-    undefined,
-    token
+    undefined
   );
 };
 
-const getTaosByDayId = async (
-  dayId: number,
-  token?: string
-): Promise<Tao[]> => {
+const getTaosByDayId = async (dayId: number): Promise<Tao[]> => {
   return await http.get(
     http.apiBaseURLs.api,
     `tripAttractionOrders/day/${dayId}`,
-    undefined,
-    token
+    undefined
   );
 };
 
-const postTao = async (
-  dayId: number,
-  newTao: TaoPost,
-  token: string
-): Promise<Tao> => {
+const postTao = async (dayId: number, newTao: TaoPost): Promise<Tao> => {
   const body = JSON.stringify(newTao);
   return await http.post(
     http.apiBaseURLs.api,
     `tripAttractionOrders/${dayId}`,
     body,
-    undefined,
-    token
+    undefined
   );
 };
 
-const patchTao = async (
-  taoId: number,
-  taoPatch: TaoPatch,
-  token: string
-): Promise<Tao> => {
+const patchTao = async (taoId: number, taoPatch: TaoPatch): Promise<Tao> => {
   const body = JSON.stringify(taoPatch);
   return await http.patch(
     http.apiBaseURLs.api,
     `tripAttractionOrders/${taoId}`,
     body,
-    undefined,
-    token
+    undefined
   );
 };
 
-const patchTaoDetachHighlight = async (
-  taoId: number,
-  token: string
-): Promise<Tao> => {
+const patchTaoDetachHighlight = async (taoId: number): Promise<Tao> => {
   return await http.patch(
     http.apiBaseURLs.api,
     `tripAttractionOrders/${taoId}/detach-highlight`,
     undefined,
-    undefined,
-    token
+    undefined
   );
 };
 
-const deleteTao = async (taoId: number, token: string): Promise<number> => {
+const deleteTao = async (taoId: number): Promise<number> => {
   return await http.del(
     http.apiBaseURLs.api,
     `tripAttractionOrders/${taoId}`,
     undefined,
-    undefined,
-    token
+    undefined
   );
 };
 

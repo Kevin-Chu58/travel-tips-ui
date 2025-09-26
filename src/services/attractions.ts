@@ -21,16 +21,10 @@ export type AttractionV2 = AttractionV2Basic & {
 };
 
 const getAttractionById = async (id: number): Promise<AttractionV2> => {
-  return await http.get(
-    http.apiBaseURLs.api,
-    `attractions/${id}`,
-    undefined,
-    undefined
-  );
+  return await http.get(http.apiBaseURLs.api, `attractions/${id}`, undefined);
 };
 
 const getMyAttractionsByName = async (
-  token: string,
   name?: string
 ): Promise<AttractionV2[]> => {
   const params = new URLSearchParams();
@@ -40,21 +34,16 @@ const getMyAttractionsByName = async (
   return await http.get(
     http.apiBaseURLs.api,
     `attractions/my?${params.toString()}`,
-    undefined,
-    token
+    undefined
   );
 };
 
-const postNewAttraction = async (
-  hereId: string,
-  token: string
-): Promise<AttractionV2> => {
+const postNewAttraction = async (hereId: string): Promise<AttractionV2> => {
   return await http.post(
     http.apiBaseURLs.api,
     `attractions/${hereId}`,
     undefined,
-    undefined,
-    token
+    undefined
   );
 };
 

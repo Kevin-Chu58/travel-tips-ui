@@ -12,8 +12,6 @@ import AttractionSelectButton from "./AttractionSelectButton";
 import AttractionList from "./AttractionList";
 import { attractionsService, type AttractionV2 } from "@services/attractions";
 import MapUtils from "@utils/MapUtils";
-import { useSelector } from "react-redux";
-import type { RootState } from "@redux/store";
 import { BehaviorUtils } from "@utils/BehaviorUtils";
 import AttractionFragment from "@components/Profile/HighlightProfile/AttractionFragment";
 import DescriptionTextField from "@components/TextField/DescriptionTextField";
@@ -61,8 +59,6 @@ const AttractionFinder = ({
     useState<boolean>(false);
   const [description, setDescription] = useState<string>("");
   const [isPosting, setIsPosting] = useState<boolean>(false);
-  // others
-  const token = useSelector((state: RootState) => state.auth.accessToken);
 
   useEffect(() => {
     const initGeoCoordinate = async () => {
@@ -85,14 +81,11 @@ const AttractionFinder = ({
   };
 
   const handleSelectClick = async () => {
-    if (token && focusId) {
+    if (focusId) {
       try {
         setIsAttractionLoading(true);
 
-        let attraction = await attractionsService.postNewAttraction(
-          focusId,
-          token
-        );
+        let attraction = await attractionsService.postNewAttraction(focusId);
 
         await BehaviorUtils.sleep();
 
@@ -136,13 +129,13 @@ const AttractionFinder = ({
   const handlePost = async () => {
     const trimedDescription = description.trim();
 
-    if (token && attraction && trimedDescription.length > 0) {
+    if (attraction && trimedDescription.length > 0) {
       try {
         setIsPosting(true);
-        await highlightsService.postHighlight(
-          { attractionId: attraction.id, description: trimedDescription },
-          token
-        );
+        await highlightsService.postHighlight({
+          attractionId: attraction.id,
+          description: trimedDescription,
+        });
         await BehaviorUtils.sleep();
 
         enqueueSnackbar("Successfully posted highlight.", {

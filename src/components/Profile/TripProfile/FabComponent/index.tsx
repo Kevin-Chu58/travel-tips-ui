@@ -5,8 +5,6 @@ import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import { enqueueSnackbar } from "notistack";
-import { useSelector } from "react-redux";
-import type { RootState } from "@redux/store";
 import { tripsService, type Trip } from "@services/trips";
 import type { Tao } from "@services/taos";
 import React, { useEffect, useState } from "react";
@@ -36,8 +34,6 @@ const FabComponent = ({
 }: FabComponentProps) => {
   // status
   const [isPublished, setIsPublished] = useState<boolean>(false);
-  // others
-  const token = useSelector((state: RootState) => state.auth.accessToken);
 
   useEffect(() => {
     if (tripBasic) {
@@ -46,14 +42,13 @@ const FabComponent = ({
   }, [tripBasic]);
 
   const togglePublishStatus = async () => {
-    if (tripBasicRef.current && token) {
+    if (tripBasicRef.current) {
       try {
         let newPublishState = !tripBasicRef.current.isPublic;
 
         await tripsService.patchTripIsPublic(
           [tripBasicRef.current.id],
-          newPublishState,
-          token
+          newPublishState
         );
 
         tripBasicRef.current.isPublic = newPublishState;

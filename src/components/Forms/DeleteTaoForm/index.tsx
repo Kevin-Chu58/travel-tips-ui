@@ -3,8 +3,6 @@ import WarningIcon from "@mui/icons-material/Warning";
 import DeleteIcon from "@mui/icons-material/Delete";
 import TTButton from "@components/TTButton";
 import { useState } from "react";
-import type { RootState } from "@redux/store";
-import { useSelector } from "react-redux";
 import TTDialog from "@components/TTDialog";
 import { enqueueSnackbar } from "notistack";
 import { BehaviorUtils } from "@utils/BehaviorUtils";
@@ -25,8 +23,6 @@ const DeleteTaoForm = ({
   setIsParentUpdated,
 }: DeleteTaoFormProps) => {
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
-  // others
-  const token = useSelector((state: RootState) => state.auth.accessToken);
 
   const deleteIcon = isDeleting ? (
     <CircularProgress size="1rem" sx={{ color: "white" }} />
@@ -41,10 +37,10 @@ const DeleteTaoForm = ({
 
   const handleDeleteConfirm = async () => {
     try {
-      if (tao && token) {
+      if (tao) {
         setIsDeleting(true);
 
-        await taosService.deleteTao(tao.id, token);
+        await taosService.deleteTao(tao.id);
 
         BehaviorUtils.sleep();
         setIsDeleting(false);

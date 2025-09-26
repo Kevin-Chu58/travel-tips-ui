@@ -4,7 +4,6 @@ import TTButton from "@components/TTButton";
 import TTDialog from "@components/TTDialog";
 import { useIsMobile } from "@hooks/useIsMobile";
 import { Typography, Box, Divider, CircularProgress } from "@mui/material";
-import type { RootState } from "@redux/store";
 import type { AttractionV2 } from "@services/attractions";
 import { BehaviorUtils } from "@utils/BehaviorUtils";
 import MapUtils from "@utils/MapUtils";
@@ -12,7 +11,6 @@ import React, { useEffect, useState } from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import AddIcon from "@mui/icons-material/Add";
 import SearchIcon from "@mui/icons-material/Search";
-import { useSelector } from "react-redux";
 import { enqueueSnackbar } from "notistack";
 import { taosService, type Tao } from "@services/taos";
 import TimeUtils from "@utils/TimeUtils";
@@ -77,8 +75,6 @@ const TaoForm = ({
     <AddIcon />
   );
   const actionButtonLabel = (tao ? "update" : "create") + " event";
-  // others
-  const token = useSelector((state: RootState) => state.auth.accessToken);
 
   // rerender initial states on tao
   useEffect(() => {
@@ -116,7 +112,7 @@ const TaoForm = ({
 
   const handleClickActionButton = async () => {
     let _dayId = dayId || tao?.dayId;
-    if (_dayId && _start && _end && areTimesValid && attraction && token) {
+    if (_dayId && _start && _end && areTimesValid && attraction) {
       try {
         setIsProcessing(true);
 
@@ -132,7 +128,7 @@ const TaoForm = ({
             attractionId: isSameAttraction ? undefined : attraction.id,
           };
 
-          let updatedTao = await taosService.patchTao(tao.id, _tao, token);
+          let updatedTao = await taosService.patchTao(tao.id, _tao);
 
           syncEditDayTaos(updatedTao);
         } else {
@@ -142,7 +138,7 @@ const TaoForm = ({
             end: endTime,
             attractionId: attraction.id,
           };
-          let newTao = await taosService.postTao(_dayId, _tao, token);
+          let newTao = await taosService.postTao(_dayId, _tao);
 
           syncAddDayTaos(newTao);
         }

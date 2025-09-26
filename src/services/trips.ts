@@ -25,75 +25,55 @@ const getTripsByTitle = async (title: string): Promise<Trip[]> => {
   return await http.get(http.apiBaseURLs.api, `trips?${params.toString()}`);
 };
 
-const getMyTrips = async (token: string): Promise<Trip[]> => {
-  return await http.get(http.apiBaseURLs.api, "trips/my", undefined, token);
+const getMyTrips = async (): Promise<Trip[]> => {
+  return await http.get(http.apiBaseURLs.api, "trips/my", undefined);
 };
 
-const getTripById = async (id: number, token?: string): Promise<Trip> => {
-  return await http.get(
-    http.apiBaseURLs.api,
-    `trips/${id}`,
-    undefined,
-    token
-  );
+const getTripById = async (id: number): Promise<Trip> => {
+  return await http.get(http.apiBaseURLs.api, `trips/${id}`, undefined);
 };
 
-const getImagesByTripId = (id: number, token?: string): Promise<Image[]> => {
-  return http.get(http.apiBaseURLs.api, `trips/${id}/images`, undefined, token);
+const getImagesByTripId = (id: number): Promise<Image[]> => {
+  return http.get(http.apiBaseURLs.api, `trips/${id}/images`, undefined);
 };
 
-const postNewTrip = async (name: string, token: string): Promise<Trip> => {
+const postNewTrip = async (name: string): Promise<Trip> => {
   return await http.post(
     http.apiBaseURLs.api,
     `trips/${name}`,
     undefined,
-    undefined,
-    token
+    undefined
   );
 };
 
-const patchTrip = async (
-  id: number,
-  trip: TripPatch,
-  token: string
-): Promise<TripPatch> => {
+const patchTrip = async (id: number, trip: TripPatch): Promise<TripPatch> => {
   const body = JSON.stringify(trip);
-  return await http.patch(
-    http.apiBaseURLs.api,
-    `trips/${id}`,
-    body,
-    undefined,
-    token
-  );
+  return await http.patch(http.apiBaseURLs.api, `trips/${id}`, body, undefined);
 };
 
 const patchTripIsPublic = async (
   ids: number[],
-  isPublic: boolean,
-  token: string
+  isPublic: boolean
 ): Promise<number[]> => {
   const body = JSON.stringify(ids);
   return await http.patch(
     http.apiBaseURLs.api,
     `trips/isPublic/${isPublic}`,
     body,
-    undefined,
-    token
+    undefined
   );
 };
 
 const patchTripIsHidden = async (
   ids: number[],
-  isHidden: boolean,
-  token: string
+  isHidden: boolean
 ): Promise<number[]> => {
   const body = JSON.stringify(ids);
   return await http.patch(
     http.apiBaseURLs.api,
     `trips/isHidden/${isHidden}`,
     body,
-    undefined,
-    token
+    undefined
   );
 };
 
@@ -101,29 +81,25 @@ const patchTripIsHidden = async (
 
 const postTripImage = async (
   tripId: number,
-  imageId: number,
-  token: string
+  imageId: number
 ): Promise<Image> => {
   return await http.post(
     http.apiBaseURLs.api,
     `trips/${tripId}/image/${imageId}`,
     undefined,
-    undefined,
-    token
+    undefined
   );
 };
 
 const deleteTripImage = async (
   tripId: number,
-  imageId: number,
-  token: string
+  imageId: number
 ): Promise<ImageRelation> => {
   return await http.del(
     http.apiBaseURLs.api,
     `trips/${tripId}/image/${imageId}`,
     undefined,
-    undefined,
-    token
+    undefined
   );
 };
 

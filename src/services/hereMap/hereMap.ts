@@ -114,30 +114,26 @@ const searchPlaceByName = async (
   return await http.get(
     http.apiBaseURLs.api,
     `hereMap/discover?${params.toString()}`,
-    undefined,
     undefined
   );
 };
 
 const getRoutingByTaoId = async (
-  taoId: number,
+  taoId: number
 ): Promise<HereRoutingResponse | null> => {
   return await http.get(
     http.apiBaseURLs.api,
     `hereMap/routing/${taoId}`,
-    undefined,
-    undefined,
+    undefined
   );
 };
 
 const getRoutingsOnDay = async (
   dayId: number
 ): Promise<HereRoutingResponse[]> => {
-
   return await http.get(
     http.apiBaseURLs.api,
     `hereMap/routing/day/${dayId}`,
-    undefined,
     undefined
   );
 };

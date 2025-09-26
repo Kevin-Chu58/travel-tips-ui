@@ -6,8 +6,6 @@ import { type Highlight, highlightsService } from "@services/highlights";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
 import { taosService, type Tao } from "@services/taos";
 import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
-import type { RootState } from "@redux/store";
 import { BehaviorUtils } from "@utils/BehaviorUtils";
 import { enqueueSnackbar } from "notistack";
 import { useIsMobile } from "@hooks/useIsMobile";
@@ -45,8 +43,6 @@ const DiscoverHighlightsForm = ({
   ) : (
     <AttachFileIcon />
   );
-  // others
-  const token = useSelector((state: RootState) => state.auth.accessToken);
 
   // rerender highlight list on open
   useEffect(() => {
@@ -63,13 +59,13 @@ const DiscoverHighlightsForm = ({
   }, [open]);
 
   const handleClickAattach = async () => {
-    if (isValid && tao && token) {
+    if (isValid && tao) {
       try {
         setIsProcessing(true);
 
         let taoPatch = { highlightId: selectedHighlightId };
 
-        let updatedTao = await taosService.patchTao(tao.id, taoPatch, token);
+        let updatedTao = await taosService.patchTao(tao.id, taoPatch);
 
         await BehaviorUtils.sleep();
         syncEditDayTaos(updatedTao);

@@ -1,7 +1,5 @@
 import { Box, CircularProgress } from "@mui/material";
-import type { RootState } from "@redux/store";
 import { useState } from "react";
-import { useSelector } from "react-redux";
 import FileUploadIcon from "@mui/icons-material/FileUpload";
 import AddIcon from "@mui/icons-material/Add";
 import DescriptionTextField from "@components/TextField/DescriptionTextField";
@@ -40,8 +38,6 @@ const HighlightForm = ({
   // update action
   const actualDescription = description ?? _description;
   const updateDescription = setDescription ?? _setDescription;
-  // others
-  const token = useSelector((state: RootState) => state.auth.accessToken);
 
   const actionIconDefault = isPost ? <AddIcon /> : <FileUploadIcon />;
   const actionIcon = isUpdating ? (
@@ -53,50 +49,46 @@ const HighlightForm = ({
   const handlePost = async () => {
     const trimedDescription = _description.trim();
 
-    if (token) {
-      try {
-        setIsUpdating(true);
+    try {
+      setIsUpdating(true);
 
-        if (highlight || onAction) {
-          if (highlight && trimedDescription.length > 0) {
-            let newHighlight = await highlightsService.postHighlight(
-              { ...highlight, description: trimedDescription },
-              token
-            );
-            await BehaviorUtils.sleep();
-            setHighlight(newHighlight);
+      if (highlight || onAction) {
+        if (highlight && trimedDescription.length > 0) {
+          let newHighlight = await highlightsService.postHighlight({
+            ...highlight,
+            description: trimedDescription,
+          });
+          await BehaviorUtils.sleep();
+          setHighlight(newHighlight);
 
-            enqueueSnackbar("Successfully posted highlight.", {
-              variant: "success",
-            });
-            setIsUpdating(false);
-          }
-
-          if (onAction) {
-            onAction();
-          }
+          enqueueSnackbar("Successfully posted highlight.", {
+            variant: "success",
+          });
+          setIsUpdating(false);
         }
-      } catch (e) {
-        if (e instanceof Error)
-          enqueueSnackbar(e.message, { variant: "error" });
-      }
-      setIsUpdating(false);
-    }
 
-    onClose();
+        if (onAction) {
+          onAction();
+        }
+      }
+    } catch (e) {
+      if (e instanceof Error) enqueueSnackbar(e.message, { variant: "error" });
+    }
+    setIsUpdating(false);
   };
+
+  onClose();
 
   const handleUpdate = async () => {
     const trimedDescription = actualDescription.trim();
     const isChanged = highlight?.description !== trimedDescription;
 
-    if (isChanged && token && highlight && highlight.description) {
+    if (isChanged && highlight && highlight.description) {
       try {
         setIsUpdating(true);
         let updatedHighlight = await highlightsService.patchHighlight(
           highlight.id,
-          trimedDescription,
-          token
+          trimedDescription
         );
         await BehaviorUtils.sleep();
         onAction ? onAction(updatedHighlight) : setHighlight(updatedHighlight);

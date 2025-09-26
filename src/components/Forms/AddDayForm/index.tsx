@@ -10,8 +10,6 @@ import {
 import AddIcon from "@mui/icons-material/Add";
 import { useState } from "react";
 import { Sunrise } from "react-feather";
-import { useSelector } from "react-redux";
-import type { RootState } from "@redux/store";
 import { enqueueSnackbar } from "notistack";
 import { daysService } from "@services/days";
 import { BehaviorUtils } from "@utils/BehaviorUtils";
@@ -42,11 +40,9 @@ const AddDayForm = ({
   ) : (
     <AddIcon />
   );
-  // others
-  const token = useSelector((state: RootState) => state.auth.accessToken);
 
   const handlePost = async () => {
-    if (tripId && token) {
+    if (tripId) {
       try {
         var trimmedTitle = title.trim();
 
@@ -58,13 +54,13 @@ const AddDayForm = ({
 
         setIsLoading(true);
 
-        await daysService.postNewDay(token, tripId, trimmedTitle);
+        await daysService.postNewDay(tripId, trimmedTitle);
 
         BehaviorUtils.sleep();
 
         tripBasicRef.current!.numDays! += 1;
         syncTrip();
-        
+
         enqueueSnackbar("Successfully create a day.", { variant: "success" });
       } catch (e) {
         if (e instanceof Error) {
