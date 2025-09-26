@@ -7,6 +7,7 @@ import type { Tao } from "@services/taos";
 import { enqueueSnackbar } from "notistack";
 import clsx from "clsx";
 import "./index.scss";
+import { max_tao_per_day } from "@constants/Restrictions";
 
 type DayScheduleProps = {
   dayIndex: number;
@@ -138,6 +139,14 @@ const DaySchedule = ({
   };
 
   const initDialog = (_firstIndex: number, _secondIndex: number) => {
+    // check if max taos per day is reached
+    if (taos && taos.length >= max_tao_per_day) {
+      enqueueSnackbar("Max number of events reached per day.", {
+        variant: "error",
+      });
+      return;
+    }
+
     // check if mouse selects time intervals from top to bottom or the other way around
     const isInOrder = _firstIndex <= _secondIndex;
 

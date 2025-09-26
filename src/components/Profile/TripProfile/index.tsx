@@ -37,6 +37,7 @@ import TimeUtils from "@utils/TimeUtils";
 import { isEqual } from "lodash";
 import clsx from "clsx";
 import "./index.scss";
+import { max_day_per_trip } from "@constants/Restrictions";
 
 type TripProfileProps = {
   uri?: string;
@@ -376,6 +377,18 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
     return navTabs;
   };
 
+   const handleOpenDayForm = () => {
+    // check if max taos per day is reached
+    if (taos && taos.length >= max_day_per_trip) {
+      enqueueSnackbar("Max number of events reached per day.", {
+        variant: "error",
+      });
+      return;
+    }
+
+    setOpenDayForm(true);
+  };
+
   return (
     <Box className="trip-profile-box">
       <Box className="trip-profile-ui-box">
@@ -465,7 +478,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
                 navTabs={getNavTabs()}
                 navTabValue={navTabValue}
                 setNavTabValue={setNavTabValue}
-                handleOpenDayForm={() => setOpenDayForm(true)}
+                handleOpenDayForm={handleOpenDayForm}
                 isLoading={isLoading}
                 readonly={readonly}
               />

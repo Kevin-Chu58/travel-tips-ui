@@ -45,8 +45,6 @@ export type SelectType = {
   label: string;
 };
 
-// trip
-
 // day
 export type DayId = { id?: number };
 
