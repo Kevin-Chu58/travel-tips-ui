@@ -74,10 +74,10 @@ const HighlightForm = ({
     } catch (e) {
       if (e instanceof Error) enqueueSnackbar(e.message, { variant: "error" });
     }
+    
     setIsUpdating(false);
+    onClose();
   };
-
-  onClose();
 
   const handleUpdate = async () => {
     const trimedDescription = actualDescription.trim();

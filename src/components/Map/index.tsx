@@ -187,16 +187,16 @@ const Map = React.memo(
       let indexFocused = focusOnRoute && markerIndex;
 
       let routeCoords =
-        mapRoutes?.map((r) => decode(r.polyline ?? "").polyline) ?? [];
+        mapRoutes?.map((r) => !r ? [] : decode(r.polyline ?? "").polyline) ?? [];
 
       mapRoutes?.forEach((mapRoute, i) => {
         let coords = routeCoords[i];
-        let isFocused = indexFocused === (mapRoute.groupId ?? 0 + 1);
+        let isFocused = indexFocused === (mapRoute?.groupId ?? 0 + 1);
 
         // create polyline for each route coords array
         const polyline = L.polyline(coords as L.LatLngExpression[], {
           color: isFocused
-            ? (mapRoute.color ?? "#1976d2")
+            ? (mapRoute?.color ?? "#1976d2")
             : "#bdbdbd",
           weight: 8,
           opacity: 1,

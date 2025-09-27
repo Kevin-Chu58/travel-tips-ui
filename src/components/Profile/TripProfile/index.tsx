@@ -1,5 +1,5 @@
 import Mapper from "@components/Map";
-import { type Route, type NavTab } from "@constants/Types";
+import type { Route, NavTab, GeoCoordinate } from "@constants/Types";
 import { useIsMobile } from "@hooks/useIsMobile";
 import { Box } from "@mui/material";
 import { type Trip, tripsService } from "@services/trips";
@@ -72,6 +72,8 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
     HereRoutingResponse[] | undefined
   >();
   const [routes, setRoutes] = useState<Route[]>();
+  // last geo coordinate
+  const [lastGeoCoordinate, setLastGeoCoordinate] = useState<GeoCoordinate | undefined>();
   // form open status
   const [openDayForm, setOpenDayForm] = useState<boolean>(false);
   const [openDeleteDayForm, setOpenDeleteDayForm] = useState<boolean>(false);
@@ -104,17 +106,23 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
   const isOverview = !Boolean(dayId);
 
   const initTrip = async () => {
-    if (tripId) {
-      setIsLoading(true);
-      getTripImages();
+    try {
+      if (tripId) {
+        setIsLoading(true);
+        getTripImages();
 
-      // get trip basic
-      let tripBasic = await tripsService.getTripById(Number(tripId));
-      tripBasicRef.current = tripBasic;
-      syncTrip();
+        // get trip basic
+        let tripBasic = await tripsService.getTripById(Number(tripId));
+        tripBasicRef.current = tripBasic;
+        syncTrip();
 
-      BehaviorUtils.sleep();
-      setIsLoading(false);
+        BehaviorUtils.sleep();
+        setIsLoading(false);
+      }
+    } catch (e) {
+      if (e instanceof Error) {
+        navigate("/");
+      }
     }
   };
 
@@ -207,12 +215,12 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
   const initRoutes = async (routeResponses: HereRoutingResponse[]) => {
     let routes = routeResponses
       .map((res, i) =>
-        res.routes?.map((r) =>
+        res.routes?.map((r) => r ?
           r.sections?.map((s) => ({
             polyline: s.polyline,
             groupId: i,
             color: s.transport?.color,
-          }))
+          })) : undefined
         )
       )
       .flat(2) as Route[];
@@ -324,8 +332,14 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
 
   // rerender navTabValue on dayId
   useEffect(() => {
-    setNavTabValue(Number(dayId ?? 0));
-  }, [dayId]);
+    if (
+      dayId &&
+      tripBasic?.numDays &&
+      (Number(dayId) > tripBasic.numDays || Number(dayId) < 1)
+    )
+      navigate(overViewNavTab.to);
+    else setNavTabValue(Number(dayId ?? 0));
+  }, [dayId, tripBasic?.numDays]);
 
   // rerender day on days update and navTabValue
   useEffect(() => {
@@ -485,6 +499,8 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
                 syncEditDay={syncEditDay}
                 syncAddDayTaos={syncAddDayTaos}
                 syncEditDayTaos={syncEditDayTaos}
+                lastGeoCoordinate={lastGeoCoordinate}
+                setLastGeoCoordinate={setLastGeoCoordinate}
                 readonly={readonly}
               />
             </Box>
@@ -593,6 +609,8 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
         onClose={() => setOpenEditTaoForm(false)}
         dayIndex={Number(dayId)}
         tao={tao}
+        lastGeoCoordinate={lastGeoCoordinate}
+        setLastGeoCoordinate={setLastGeoCoordinate}
         syncAddDayTaos={syncAddDayTaos}
         syncEditDayTaos={syncEditDayTaos}
       />

@@ -17,6 +17,7 @@ import DaySchedule from "@components/DaySchedule";
 import type { Tao } from "@services/taos";
 import clsx from "clsx";
 import "./index.scss";
+import type { GeoCoordinate } from "@constants/Types";
 
 type DayComponentProps = {
   day: Day | undefined;
@@ -26,6 +27,8 @@ type DayComponentProps = {
   syncEditDay: (state: Day) => void;
   syncAddDayTaos: (state: Tao) => void;
   syncEditDayTaos: (state: Tao) => void;
+  lastGeoCoordinate?: GeoCoordinate | undefined;
+  setLastGeoCoordinate?: (state: GeoCoordinate) => void;
   inputRef: React.RefObject<HTMLInputElement | null>;
   readonly?: boolean;
 };
@@ -38,6 +41,8 @@ const DayComponent = ({
   syncEditDay,
   syncAddDayTaos,
   syncEditDayTaos,
+  lastGeoCoordinate,
+  setLastGeoCoordinate,
   inputRef,
   readonly = false,
 }: DayComponentProps) => {
@@ -177,6 +182,8 @@ const DayComponent = ({
             setTao={setTao}
             syncAddDayTaos={syncAddDayTaos}
             syncEditDayTaos={syncEditDayTaos}
+            lastGeoCoordinate={lastGeoCoordinate}
+            setLastGeoCoordinate={setLastGeoCoordinate}
             readonly={readonly}
           />
         </Box>

@@ -66,8 +66,8 @@ const TaoComponent = ({
 
   const taoIndex = taos?.findIndex((t) => t.id === tao?.id);
   const routeResponse = taoIndex ? routeResponses?.at(taoIndex - 1) : undefined;
-  const formatedSections = routeResponse
-    ? MapUtils.mergeRoutingSections(routeResponse.routes![0])
+  const formatedSections = routeResponse && routeResponse.routes?.at(0)
+    ? MapUtils.mergeRoutingSections(routeResponse.routes[0])
     : undefined;
 
   // rerender _tao on tao when is defined

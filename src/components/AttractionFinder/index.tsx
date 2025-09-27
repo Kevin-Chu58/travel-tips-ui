@@ -26,6 +26,8 @@ import "./index.scss";
 type AttractionFinderProps = {
   open: boolean;
   setOpen: (isOpen: boolean) => void;
+  lastGeoCoordinate?: GeoCoordinate | undefined;
+  setLastGeoCoordinate?: (state: GeoCoordinate) => void;
   setIsParentUpdated?: () => void;
   setParentAttraction?: (state: AttractionV2) => void;
 };
@@ -33,6 +35,8 @@ type AttractionFinderProps = {
 const AttractionFinder = ({
   open,
   setOpen,
+  lastGeoCoordinate,
+  setLastGeoCoordinate,
   setIsParentUpdated,
   setParentAttraction,
 }: AttractionFinderProps) => {
@@ -63,7 +67,8 @@ const AttractionFinder = ({
   useEffect(() => {
     const initGeoCoordinate = async () => {
       if (open) {
-        const geoCoords = await MapUtils.getCurrentLocation();
+        const geoCoords =
+          lastGeoCoordinate ?? (await MapUtils.getCurrentLocation());
         setGeoCoordinate(geoCoords);
       }
     };
@@ -89,14 +94,21 @@ const AttractionFinder = ({
 
         await BehaviorUtils.sleep();
 
+        
+        console.log("yes select is clicked");
+
+        if (setLastGeoCoordinate) {
+          console.log("yes i am here");
+          setLastGeoCoordinate({ lat: attraction.lat, lng: attraction.lng });
+        }
+
         // if has setParentAttraction, then return the attraction to the parent
         // then skipping the attraction layer and close the dialog
-        if (setParentAttraction !== undefined) {
+        if (setParentAttraction) {
           setParentAttraction(attraction);
           handleClose();
         } else {
           setAttraction(attraction);
-          setIsAttractionLoading(false);
         }
       } catch (e) {
         if (e instanceof Error)

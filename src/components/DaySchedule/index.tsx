@@ -5,9 +5,10 @@ import TaoForm from "@components/Forms/TaoForm";
 import TimeUtils from "@utils/TimeUtils";
 import type { Tao } from "@services/taos";
 import { enqueueSnackbar } from "notistack";
+import { max_tao_per_day } from "@constants/Restrictions";
+import type { GeoCoordinate } from "@constants/Types";
 import clsx from "clsx";
 import "./index.scss";
-import { max_tao_per_day } from "@constants/Restrictions";
 
 type DayScheduleProps = {
   dayIndex: number;
@@ -15,6 +16,8 @@ type DayScheduleProps = {
   taos: Tao[] | undefined;
   setTao: (state: Tao) => void;
   showHourMarkers?: boolean;
+  lastGeoCoordinate?: GeoCoordinate | undefined;
+  setLastGeoCoordinate?: (state: GeoCoordinate) => void;
   syncAddDayTaos: (state: Tao) => void;
   syncEditDayTaos: (state: Tao) => void;
   readonly?: boolean;
@@ -26,6 +29,8 @@ const DaySchedule = ({
   taos,
   setTao,
   showHourMarkers = true,
+  lastGeoCoordinate,
+  setLastGeoCoordinate,
   syncAddDayTaos,
   syncEditDayTaos,
   readonly = false,
@@ -323,6 +328,8 @@ const DaySchedule = ({
         dayId={dayId}
         start={start}
         end={end}
+        lastGeoCoordinate={lastGeoCoordinate}
+        setLastGeoCoordinate={setLastGeoCoordinate}
         syncAddDayTaos={syncAddDayTaos}
         syncEditDayTaos={syncEditDayTaos}
       />

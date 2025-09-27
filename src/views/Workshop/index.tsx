@@ -13,10 +13,11 @@ const Workshop = () => {
 
   return (
     <Routes>
-      <Route path="/*" element={<Main />} />
-      <Route path="/trip/:tripId/*" element={<Trip />} />
+      <Route path="/" element={<Main />} />
+      <Route path="/trip/:tripId" element={<Trip />} />
       <Route path="/trip/:tripId/day/:dayId" element={<Trip />} />
       <Route path="/highlight/:attractionId" element={<Highlight />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 };

@@ -16,6 +16,7 @@ import { taosService, type Tao } from "@services/taos";
 import TimeUtils from "@utils/TimeUtils";
 import { hmma } from "@constants/Times";
 import TTMobileTimePicker from "@components/TTMobileTimePicker";
+import type { GeoCoordinate } from "@constants/Types";
 import type { Dayjs } from "dayjs";
 import dayjs from "dayjs";
 import clsx from "clsx";
@@ -29,6 +30,8 @@ type TaoFormProps = {
   tao?: Tao;
   start?: string;
   end?: string;
+  lastGeoCoordinate?: GeoCoordinate | undefined;
+  setLastGeoCoordinate?: (state: GeoCoordinate) => void;
   syncAddDayTaos: (state: Tao) => void;
   syncEditDayTaos: (state: Tao) => void;
 };
@@ -41,6 +44,8 @@ const TaoForm = ({
   tao,
   start,
   end,
+  lastGeoCoordinate,
+  setLastGeoCoordinate,
   syncAddDayTaos,
   syncEditDayTaos,
 }: TaoFormProps) => {
@@ -263,6 +268,8 @@ const TaoForm = ({
                   <AttractionFinder
                     open={openFinder}
                     setOpen={setOpenFinder}
+                    lastGeoCoordinate={lastGeoCoordinate}
+                    setLastGeoCoordinate={setLastGeoCoordinate}
                     setParentAttraction={setAttraction}
                   />
                 </Box>
