@@ -19,7 +19,7 @@ export const UserBasicInitializer = () => {
       }
     };
     initUserBasic();
-  }, []);
+  }, [isAuthenticated]);
 
   return null;
 };

@@ -1,6 +1,9 @@
 @use "../../../../stylings/color" as *;
 
 .trip-profile-description-comp-header.MuiTypography-root {
+  color: var(--primary-main);
+  font-family: "lily script one";
+  font-size: 1.5rem;
   margin-bottom: .5rem;
 }
 
@@ -21,7 +24,7 @@
   padding-left: .75rem;
 
   &:hover {
-    background-color: lightgrey;
+    background-color: whitesmoke;
   }
 }
 

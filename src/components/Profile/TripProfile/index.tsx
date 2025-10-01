@@ -20,7 +20,7 @@ import SectionComponent from "./SectionComponent";
 import { BehaviorUtils } from "@utils/BehaviorUtils";
 import DeleteDayForm from "@components/Forms/DeleteDayForm";
 import { daysService, type Day } from "@services/days";
-import { taosService, type Tao } from "@services/taos";
+import { taosService, type Tao, type TaoGeo } from "@services/taos";
 import MapUtils from "@utils/MapUtils";
 import TaoComponent from "./TaoComponent";
 import DeleteTaoForm from "@components/Forms/DeleteTaoForm";
@@ -36,6 +36,7 @@ import { max_day_per_trip } from "@constants/Restrictions";
 import { isEqual } from "lodash";
 import clsx from "clsx";
 import "./index.scss";
+import DayOverviewComponent from "./DayOverviewComponent";
 
 type TripProfileProps = {
   uri?: string;
@@ -61,6 +62,9 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
   const [days, setDays] = useState<Day[]>([]);
   // day
   const [day, setDay] = useState<Day | undefined>();
+  // taoGeos
+  const taoGeosRef = useRef<TaoGeo[] | undefined>(undefined);
+  const [dayOverviewFocus, setDayOverviewFocus] = useState<number>(0);
   // taos
   const taosMapRef = useRef(new Map<number, Tao[]>()); // day.id => tao[]
   const [taos, setTaos] = useState<Tao[] | undefined>();
@@ -73,7 +77,9 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
   >();
   const [routes, setRoutes] = useState<Route[]>();
   // last geo coordinate
-  const [lastGeoCoordinate, setLastGeoCoordinate] = useState<GeoCoordinate | undefined>();
+  const [lastGeoCoordinate, setLastGeoCoordinate] = useState<
+    GeoCoordinate | undefined
+  >();
   // form open status
   const [openDayForm, setOpenDayForm] = useState<boolean>(false);
   const [openDeleteDayForm, setOpenDeleteDayForm] = useState<boolean>(false);
@@ -91,6 +97,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
 
   const markers =
     taos?.map((tao) => {
+      // markers - taos of a particular day
       return {
         id: String(tao.id),
         label: tao.attraction.title,
@@ -98,7 +105,19 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
         lng: tao.attraction.lng,
         zoom: MapUtils.resultTypeToZoom(tao.attraction.resultType),
       };
-    }) ?? [];
+    }) ??
+    taoGeosRef.current?.map((taoGeo) => {
+      // markers - all taos
+      return {
+        id: String(taoGeo.id),
+        groupId: taoGeo.dayId,
+        label: taoGeo.title,
+        lat: taoGeo.lat,
+        lng: taoGeo.lng,
+        zoom: 0,
+      };
+    }) ??
+    [];
 
   const maxImageCount = 4;
   const isMaxImageCountReached = images.length === maxImageCount;
@@ -151,6 +170,13 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
     }
   };
 
+  const initTaoGeos = async () => {
+    if (tripBasic?.id) {
+      let taoGeos = await tripsService.getTripTaoGeosById(tripBasic.id);
+      taoGeosRef.current = taoGeos;
+    }
+  };
+
   const initDays = async () => {
     if (tripId) {
       // get days with trip id
@@ -182,7 +208,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
       }
       setTaos(taos);
 
-      // optional - also updates tao component if it is open
+      // optional - also updates tao component if it is opened
       if (tao) {
         initTao(tao);
       }
@@ -215,12 +241,14 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
   const initRoutes = async (routeResponses: HereRoutingResponse[]) => {
     let routes = routeResponses
       .map((res, i) =>
-        res.routes?.map((r) => r ?
-          r.sections?.map((s) => ({
-            polyline: s.polyline,
-            groupId: i,
-            color: s.transport?.color,
-          })) : undefined
+        res.routes?.map((r) =>
+          r
+            ? r.sections?.map((s) => ({
+                polyline: s.polyline,
+                groupId: i,
+                color: s.transport?.color,
+              }))
+            : undefined
         )
       )
       .flat(2) as Route[];
@@ -249,7 +277,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
     syncImages();
   };
 
-  // add day and delete day auto-reflects on daysRef by useEffect triggered on tripBasic.numDays
+  // add day and delete day auto-reflects on days by useEffect triggered on tripBasic.numDays
 
   const syncEditDay = (day: Day) => {
     let _days = [...days];
@@ -269,6 +297,15 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
         setTaos(dayTaos);
 
         initRouteResponses(true);
+
+        // also add to taoGeos
+        taoGeosRef.current?.push({
+          id: tao.id,
+          dayId: tao.dayId,
+          title: tao.attraction.title,
+          lat: tao.attraction.lat,
+          lng: tao.attraction.lng,
+        });
       }
     }
   };
@@ -316,6 +353,9 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
         setTao(undefined);
 
         initRouteResponses(true);
+
+        // also delete from taoGeos
+        taoGeosRef.current = taoGeosRef.current?.filter((t) => t.id !== tao.id);
       }
     }
   };
@@ -324,6 +364,11 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
   useEffect(() => {
     initTrip();
   }, [tripId]);
+
+  // rerender taoGeos on trip basic id
+  useEffect(() => {
+    initTaoGeos();
+  }, [tripBasic?.numDays]);
 
   // rerender days on numDays
   useEffect(() => {
@@ -512,6 +557,11 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
                 isLoading={isLoading}
                 readonly={readonly}
               />
+              <DayOverviewComponent
+                days={days}
+                focusId={dayOverviewFocus}
+                setFocusId={setDayOverviewFocus}
+              />
             </Box>
           )}
 
@@ -568,9 +618,10 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
         <Mapper
           markers={markers}
           mapRoutes={routes}
-          focusId={String(tao?.id)}
+          focusId={taos ? String(tao?.id) : String(dayOverviewFocus)}
           openUI={openUI}
           focusRoute
+          focusOnGroup={Boolean(!taos)}
           openPopUp
         />
       </Box>

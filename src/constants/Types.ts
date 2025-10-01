@@ -89,6 +89,7 @@ export type Route = {
 // map
 export type Marker = {
   id?: string;
+  groupId?: number;
   label?: string;
   lat: number;
   lng: number;

@@ -32,6 +32,14 @@ export type TaoPatch = {
   transportMode?: string;
 };
 
+export type TaoGeo = {
+  id: number;
+  dayId: number;
+  title: string;
+  lat: number;
+  lng: number;
+}
+
 const getTaoById = async (id: number, dayId: number): Promise<Tao> => {
   return await http.get(
     http.apiBaseURLs.api,

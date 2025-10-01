@@ -71,11 +71,12 @@ const HighlightProfile = () => {
 
   useEffect(() => {
     const getHighlights = async () => {
+      console.log(attractionId, userId);
       if (attractionId && userId) {
         setIsHighlightLoading(true);
         let highlights = await highlightsService.getHighlightsByAttractionId(
           parseInt(attractionId),
-          userId
+          userId ?? undefined
         );
         setHighlights(highlights);
         setIsHighlightLoading(false);

@@ -1,6 +1,7 @@
 import http from "@services/http";
 import type { UserBasic } from "./users";
 import type { Image, ImageRelation } from "./images";
+import type { TaoGeo } from "./taos";
 
 export type TripPost = {
   title: string;
@@ -31,6 +32,10 @@ const getMyTrips = async (): Promise<Trip[]> => {
 
 const getTripById = async (id: number): Promise<Trip> => {
   return await http.get(http.apiBaseURLs.api, `trips/${id}`, undefined);
+};
+
+const getTripTaoGeosById = async (id: number): Promise<TaoGeo[]> => {
+  return await http.get(http.apiBaseURLs.api, `trips/${id}/day-overview`);
 };
 
 const getImagesByTripId = (id: number): Promise<Image[]> => {
@@ -107,6 +112,7 @@ export const tripsService = {
   getTripsByTitle,
   getMyTrips,
   getTripById,
+  getTripTaoGeosById,
   getImagesByTripId,
   postNewTrip,
   patchTrip,

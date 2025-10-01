@@ -1,6 +1,7 @@
 import TTIconButton from "@components/TTIconButton";
 import CloseIcon from "@mui/icons-material/Close";
 import {
+  Alert,
   Box,
   Chip,
   Divider,
@@ -66,9 +67,10 @@ const TaoComponent = ({
 
   const taoIndex = taos?.findIndex((t) => t.id === tao?.id);
   const routeResponse = taoIndex ? routeResponses?.at(taoIndex - 1) : undefined;
-  const formatedSections = routeResponse && routeResponse.routes?.at(0)
-    ? MapUtils.mergeRoutingSections(routeResponse.routes[0])
-    : undefined;
+  const formatedSections =
+    routeResponse && routeResponse.routes?.at(0)
+      ? MapUtils.mergeRoutingSections(routeResponse.routes[0])
+      : undefined;
 
   // rerender _tao on tao when is defined
   useEffect(() => {
@@ -298,6 +300,15 @@ const TaoComponent = ({
                 Directions
               </Typography>
             </Divider>
+
+            {/* notice - optional */}
+            {routeResponse.notices ? (
+                routeResponse.notices.length > 0 ? (
+                  <Alert severity="warning">
+                    {routeResponse.notices[0].title}
+                  </Alert>
+                ) : undefined
+            ) : undefined}
 
             <Box>
               {!readonly ? (

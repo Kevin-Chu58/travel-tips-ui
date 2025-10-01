@@ -1,6 +1,4 @@
-import {
-  MapPin,
-} from "@constants/Maps";
+import { MapPin } from "@constants/Maps";
 import { Box, type SxProps } from "@mui/material";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -28,6 +26,7 @@ type MapInteractionProps = {
   focusId?: string;
   focusRoute?: boolean;
   focusMapShift?: boolean;
+  focusOnGroup?: boolean;
   openPopUp?: boolean;
 };
 
@@ -53,6 +52,7 @@ const Map = React.memo(
     focusId = undefined,
     focusRoute = false,
     focusMapShift = true,
+    focusOnGroup = false,
     openPopUp = false,
     children,
     sx,
@@ -165,8 +165,8 @@ const Map = React.memo(
           {
             // L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
             maxZoom: 18,
-            updateWhenIdle: true,      // load tiles only after user stops moving
-            updateWhenZooming: false,  // don’t load intermediate zoom tiles
+            updateWhenIdle: true, // load tiles only after user stops moving
+            updateWhenZooming: false, // don’t load intermediate zoom tiles
             keepBuffer: 1,
             attribution:
               '&copy; 2025 HERE | &copy; <a href="https://www.maptiler.com/copyright/" target="_blank" rel="noopener noreferrer">MapTiler</a> &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors',
@@ -187,7 +187,8 @@ const Map = React.memo(
       let indexFocused = focusOnRoute && markerIndex;
 
       let routeCoords =
-        mapRoutes?.map((r) => !r ? [] : decode(r.polyline ?? "").polyline) ?? [];
+        mapRoutes?.map((r) => (!r ? [] : decode(r.polyline ?? "").polyline)) ??
+        [];
 
       mapRoutes?.forEach((mapRoute, i) => {
         let coords = routeCoords[i];
@@ -195,9 +196,7 @@ const Map = React.memo(
 
         // create polyline for each route coords array
         const polyline = L.polyline(coords as L.LatLngExpression[], {
-          color: isFocused
-            ? (mapRoute?.color ?? "#1976d2")
-            : "#bdbdbd",
+          color: isFocused ? mapRoute?.color ?? "#1976d2" : "#bdbdbd",
           weight: 8,
           opacity: 1,
         });
@@ -221,7 +220,9 @@ const Map = React.memo(
       markersRef.current = [];
 
       markers.forEach((marker, i) => {
-        let isFocus = marker.id === focusId;
+        let isFocus = focusOnGroup
+          ? marker.groupId == focusId
+          : marker.id === focusId;
         isFocusFound = isFocusFound || isFocus;
 
         let nextMarker = i < markers.length ? markers[i + 1] : undefined;
@@ -253,7 +254,7 @@ const Map = React.memo(
         // add markers to the map
         leafletMarker.addTo(mapInstanceRef.current!);
 
-        if (focusOnRoute && openPopUp) {
+        if (focusOnRoute && openPopUp && !focusOnGroup) {
           if (isFocus) {
             // open popup when focused
             leafletMarker.setPopupContent("Destination");
