@@ -5,6 +5,7 @@ import { useNavigate } from "react-router";
 import React from "react";
 import clsx from "clsx";
 import "./index.scss";
+import { useIsMobile } from "@hooks/useIsMobile";
 
 type DayOverviewComponentProps = {
   days: Day[];
@@ -18,6 +19,7 @@ const DayOverviewComponent = ({
   setFocusId,
 }: DayOverviewComponentProps) => {
   // others
+  const isMobile = useIsMobile();
   const navigate = useNavigate();
 
   const handleClick = (dayId: number, i: number) => {
@@ -35,7 +37,7 @@ const DayOverviewComponent = ({
           <Typography className="trip-profile-day-overview-comp-header">
             Schedule
           </Typography>
-          <Grid container spacing={2}>
+          <Grid container columns={!isMobile ? 12 : 6} spacing={2}>
             {days.map((day, i) => (
               <Grid size={6} key={day.id}>
                 <Box

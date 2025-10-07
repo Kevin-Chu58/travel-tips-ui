@@ -4,6 +4,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+import AddIcon from '@mui/icons-material/Add';
 import { enqueueSnackbar } from "notistack";
 import { tripsService, type Trip } from "@services/trips";
 import type { Tao } from "@services/taos";
@@ -87,6 +88,23 @@ const FabComponent = ({
             size="medium"
           >
             {isPublished ? <VisibilityIcon /> : <VisibilityOffIcon />}
+          </Fab>
+        </ToolTip>
+      ) : undefined}
+
+      {/* add action - tao */}
+      {!readonly ? (
+        <ToolTip title="Add Event" placement="right">
+          <Fab
+            color="info"
+            className={clsx(
+              "trip-profile-fab-comp-tool-fab",
+              !Boolean(tao) && !isOverview && "visible"
+            )}
+            onClick={() => setOpenEditTaoForm(true)}
+            size="medium"
+          >
+            <AddIcon />
           </Fab>
         </ToolTip>
       ) : undefined}

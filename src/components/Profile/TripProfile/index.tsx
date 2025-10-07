@@ -389,6 +389,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
   // rerender day on days update and navTabValue
   useEffect(() => {
     setDay(Boolean(navTabValue) ? days[navTabValue - 1] : undefined);
+    setDayOverviewFocus(0);
     initTao(undefined);
   }, [navTabValue, days]);
 
@@ -659,6 +660,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
         open={openEditTaoForm}
         onClose={() => setOpenEditTaoForm(false)}
         dayIndex={Number(dayId)}
+        dayId={day?.id}
         tao={tao}
         lastGeoCoordinate={lastGeoCoordinate}
         setLastGeoCoordinate={setLastGeoCoordinate}

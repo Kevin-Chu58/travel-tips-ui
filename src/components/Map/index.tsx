@@ -270,7 +270,7 @@ const Map = React.memo(
       if (!bounds.isValid()) return;
 
       mapInstanceRef.current?.fitBounds(bounds, {
-        padding: [20, 20],
+        padding: [20, 25],
         maxZoom: markers.length === 1 ? markers[0].zoom : 15,
       });
 

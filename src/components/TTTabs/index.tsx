@@ -2,14 +2,16 @@ import type { NavTab } from "@constants/Types";
 import { Tab, Tabs } from "@mui/material";
 import { useNavigate } from "react-router";
 import "./index.scss";
+import clsx from "clsx";
 
 type TTTabsProps = {
   navTabValue: any;
   navTabs: NavTab[];
   setNavTabValue: (newValue: any) => void;
+  variant?: "switch";
 };
 
-const TTTabs = ({ navTabValue, navTabs, setNavTabValue }: TTTabsProps) => {
+const TTTabs = ({ navTabValue, navTabs, setNavTabValue, variant }: TTTabsProps) => {
   const navigate = useNavigate();
 
   const handleChange = (newValue: number) => {
@@ -22,7 +24,7 @@ const TTTabs = ({ navTabValue, navTabs, setNavTabValue }: TTTabsProps) => {
 
   return (
     <Tabs
-      className="TTTabs-tabs"
+      className={clsx("TTTabs-tabs", variant)}
       value={adjustedNavTabValue}
       onChange={(_, val) => handleChange(val)}
       variant="scrollable"
@@ -31,7 +33,7 @@ const TTTabs = ({ navTabValue, navTabs, setNavTabValue }: TTTabsProps) => {
         (navTab, i) =>
           (navTab.condition ?? true) && (
             <Tab
-              className="TTTabs-tab"
+              className={clsx("TTTabs-tab", variant)}
               key={navTab.name}
               label={navTab.label}
               value={i}

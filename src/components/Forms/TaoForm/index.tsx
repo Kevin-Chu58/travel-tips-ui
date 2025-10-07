@@ -190,9 +190,6 @@ const TaoForm = ({
                 <TTMobileTimePicker
                   value={dayjs(_start, hmma)}
                   setValue={handleSetStart}
-                  maxTime={
-                    _end && _end !== "12:00 AM" ? dayjs(_end, hmma) : undefined
-                  }
                   minutesStep={15}
                 />
               </Box>
@@ -205,7 +202,6 @@ const TaoForm = ({
                 <TTMobileTimePicker
                   value={dayjs(_end, hmma)}
                   setValue={handleSetEnd}
-                  minTime={_start ? dayjs(_start, hmma) : undefined}
                   minutesStep={15}
                 />
               </Box>

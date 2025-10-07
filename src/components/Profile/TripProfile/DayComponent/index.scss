@@ -2,8 +2,8 @@
   display: flex;
   align-items: center;
   gap: .5rem;
-  margin: .2rem 0;
-  padding: .5rem 1rem;
+  margin-bottom: 0rem;
+  padding: .5rem 1rem 0 1rem;
 
   &.mobile {
     flex-direction: column;
@@ -54,13 +54,14 @@
 }
 
 .trip-profile-day-comp-add-title-button.MuiButton-root {
-  margin-left: auto;
+  margin-left: 0;
   padding: 0.3rem 0.5rem;
   border-radius: 20rem;
+}
 
-  &.mobile {
-    margin-left: 0;
-  }
+.trip-profile-day-comp-view-tab-box {
+  display: flex;
+  margin: 0 auto;
 }
 
 .trip-profile-day-comp-content-box {
@@ -71,14 +72,22 @@
   overflow-y: auto;
 }
 
-
 .trip-profile-day-comp-schedule-box {
-  max-width: 360px;
+  max-width: 400px;
   width: 80vw;
   margin: 1rem 2rem;
-  margin-left: auto;
 
   &.mobile {
-    max-width: 200px;
+    margin-left: .5rem;
+    max-width: 260px;
+  }
+
+  &.day-schedule {
+    max-width: 360px;
+    margin-left: auto;
+
+    &.mobile {
+      max-width: 200px;
+    }
   }
 }

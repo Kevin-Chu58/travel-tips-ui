@@ -1,0 +1,35 @@
+@use "../../../stylings/box_shadows" as *;
+
+.day-event-container-box {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+}
+
+.day-event-event-box {
+  position: relative;
+  cursor: pointer;
+  
+  width: 100%;
+  padding: .4rem;
+  border-radius: .2rem;
+
+  .day-event-arrow-box {
+    position: absolute;
+    right: 1rem;
+    top: 0;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    opacity: 0;
+    // transition: .2s ease-in all;
+  }
+
+  &:hover {
+    background-color: whitesmoke;
+
+    .day-event-arrow-box {
+      opacity: 1;
+    }
+  }
+}

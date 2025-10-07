@@ -8,6 +8,17 @@
       opacity: 1;
     }
   }
+
+  &.switch {
+    margin: .4rem 1rem;
+    min-height: 0;
+    min-width: 0;
+    border-radius: 2rem;
+
+    .MuiTabs-indicator {
+      display: none;
+    }
+  }
 }
 
 .TTTabs-tab {
@@ -23,6 +34,22 @@
     &.Mui-selected {
       color: var(--primary-main);
       background-color: white;
+    }
+
+    &.switch {
+      margin: 0;
+      padding: .4rem;
+      color: white;
+      background-color: var(--grey-900);
+
+      &:hover {
+        color: var(--primary-main);
+      }
+
+      &.Mui-selected {
+        color: white;
+        background-color: var(--primary-main);
+      }
     }
   }
 }
