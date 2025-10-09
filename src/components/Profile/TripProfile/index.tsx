@@ -24,6 +24,7 @@ import { taosService, type Tao, type TaoGeo } from "@services/taos";
 import MapUtils from "@utils/MapUtils";
 import TaoComponent from "./TaoComponent";
 import DeleteTaoForm from "@components/Forms/DeleteTaoForm";
+import DayOverviewComponent from "./DayOverviewComponent";
 import TaoForm from "@components/Forms/TaoForm";
 import {
   hereMapService,
@@ -36,7 +37,6 @@ import { max_day_per_trip } from "@constants/Restrictions";
 import { isEqual } from "lodash";
 import clsx from "clsx";
 import "./index.scss";
-import DayOverviewComponent from "./DayOverviewComponent";
 
 type TripProfileProps = {
   uri?: string;
@@ -278,12 +278,6 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
   };
 
   // add day and delete day auto-reflects on days by useEffect triggered on tripBasic.numDays
-
-  const syncEditDay = (day: Day) => {
-    let _days = [...days];
-    _days[navTabValue - 1] = day;
-    setDays(_days);
-  };
 
   const syncAddDayTaos = (tao: Tao) => {
     if (day) {
@@ -541,8 +535,6 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
                 taos={taos}
                 navTabValue={navTabValue}
                 setTao={initTao}
-                inputRef={inputRef}
-                syncEditDay={syncEditDay}
                 syncAddDayTaos={syncAddDayTaos}
                 syncEditDayTaos={syncEditDayTaos}
                 lastGeoCoordinate={lastGeoCoordinate}
