@@ -12,56 +12,9 @@
   }
 }
 
-.trip-profile-day-comp-title-box {
-  min-width: 50px;
-}
-
-.trip-profile-day-comp-input {
-  font-size: 1rem;
-  margin-left: -.5rem;
-
-  .MuiOutlinedInput-input {
-    padding: 0.35rem;
-  }
-}
-
-.trip-profile-day-comp-title-button.MuiButton-root {
-  color: black;
-  background-color: transparent;
-  border-radius: 0.5rem;
-  text-align: left;
-  margin-left: -0.5rem;
-  padding: 0.825rem 0.2rem;
-  min-width: 0;
-
-  &.mobile{
-    margin-left: 0;
-  }
-
-  &:hover {
-    background-color: whitesmoke;
-  }
-}
-
-.trip-profile-day-comp-title.MuiTypography-root {
-  text-transform: none;
-  margin: -0.5rem 0;
-  word-break: break-all; // allow long words to break
-  overflow-wrap: break-word; // ensure breaking works across browsers
-  hyphens: auto; // auto-insert hyphens if language supports
-  font-size: 1rem;
-  color: var(--primary-main);
-}
-
-.trip-profile-day-comp-add-title-button.MuiButton-root {
-  margin-left: 0;
-  padding: 0.3rem 0.5rem;
-  border-radius: 20rem;
-}
-
 .trip-profile-day-comp-view-tab-box {
   display: flex;
-  margin: 0 auto;
+  margin: .2rem auto;
 }
 
 .trip-profile-day-comp-content-box {

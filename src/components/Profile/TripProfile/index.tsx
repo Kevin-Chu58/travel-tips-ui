@@ -34,6 +34,10 @@ import UIShowButton from "@components/Button/UIShowButton";
 import FabComponent from "./FabComponent";
 import TimeUtils from "@utils/TimeUtils";
 import { max_day_per_trip } from "@constants/Restrictions";
+import {
+  wikiCommonsService,
+  type WikiImage,
+} from "@services/wikiCommons/wikiCommons";
 import { isEqual } from "lodash";
 import clsx from "clsx";
 import "./index.scss";
@@ -70,6 +74,9 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
   const [taos, setTaos] = useState<Tao[] | undefined>();
   // tao
   const [tao, setTao] = useState<Tao | undefined>();
+  // attraction wiki images
+  const wikiImagesRef = useRef(new Map<number, WikiImage[]>()); // attraction.id => wikiImage[]
+  const [wikiImages, setWikiImages] = useState<WikiImage[]>([]);
   // map
   const routeResponsesMapRef = useRef(new Map<number, HereRoutingResponse[]>()); // day.id => routing response[]
   const [routeResponses, setRouteResponses] = useState<
@@ -218,6 +225,26 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
     }
   };
 
+  const initWikiImages = async () => {
+    if (tao) {
+      let id = tao.attraction.id;
+      let images = wikiImagesRef.current.get(id);
+
+      if (images) {
+        setWikiImages(images);
+      } else {
+        try {
+          images = await wikiCommonsService.getWikiImagesByAttractionId(id);
+          wikiImagesRef.current.set(id, images);
+          setWikiImages(images);
+        } catch (_) {
+          wikiImagesRef.current.set(id, []);
+          setWikiImages([]);
+        }
+      }
+    }
+  };
+
   const initRouteResponses = async (refresh: boolean = false) => {
     if (day) {
       // check routeResponsesMapRef first when switches from day to day
@@ -318,19 +345,14 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
         setTaos(dayTaos);
         setTao(tao);
 
-        if (!isAttractionSame) {
-          initRouteResponses();
-          return;
-        }
-
         let prevTaoOrder = dayTaos.map((tao) => tao.id);
         TimeUtils.orderTaos(dayTaos);
         let currTaoOrder = dayTaos.map((tao) => tao.id);
 
         let orderChanged = isEqual(prevTaoOrder, currTaoOrder);
 
-        if (orderChanged) {
-          initRouteResponses();
+        if (!isAttractionSame || orderChanged) {
+          initRouteResponses(true);
         }
       }
     }
@@ -386,6 +408,13 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
     setDayOverviewFocus(0);
     initTao(undefined);
   }, [navTabValue, days]);
+
+  useEffect(() => {
+    if (tao)
+      initWikiImages();
+    else 
+      setWikiImages([]);
+  }, [tao]);
 
   // rerender taos on day update
   useEffect(() => {
@@ -565,6 +594,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
             <TaoComponent
               taos={taos}
               tao={tao}
+              wikiImages={wikiImages}
               routeResponsesMapRef={routeResponsesMapRef}
               routeResponses={routeResponses}
               setRouteResponses={initRoutes}

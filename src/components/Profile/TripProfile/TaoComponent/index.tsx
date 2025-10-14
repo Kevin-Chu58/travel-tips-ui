@@ -21,6 +21,7 @@ import { highlightsService, type Highlight } from "@services/highlights";
 import HighlightForm from "@components/Forms/HighlightForm";
 import DiscoverHighlightsForm from "@components/Forms/DiscoverHighlightsForm";
 import DirectionAccordion from "@components/Accordions/DirectionAccordion";
+import type { WikiImage } from "@services/wikiCommons/wikiCommons";
 import { enqueueSnackbar } from "notistack";
 import TTButton from "@components/TTButton";
 import {
@@ -32,6 +33,7 @@ import "./index.scss";
 type TaoComponentProps = {
   taos: Tao[] | undefined;
   tao: Tao | undefined;
+  wikiImages: WikiImage[];
   routeResponsesMapRef: React.RefObject<Map<number, HereRoutingResponse[]>>;
   routeResponses: HereRoutingResponse[] | undefined;
   setRouteResponses: (state: HereRoutingResponse[]) => void;
@@ -43,6 +45,7 @@ type TaoComponentProps = {
 const TaoComponent = ({
   taos,
   tao,
+  wikiImages,
   routeResponsesMapRef,
   routeResponses,
   setRouteResponses,
@@ -228,14 +231,34 @@ const TaoComponent = ({
           ) : undefined}
         </Box>
 
+        {/* wiki images */}
+        {wikiImages.length > 0 ? (
+          <React.Fragment>
+            <Box className="trip-profile-tao-comp-wiki-image-box">
+              {wikiImages.map((image) => {
+                let titleRegex = /(?<=:).*(?=\.)/gm;
+                let imageTitle = image.title.match(titleRegex)?.join() ?? "";
+                return (
+                  <img
+                    key={image.title}
+                    className="trip-profile-tao-comp-wiki-image"
+                    src={image.url}
+                    alt={imageTitle}
+                    loading="lazy"
+                  />
+                );
+              })}
+            </Box>
+          </React.Fragment>
+        ) : undefined}
+
         {/* highlight */}
         {highlight?.description ? (
           <React.Fragment>
-            <Divider flexItem>
+            <Divider flexItem />
               <Typography className="trip-profile-tao-comp-large-text">
                 Highlight
               </Typography>
-            </Divider>
 
             <Box>
               <HighlightItem
@@ -250,11 +273,10 @@ const TaoComponent = ({
           </React.Fragment>
         ) : !readonly ? (
           <React.Fragment>
-            <Divider flexItem>
+            <Divider flexItem />
               <Typography className="trip-profile-tao-comp-large-text">
                 Highlight
               </Typography>
-            </Divider>
 
             <Box>
               {!isCreating ? (
@@ -295,19 +317,18 @@ const TaoComponent = ({
         {/* ways of transport */}
         {routeResponse ? (
           <React.Fragment>
-            <Divider flexItem>
+            <Divider flexItem />
               <Typography className="trip-profile-tao-comp-large-text">
                 Directions
               </Typography>
-            </Divider>
 
             {/* notice - optional */}
             {routeResponse.notices ? (
-                routeResponse.notices.length > 0 ? (
-                  <Alert severity="warning">
-                    {routeResponse.notices[0].title}
-                  </Alert>
-                ) : undefined
+              routeResponse.notices.length > 0 ? (
+                <Alert severity="warning">
+                  {routeResponse.notices[0].title}
+                </Alert>
+              ) : undefined
             ) : undefined}
 
             <Box>
@@ -348,11 +369,10 @@ const TaoComponent = ({
         ) : undefined}
 
         {/* links to other resources */}
-        <Divider flexItem>
+            <Divider flexItem />
           <Typography className="trip-profile-tao-comp-large-text">
             Other Resources
           </Typography>
-        </Divider>
 
         <Box className="trip-profile-tao-comp-link-box">
           {/* links */}

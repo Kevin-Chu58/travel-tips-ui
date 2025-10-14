@@ -94,11 +94,7 @@ const AttractionFinder = ({
 
         await BehaviorUtils.sleep();
 
-        
-        console.log("yes select is clicked");
-
         if (setLastGeoCoordinate) {
-          console.log("yes i am here");
           setLastGeoCoordinate({ lat: attraction.lat, lng: attraction.lng });
         }
 
