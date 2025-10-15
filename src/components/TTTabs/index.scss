@@ -1,3 +1,5 @@
+@use "../../stylings/box_shadows" as *;
+
 .TTTabs-tabs {
   .MuiTabScrollButton-root {
     width: auto;
@@ -14,6 +16,7 @@
     min-height: 0;
     min-width: 0;
     border-radius: 2rem;
+    box-shadow: $box-shadow;
 
     .MuiTabs-indicator {
       display: none;

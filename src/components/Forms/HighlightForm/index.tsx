@@ -114,6 +114,7 @@ const HighlightForm = ({
       />
       <Box className="highlight-form-button-box">
         <TTButton
+          className="highlight-form-button"
           label="cancel"
           variant="text"
           color="primary"
@@ -121,6 +122,7 @@ const HighlightForm = ({
         />
         {isPost ? (
           <TTButton
+            className="highlight-form-button"
             label="create"
             color="primary"
             startIcon={actionIcon}
@@ -128,6 +130,7 @@ const HighlightForm = ({
           />
         ) : (
           <TTButton
+            className="highlight-form-button"
             label="update"
             color="primary"
             startIcon={actionIcon}

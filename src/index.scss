@@ -22,7 +22,7 @@
   --grey-700: #616161;
   --grey-800: #424242;
   --grey-900: #212121;
-  
+
   --primary-main: #e4572e;
   --primary-100: #faded5;
   --primary-200: #f4bdac;
@@ -128,7 +128,7 @@
     --info-700: #90caf9;
     --info-800: #bbdefb;
     --info-900: #e3f2fd;
-    
+
     --success-main: #81c784;
     --success-50: #1b5e20;
     --success-100: #2e7d32;
@@ -168,29 +168,8 @@ body {
 /* For Firefox */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #ccc transparent;
-}
-
-/* For WebKit browsers (Chrome, Edge, Safari) */
-*::-webkit-scrollbar {
-  width: 6px;
-}
-
-*::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-*::-webkit-scrollbar-thumb {
-  background-color: #aaa;
-  border-radius: 10px;
-}
-
-*:hover::-webkit-scrollbar-thumb {
-  background-color: #888; /* Show on hover */
-}
-
-*:hover::-webkit-scrollbar-thumb:hover {
-  background-color: #555; /* Darker on hover of thumb */
+  scrollbar-color: var(--grey-500) transparent;
+  scroll-behavior: smooth;
 }
 
 /* For Firefox */
@@ -199,29 +178,7 @@ body {
   scrollbar-color: transparent transparent;
 
   &:hover {
-    scrollbar-color: #ccc transparent;
-  }
-
-  /* For WebKit browsers (Chrome, Edge, Safari) */
-  ::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  ::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    background-color: transparent;
-    border-radius: 10px;
-  }
-
-  :hover::-webkit-scrollbar-thumb {
-    background-color: #888; /* Show on hover */
-  }
-
-  :hover::-webkit-scrollbar-thumb:hover {
-    background-color: #555; /* Darker on hover of thumb */
+    scrollbar-color: var(--grey-500) transparent;
   }
 }
 

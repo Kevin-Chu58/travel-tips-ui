@@ -61,7 +61,7 @@ const DayComponent = ({
         />
       </Box>
 
-      <Divider variant="middle" flexItem />
+      <Divider flexItem />
 
       <Box className="trip-profile-day-comp-content-box">
         {/* views */}

@@ -50,8 +50,9 @@ const DayEvent = ({ taos, setTao }: DayEventProps) => {
                 {/* attraction category */}
                 {tao.attraction?.category ? (
                   <Chip
+                    className="day-event-event-category"
                     size="small"
-                    label={<Typography>{tao.attraction.category}</Typography>}
+                    label={<Typography variant="caption">{tao.attraction.category}</Typography>}
                   />
                 ) : undefined}
 

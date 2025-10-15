@@ -1,8 +1,5 @@
 import TTButton from "@components/TTButton";
 import {
-  Dialog,
-  FormControl,
-  OutlinedInput,
   Typography,
   Box,
   CircularProgress,
@@ -14,6 +11,7 @@ import { enqueueSnackbar } from "notistack";
 import { daysService } from "@services/days";
 import { BehaviorUtils } from "@utils/BehaviorUtils";
 import type { Trip } from "@services/trips";
+import TTDialog from "@components/TTDialog";
 import "./index.scss";
 
 type AddDayFormProps = {
@@ -78,32 +76,15 @@ const AddDayForm = ({
     setTitle("");
   };
 
-  const handleDayTitleTextFieldChange = (
-    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    setTitle(event.target.value);
-  };
-
   return (
-    <Dialog open={open} onClose={handleClose}>
+    <TTDialog open={open} onClose={handleClose} hidePadding>
       <Box className="add-day-form-box">
         <Typography className="add-day-form-header">
           <Sunrise className="add-day-form-header-icon" /> New Day Dawning
         </Typography>
         <Typography className="add-day-form-description">
-          You are about to create a new day, want to make it special?
+          You are about to create a new day.
         </Typography>
-
-        <FormControl variant="outlined">
-          <OutlinedInput
-            size="small"
-            value={title}
-            placeholder="sub title - optional"
-            onChange={(e) => handleDayTitleTextFieldChange(e)}
-            endAdornment={`${title.length}/50`}
-            autoFocus
-          />
-        </FormControl>
 
         <Box className="add-day-form-button-box">
           <TTButton
@@ -122,7 +103,7 @@ const AddDayForm = ({
           />
         </Box>
       </Box>
-    </Dialog>
+    </TTDialog>
   );
 };
 

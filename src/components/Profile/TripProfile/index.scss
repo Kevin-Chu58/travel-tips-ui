@@ -29,7 +29,7 @@ $trip-profile-content-width-mobile: 280px;
   background-color: white;
   color: black;
   z-index: 1100;
-  box-shadow: $mild_box_shadow_lg;
+  box-shadow: $box_shadow_lg;
   overflow-x: hidden;
   overflow-y: auto;
 
@@ -176,11 +176,7 @@ $trip-profile-content-width-mobile: 280px;
 .trip-profile-open-button-box {
   position: absolute;
   top: 40vh;
-  right: -15px;
-
-  &.hidden {
-    right: -40px;
-  }
+  right: -40px;
 }
 
 $trip-profile-tool-button-group-gap: -80px;

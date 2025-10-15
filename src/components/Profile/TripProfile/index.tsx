@@ -607,7 +607,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
 
         {/* open button */}
         <Box
-          className={clsx("trip-profile-open-button-box", !openUI && "hidden")}
+          className={"trip-profile-open-button-box"}
         >
           <UIShowButton
             isOpen={openUI}
