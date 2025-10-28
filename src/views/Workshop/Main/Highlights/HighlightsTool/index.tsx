@@ -1,5 +1,5 @@
 import ListToolBar from "@components/ListToolBar";
-import { attractionsService, type AttractionV2 } from "@services/attractions";
+import { attractionsService, type Attraction } from "@services/attractions";
 import SortUtils, {
   sortTypeTitleAsc,
   sortTypeTitleDesc,
@@ -12,7 +12,7 @@ type HighlightsToolProps = {
   sortTypeIndex: number;
   setSortTypeIndex: (state: number) => void;
   setAttractions: (
-    state: AttractionV2[] | ((prevState: AttractionV2[]) => AttractionV2[])
+    state: Attraction[] | ((prevState: Attraction[]) => Attraction[])
   ) => void;
   syncAttractions: boolean;
 };

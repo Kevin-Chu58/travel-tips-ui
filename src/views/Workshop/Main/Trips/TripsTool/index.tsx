@@ -47,7 +47,10 @@ const TripsTool = ({
 
   // rerender on sortTypeIndex to request sorting
   useEffect(() => {
-    asyncTrips(SortUtils.sortList(tripsRef.current, sortTypes, sortTypeIndex));
+    const updateTrips = async () => {
+      asyncTrips(SortUtils.sortList(tripsRef.current, sortTypes, sortTypeIndex));
+    };
+    updateTrips();
   }, [sortTypeIndex]);
 
   const handlePublish = async (isPublished: boolean) => {

@@ -12,17 +12,21 @@
   }
 }
 
-.trip-profile-day-comp-view-tab-box {
-  display: flex;
-  margin: .2rem auto;
-}
-
 .trip-profile-day-comp-content-box {
   flex: 1;
   display: flex;
+  position: relative;
   flex-direction: column;
   overflow-x: hidden;
   overflow-y: auto;
+}
+
+.trip-profile-day-comp-view-tab-box {
+  top: .5rem;
+  display: flex;
+  position: sticky;
+  margin: .25rem auto;
+  z-index: 100;
 }
 
 .trip-profile-day-comp-schedule-box {

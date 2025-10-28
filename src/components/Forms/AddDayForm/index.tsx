@@ -29,8 +29,6 @@ const AddDayForm = ({
   open,
   onClose,
 }: AddDayFormProps) => {
-  // params
-  const [title, setTitle] = useState<string>("");
   // behaviors
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const actionButtonIcon = isLoading ? (
@@ -42,17 +40,9 @@ const AddDayForm = ({
   const handlePost = async () => {
     if (tripId) {
       try {
-        var trimmedTitle = title.trim();
-
-        if (trimmedTitle.length > 50) {
-          enqueueSnackbar("Trip title is too long.", { variant: "error" });
-          handleClose();
-          return;
-        }
-
         setIsLoading(true);
 
-        await daysService.postNewDay(tripId, trimmedTitle);
+        await daysService.postNewDay(tripId);
 
         BehaviorUtils.sleep();
 
@@ -73,7 +63,6 @@ const AddDayForm = ({
 
   const handleClose = () => {
     onClose();
-    setTitle("");
   };
 
   return (

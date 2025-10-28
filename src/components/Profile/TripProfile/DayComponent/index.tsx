@@ -51,19 +51,20 @@ const DayComponent = ({
 
   return (
     <React.Fragment>
-      {/* view nav tabs - switch variant */}
-      <Box className="trip-profile-day-comp-view-tab-box">
-        <TTTabs
-          navTabs={viewNavTabs}
-          navTabValue={viewNavTabValue}
-          setNavTabValue={setViewNavTabValue}
-          variant="switch"
-        />
-      </Box>
+      
 
       <Divider flexItem />
 
       <Box className="trip-profile-day-comp-content-box">
+        {/* view nav tabs - switch variant */}
+        <Box className="trip-profile-day-comp-view-tab-box">
+          <TTTabs
+            navTabs={viewNavTabs}
+            navTabValue={viewNavTabValue}
+            setNavTabValue={setViewNavTabValue}
+            variant="switch"
+          />
+        </Box>
         {/* views */}
         <Box
           className={clsx(

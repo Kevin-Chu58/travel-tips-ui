@@ -10,7 +10,7 @@ import { useIsMobile } from "@hooks/useIsMobile";
 import AttractionSearch from "./AttractionSearch";
 import AttractionSelectButton from "./AttractionSelectButton";
 import AttractionList from "./AttractionList";
-import { attractionsService, type AttractionV2 } from "@services/attractions";
+import { attractionsService, type Attraction } from "@services/attractions";
 import MapUtils from "@utils/MapUtils";
 import { BehaviorUtils } from "@utils/BehaviorUtils";
 import AttractionFragment from "@components/Profile/HighlightProfile/AttractionFragment";
@@ -29,7 +29,7 @@ type AttractionFinderProps = {
   lastGeoCoordinate?: GeoCoordinate | undefined;
   setLastGeoCoordinate?: (state: GeoCoordinate) => void;
   setIsParentUpdated?: () => void;
-  setParentAttraction?: (state: AttractionV2) => void;
+  setParentAttraction?: (state: Attraction) => void;
 };
 
 const AttractionFinder = ({
@@ -52,13 +52,13 @@ const AttractionFinder = ({
   // search
   const [search, setSearch] = useState<string>("");
   // result
-  const [result, setResult] = useState<AttractionV2[]>([]); // result from here map discover api
+  const [result, setResult] = useState<Attraction[]>([]); // result from here map discover api
   // map focus
   const [focusId, setFocusId] = useState<string | undefined>(); // focused here id
   // mobile view
   const [showResult, setShowResult] = useState<boolean>(true);
   // attraction layer
-  const [attraction, setAttraction] = useState<AttractionV2 | undefined>();
+  const [attraction, setAttraction] = useState<Attraction | undefined>();
   const [isAttractionLoading, setIsAttractionLoading] =
     useState<boolean>(false);
   const [description, setDescription] = useState<string>("");

@@ -96,7 +96,7 @@ const compareTime = (format: string, start?: string, end?: string) => {
 const orderTaos = (taos: Tao[]) => {
   if (taos.length === 0) return [];
 
-  taos.sort((a, b) => a.start.localeCompare(b.start));
+  return taos.toSorted((a, b) => a.start.localeCompare(b.start));
 };
 
 const dayjsToString = (format: string, time: Dayjs | null) => {

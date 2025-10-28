@@ -1,4 +1,4 @@
-import type { AttractionV2 } from "./attractions";
+import type { Attraction } from "./attractions";
 import type { Highlight } from "./highlights";
 import http from "./http";
 
@@ -17,7 +17,7 @@ export type TaoPost = TaoBasic & {
 
 export type Tao = TaoBasic & {
   id: number;
-  attraction: AttractionV2;
+  attraction: Attraction;
   highlight?: Highlight;
   createdBy: number;
   transportMode?: string;

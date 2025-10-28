@@ -9,6 +9,11 @@
   color: var(--grey-800);
 }
 
+.image-selector-list-item-error-icon.MuiListItemIcon-root {
+  margin-right: -1rem;
+  color: var(--error-main);
+}
+
 .image-selector-cropper-file-input {
   display: none;
 }

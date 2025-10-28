@@ -3,9 +3,14 @@ let cachedToken: string | undefined;
 let tokenExpiry: number | undefined;
 
 let getTokenSilentlyFn: (() => Promise<string>) | null = null;
+let logoutFn: (() => void) | null = null;
 
 export const setGetTokenSilentlyFn = (fn: () => Promise<string>) => {
   getTokenSilentlyFn = fn;
+};
+
+export const setLogoutFn = (fn: () => void) => {
+  logoutFn = fn;
 };
 
 export const ensureToken = async (): Promise<string | undefined> => {
@@ -31,8 +36,19 @@ export const ensureToken = async (): Promise<string | undefined> => {
 
       tokenExpiry = decoded.exp * 1000;
     }
-  } catch (e) {
-    return undefined;
+  } catch (error: any) {
+    // Refresh token expired OR no valid session → logout
+    if (
+      error?.error === "invalid_grant" ||
+      error?.error === "login_required" ||
+      error?.error_description?.includes("refresh token") ||
+      error?.error_description?.includes("session")
+    ) {
+      if (logoutFn) logoutFn(); // Auto logout
+      return undefined;
+    }
+
+    throw error;
   }
 
   return cachedToken;

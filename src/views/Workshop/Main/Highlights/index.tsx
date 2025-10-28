@@ -1,9 +1,9 @@
 import AttractionCard from "@components/Cards/AttractionCard";
 import { Box } from "@mui/material";
-import { type AttractionV2 } from "@services/attractions";
+import { type Attraction } from "@services/attractions";
 
 type HighlightsProps = {
-  attractions: AttractionV2[];
+  attractions: Attraction[];
 };
 
 const Highlights = ({

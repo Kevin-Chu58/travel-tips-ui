@@ -1,8 +1,6 @@
 import http from "./http";
 
-// v2
-
-type AttractionV2Basic = {
+type AttractionBasic = {
   hereId: string;
   title: string;
   resultType: string;
@@ -16,17 +14,17 @@ type AttractionV2Basic = {
   numHighlights?: number;
 };
 
-export type AttractionV2 = AttractionV2Basic & {
+export type Attraction = AttractionBasic & {
   id: number;
 };
 
-const getAttractionById = async (id: number): Promise<AttractionV2> => {
+const getAttractionById = async (id: number): Promise<Attraction> => {
   return await http.get(http.apiBaseURLs.api, `attractions/${id}`, undefined);
 };
 
 const getMyAttractionsByName = async (
   name?: string
-): Promise<AttractionV2[]> => {
+): Promise<Attraction[]> => {
   const params = new URLSearchParams();
 
   if (name) params.set("name", name);
@@ -38,7 +36,7 @@ const getMyAttractionsByName = async (
   );
 };
 
-const postNewAttraction = async (hereId: string): Promise<AttractionV2> => {
+const postNewAttraction = async (hereId: string): Promise<Attraction> => {
   return await http.post(
     http.apiBaseURLs.api,
     `attractions/${hereId}`,

@@ -127,6 +127,7 @@ $trip-profile-content-width-mobile: 280px;
 
   &:hover {
     color: whitesmoke;
+    background: black;
     background-color: black;
   }
 }
@@ -176,7 +177,7 @@ $trip-profile-content-width-mobile: 280px;
 .trip-profile-open-button-box {
   position: absolute;
   top: 40vh;
-  right: -40px;
+  right: -30px;
 }
 
 $trip-profile-tool-button-group-gap: -80px;

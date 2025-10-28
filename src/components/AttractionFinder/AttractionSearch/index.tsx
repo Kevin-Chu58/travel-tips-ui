@@ -9,7 +9,7 @@ import {
   Typography,
 } from "@mui/material";
 import { BehaviorUtils } from "@utils/BehaviorUtils";
-import type { AttractionV2 } from "@services/attractions";
+import type { Attraction } from "@services/attractions";
 import { hereMapService } from "@services/hereMap/hereMap";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import type { GeoCoordinate } from "@constants/Types";
@@ -24,7 +24,7 @@ type AttractionSearchProps = {
   setSearch: (state: string) => void;
   geoCoordinate: GeoCoordinate | undefined;
   setIsCoordMode: (state: boolean) => void;
-  setResult: (state: AttractionV2[]) => void;
+  setResult: (state: Attraction[]) => void;
   setShowResult: (state: boolean) => void;
 };
 

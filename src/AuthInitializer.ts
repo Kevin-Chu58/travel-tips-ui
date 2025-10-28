@@ -1,12 +1,13 @@
 import { useAuth0 } from "@auth0/auth0-react";
-import { setGetTokenSilentlyFn } from "@services/tokens";
+import { setGetTokenSilentlyFn, setLogoutFn } from "@services/tokens";
 import { useEffect } from "react";
 
 export const AuthInitializer = () => {
-  const { getAccessTokenSilently } = useAuth0();
+  const { getAccessTokenSilently, logout } = useAuth0();
 
   useEffect(() => {
     setGetTokenSilentlyFn(getAccessTokenSilently);
+    setLogoutFn(logout);
   }, [getAccessTokenSilently]);
 
   return null;

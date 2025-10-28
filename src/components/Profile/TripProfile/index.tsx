@@ -12,7 +12,6 @@ import AddIcon from "@mui/icons-material/Add";
 import TTChipButton from "@components/TTChipButton";
 import { type Image } from "@services/images";
 import PreloadCarousel from "@components/Carousel/PreloadCarousel";
-import AddDayForm from "@components/Forms/AddDayForm";
 import NameComponent from "./NameComponent";
 import DescriptionComponent from "./DescriptionComponent";
 import DayComponent from "./DayComponent";
@@ -88,13 +87,13 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
     GeoCoordinate | undefined
   >();
   // form open status
-  const [openDayForm, setOpenDayForm] = useState<boolean>(false);
   const [openDeleteDayForm, setOpenDeleteDayForm] = useState<boolean>(false);
   const [openEditTaoForm, setOpenEditTaoForm] = useState<boolean>(false);
   const [openDeleteTaoForm, setOpenDeleteTaoForm] = useState<boolean>(false);
   const [openUI, setOpenUI] = useState<boolean>(true);
   // behavior
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const isDefaultDirectingRef = useRef<boolean>(true);
   // others
   const { tripId, dayId } = useParams(); // dayId - day index in days, not day.id
   const prevDayId = useRef<number | undefined>(undefined);
@@ -337,19 +336,20 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
 
       if (dayTaos) {
         let index = dayTaos.findIndex((_tao) => _tao.id === tao.id);
+        // check whether attraction is the same
         let isAttractionSame =
           dayTaos[index].attraction.id === tao.attraction.id;
         dayTaos[index] = tao;
 
-        taosMapRef.current.set(day.id, dayTaos);
-        setTaos(dayTaos);
+        let prevTaoOrder = dayTaos.map((tao) => tao.id);
+        let newTaos = TimeUtils.orderTaos(dayTaos);
+        let currTaoOrder = newTaos.map((tao) => tao.id);
+
+        taosMapRef.current.set(day.id, newTaos);
+        setTaos(newTaos);
         setTao(tao);
 
-        let prevTaoOrder = dayTaos.map((tao) => tao.id);
-        TimeUtils.orderTaos(dayTaos);
-        let currTaoOrder = dayTaos.map((tao) => tao.id);
-
-        let orderChanged = isEqual(prevTaoOrder, currTaoOrder);
+        let orderChanged = !isEqual(prevTaoOrder, currTaoOrder);
 
         if (!isAttractionSame || orderChanged) {
           initRouteResponses(true);
@@ -393,13 +393,15 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
 
   // rerender navTabValue on dayId
   useEffect(() => {
-    if (
-      dayId &&
-      tripBasic?.numDays &&
-      (Number(dayId) > tripBasic.numDays || Number(dayId) < 1)
-    )
-      navigate(overViewNavTab.to);
-    else setNavTabValue(Number(dayId ?? 0));
+    if (isDefaultDirectingRef.current) {
+      if (
+        dayId &&
+        tripBasic?.numDays &&
+        (Number(dayId) > tripBasic.numDays || Number(dayId) < 1)
+      )
+        navigate(overViewNavTab.to);
+      else setNavTabValue(Number(dayId ?? 0));
+    } else isDefaultDirectingRef.current = true;
   }, [dayId, tripBasic?.numDays]);
 
   // rerender day on days update and navTabValue
@@ -410,10 +412,8 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
   }, [navTabValue, days]);
 
   useEffect(() => {
-    if (tao)
-      initWikiImages();
-    else 
-      setWikiImages([]);
+    if (tao) initWikiImages();
+    else setWikiImages([]);
   }, [tao]);
 
   // rerender taos on day update
@@ -448,7 +448,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
     return navTabs;
   };
 
-  const handleOpenDayForm = () => {
+  const handlePostDay = async () => {
     // check if max taos per day is reached
     if (taos && taos.length >= max_day_per_trip) {
       enqueueSnackbar("Max number of events reached per day.", {
@@ -457,7 +457,21 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
       return;
     }
 
-    setOpenDayForm(true);
+    if (tripBasic?.id) {
+      try {
+        await daysService.postNewDay(tripBasic.id);
+
+        tripBasicRef.current!.numDays! += 1;
+        syncTrip();
+        navigate(`${overViewNavTab.to}/day/${tripBasicRef.current?.numDays}`);
+
+        enqueueSnackbar("Successfully create a day.", { variant: "success" });
+      } catch (e) {
+        if (e instanceof Error) {
+          enqueueSnackbar(e.message, { variant: "error" });
+        }
+      }
+    }
   };
 
   return (
@@ -549,7 +563,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
                 navTabs={getNavTabs()}
                 navTabValue={navTabValue}
                 setNavTabValue={setNavTabValue}
-                handleOpenDayForm={handleOpenDayForm}
+                handlePostDay={handlePostDay}
                 isLoading={isLoading}
                 readonly={readonly}
               />
@@ -606,9 +620,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
         </Box>
 
         {/* open button */}
-        <Box
-          className={"trip-profile-open-button-box"}
-        >
+        <Box className={"trip-profile-open-button-box"}>
           <UIShowButton
             isOpen={openUI}
             onClick={() => setOpenUI((prev) => !prev)}
@@ -649,14 +661,6 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
         />
       </Box>
 
-      <AddDayForm
-        tripId={tripBasic?.id}
-        tripBasicRef={tripBasicRef}
-        syncTrip={syncTrip}
-        open={openDayForm}
-        onClose={() => setOpenDayForm(false)}
-      />
-
       <DeleteDayForm
         open={openDeleteDayForm}
         onClose={() => setOpenDeleteDayForm(false)}
@@ -664,7 +668,11 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
         dayId={Number(dayId)}
         tripBasicRef={tripBasicRef}
         syncDeleteDay={() => {
-          navigate(overViewNavTab.to);
+          let newDayId = Number(dayId) - 1;
+          isDefaultDirectingRef.current = false;
+
+          setNavTabValue(newDayId);
+          navigate(`${overViewNavTab.to}/day/${newDayId}`, { replace: true });
         }}
       />
 

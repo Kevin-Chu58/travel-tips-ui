@@ -9,7 +9,7 @@ import { Route, Routes } from "react-router";
 import Trips from "./Trips";
 import TripsTool from "./Trips/TripsTool";
 import HighlightsTool from "./Highlights/HighlightsTool";
-import { type AttractionV2 } from "@services/attractions";
+import { type Attraction } from "@services/attractions";
 import Highlights from "./Highlights";
 import AttractionFinder from "@components/AttractionFinder";
 import TTDrawer from "@components/TTDrawer";
@@ -26,7 +26,7 @@ const Main = () => {
   const [trips, setTrips] = useState<Trip[]>([]);
   const [areTripsUpdated, setAreTripsUpdated] = useState<boolean>(false);
   // Highlights
-  const [attractions, setAttractions] = useState<AttractionV2[]>([]);
+  const [attractions, setAttractions] = useState<Attraction[]>([]);
   const [areAttractionsUpdated, setAreAttractionsUpdated] =
     useState<boolean>(false);
   // open form status

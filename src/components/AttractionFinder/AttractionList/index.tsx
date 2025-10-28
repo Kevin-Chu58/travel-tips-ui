@@ -1,12 +1,12 @@
 import TTButton from "@components/TTButton";
 import { useIsMobile } from "@hooks/useIsMobile";
 import { Box, Chip, Divider, Typography } from "@mui/material";
-import type { AttractionV2 } from "@services/attractions";
+import type { Attraction } from "@services/attractions";
 import React from "react";
 import "./index.scss";
 
 type AttractionListProps = {
-  result: AttractionV2[];
+  result: Attraction[];
   setShowResult: (state: boolean) => void;
   focusId: string | undefined;
   setFocusId: (state: string | undefined) => void;
@@ -25,7 +25,7 @@ const AttractionList = ({
     ? "attraction-list-box-mobile"
     : "attraction-list-box";
 
-  const handleAttractionClick = (attraction: AttractionV2) => {
+  const handleAttractionClick = (attraction: Attraction) => {
     setFocusId(attraction.hereId);
 
     if (isMobile) setShowResult(false);

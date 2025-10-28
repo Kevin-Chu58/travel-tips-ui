@@ -1,8 +1,8 @@
 import { Navigate, Route, Routes } from "react-router";
+import { useAuth0 } from "@auth0/auth0-react";
+import Highlight from "./Highlight";
 import Trip from "./Trip";
 import Main from "./Main";
-import Highlight from "./Highlight";
-import { useAuth0 } from "@auth0/auth0-react";
 
 const Workshop = () => {
   const { isLoading, isAuthenticated } = useAuth0();
