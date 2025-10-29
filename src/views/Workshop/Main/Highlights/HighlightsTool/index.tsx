@@ -1,12 +1,23 @@
 import ListToolBar from "@components/ListToolBar";
+import { Box, IconButton } from "@mui/material";
 import { attractionsService, type Attraction } from "@services/attractions";
 import SortUtils, {
   sortTypeTitleAsc,
   sortTypeTitleDesc,
+  sortTypeNumHighlightsAsc,
+  sortTypeNumHighlightsDesc,
 } from "@utils/SortUtils";
-import { useEffect } from "react";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+import React, { useEffect } from "react";
+import ToolTip from "@components/ToolTip";
 
-const sortTypes = [sortTypeTitleAsc, sortTypeTitleDesc];
+const sortTypes = [
+  sortTypeTitleAsc,
+  sortTypeTitleDesc,
+  sortTypeNumHighlightsAsc,
+  sortTypeNumHighlightsDesc,
+];
 
 type HighlightsToolProps = {
   sortTypeIndex: number;
@@ -15,6 +26,8 @@ type HighlightsToolProps = {
     state: Attraction[] | ((prevState: Attraction[]) => Attraction[])
   ) => void;
   syncAttractions: boolean;
+  showHovers: boolean;
+  setShowHovers: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 const HighlightsTool = ({
@@ -22,6 +35,8 @@ const HighlightsTool = ({
   setSortTypeIndex,
   setAttractions,
   syncAttractions,
+  showHovers,
+  setShowHovers,
 }: HighlightsToolProps) => {
   // rerender on access token and syncAttractions
   useEffect(() => {
@@ -42,13 +57,24 @@ const HighlightsTool = ({
   }, [sortTypeIndex]);
 
   return (
-    <ListToolBar
-      showSort
-      showFilter
-      sortType={sortTypeIndex}
-      setSortType={setSortTypeIndex}
-      sortTypes={sortTypes}
-    />
+    <Box display="flex" gap=".5rem">
+      <ListToolBar
+        showSort
+        showFilter
+        sortType={sortTypeIndex}
+        setSortType={setSortTypeIndex}
+        sortTypes={sortTypes}
+      />
+
+      <ToolTip
+        title={showHovers ? "Hide Details" : "Show Details"}
+        offsetY={-12}
+      >
+        <IconButton size="small" onClick={() => setShowHovers((prev) => !prev)}>
+          {showHovers ? <VisibilityIcon /> : <VisibilityOffIcon />}
+        </IconButton>
+      </ToolTip>
+    </Box>
   );
 };
 

@@ -19,6 +19,7 @@ export type Trip = TripPost & {
   createdAt: Date;
   numDays?: number;
   isPublic: boolean;
+  images?: Image[];
 };
 
 const getTripsByTitle = async (title: string): Promise<Trip[]> => {

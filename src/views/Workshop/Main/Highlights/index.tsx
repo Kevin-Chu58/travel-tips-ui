@@ -4,10 +4,12 @@ import { type Attraction } from "@services/attractions";
 
 type HighlightsProps = {
   attractions: Attraction[];
+  showHovers?: boolean;
 };
 
 const Highlights = ({
   attractions,
+  showHovers,
 }: HighlightsProps) => {
 
   return (
@@ -22,6 +24,7 @@ const Highlights = ({
         <AttractionCard
           key={`attraction-${a.id}`}
           attraction={a}
+          showHovers={showHovers}
         />
       ))}
     </Box>

@@ -134,12 +134,14 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
     try {
       if (tripId) {
         setIsLoading(true);
-        getTripImages();
 
         // get trip basic
         let tripBasic = await tripsService.getTripById(Number(tripId));
         tripBasicRef.current = tripBasic;
         syncTrip();
+        
+        imagesRef.current = tripBasic.images ?? [];
+        syncImages();
 
         BehaviorUtils.sleep();
         setIsLoading(false);
@@ -149,13 +151,6 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
         navigate("/");
       }
     }
-  };
-
-  const getTripImages = async () => {
-    // get trip image
-    let tripImages = await tripsService.getImagesByTripId(Number(tripId));
-    imagesRef.current = tripImages;
-    syncImages();
   };
 
   const deleteTripImage = async (index: number) => {

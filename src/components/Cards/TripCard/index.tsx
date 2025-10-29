@@ -16,8 +16,7 @@ import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import TimeUtils from "@utils/TimeUtils";
 import TLogo from "@assets/T.svg";
 import PreloadCarousel from "@components/Carousel/PreloadCarousel";
-import React, { useEffect, useState } from "react";
-import type { Image } from "@services/images";
+import React, { useState } from "react";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { enqueueSnackbar } from "notistack";
@@ -37,24 +36,10 @@ const TripCard = ({
   setIsParentUpdated,
 }: TripCardProps) => {
   // trip images
-  const [images, setImages] = useState<Image[]>([]);
   const [imageIndex, setImageIndex] = useState<number>(0);
   // popover
   const [popoverAnchorEl, setPopoverAnchorEl] =
     React.useState<HTMLButtonElement | null>(null);
-  // others
-  // const [isHovered, setIsHovered] = useState<boolean>(false);
-
-  useEffect(() => {
-    const initTripImages = async () => {
-      if (trip) {
-        // get trip image
-        let tripImages = await tripsService.getImagesByTripId(trip.id);
-        setImages(tripImages);
-      }
-    };
-    initTripImages();
-  }, [trip]);
 
   const handleDeleteTripClick = async (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation();
@@ -86,18 +71,13 @@ const TripCard = ({
   };
 
   return (
-    <Box
-      className="trip-card-box"
-      onClick={onClick}
-      // onMouseEnter={() => setIsHovered(true)}
-      // onMouseLeave={() => setIsHovered(false)}
-    >
+    <Box className="trip-card-box" onClick={onClick}>
       {/* image container */}
       <Box className="trip-card-image-box">
         {/* images */}
-        {images.length > 0 ? (
+        {trip.images && trip.images.length > 0 ? (
           <PreloadCarousel
-            images={images}
+            images={trip.images}
             index={imageIndex}
             setIndex={setImageIndex}
             readonly

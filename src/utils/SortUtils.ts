@@ -35,6 +35,12 @@ const sortDayAsc = (items: any[]) =>
 const sortDayDesc = (items: any[]) =>
   clone(items).sort((a, b) => b.numDays - a.numDays);
 
+const sortNumHighlightsAsc = (items: any[]) =>
+  clone(items).sort((a, b) => a.numHighlights - b.numHighlights);
+
+const sortNumHighlightsDesc = (items: any[]) =>
+  clone(items).sort((a, b) => b.numHighlights - a.numHighlights);
+
 // sort types (unchanged)
 export const sortTypeIdAsc = {
   label: "Id ASC",
@@ -76,6 +82,16 @@ export const sortTypeDayDesc = {
   function: sortDayDesc,
 } as SortType;
 
+export const sortTypeNumHighlightsAsc = {
+  label: "No. Highlights ASC",
+  function: sortNumHighlightsAsc,
+} as SortType;
+
+export const sortTypeNumHighlightsDesc = {
+  label: "No. Highlights DESC",
+  function: sortNumHighlightsDesc,
+} as SortType;
+
 // IMPORTANT: also clone here in case function forgets to
 const sortList = (list: any[], sortTypes: SortType[], sortTypeIndex: number) => {
   const func = sortTypes[sortTypeIndex]?.function;
@@ -92,6 +108,8 @@ const SortUtils = {
   sortTitleDesc,
   sortDayAsc,
   sortDayDesc,
+  sortNumHighlightsAsc,
+  sortNumHighlightsDesc,
   sortList,
 };
 

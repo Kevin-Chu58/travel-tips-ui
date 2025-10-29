@@ -29,6 +29,7 @@ const Main = () => {
   const [attractions, setAttractions] = useState<Attraction[]>([]);
   const [areAttractionsUpdated, setAreAttractionsUpdated] =
     useState<boolean>(false);
+  const [attractionShowHovers, setAttractionShowHovers] = useState<boolean>(false);
   // open form status
   const [isAddTripOpen, setIsAddTripOpen] = useState<boolean>(false);
   const [isAddHighlightOpen, setIsAddHighlightOpen] = useState<boolean>(false);
@@ -116,6 +117,7 @@ const Main = () => {
       element: (
         <Highlights
           attractions={attractions}
+          showHovers={attractionShowHovers}
         />
       ),
       tool: (
@@ -124,6 +126,8 @@ const Main = () => {
           setSortTypeIndex={setSortTypeIndex}
           setAttractions={setAttractions}
           syncAttractions={areAttractionsUpdated}
+          showHovers={attractionShowHovers}
+          setShowHovers={setAttractionShowHovers}
         />
       ),
       addForm: (
