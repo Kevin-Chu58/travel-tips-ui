@@ -16,19 +16,20 @@ import {
 // import DeleteIcon from "@mui/icons-material/Delete";
 import type { SortType } from "@constants/Types";
 // import { mild_box_shadow } from "@constants/Shadows";
+import "./index.scss";
 
-type ListToolBarSortProps = {
+type ListToolSortProps = {
   showSort?: boolean;
   sortType?: number;
   setSortType?: (state: number) => void;
   sortTypes?: SortType[];
 };
 
-type ListToolBarFilterProps = {
+type ListToolFilterProps = {
   showFilter?: boolean;
 };
 
-type ListToolBarSelectProps = {
+type ListToolSelectProps = {
   showSelect?: boolean;
   selected?: number[];
   // button options
@@ -36,24 +37,24 @@ type ListToolBarSelectProps = {
   handleDelete?: () => void;
 };
 
-type ListToolBarProps = ListToolBarSortProps &
-  ListToolBarSelectProps &
-  ListToolBarFilterProps;
+type ListToolProps = ListToolSortProps &
+  ListToolSelectProps &
+  ListToolFilterProps;
 
-const ListToolBar = ({
+const ListTool = ({
   // sort props
   showSort = false,
   sortType,
   setSortType,
   sortTypes,
-  // filter props
-  // showFilter = false,
-  // select props
-  // showSelect = false,
-  // selected = [],
-  // handlePublish,
-  // handleDelete,
-}: ListToolBarProps) => {
+}: // filter props
+// showFilter = false,
+// select props
+// showSelect = false,
+// selected = [],
+// handlePublish,
+// handleDelete,
+ListToolProps) => {
   // others
   // const selectButtonSx = { scale: 0.9, height: 32 };
 
@@ -71,29 +72,21 @@ const ListToolBar = ({
   };
 
   return (
-    <Box display="flex" flexDirection="row" color="dimgrey">
+    <Box className="list-tool-container">
       {showSort && (
-        <Box display="flex" flexDirection="row" alignItems="center" gap={1}>
+        <Box className="list-tool-sort-container">
           <SortIcon fontSize="small" />
           <Select
+            className="list-tool-sort-select"
             value={sortType?.toString()}
             onChange={handleSortChange}
             size="small"
-            sx={{
-              height: 24,
-              fontSize: ".8rem",
-              borderRadius: 20,
-              borderColor: "transparent",
-              color: "dimgrey",
-            }}
           >
             {sortTypes?.map((_sortType, i) => (
               <MenuItem
                 key={i}
                 value={i.toString()}
-                sx={{
-                  fontSize: ".8rem",
-                }}
+                className="list-tool-sort-select-item"
               >
                 {_sortType.label}
               </MenuItem>
@@ -168,7 +161,7 @@ const ListToolBar = ({
           >
             {displayNumSelected()} */}
 
-            {/* select buttons */}
+      {/* select buttons */}
       {/* //       <Box display="flex" flexWrap="wrap" mt={1}>
       //         {handlePublish && (
       //           <TTIconButton
@@ -208,4 +201,4 @@ const ListToolBar = ({
   );
 };
 
-export default ListToolBar;
+export default ListTool;

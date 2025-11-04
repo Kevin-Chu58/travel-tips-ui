@@ -4,7 +4,7 @@ import TTButton from "@components/TTButton";
 import TTDialog from "@components/TTDialog";
 import { useIsMobile } from "@hooks/useIsMobile";
 import { Typography, Box, Divider, CircularProgress } from "@mui/material";
-import type { AttractionV2 } from "@services/attractions";
+import type { Attraction } from "@services/attractions";
 import { BehaviorUtils } from "@utils/BehaviorUtils";
 import MapUtils from "@utils/MapUtils";
 import React, { useEffect, useState } from "react";
@@ -57,7 +57,7 @@ const TaoForm = ({
   const areTimesValid =
     _end === "12:00 AM" || TimeUtils.compareTime(hmma, _start, _end);
   // attraction
-  const [attraction, setAttraction] = useState<AttractionV2 | undefined>();
+  const [attraction, setAttraction] = useState<Attraction | undefined>();
   // attraction finder
   const [openFinder, setOpenFinder] = useState<boolean>(false);
   // attraction marker

@@ -53,6 +53,9 @@ const ImageSelector = ({
       setImageSrc(reader.result as string);
       setOpenCropperDialog(true);
       handleClosePopover();
+
+      // Reset so reselecting the same file works (double-click)
+      e.target.value = "";
     };
     reader.readAsDataURL(file);
   };

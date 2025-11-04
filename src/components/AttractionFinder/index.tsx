@@ -28,7 +28,7 @@ type AttractionFinderProps = {
   setOpen: (isOpen: boolean) => void;
   lastGeoCoordinate?: GeoCoordinate | undefined;
   setLastGeoCoordinate?: (state: GeoCoordinate) => void;
-  setIsParentUpdated?: () => void;
+  syncAddAttraction?: (state: Attraction) => void;
   setParentAttraction?: (state: Attraction) => void;
 };
 
@@ -37,7 +37,7 @@ const AttractionFinder = ({
   setOpen,
   lastGeoCoordinate,
   setLastGeoCoordinate,
-  setIsParentUpdated,
+  syncAddAttraction,
   setParentAttraction,
 }: AttractionFinderProps) => {
   // window
@@ -80,6 +80,7 @@ const AttractionFinder = ({
     setFocusId(undefined);
     setResult([]);
     setGeoCoordinate(undefined);
+    setDescription("");
     // hide the animation of shifting back to right side
     await BehaviorUtils.sleep(100);
     setAttraction(undefined);
@@ -118,9 +119,6 @@ const AttractionFinder = ({
   const handleClose = () => {
     setOpen(false);
     clear();
-
-    // optionally rerender the parent
-    if (setIsParentUpdated) setIsParentUpdated();
   };
 
   const handleGeoCoordinateClick = (geoCoords: GeoCoordinate) => {
@@ -149,6 +147,10 @@ const AttractionFinder = ({
         enqueueSnackbar("Successfully posted highlight.", {
           variant: "success",
         });
+
+        // add attraction after posted to database
+        if (syncAddAttraction) syncAddAttraction(attraction);
+
         setIsPosting(false);
         handleClose();
       } catch (e) {

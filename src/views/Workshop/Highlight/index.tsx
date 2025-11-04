@@ -13,7 +13,7 @@ const Highlight = () => {
         color="info"
         variant="text"
         startIcon={<NavigateBeforeIcon />}
-        to="/workshop/highlight"
+        to="/workshop/highlights"
         sx={{ fontSize: "1rem", mt: 1 }}
       />
       <HighlightProfile />

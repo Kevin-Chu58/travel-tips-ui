@@ -1,0 +1,24 @@
+.list-tool-container {
+  display: flex;
+  flex-direction: row;
+  color: dimgrey;
+}
+
+.list-tool-sort-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: .5rem;
+}
+
+.list-tool-sort-select.MuiSelect-root {
+  height: 24px;
+  font-size: .8rem;
+  border-radius: 1rem;
+  border-color: transparent;
+  color: dimgrey;
+}
+
+.list-tool-sort-select-item.MuiMenuItem-root {
+  font-size: .8rem;
+}

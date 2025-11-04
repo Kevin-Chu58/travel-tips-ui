@@ -26,14 +26,14 @@ type TripCardProps = {
   trip: Trip;
   readonly?: boolean;
   onClick: () => void;
-  setIsParentUpdated?: () => void;
+  syncDeleteTrip?: (state: Trip) => void;
 };
 
 const TripCard = ({
   trip,
   readonly = false,
   onClick,
-  setIsParentUpdated,
+  syncDeleteTrip,
 }: TripCardProps) => {
   // trip images
   const [imageIndex, setImageIndex] = useState<number>(0);
@@ -47,7 +47,7 @@ const TripCard = ({
     if (trip) {
       try {
         await tripsService.patchTripIsHidden([trip.id], true);
-        if (setIsParentUpdated) setIsParentUpdated();
+        if (syncDeleteTrip) syncDeleteTrip(trip);
 
         enqueueSnackbar("Successfully deleted trip.", { variant: "success" });
       } catch (e) {

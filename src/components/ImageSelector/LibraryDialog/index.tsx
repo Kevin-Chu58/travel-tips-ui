@@ -8,6 +8,7 @@ import { BehaviorUtils } from "@utils/BehaviorUtils";
 import { tripsService } from "@services/trips";
 import { enqueueSnackbar } from "notistack";
 import { useIsMobile } from "@hooks/useIsMobile";
+import ImageLibrary from "@components/ImageLibrary";
 import clsx from "clsx";
 import "./index.scss";
 
@@ -101,44 +102,11 @@ const LibraryDialog = ({
         <Divider variant="middle" flexItem />
 
         {/* image library */}
-        {images.length > 0 ? (
-          <Box className="library-dialog-image-library">
-            {images.map((image) => (
-              <Box
-                key={image.id}
-                className={clsx(
-                  "library-dialog-image-container",
-                  image.id === selectedImageId && "focus"
-                )}
-                onClick={() => setSelectedImageId(image.id)}
-              >
-                <Box className="library-dialog-image-box">
-                  <img
-                    src={image.url}
-                    className="library-dialog-image"
-                    loading="lazy"
-                  />
-                </Box>
-
-                {/* name */}
-                {image.name && (
-                  <Typography className="library-dialog-image-name">
-                    {image.name}
-                  </Typography>
-                )}
-
-                {/* guid */}
-                <Typography className="library-dialog-image-guid">
-                  {image.guid}
-                </Typography>
-              </Box>
-            ))}
-          </Box>
-        ) : (
-          <Box className="library-dialog-no-image-box">
-            <Typography>No images found.</Typography>
-          </Box>
-        )}
+        <ImageLibrary
+          images={images}
+          selectedImageId={selectedImageId}
+          setSelectedImageId={setSelectedImageId}
+        />
 
         {/* attach button */}
         <Box className="library-dialog-button-box">

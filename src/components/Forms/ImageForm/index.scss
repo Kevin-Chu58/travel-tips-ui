@@ -1,0 +1,97 @@
+@use "../../../stylings/box_shadows" as *;
+
+.image-form-dialog {
+
+  .MuiPaper-root {
+    background-color: transparent;
+    box-shadow: none;
+    overflow: visible;
+  }
+
+  .MuiBackdrop-root {
+    background-color: rgba(0, 0, 0, .8);
+  }
+
+  .image-form-content-container {
+    position: relative;
+    border-radius: 1rem;
+    overflow: hidden;
+    
+    box-shadow: $box-shadow-light;
+  }
+
+  .image-form-image-container {
+    width: 420px;
+    height: 355px;
+
+    &.mobile {
+      width: 300px;
+      height: 250px;
+    }
+  }
+
+  .image-form-image {
+    height: 100%;
+    object-fit: cover;
+    overflow: hidden;
+  }
+
+  .image-form-detail-container {
+    bottom: 0;
+    width: 100%;
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    background-color: rgba(0, 0, 0, .85);
+    color: whitesmoke;
+  }
+
+  .image-form-name-container {
+    padding: .5rem 1rem;
+  }
+
+  .image-form-name.MuiTypography-root{
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    font-size: 1.2rem;
+
+    &.no-name {
+      color: var(--grey-300);
+      font-style: italic;
+    }
+
+    &:hover {
+      color: inherit;
+    }
+  }
+
+  .image-form-name-input {
+    color: white;
+
+    .MuiOutlinedInput-input {
+      font-size: 1.2rem;
+      padding: 0.38rem;
+    }
+  }
+
+  .image-form-name-button.MuiButton-root {
+    color: whitesmoke;
+    background-color: transparent;
+    border-radius: 0.5rem;
+    text-align: left;
+    text-transform: none;
+
+    &:hover {
+      color: var(--primary-main);
+      background-color: rgba(255, 255, 255, .1);
+    }
+  }
+
+  .image-form-fab-container {
+    display: flex;
+    flex-direction: row;
+    margin-top: 2rem;
+    justify-content: center;
+  }
+}

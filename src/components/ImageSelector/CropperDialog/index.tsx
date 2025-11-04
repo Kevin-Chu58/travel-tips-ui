@@ -100,18 +100,18 @@ const CropperDialog = ({
 
         setIsLoading(true);
 
-        const imageViewModel = await ImagesService.uploadImage(
+        const newImage = await ImagesService.uploadImage(
           compressedBlob,
           name
         );
 
-        if (tripId) {
-          let newImage = await tripsService.postTripImage(
-            tripId,
-            imageViewModel.id
-          );
+        syncAddImage(newImage);
 
-          syncAddImage(newImage);
+        if (tripId) {
+          await tripsService.postTripImage(
+            tripId,
+            newImage.id
+          );
 
           enqueueSnackbar("Successfully uploaded image.", {
             variant: "success",
@@ -139,6 +139,7 @@ const CropperDialog = ({
   const handleClose = () => {
     onClose();
     setPreview(null);
+    setName("");
   };
 
   return (
@@ -172,7 +173,7 @@ const CropperDialog = ({
               Name
             </Typography>
             <Typography className="cropper-dialog-secondary-text">
-              Skip the name and we'll create one for you.
+              Name is optional — you can skip it.
             </Typography>
             <FormControl variant="outlined">
               <OutlinedInput
@@ -191,6 +192,7 @@ const CropperDialog = ({
             </Typography>
             <Typography className="cropper-dialog-secondary-text">
               Preview updates automatically as you adjust the crop.
+              <br/>*All images are converted to jpeg format.
             </Typography>
 
             {/* image preview */}

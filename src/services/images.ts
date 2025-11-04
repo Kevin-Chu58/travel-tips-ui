@@ -24,9 +24,28 @@ const uploadImage = async (
 ): Promise<Image> => {
   return await http.postImage(
     http.apiBaseURLs.api,
-    "images/upload",
+    "images",
     file,
     name,
+    undefined
+  );
+};
+
+const updateImageName = async (id: number, name: string): Promise<void> => {
+
+  return await http.patch(
+    http.apiBaseURLs.api,
+    `images/${id}/name/${name}`,
+    undefined,
+    undefined
+  );
+};
+
+const deleteImage = async (id: number): Promise<number> => {
+  return await http.del(
+    http.apiBaseURLs.api,
+    `images/${id}`,
+    undefined,
     undefined
   );
 };
@@ -34,4 +53,6 @@ const uploadImage = async (
 export const ImagesService = {
   getMyImages,
   uploadImage,
+  updateImageName,
+  deleteImage,
 };

@@ -1,58 +1,122 @@
 .app-bar {
-    &.MuiPaper-root {
-        z-index: 1200;
-    }
+  &.MuiAppBar-root {
+    background-color: black;
+  }
 
+  &.MuiPaper-root {
+    z-index: 1200;
+    width: 100vw;
+    position: sticky;
+  }
+
+  .MuiContainer-root {
+    background-color: black;
+  }
+
+  &.main {
+    &.MuiAppBar-root {
+      background-color: transparent;
+      box-shadow: none;
+    }
     .MuiContainer-root {
-        background-color: black;
+      background-color: transparent;
+      background-image: linear-gradient(
+        black 0%,
+        #000000dd 20%,
+        #000000aa 50%,
+        #00000000 100%
+      );
     }
 
-    &.main {
-        &.MuiAppBar-root {
-            background-color: transparent;
-            box-shadow: none;
-        }
-        .MuiContainer-root {
-            background-color: transparent;
-            background-image: linear-gradient(black 0%, #000000dd 20%, #000000aa 50%, #00000000 100%);
-        }
-
-        .app-bar-icon {
-            display: none;
-        }
+    .app-bar-icon {
+      display: none;
     }
+  }
 
-    .app-bar-icon{
-        .app-bar-icon-svg {
-            cursor: pointer;
-        }
+  .app-bar-board-container {
+    margin: 10rem -10rem 0 -2.5rem;
+  }
+
+  .app-bar-board {
+    height: 200px;
+  }
+
+  .app-bar-icon {
+    height: inherit;
+    align-items: center;
+    display: flex;
+
+    .app-bar-icon-svg {
+      cursor: pointer;
+
+      height: 64px;
+      width: 64px;
     }
+  }
 
-    .app-bar-login {
-        font-family: "tagesschrift";
-        font-weight: "bold";
-        border-width: 2px;
-        border-style: solid;
-        transition: .2s all ease-in-out;
+  .app-bar-icon-container {
+    background-color: var(--primary-main);
+    height: inherit;
+    align-items: center;
+    display: flex;
+    padding: 0 0.3rem;
+  }
+
+  .app-bar-login,
+  .app-bar-sign-up {
+    font-family: tagesschrift;
+  }
+
+  .app-bar-login {
+    margin: 1rem;
+    padding: 0.1rem 1.5rem;
+    font-weight: bold;
+    color: var(--primary-main);
+    border-radius: 0.5rem;
+    border-width: 2px;
+    border-style: solid;
+    transition: 0.2s all ease-in-out;
+
+    &:hover {
+      color: white;
     }
+  }
 
-    .app-bar-header,
-    .app-bar-login {
-        cursor: pointer;
+  .app-bar-headers-container {
+    display: flex;
+    flex-direction: row;
+    margin-left: 10rem;
+
+    &.mobile {
+      margin-left: 1rem;
     }
-}
+  }
 
-.app-bar-user-menu {
+  .app-bar-header,
+  .app-bar-login {
+    cursor: pointer;
+  }
+
+  .app-bar-auth-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-left: auto;
+    margin-right: 1.5rem;
+  }
+
+  .app-bar-user-menu {
     .MuiPaper-root {
-        display: "flex";
-        flex-direction: "column";
-        background-color: transparent;
-        color: white;
-        box-shadow: none;
-        overflow: visible;
+      display: flex;
+      flex-direction: column;
+      background-color: transparent;
+      color: white;
+      box-shadow: none;
+      overflow: visible;
     }
 
     .app-bar-user-menu-item {
-        font-family: "tagesschrift";
+      font-family: tagesschrift;
     }
+  }
 }
