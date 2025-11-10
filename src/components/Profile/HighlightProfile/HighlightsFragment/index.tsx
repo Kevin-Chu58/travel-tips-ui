@@ -5,20 +5,21 @@ import React, { useState } from "react";
 import HighlightForm from "@components/Forms/HighlightForm";
 import HighlightItem from "@components/Item/HighlightItem";
 import { getDefaultHighlight, type Highlight } from "@services/highlights";
-import type { AttractionV2 } from "@services/attractions";
+import type { Attraction } from "@services/attractions";
 import TTButton from "@components/TTButton";
 import clsx from "clsx";
 import "./index.scss";
 
 type HighlightsFragmentProps = {
-  attraction: AttractionV2 | undefined;
+  attraction: Attraction | undefined;
   highlights: Highlight[];
   isHighlightLoading?: boolean;
   allowChangeHighlight?: boolean;
   setDeleteHighlightId?: (state: number | undefined) => void;
   selectHighlightId?: number;
   setSelectHighlightId?: (state: number | undefined) => void;
-  setSyncHighlights?: () => void;
+  syncAddHighlight?: (state?: Highlight) => void;
+  syncUpdateHighlight?: (state?: Highlight) => void;
 };
 
 const HighlightsFragment = ({
@@ -29,7 +30,8 @@ const HighlightsFragment = ({
   setDeleteHighlightId,
   selectHighlightId,
   setSelectHighlightId,
-  setSyncHighlights,
+  syncAddHighlight,
+  syncUpdateHighlight,
 }: HighlightsFragmentProps) => {
   // post
   const [openPost, setOpenPost] = useState<boolean>(false);
@@ -44,6 +46,7 @@ const HighlightsFragment = ({
       highlight={highlight}
       showMenu={allowChangeHighlight}
       isLast={noDivider || i + 1 === highlights.length}
+      onUpdate={syncUpdateHighlight}
       onDelete={setDeleteHighlightId}
     />
   );
@@ -91,9 +94,7 @@ const HighlightsFragment = ({
                   <AddIcon />
                 </TTIconButton>
               </Tooltip>
-            ) : (
-              <></>
-            )}
+            ) : undefined}
           </Box>
           <Divider flexItem />
 
@@ -102,7 +103,7 @@ const HighlightsFragment = ({
             <React.Fragment>
               <HighlightForm
                 highlight={{ ...getDefaultHighlight(attraction.id) }}
-                onAction={setSyncHighlights}
+                onAction={syncAddHighlight}
                 onClose={() => setOpenPost(false)}
                 isPost
               />
@@ -135,10 +136,6 @@ const HighlightsFragment = ({
         </Box>
       ) : (
         undefined
-        // <Skeleton
-        //   className="highlight-profile-highlights-fragment-skeleton"
-        //   variant="rectangular"
-        // />
       )}
     </React.Fragment>
   );

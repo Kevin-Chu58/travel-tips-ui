@@ -3,6 +3,7 @@ import TTButton from "@components/TTButton";
 import { Box, Button, Skeleton, Typography } from "@mui/material";
 import { tripsService, type Trip, type TripPatch } from "@services/trips";
 import { enqueueSnackbar } from "notistack";
+import MarkdownBox from "@components/MarkdownBox";
 import React, { useEffect, useState } from "react";
 import "./index.scss";
 
@@ -82,12 +83,14 @@ const DescriptionComponent = ({
                 />
                 <Box className="trip-profile-description-comp-edit-button-box">
                   <TTButton
+                    className="trip-profile-description-comp-edit-button"
                     label="cancel"
                     variant="text"
                     color="primary"
                     onClick={handleDescriptionClose}
                   />
                   <TTButton
+                    className="trip-profile-description-comp-edit-button"
                     label="update"
                     color="primary"
                     onClick={handleDescriptionUpdate}
@@ -99,9 +102,7 @@ const DescriptionComponent = ({
                 className="trip-profile-description-comp-button"
                 onClick={() => setIsEditingDescription(true)}
               >
-                <Typography className="trip-profile-text">
-                  {tripBasicRef.current?.description}
-                </Typography>
+                <MarkdownBox text={tripBasicRef.current?.description} />
               </Button>
             ) : (
               <Button
@@ -115,9 +116,9 @@ const DescriptionComponent = ({
               </Button>
             )
           ) : (
-            <Typography className="trip-profile-text-readonly">
-              {tripBasicRef.current?.description}
-            </Typography>
+            <MarkdownBox
+              text={tripBasicRef.current?.description || "*Nothing to preview*"}
+            />
           )}
         </React.Fragment>
       ) : (

@@ -2,7 +2,7 @@ import TTButton from "@components/TTButton";
 import TTDialog from "@components/TTDialog";
 import { Box, CircularProgress, Typography } from "@mui/material";
 import type { RootState } from "@redux/store";
-import { attractionsService, type AttractionV2 } from "@services/attractions";
+import { attractionsService, type Attraction } from "@services/attractions";
 import { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router";
@@ -22,12 +22,12 @@ const HighlightProfile = () => {
   // snackbar
   const { enqueueSnackbar } = useSnackbar();
   // attraction
-  const [attraction, setAttraction] = useState<AttractionV2 | undefined>();
+  const [attraction, setAttraction] = useState<Attraction | undefined>();
   const [isAttractionLoading, setIsAttractionLoading] =
     useState<boolean>(false);
   // highlight
+  const highlightsRef = useRef<Highlight[]>([]);
   const [highlights, setHighlights] = useState<Highlight[]>([]);
-  const [syncHighlights, setSyncHighlights] = useState<boolean>(false);
   const [isHighlightLoading, setIsHighlightLoading] = useState<boolean>(true);
   // delete
   const [deleteHighlightId, setDeleteHighlightId] = useState<
@@ -47,6 +47,40 @@ const HighlightProfile = () => {
     <DeleteIcon />
   );
 
+  // sync methods
+
+  const syncHighligts = () => {
+        setHighlights([...highlightsRef.current]);
+  };
+
+  const syncAddHighlight = (highlight?: Highlight) => {
+    if (highlight) {
+      highlightsRef.current.push(highlight);
+      syncHighligts();
+    }
+  };
+
+  const syncUpdateHighlight = (highlight?: Highlight) => {
+    if (highlight) {
+      let highlightId = highlightsRef.current.findIndex((h) => h.id === highlight.id);
+
+      if (highlightId >= 0) {
+        highlightsRef.current[highlightId] = highlight;
+        syncHighligts();
+      }
+    }
+  };
+
+  const syncDeleteHighlight = (highlight: Highlight) => {
+    if (highlightsRef.current) {
+      highlightsRef.current = highlightsRef.current.filter(
+        (h) => h.id !== highlight.id
+      );
+      syncHighligts();
+    }
+  };
+
+  // render attraction on attractionId
   useEffect(() => {
     const getAttraction = async () => {
       if (hasFetchedRef.current) return;
@@ -69,21 +103,22 @@ const HighlightProfile = () => {
     getAttraction();
   }, [attractionId]);
 
+  // render highlights on userId
   useEffect(() => {
     const getHighlights = async () => {
-      console.log(attractionId, userId);
       if (attractionId && userId) {
         setIsHighlightLoading(true);
         let highlights = await highlightsService.getHighlightsByAttractionId(
           parseInt(attractionId),
           userId ?? undefined
         );
+        highlightsRef.current = highlights;
         setHighlights(highlights);
         setIsHighlightLoading(false);
       }
     };
     getHighlights();
-  }, [userId, syncHighlights]);
+  }, [userId]);
 
   const handleDeleteClose = () => {
     setDeleteHighlightId(undefined);
@@ -98,7 +133,7 @@ const HighlightProfile = () => {
       );
 
       await BehaviorUtils.sleep();
-      setHighlights(highlights.filter((h) => h.id !== deletedHighlight.id));
+      syncDeleteHighlight(deletedHighlight);
 
       setIsDeleting(false);
       enqueueSnackbar("Successfully deleted highlight.", {
@@ -124,7 +159,8 @@ const HighlightProfile = () => {
           highlights={highlights}
           isHighlightLoading={isHighlightLoading}
           setDeleteHighlightId={setDeleteHighlightId}
-          setSyncHighlights={() => setSyncHighlights((prev) => !prev)}
+          syncAddHighlight={syncAddHighlight}
+          syncUpdateHighlight={syncUpdateHighlight}
         />
       </Box>
 

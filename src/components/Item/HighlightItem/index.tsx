@@ -14,6 +14,7 @@ import { useSelector } from "react-redux";
 import type { RootState } from "@redux/store";
 import HighlightForm from "@components/Forms/HighlightForm";
 import { useIsMobile } from "@hooks/useIsMobile";
+import MarkdownBox from "@components/MarkdownBox";
 import clsx from "clsx";
 import "./index.scss";
 
@@ -112,9 +113,7 @@ const HighlightItem = ({
   ];
 
   const highlightDescription = (
-    <Typography className="highlight-item-description">
-      {description}
-    </Typography>
+    <MarkdownBox text={description || "*Nothing to preview*"} disableGap />
   );
 
   const highlightForm = (
@@ -182,7 +181,11 @@ const HighlightItem = ({
               {username}
               <Box ml="auto">{menuIconButton}</Box>
             </Box>
-            {description}
+            {isEditing ? (
+              <React.Fragment>{highlightForm}</React.Fragment>
+            ) : (
+              <React.Fragment>{highlightDescription}</React.Fragment>
+            )}
           </React.Fragment>
         )}
       </Box>

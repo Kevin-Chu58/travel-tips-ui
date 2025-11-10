@@ -2,6 +2,7 @@ import TTButton from "@components/TTButton";
 import { Box, TextField } from "@mui/material";
 import { useState } from "react";
 import "./index.scss";
+import MarkdownBox from "@components/MarkdownBox";
 
 type DescriptionTextFieldProps = {
   value: string;
@@ -40,16 +41,7 @@ const DescriptionTextField = ({
       </Box>
 
       {isPreview ? (
-        <TextField
-          className="description-text-field-view-preview-text-field"
-          value={value}
-          multiline
-          slotProps={{
-            htmlInput: {
-              readOnly: true,
-            },
-          }}
-        />
+        <MarkdownBox text={value || "*Nothing to preview*"} />
       ) : (
         <TextField
           className="description-text-field-view-input-text-field"

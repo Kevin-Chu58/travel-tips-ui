@@ -165,6 +165,10 @@ body {
   overflow-x: hidden;
 }
 
+a {
+  color: var(--info-main);
+}
+
 /* For Firefox */
 * {
   scrollbar-width: thin;

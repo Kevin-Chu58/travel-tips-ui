@@ -1,6 +1,6 @@
 @use "../../../../stylings/box_shadows" as *;
 
-$background-gradient: linear-gradient(to right, var(--info-900), var(--info-400));
+$background-gradient: linear-gradient(to right, var(--info-900), var(--info-500));
 
 .trip-profile-tao-comp-box {
   height: 100%;

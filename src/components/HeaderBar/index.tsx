@@ -88,7 +88,7 @@ const HeaderBar = () => {
       <Container maxWidth={false} disableGutters>
         <Toolbar disableGutters sx={{ height: Layouts.Header }}>
           {/* main page - board */}
-          {onPage === Pages.Main && (
+          {onPage === Pages.Main && !isMobile && (
             <Box className="app-bar-board-container">
               <img className="app-bar-board" src={TBoard} />
             </Box>

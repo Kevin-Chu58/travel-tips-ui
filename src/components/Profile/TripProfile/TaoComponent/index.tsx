@@ -102,6 +102,7 @@ const TaoComponent = ({
 
         let updatedTao = await taosService.patchTao(tao.id, taoPatch);
         syncEditDayTaos(updatedTao);
+        setDescription("");
 
         enqueueSnackbar("Successfully created highlight for this event.", {
           variant: "success",
