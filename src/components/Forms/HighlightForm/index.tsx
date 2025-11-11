@@ -70,6 +70,8 @@ const HighlightForm = ({
           if (onAction) {
             onAction(newHighlight);
           }
+        } else if (onAction) {
+          onAction();
         }
       }
     } catch (e) {
