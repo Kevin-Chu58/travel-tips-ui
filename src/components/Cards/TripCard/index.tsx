@@ -64,8 +64,10 @@ const TripCard = ({
     setPopoverAnchorEl(e.currentTarget);
   };
 
-  const handleClosePopover = (e: React.MouseEvent<HTMLElement>) => {
-    e.stopPropagation();
+  const handleClosePopover = (e: unknown) => {
+    if (e && typeof e === "object" && "stopPropagation" in e) {
+      (e as React.MouseEvent<HTMLElement>).stopPropagation();
+    }
 
     setPopoverAnchorEl(null);
   };

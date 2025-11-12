@@ -1,4 +1,4 @@
-import type { AttractionV2 } from "@services/attractions";
+import type { Attraction } from "@services/attractions";
 import http from "@services/http";
 
 export type HereRoutingResponse = {
@@ -103,7 +103,7 @@ const searchPlaceByName = async (
   lat: number,
   lng: number,
   limit?: number
-): Promise<AttractionV2[]> => {
+): Promise<Attraction[]> => {
   const params = new URLSearchParams();
 
   params.set("query", query.toString());
