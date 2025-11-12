@@ -1,7 +1,5 @@
 import { Box, CircularProgress } from "@mui/material";
-import type { RootState } from "@redux/store";
 import { useState } from "react";
-import { useSelector } from "react-redux";
 import FileUploadIcon from "@mui/icons-material/FileUpload";
 import AddIcon from "@mui/icons-material/Add";
 import DescriptionTextField from "@components/TextField/DescriptionTextField";
@@ -39,9 +37,8 @@ const HighlightForm = ({
   const [isUpdating, setIsUpdating] = useState<boolean>(false);
   // update action
   const actualDescription = description ?? _description;
+  const isDescriptionEmpty = actualDescription.trim().length === 0;
   const updateDescription = setDescription ?? _setDescription;
-  // others
-  const token = useSelector((state: RootState) => state.auth.accessToken);
 
   const actionIconDefault = isPost ? <AddIcon /> : <FileUploadIcon />;
   const actionIcon = isUpdating ? (
@@ -51,52 +48,56 @@ const HighlightForm = ({
   );
 
   const handlePost = async () => {
-    const trimedDescription = _description.trim();
+    const trimmedDescription = _description.trim();
 
-    if (token) {
-      try {
-        setIsUpdating(true);
+    try {
+      setIsUpdating(true);
 
-        if (highlight || onAction) {
-          if (highlight && trimedDescription.length > 0) {
-            let newHighlight = await highlightsService.postHighlight(
-              { ...highlight, description: trimedDescription },
-              token
-            );
-            await BehaviorUtils.sleep();
-            setHighlight(newHighlight);
+      if (highlight || onAction) {
+        if (highlight && trimmedDescription.length > 0) {
+          let newHighlight = await highlightsService.postHighlight({
+            ...highlight,
+            description: trimmedDescription,
+          });
+          await BehaviorUtils.sleep();
+          setHighlight(newHighlight);
 
-            enqueueSnackbar("Successfully posted highlight.", {
-              variant: "success",
-            });
-            setIsUpdating(false);
-          }
+          enqueueSnackbar("Successfully posted highlight.", {
+            variant: "success",
+          });
+          setIsUpdating(false);
 
           if (onAction) {
-            onAction();
+            onAction(newHighlight);
           }
+        } else if (onAction) {
+          onAction();
         }
-      } catch (e) {
-        if (e instanceof Error)
-          enqueueSnackbar(e.message, { variant: "error" });
       }
-      setIsUpdating(false);
+    } catch (e) {
+      if (e instanceof Error) enqueueSnackbar(e.message, { variant: "error" });
     }
 
+    setIsUpdating(false);
     onClose();
   };
 
   const handleUpdate = async () => {
-    const trimedDescription = actualDescription.trim();
-    const isChanged = highlight?.description !== trimedDescription;
+    const trimmedDescription = actualDescription.trim();
+    const isChanged = highlight?.description !== trimmedDescription;
 
-    if (isChanged && token && highlight && highlight.description) {
+    if (isDescriptionEmpty) {
+      enqueueSnackbar("Highlight is Empty.", { variant: "error" });
+      return;
+    }
+
+    if (isChanged && highlight) {
       try {
         setIsUpdating(true);
+
         let updatedHighlight = await highlightsService.patchHighlight(
           highlight.id,
-          trimedDescription,
-          token
+          trimmedDescription
         );
         await BehaviorUtils.sleep();
         onAction ? onAction(updatedHighlight) : setHighlight(updatedHighlight);
@@ -122,6 +123,7 @@ const HighlightForm = ({
       />
       <Box className="highlight-form-button-box">
         <TTButton
+          className="highlight-form-button"
           label="cancel"
           variant="text"
           color="primary"
@@ -129,16 +131,20 @@ const HighlightForm = ({
         />
         {isPost ? (
           <TTButton
+            className="highlight-form-button"
             label="create"
             color="primary"
             startIcon={actionIcon}
+            disabled={isDescriptionEmpty}
             onClick={handlePost}
           />
         ) : (
           <TTButton
+            className="highlight-form-button"
             label="update"
             color="primary"
             startIcon={actionIcon}
+            disabled={isDescriptionEmpty}
             onClick={handleUpdate}
           />
         )}

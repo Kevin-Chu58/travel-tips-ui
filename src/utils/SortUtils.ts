@@ -1,46 +1,47 @@
 import type { SortType } from "@constants/Types";
 
-const sortIdAsc = (items: any[]) => {
-  return items.sort((a, b) => a!.id - b!.id);
-};
+// helper to clone before sorting
+const clone = (items: any[]) => [...items];
 
-const sortIdDesc = (items: any[]) => {
-  return items.sort((a, b) => b!.id - a!.id);
-};
+const sortIdAsc = (items: any[]) =>
+  clone(items).sort((a, b) => a.id - b.id);
 
-const sortNameAsc = (items: any[]) => {
-  return items.sort((a, b) =>
-    a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+const sortIdDesc = (items: any[]) =>
+  clone(items).sort((a, b) => b.id - a.id);
+
+const sortNameAsc = (items: any[]) =>
+  clone(items).sort((a, b) =>
+    (a.name ?? "").toLowerCase().localeCompare((b.name ?? "").toLowerCase())
   );
-};
 
-const sortNameDesc = (items: any[]) => {
-  return items.sort((a, b) =>
-    b.name.toLowerCase().localeCompare(a.name.toLowerCase())
+const sortNameDesc = (items: any[]) =>
+  clone(items).sort((a, b) =>
+    (b.name ?? "").toLowerCase().localeCompare((a.name ?? "").toLowerCase())
   );
-};
 
-const sortTitleAsc = (items: any[]) => {
-  return items.sort((a, b) =>
-    a.title.toLowerCase().localeCompare(b.title.toLowerCase())
+const sortTitleAsc = (items: any[]) =>
+  clone(items).sort((a, b) =>
+    (a.title ?? "").toLowerCase().localeCompare((b.title ?? "").toLowerCase())
   );
-};
 
-const sortTitleDesc = (items: any[]) => {
-  return items.sort((a, b) =>
-    b.title.toLowerCase().localeCompare(a.title.toLowerCase())
+const sortTitleDesc = (items: any[]) =>
+  clone(items).sort((a, b) =>
+    (b.title ?? "").toLowerCase().localeCompare((a.title ?? "").toLowerCase())
   );
-};
 
-const sortDayAsc = (items: any[]) => {
-  return items.sort((a, b) => a!.numDays - b!.numDays);
-};
+const sortDayAsc = (items: any[]) =>
+  clone(items).sort((a, b) => a.numDays - b.numDays);
 
-const sortDayDesc = (items: any[]) => {
-  return items.sort((a, b) => b!.numDays - a!.numDays);
-};
+const sortDayDesc = (items: any[]) =>
+  clone(items).sort((a, b) => b.numDays - a.numDays);
 
-// sort types
+const sortNumHighlightsAsc = (items: any[]) =>
+  clone(items).sort((a, b) => a.numHighlights - b.numHighlights);
+
+const sortNumHighlightsDesc = (items: any[]) =>
+  clone(items).sort((a, b) => b.numHighlights - a.numHighlights);
+
+// sort types (unchanged)
 export const sortTypeIdAsc = {
   label: "Id ASC",
   function: sortIdAsc,
@@ -81,14 +82,21 @@ export const sortTypeDayDesc = {
   function: sortDayDesc,
 } as SortType;
 
-// sort list with a specific sorting function
-const sortList = (
-  list: any[],
-  sortTypes: SortType[],
-  sortTypeIndex: number
-) => {
-  let func = sortTypes[sortTypeIndex].function;
-  return func(list);
+export const sortTypeNumHighlightsAsc = {
+  label: "No. Highlights ASC",
+  function: sortNumHighlightsAsc,
+} as SortType;
+
+export const sortTypeNumHighlightsDesc = {
+  label: "No. Highlights DESC",
+  function: sortNumHighlightsDesc,
+} as SortType;
+
+// IMPORTANT: also clone here in case function forgets to
+const sortList = (list: any[], sortTypes: SortType[], sortTypeIndex: number) => {
+  const func = sortTypes[sortTypeIndex]?.function;
+  if (!func) return [...list];
+  return func([...list]); // ensure new array
 };
 
 const SortUtils = {
@@ -100,6 +108,8 @@ const SortUtils = {
   sortTitleDesc,
   sortDayAsc,
   sortDayDesc,
+  sortNumHighlightsAsc,
+  sortNumHighlightsDesc,
   sortList,
 };
 

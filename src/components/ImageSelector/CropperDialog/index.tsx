@@ -14,8 +14,6 @@ import { useIsMobile } from "@hooks/useIsMobile";
 import { enqueueSnackbar } from "notistack";
 import { tripsService } from "@services/trips";
 import imageCompression from "browser-image-compression";
-import type { RootState } from "@redux/store";
-import { useSelector } from "react-redux";
 import { ImagesService, type Image } from "@services/images";
 import { BehaviorUtils } from "@utils/BehaviorUtils";
 import clsx from "clsx";
@@ -51,8 +49,6 @@ const CropperDialog = ({
   );
   // ref
   const cropperRef = useRef<ReactCropperElement>(null);
-  // others
-  const token = useSelector((state: RootState) => state.auth.accessToken);
 
   const handlePreview = () => {
     const cropper = cropperRef.current?.cropper;
@@ -102,28 +98,24 @@ const CropperDialog = ({
           return;
         }
 
-        if (token) {
-          setIsLoading(true);
+        setIsLoading(true);
 
-          const imageViewModel = await ImagesService.uploadImage(
-            token,
-            compressedBlob,
-            name
+        const newImage = await ImagesService.uploadImage(
+          compressedBlob,
+          name
+        );
+
+        syncAddImage(newImage);
+
+        if (tripId) {
+          await tripsService.postTripImage(
+            tripId,
+            newImage.id
           );
 
-          if (tripId) {
-            let newImage = await tripsService.postTripImage(
-              tripId,
-              imageViewModel.id,
-              token
-            );
-
-            syncAddImage(newImage);
-
-            enqueueSnackbar("Successfully uploaded image.", {
-              variant: "success",
-            });
-          }
+          enqueueSnackbar("Successfully uploaded image.", {
+            variant: "success",
+          });
         }
       } catch (err) {
         if (err instanceof Error) {
@@ -147,6 +139,7 @@ const CropperDialog = ({
   const handleClose = () => {
     onClose();
     setPreview(null);
+    setName("");
   };
 
   return (
@@ -180,7 +173,7 @@ const CropperDialog = ({
               Name
             </Typography>
             <Typography className="cropper-dialog-secondary-text">
-              Skip the name and we'll create one for you.
+              Name is optional — you can skip it.
             </Typography>
             <FormControl variant="outlined">
               <OutlinedInput
@@ -199,6 +192,7 @@ const CropperDialog = ({
             </Typography>
             <Typography className="cropper-dialog-secondary-text">
               Preview updates automatically as you adjust the crop.
+              <br/>*All images are converted to jpeg format.
             </Typography>
 
             {/* image preview */}

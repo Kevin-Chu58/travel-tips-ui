@@ -1,6 +1,7 @@
 import TTIconButton from "@components/TTIconButton";
 import CloseIcon from "@mui/icons-material/Close";
 import {
+  Alert,
   Box,
   Chip,
   Divider,
@@ -20,8 +21,7 @@ import { highlightsService, type Highlight } from "@services/highlights";
 import HighlightForm from "@components/Forms/HighlightForm";
 import DiscoverHighlightsForm from "@components/Forms/DiscoverHighlightsForm";
 import DirectionAccordion from "@components/Accordions/DirectionAccordion";
-import { useSelector } from "react-redux";
-import type { RootState } from "@redux/store";
+import type { WikiImage } from "@services/wikiCommons/wikiCommons";
 import { enqueueSnackbar } from "notistack";
 import TTButton from "@components/TTButton";
 import {
@@ -33,6 +33,7 @@ import "./index.scss";
 type TaoComponentProps = {
   taos: Tao[] | undefined;
   tao: Tao | undefined;
+  wikiImages: WikiImage[];
   routeResponsesMapRef: React.RefObject<Map<number, HereRoutingResponse[]>>;
   routeResponses: HereRoutingResponse[] | undefined;
   setRouteResponses: (state: HereRoutingResponse[]) => void;
@@ -44,6 +45,7 @@ type TaoComponentProps = {
 const TaoComponent = ({
   taos,
   tao,
+  wikiImages,
   routeResponsesMapRef,
   routeResponses,
   setRouteResponses,
@@ -65,44 +67,42 @@ const TaoComponent = ({
   // open form states
   const [openDiscoverHighlights, setOpenDiscoverHighlights] =
     useState<boolean>(false);
-  // others
-  const token = useSelector((state: RootState) => state.auth.accessToken);
 
   const taoIndex = taos?.findIndex((t) => t.id === tao?.id);
   const routeResponse = taoIndex ? routeResponses?.at(taoIndex - 1) : undefined;
-  const formatedSections = routeResponse
-    ? MapUtils.mergeRoutingSections(routeResponse.routes![0])
-    : undefined;
+  const formatedSections =
+    routeResponse && routeResponse.routes?.at(0)
+      ? MapUtils.mergeRoutingSections(routeResponse.routes[0])
+      : undefined;
 
   // rerender _tao on tao when is defined
   useEffect(() => {
     if (tao) {
       _setTao(tao);
       setHighlight(tao.highlight);
+      setIsCreating(false);
       setTransportMode(tao.transportMode ?? TransportModes[0]);
     }
   }, [tao?.id, tao?.attraction.id, tao?.highlight?.id, tao?.start, tao?.end]);
 
   const handlePostHighlight = async () => {
-    if (isCreating && tao && description && token) {
+    if (isCreating && tao && description) {
       try {
         let highlightPost = {
           attractionId: tao.attraction.id,
           description: description,
         };
 
-        let newHighlight = await highlightsService.postHighlight(
-          highlightPost,
-          token
-        );
+        let newHighlight = await highlightsService.postHighlight(highlightPost);
 
         let taoPatch = {
           ...tao,
           highlightId: newHighlight.id,
         };
 
-        let updatedTao = await taosService.patchTao(tao.id, taoPatch, token);
+        let updatedTao = await taosService.patchTao(tao.id, taoPatch);
         syncEditDayTaos(updatedTao);
+        setDescription("");
 
         enqueueSnackbar("Successfully created highlight for this event.", {
           variant: "success",
@@ -131,12 +131,9 @@ const TaoComponent = ({
   };
 
   const handleDetachHighlight = async () => {
-    if (tao && token) {
+    if (tao) {
       try {
-        let updatedTao = await taosService.patchTaoDetachHighlight(
-          tao.id,
-          token
-        );
+        let updatedTao = await taosService.patchTaoDetachHighlight(tao.id);
         syncEditDayTaos(updatedTao);
 
         enqueueSnackbar("Successfully detached highlight.", {
@@ -158,13 +155,9 @@ const TaoComponent = ({
       return;
     }
 
-    if (tao && token) {
+    if (tao) {
       try {
-        await taosService.patchTao(
-          tao.id,
-          { transportMode: newTransportMode },
-          token
-        );
+        await taosService.patchTao(tao.id, { transportMode: newTransportMode });
 
         enqueueSnackbar(`Transport mode updated to ${newTransportMode}.`, {
           variant: "success",
@@ -224,82 +217,115 @@ const TaoComponent = ({
 
       {/* tao content */}
       <Box className="trip-profile-tao-comp-content-box">
-        <Box>
+        <Box className="trip-profile-tao-comp-section">
           {/* title & address */}
           <Typography className="trip-profile-tao-comp-title">
-            Visit {attraction?.title}
+            Visit{" "}
+            <span className="trip-profile-tao-comp-title-span">
+              {attraction?.title}
+            </span>
           </Typography>
           <Typography>{attraction?.address}</Typography>
 
           {/* attraction category */}
           {attraction?.category ? (
             <Chip
+              className="day-event-event-category"
               size="small"
-              label={<Typography>{attraction.category}</Typography>}
+              label={
+                <Typography variant="caption">{attraction.category}</Typography>
+              }
             />
           ) : undefined}
         </Box>
 
+        {/* wiki images */}
+        {wikiImages.length > 0 ? (
+          <React.Fragment>
+            <Box className="trip-profile-tao-comp-wiki-image-box">
+              {wikiImages.map((image) => {
+                let titleRegex = /(?<=:).*(?=\.)/gm;
+                let imageTitle = image.title.match(titleRegex)?.join() ?? "";
+                return (
+                  <img
+                    key={image.title}
+                    className="trip-profile-tao-comp-wiki-image"
+                    src={image.url}
+                    alt={imageTitle}
+                    loading="lazy"
+                  />
+                );
+              })}
+            </Box>
+          </React.Fragment>
+        ) : undefined}
+
         {/* highlight */}
         {highlight?.description ? (
           <React.Fragment>
-            <Divider flexItem>
+            <Divider flexItem />
+            <Box className="trip-profile-tao-comp-section">
               <Typography className="trip-profile-tao-comp-large-text">
                 Highlight
               </Typography>
-            </Divider>
 
-            <Box>
-              <HighlightItem
-                highlight={highlight}
-                isLast={true}
-                onUpdate={handleUpdateHighlight}
-                onDelete={undefined}
-                onDetach={handleDetachHighlight}
-                readonly={readonly}
-              />
+              <Box>
+                <HighlightItem
+                  highlight={highlight}
+                  isLast={true}
+                  onUpdate={handleUpdateHighlight}
+                  onDelete={undefined}
+                  onDetach={handleDetachHighlight}
+                  readonly={readonly}
+                />
+              </Box>
             </Box>
           </React.Fragment>
         ) : !readonly ? (
           <React.Fragment>
-            <Divider flexItem>
+            <Divider flexItem />
+            <Box className="trip-profile-tao-comp-section">
               <Typography className="trip-profile-tao-comp-large-text">
                 Highlight
               </Typography>
-            </Divider>
 
-            <Box>
-              {!isCreating ? (
-                <React.Fragment>
-                  <Box className="trip-profile-tao-comp-highlight-helper-box">
-                    <Typography className="trip-profile-tao-comp-highlight-helper-text">
-                      Discover amazing highlights {"\n"} — or make your own!
-                    </Typography>
-                  </Box>
+              <Box>
+                {!isCreating ? (
+                  <Box>
+                    <Box className="trip-profile-tao-comp-highlight-helper-box">
+                      <Typography className="trip-profile-tao-comp-highlight-helper-text">
+                        Discover amazing highlights {"\n"} — or make your own!
+                      </Typography>
+                    </Box>
 
-                  <Box className="trip-profile-tao-comp-highlight-button-box">
-                    <TTButton
-                      color="info"
-                      onClick={() => setOpenDiscoverHighlights(true)}
-                    >
-                      discover
-                    </TTButton>
-                    <TTButton onClick={() => setIsCreating(true)}>
-                      create/share
-                    </TTButton>
+                    <Box className="trip-profile-tao-comp-highlight-button-box">
+                      <TTButton
+                        className="trip-profile-tao-comp-highlight-button"
+                        color="info"
+                        onClick={() => setOpenDiscoverHighlights(true)}
+                      >
+                        discover
+                      </TTButton>
+                      <TTButton
+                        className="trip-profile-tao-comp-highlight-button"
+                        onClick={() => setIsCreating(true)}
+                      >
+                        create/share
+                      </TTButton>
+                    </Box>
                   </Box>
-                </React.Fragment>
-              ) : (
-                <Box>
-                  <HighlightForm
-                    description={description}
-                    setDescription={setDescription}
-                    onAction={handlePostHighlight}
-                    onClose={() => setIsCreating(false)}
-                    isPost
-                  />
-                </Box>
-              )}
+                ) : (
+                  <Box>
+                    <HighlightForm
+                      description={description}
+                      setDescription={setDescription}
+                      onAction={handlePostHighlight}
+                      onClose={() => setIsCreating(false)}
+                      isPost
+                    />
+                  </Box>
+                )}
+              </Box>
             </Box>
           </React.Fragment>
         ) : undefined}
@@ -307,66 +333,79 @@ const TaoComponent = ({
         {/* ways of transport */}
         {routeResponse ? (
           <React.Fragment>
-            <Divider flexItem>
+            <Divider flexItem />
+            <Box className="trip-profile-tao-comp-section">
               <Typography className="trip-profile-tao-comp-large-text">
                 Directions
               </Typography>
-            </Divider>
 
-            <Box>
-              {!readonly ? (
-                <Select
-                  color="info"
-                  size="small"
-                  value={transportMode}
-                  onChange={handleTransportModeChange}
-                >
-                  {TransportModes.map((mode: string) => (
-                    <MenuItem
-                      className="trip-profile-tao-comp-selected-transport-mode"
-                      value={mode}
-                    >
-                      {mode}
-                    </MenuItem>
-                  ))}
-                </Select>
-              ) : (
-                <Typography variant="h6">{transportMode}</Typography>
-              )}
+              {/* notice - optional */}
+              {routeResponse.notices ? (
+                routeResponse.notices.length > 0 ? (
+                  <Alert severity="warning">
+                    {routeResponse.notices[0].title}
+                  </Alert>
+                ) : undefined
+              ) : undefined}
+
               <Box>
-                <Typography variant="caption" color="textSecondary">
-                  Routing information © HERE
-                </Typography>
-                {/* direction - time, distance, actions, agency, etc. */}
-                {(formatedSections ?? []).map((section) => (
-                  <DirectionAccordion
-                    key={section.id}
-                    section={section}
-                    taoId={tao?.id}
-                  />
-                ))}
+                {!readonly ? (
+                  <Select
+                    color="info"
+                    size="small"
+                    value={transportMode}
+                    onChange={handleTransportModeChange}
+                  >
+                    {TransportModes.map((mode: string) => (
+                      <MenuItem
+                        className="trip-profile-tao-comp-selected-transport-mode"
+                        value={mode}
+                      >
+                        {mode}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                ) : (
+                  <Typography className="trip-profile-tao-comp-transport-mode">
+                    {transportMode}
+                  </Typography>
+                )}
+                <Box>
+                  <Typography variant="caption" color="textSecondary">
+                    Routing information © HERE
+                  </Typography>
+                  {/* direction - time, distance, actions, agency, etc. */}
+                  {(formatedSections ?? []).map((section) => (
+                    <DirectionAccordion
+                      key={section.id}
+                      section={section}
+                      taoId={tao?.id}
+                    />
+                  ))}
+                </Box>
               </Box>
             </Box>
           </React.Fragment>
         ) : undefined}
 
         {/* links to other resources */}
-        <Divider flexItem>
+        <Divider flexItem />
+        <Box className="trip-profile-tao-comp-resource-section">
           <Typography className="trip-profile-tao-comp-large-text">
             Other Resources
           </Typography>
-        </Divider>
 
-        <Box className="trip-profile-tao-comp-link-box">
-          {/* links */}
-          <Box>
-            <a
-              href={MapUtils.getGoogleMapLink(attraction?.address ?? "")}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <TTChipButton icon={<GoogleIcon />} label="Google Map" />
-            </a>
+          <Box className="trip-profile-tao-comp-link-box">
+            {/* links */}
+            <Box>
+              <a
+                href={MapUtils.getGoogleMapLink(attraction?.address ?? "")}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <TTChipButton icon={<GoogleIcon />} label="Google Map" />
+              </a>
+            </Box>
           </Box>
         </Box>
       </Box>

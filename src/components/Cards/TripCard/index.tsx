@@ -1,14 +1,23 @@
-import { Avatar, Box, Chip, Typography } from "@mui/material";
+import {
+  Avatar,
+  Box,
+  Chip,
+  IconButton,
+  List,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Popover,
+  Typography,
+} from "@mui/material";
 import { tripsService, type Trip } from "@services/trips";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import TimeUtils from "@utils/TimeUtils";
 import TLogo from "@assets/T.svg";
 import PreloadCarousel from "@components/Carousel/PreloadCarousel";
-import { useEffect, useState } from "react";
-import type { Image } from "@services/images";
-import { useSelector } from "react-redux";
-import type { RootState } from "@redux/store";
+import React, { useState } from "react";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { enqueueSnackbar } from "notistack";
 import "./index.scss";
@@ -17,43 +26,28 @@ type TripCardProps = {
   trip: Trip;
   readonly?: boolean;
   onClick: () => void;
-  setIsParentUpdated?: () => void;
+  syncDeleteTrip?: (state: Trip) => void;
 };
 
 const TripCard = ({
   trip,
   readonly = false,
   onClick,
-  setIsParentUpdated,
+  syncDeleteTrip,
 }: TripCardProps) => {
   // trip images
-  const [images, setImages] = useState<Image[]>([]);
   const [imageIndex, setImageIndex] = useState<number>(0);
-  // others
-  const token = useSelector((state: RootState) => state.auth.accessToken);
-  const [isHovered, setIsHovered] = useState<boolean>(false);
-
-  useEffect(() => {
-    const initTripImages = async () => {
-      if (trip && (trip.isPublic || token)) {
-        // get trip image
-        let tripImages = await tripsService.getImagesByTripId(
-          trip.id,
-          token ?? undefined
-        );
-        setImages(tripImages), token;
-      }
-    };
-    initTripImages();
-  }, [trip, token]);
+  // popover
+  const [popoverAnchorEl, setPopoverAnchorEl] =
+    React.useState<HTMLButtonElement | null>(null);
 
   const handleDeleteTripClick = async (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation();
 
-    if (trip && token) {
+    if (trip) {
       try {
-        await tripsService.patchTripIsHidden([trip.id], true, token);
-        if (setIsParentUpdated) setIsParentUpdated();
+        await tripsService.patchTripIsHidden([trip.id], true);
+        if (syncDeleteTrip) syncDeleteTrip(trip);
 
         enqueueSnackbar("Successfully deleted trip.", { variant: "success" });
       } catch (e) {
@@ -64,19 +58,26 @@ const TripCard = ({
     }
   };
 
+  const handleOpenPopover = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+
+    setPopoverAnchorEl(e.currentTarget);
+  };
+
+  const handleClosePopover = (e: React.MouseEvent<HTMLElement>) => {
+    e.stopPropagation();
+
+    setPopoverAnchorEl(null);
+  };
+
   return (
-    <Box
-      className="trip-card-box"
-      onClick={onClick}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
+    <Box className="trip-card-box" onClick={onClick}>
       {/* image container */}
       <Box className="trip-card-image-box">
         {/* images */}
-        {images.length > 0 ? (
+        {trip.images && trip.images.length > 0 ? (
           <PreloadCarousel
-            images={images}
+            images={trip.images}
             index={imageIndex}
             setIndex={setImageIndex}
             readonly
@@ -104,9 +105,44 @@ const TripCard = ({
 
       <Box className="trip-card-info-box">
         {/* title */}
-        <Typography fontSize="1.1rem" className="trip-card-title">
-          {trip.title}
-        </Typography>
+        <Box display="flex">
+          <Typography fontSize="1.1rem" className="trip-card-title">
+            {trip.title}
+          </Typography>
+
+          <Box sx={{ ml: "auto" }}>
+            <IconButton size="small" onClick={(e) => handleOpenPopover(e)}>
+              <MoreVertIcon />
+            </IconButton>
+          </Box>
+        </Box>
+
+        <Popover
+          anchorEl={popoverAnchorEl}
+          anchorOrigin={{
+            vertical: "bottom",
+            horizontal: "left",
+          }}
+          transformOrigin={{
+            vertical: "top",
+            horizontal: "left",
+          }}
+          open={Boolean(popoverAnchorEl)}
+          onClose={(e) => handleClosePopover(e)}
+        >
+          <List>
+            {/* button - delete */}
+            <ListItemButton onClick={(e) => handleDeleteTripClick(e)}>
+              <ListItemIcon className="image-selector-list-item-error-icon">
+                <DeleteIcon />
+              </ListItemIcon>
+              <ListItemText
+                sx={{ color: "var(--error-main)" }}
+                primary="Delete"
+              />
+            </ListItemButton>
+          </List>
+        </Popover>
 
         {/* number of days */}
         <Typography className="trip-card-num-days">
@@ -121,15 +157,6 @@ const TripCard = ({
             label={trip.isPublic ? "public" : "private"}
             size="small"
           />
-          {isHovered ? (
-            <Chip
-              className="trip-card-delete-chip"
-              icon={<DeleteIcon />}
-              label="delete"
-              size="small"
-              onClick={(e) => handleDeleteTripClick(e)}
-            />
-          ) : undefined}
         </Box>
       ) : undefined}
     </Box>

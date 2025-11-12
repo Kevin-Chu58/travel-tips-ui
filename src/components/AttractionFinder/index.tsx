@@ -10,10 +10,8 @@ import { useIsMobile } from "@hooks/useIsMobile";
 import AttractionSearch from "./AttractionSearch";
 import AttractionSelectButton from "./AttractionSelectButton";
 import AttractionList from "./AttractionList";
-import { attractionsService, type AttractionV2 } from "@services/attractions";
+import { attractionsService, type Attraction } from "@services/attractions";
 import MapUtils from "@utils/MapUtils";
-import { useSelector } from "react-redux";
-import type { RootState } from "@redux/store";
 import { BehaviorUtils } from "@utils/BehaviorUtils";
 import AttractionFragment from "@components/Profile/HighlightProfile/AttractionFragment";
 import DescriptionTextField from "@components/TextField/DescriptionTextField";
@@ -28,14 +26,18 @@ import "./index.scss";
 type AttractionFinderProps = {
   open: boolean;
   setOpen: (isOpen: boolean) => void;
-  setIsParentUpdated?: () => void;
-  setParentAttraction?: (state: AttractionV2) => void;
+  lastGeoCoordinate?: GeoCoordinate | undefined;
+  setLastGeoCoordinate?: (state: GeoCoordinate) => void;
+  syncAddAttraction?: (state: Attraction) => void;
+  setParentAttraction?: (state: Attraction) => void;
 };
 
 const AttractionFinder = ({
   open,
   setOpen,
-  setIsParentUpdated,
+  lastGeoCoordinate,
+  setLastGeoCoordinate,
+  syncAddAttraction,
   setParentAttraction,
 }: AttractionFinderProps) => {
   // window
@@ -50,24 +52,23 @@ const AttractionFinder = ({
   // search
   const [search, setSearch] = useState<string>("");
   // result
-  const [result, setResult] = useState<AttractionV2[]>([]); // result from here map discover api
+  const [result, setResult] = useState<Attraction[]>([]); // result from here map discover api
   // map focus
   const [focusId, setFocusId] = useState<string | undefined>(); // focused here id
   // mobile view
   const [showResult, setShowResult] = useState<boolean>(true);
   // attraction layer
-  const [attraction, setAttraction] = useState<AttractionV2 | undefined>();
+  const [attraction, setAttraction] = useState<Attraction | undefined>();
   const [isAttractionLoading, setIsAttractionLoading] =
     useState<boolean>(false);
   const [description, setDescription] = useState<string>("");
   const [isPosting, setIsPosting] = useState<boolean>(false);
-  // others
-  const token = useSelector((state: RootState) => state.auth.accessToken);
 
   useEffect(() => {
     const initGeoCoordinate = async () => {
       if (open) {
-        const geoCoords = await MapUtils.getCurrentLocation();
+        const geoCoords =
+          lastGeoCoordinate ?? (await MapUtils.getCurrentLocation());
         setGeoCoordinate(geoCoords);
       }
     };
@@ -79,31 +80,32 @@ const AttractionFinder = ({
     setFocusId(undefined);
     setResult([]);
     setGeoCoordinate(undefined);
+    setDescription("");
     // hide the animation of shifting back to right side
     await BehaviorUtils.sleep(100);
     setAttraction(undefined);
   };
 
   const handleSelectClick = async () => {
-    if (token && focusId) {
+    if (focusId) {
       try {
         setIsAttractionLoading(true);
 
-        let attraction = await attractionsService.postNewAttraction(
-          focusId,
-          token
-        );
+        let attraction = await attractionsService.postNewAttraction(focusId);
 
         await BehaviorUtils.sleep();
 
+        if (setLastGeoCoordinate) {
+          setLastGeoCoordinate({ lat: attraction.lat, lng: attraction.lng });
+        }
+
         // if has setParentAttraction, then return the attraction to the parent
         // then skipping the attraction layer and close the dialog
-        if (setParentAttraction !== undefined) {
+        if (setParentAttraction) {
           setParentAttraction(attraction);
           handleClose();
         } else {
           setAttraction(attraction);
-          setIsAttractionLoading(false);
         }
       } catch (e) {
         if (e instanceof Error)
@@ -117,9 +119,6 @@ const AttractionFinder = ({
   const handleClose = () => {
     setOpen(false);
     clear();
-
-    // optionally rerender the parent
-    if (setIsParentUpdated) setIsParentUpdated();
   };
 
   const handleGeoCoordinateClick = (geoCoords: GeoCoordinate) => {
@@ -136,18 +135,22 @@ const AttractionFinder = ({
   const handlePost = async () => {
     const trimedDescription = description.trim();
 
-    if (token && attraction && trimedDescription.length > 0) {
+    if (attraction && trimedDescription.length > 0) {
       try {
         setIsPosting(true);
-        await highlightsService.postHighlight(
-          { attractionId: attraction.id, description: trimedDescription },
-          token
-        );
+        await highlightsService.postHighlight({
+          attractionId: attraction.id,
+          description: trimedDescription,
+        });
         await BehaviorUtils.sleep();
 
         enqueueSnackbar("Successfully posted highlight.", {
           variant: "success",
         });
+
+        // add attraction after posted to database
+        if (syncAddAttraction) syncAddAttraction(attraction);
+
         setIsPosting(false);
         handleClose();
       } catch (e) {

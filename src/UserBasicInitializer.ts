@@ -1,17 +1,17 @@
 import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { setUser } from "@redux/userSlice";
 import { usersService } from "@services/users";
-import type { RootState } from "@redux/store";
+import { useAuth0 } from "@auth0/auth0-react";
 
 export const UserBasicInitializer = () => {
-  const token = useSelector((state: RootState) => state.auth.accessToken);
+  const { isAuthenticated } = useAuth0();
   const dispatch = useDispatch();
 
   useEffect(() => {
     const initUserBasic = async () => {
-      if (token) {
-        const user = await usersService.getUserBasicInfo(token);
+      if (isAuthenticated) {
+        const user = await usersService.getUserBasicInfo();
         const id = user.id;
         const username = user.username;
 
@@ -19,7 +19,7 @@ export const UserBasicInitializer = () => {
       }
     };
     initUserBasic();
-  }, [token]);
+  }, [isAuthenticated]);
 
   return null;
 };

@@ -1,3 +1,5 @@
+@use "../../stylings/box_shadows" as *;
+
 .TTTabs-tabs {
   .MuiTabScrollButton-root {
     width: auto;
@@ -6,6 +8,18 @@
     &:hover {
       color: var(--primary-main);
       opacity: 1;
+    }
+  }
+
+  &.switch {
+    margin: .4rem 1rem;
+    min-height: 0;
+    min-width: 0;
+    border-radius: 2rem;
+    box-shadow: $box-shadow;
+
+    .MuiTabs-indicator {
+      display: none;
     }
   }
 }
@@ -23,6 +37,22 @@
     &.Mui-selected {
       color: var(--primary-main);
       background-color: white;
+    }
+
+    &.switch {
+      margin: 0;
+      padding: .4rem;
+      color: white;
+      background-color: var(--grey-900);
+
+      &:hover {
+        color: var(--primary-main);
+      }
+
+      &.Mui-selected {
+        color: white;
+        background-color: var(--primary-main);
+      }
     }
   }
 }

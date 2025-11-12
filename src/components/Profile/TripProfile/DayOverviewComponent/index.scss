@@ -1,0 +1,61 @@
+@use "../../../../stylings/color" as *;
+
+.trip-profile-day-overview-comp-header.MuiTypography-root {
+  color: var(--primary-main);
+  font-family: "lily script one";
+  font-size: 1.5rem;
+  margin: 0.5rem 0;
+}
+
+.trip-profile-day-overview-comp-day-box {
+  display: flex;
+  position: relative;
+  height: 3rem;
+  border-radius: 1.5rem;
+  overflow: hidden;
+  color: white;
+  background-color: var(--grey-900);
+  cursor: pointer;
+
+  &:hover {
+    color: var(--primary-main);
+  }
+}
+
+.trip-profile-day-overview-comp-day-header.MuiTypography-root {
+  width: 100%;
+  height: 100%;
+  padding-left: 40%;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  text-transform: uppercase;
+
+  background-color: var(--grey-900);
+  transition: all 0.2s ease-in;
+
+  &.focus {
+    padding-left: 20%;
+    color: var(--primary-main);
+  }
+}
+
+.trip-profile-day-overview-comp-day-arrow-button.MuiTypography-root {
+  height: 100%;
+  display: flex;
+  position: absolute;
+  align-items: center;
+  right: -10px;
+  opacity: 0;
+  font-weight: bold;
+  text-transform: uppercase;
+
+  background-color: var(--grey-900);
+  transition: all 0.2s ease-in;
+
+  &.focus {
+    color: var(--primary-main);
+    right: 10px;
+    opacity: 1;
+  }
+}

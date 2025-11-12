@@ -1,3 +1,5 @@
+import { ensureToken } from "./tokens";
+
 type HttpRequestBody =
   | string
   | FormData
@@ -10,33 +12,23 @@ type HttpRequestBody =
 const get = <TResponse>(
   apiBaseURL: string,
   endpoint: string,
-  headers = new Headers(),
-  token?: string
+  headers = new Headers()
 ): Promise<TResponse> =>
   makeRequest(
     apiBaseURL,
     endpoint,
     "get",
     undefined,
-    setContentTypeJSON(headers),
-    token
+    setContentTypeJSON(headers)
   );
 
 const put = <TResponse>(
   apiBaseURL: string,
   endpoint: string,
   body: HttpRequestBody = "",
-  headers = new Headers(),
-  token?: string
+  headers = new Headers()
 ): Promise<TResponse> =>
-  makeRequest(
-    apiBaseURL,
-    endpoint,
-    "put",
-    body,
-    setContentTypeJSON(headers),
-    token
-  );
+  makeRequest(apiBaseURL, endpoint, "put", body, setContentTypeJSON(headers));
 
 /**
  * Post image data to the API
@@ -51,8 +43,7 @@ const postImage = <TResponse>(
   endpoint: string,
   imageFile: Blob | File,
   name?: string,
-  headers?: Headers,
-  token?: string
+  headers?: Headers
 ): Promise<TResponse> => {
   // Ensure we have a File, because FormData likes having a filename
   const file =
@@ -64,63 +55,38 @@ const postImage = <TResponse>(
   imageDataForm.append("file", file);
   if (name) imageDataForm.append("name", name);
 
-  return makeRequest(
-    apiBaseURL,
-    endpoint,
-    "post",
-    imageDataForm,
-    headers,
-    token
-  );
+  return makeRequest(apiBaseURL, endpoint, "post", imageDataForm, headers);
 };
 
 const post = <TResponse>(
   apiBaseURL: string,
   endpoint: string,
   body: HttpRequestBody = "",
-  headers = new Headers(),
-  token?: string
+  headers = new Headers()
 ): Promise<TResponse> =>
-  makeRequest(
-    apiBaseURL,
-    endpoint,
-    "post",
-    body,
-    setContentTypeJSON(headers),
-    token
-  );
+  makeRequest(apiBaseURL, endpoint, "post", body, setContentTypeJSON(headers));
 
 // PATCH is required to be in all caps.  http services automatically capitalizes headers for post,put,get,del... but not patch.
 const patch = <TResponse>(
   apiBaseURL: string,
   endpoint: string,
   body: HttpRequestBody = "",
-  headers = new Headers(),
-  token?: string
+  headers = new Headers()
 ): Promise<TResponse> =>
-  makeRequest(
-    apiBaseURL,
-    endpoint,
-    "PATCH",
-    body,
-    setContentTypeJSON(headers),
-    token
-  );
+  makeRequest(apiBaseURL, endpoint, "PATCH", body, setContentTypeJSON(headers));
 
 const del = <TResponse>(
   apiBaseURL: string,
   endpoint: string,
   body: HttpRequestBody = "",
-  headers = new Headers(),
-  token?: string
+  headers = new Headers()
 ): Promise<TResponse> =>
   makeRequest(
     apiBaseURL,
     endpoint,
     "delete",
     body,
-    setContentTypeJSON(headers),
-    token
+    setContentTypeJSON(headers)
   );
 
 /**
@@ -137,13 +103,12 @@ const makeRequest = async <TResponse>(
   endpoint: string,
   method: string,
   body?: HttpRequestBody,
-  headers?: Headers,
-  token?: string
+  headers?: Headers
 ): Promise<TResponse> => {
   const response = await fetch(`${apiBaseURL}/${endpoint}`, {
     method,
     body: body as BodyInit,
-    headers: await handleAuthHeader(headers ?? new Headers(), token),
+    headers: await handleAuthHeader(headers ?? new Headers()),
   });
 
   if (!response.ok) {
@@ -180,12 +145,9 @@ export const parseResponse = async <TResponse>(
   }
 };
 
-const handleAuthHeader = async (
-  headers: Headers,
-  token?: string
-): Promise<Headers> => {
+const handleAuthHeader = async (headers: Headers): Promise<Headers> => {
+  const token = await ensureToken();
   if (token) headers.append("Authorization", `Bearer ${token}`);
-  // headers.append('Accept', 'application/json');
   return headers;
 };
 
@@ -264,8 +226,6 @@ const apiBaseURLs = {
     // import.meta.env.VITE_API_URL_LOCAL ??
     import.meta.env.VITE_API_URL_PRODUCTION ??
     "",
-  osm: import.meta.env.VITE_OSM_API ?? "",
-  osrm: import.meta.env.VITE_OSRM_API ?? "",
   mapbox: import.meta.env.VITE_MAPBOX_API ?? "",
 };
 

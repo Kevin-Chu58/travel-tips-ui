@@ -19,6 +19,7 @@ const UserMenu = ({ anchor, onClose, children }: userMenuProps) => {
       open={Boolean(anchor)}
       onClose={onClose}
       transitionDuration={0}
+      disablePortal
       sx={{
         mt: 1
       }}

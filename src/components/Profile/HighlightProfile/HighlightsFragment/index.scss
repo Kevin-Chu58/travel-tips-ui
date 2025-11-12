@@ -33,6 +33,10 @@
   &.focus {
     background-color: var(--info-100);
   }
+
+  p {
+    text-align: start;
+  }
 }
 
 .highlight-profile-highlights-fragment-skeleton.MuiSkeleton-root {

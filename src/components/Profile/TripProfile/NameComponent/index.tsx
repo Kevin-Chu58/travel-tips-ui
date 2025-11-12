@@ -5,12 +5,10 @@ import {
   Skeleton,
   Typography,
 } from "@mui/material";
-import type { RootState } from "@redux/store";
 import { tripsService, type Trip, type TripPatch } from "@services/trips";
 import TimeUtils from "@utils/TimeUtils";
 import { enqueueSnackbar } from "notistack";
 import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
 import "./index.scss";
 
 type NameComponentProps = {
@@ -30,8 +28,6 @@ const NameComponent = ({
 }: NameComponentProps) => {
   const [title, setTitle] = useState<string | undefined>();
   const [isEditingTitle, setIsEditingTitle] = useState<boolean>(false);
-  // others
-  const token = useSelector((state: RootState) => state.auth.accessToken);
 
   // render title on trip basic
   useEffect(() => {
@@ -58,13 +54,12 @@ const NameComponent = ({
       return;
     }
 
-    if (tripBasicRef.current && token) {
+    if (tripBasicRef.current) {
       try {
         let tripPatch = { title: trimmedTitle } as TripPatch;
         tripPatch = await tripsService.patchTrip(
           tripBasicRef.current.id,
-          tripPatch,
-          token
+          tripPatch
         );
 
         enqueueSnackbar("Successfully updated trip title.", {

@@ -11,7 +11,7 @@ type SectionComponentProps = {
   navTabs: NavTab[];
   navTabValue: number;
   setNavTabValue: (state: number) => void;
-  handleOpenDayForm: () => void;
+  handlePostDay: () => void;
   isLoading: boolean;
   readonly?: boolean;
 };
@@ -20,7 +20,7 @@ const SectionComponent = ({
   navTabs,
   navTabValue,
   setNavTabValue,
-  handleOpenDayForm,
+  handlePostDay,
   isLoading,
   readonly = false,
 }: SectionComponentProps) => {
@@ -50,7 +50,7 @@ const SectionComponent = ({
             <TTIconButton
               size="small"
               className="trip-profile-section-comp-add-day-button"
-              onClick={handleOpenDayForm}
+              onClick={handlePostDay}
             >
               <AddIcon fontSize="small" />
             </TTIconButton>

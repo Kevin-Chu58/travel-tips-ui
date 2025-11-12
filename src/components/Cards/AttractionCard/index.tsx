@@ -1,6 +1,6 @@
 import Map from "@components/Map";
 import { Box, Typography } from "@mui/material";
-import type { AttractionV2 } from "@services/attractions";
+import type { Attraction } from "@services/attractions";
 import MapUtils from "@utils/MapUtils";
 import { useState } from "react";
 import { useNavigate } from "react-router";
@@ -8,16 +8,18 @@ import "./index.scss";
 import clsx from "clsx";
 
 type AttractionCardProps = {
-  attraction: AttractionV2;
+  attraction: Attraction;
+  showHovers?: boolean;
 };
 
-const AttractionCard = ({ attraction }: AttractionCardProps) => {
+const AttractionCard = ({ attraction, showHovers = false }: AttractionCardProps) => {
   const [isHover, setIsHover] = useState<boolean>(false);
   const navigate = useNavigate();
+
   // styling
   const attractionCardHoverBoxClassName = clsx(
     "attraction-card-hover-box",
-    isHover && "hover"
+    (showHovers || isHover) && "hover"
   );
 
   const markers = [

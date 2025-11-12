@@ -2,13 +2,13 @@
 
 .ui-show-button.MuiIconButton-root {
   background-color: white;
-  box-shadow: $mild_box_shadow;
+  box-shadow: $box_shadow_lg;
   width: 30px;
   height: 60px;
-  border-radius: 0.5rem;
+  border-radius: 0 .5rem .5rem 0;
   z-index: 1200;
 
   &:hover {
-    background-color: whitesmoke;
+    background-color: var(--grey-200);
   }
 }

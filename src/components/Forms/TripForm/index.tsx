@@ -6,22 +6,20 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import type { RootState } from "@redux/store";
 import AddIcon from "@mui/icons-material/Add";
-import { tripsService } from "@services/trips";
+import { tripsService, type Trip } from "@services/trips";
 import { useState } from "react";
-import { useSelector } from "react-redux";
 import { BehaviorUtils } from "@utils/BehaviorUtils";
-import "./index.scss";
 import { useSnackbar } from "notistack";
+import "./index.scss";
 
 type TripFormProps = {
   isOpen: boolean;
   setIsOpen: (state: boolean) => void;
-  setIsParentUpdated: () => void;
+  syncAddTrip: (state: Trip) => void;
 };
 
-const TripForm = ({ isOpen, setIsOpen, setIsParentUpdated }: TripFormProps) => {
+const TripForm = ({ isOpen, setIsOpen, syncAddTrip }: TripFormProps) => {
   // snackbar
   const { enqueueSnackbar } = useSnackbar();
   // new trip attributes
@@ -32,8 +30,6 @@ const TripForm = ({ isOpen, setIsOpen, setIsParentUpdated }: TripFormProps) => {
   ) : (
     <AddIcon />
   );
-  // others
-  const token = useSelector((state: RootState) => state.auth.accessToken);
 
   const handleChangeName = (event: React.ChangeEvent<HTMLInputElement>) => {
     setName(event.target.value);
@@ -49,26 +45,23 @@ const TripForm = ({ isOpen, setIsOpen, setIsParentUpdated }: TripFormProps) => {
   };
 
   const handleCreate = async () => {
-    if (token) {
-      try {
-        setIsCreating(true);
+    try {
+      setIsCreating(true);
 
-        await tripsService.postNewTrip(name, token);
+      let newTrip = await tripsService.postNewTrip(name);
 
-        await BehaviorUtils.sleep();
-        handleCloseMenu();
-        setIsParentUpdated();
+      await BehaviorUtils.sleep();
+      handleCloseMenu();
+      syncAddTrip(newTrip);
 
-        enqueueSnackbar("Successfully created new trip.", {
-          variant: "success",
-        });
-      } catch (e) {
-        if (e instanceof Error)
-          enqueueSnackbar(e.message, { variant: "error" });
-      }
-
-      setIsCreating(false);
+      enqueueSnackbar("Successfully created new trip.", {
+        variant: "success",
+      });
+    } catch (e) {
+      if (e instanceof Error) enqueueSnackbar(e.message, { variant: "error" });
     }
+
+    setIsCreating(false);
   };
 
   return (

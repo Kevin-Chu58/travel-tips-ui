@@ -2,8 +2,8 @@
   display: flex;
   align-items: center;
   gap: .5rem;
-  margin: .2rem 0;
-  padding: .5rem 1rem;
+  margin-bottom: 0rem;
+  padding: .5rem 1rem 0 1rem;
 
   &.mobile {
     flex-direction: column;
@@ -12,73 +12,39 @@
   }
 }
 
-.trip-profile-day-comp-title-box {
-  min-width: 50px;
-}
-
-.trip-profile-day-comp-input {
-  font-size: 1rem;
-  margin-left: -.5rem;
-
-  .MuiOutlinedInput-input {
-    padding: 0.35rem;
-  }
-}
-
-.trip-profile-day-comp-title-button.MuiButton-root {
-  color: black;
-  background-color: transparent;
-  border-radius: 0.5rem;
-  text-align: left;
-  margin-left: -0.5rem;
-  padding: 0.825rem 0.2rem;
-  min-width: 0;
-
-  &.mobile{
-    margin-left: 0;
-  }
-
-  &:hover {
-    background-color: lightgrey;
-  }
-}
-
-.trip-profile-day-comp-title.MuiTypography-root {
-  text-transform: none;
-  margin: -0.5rem 0;
-  word-break: break-all; // allow long words to break
-  overflow-wrap: break-word; // ensure breaking works across browsers
-  hyphens: auto; // auto-insert hyphens if language supports
-  font-size: 1rem;
-  color: var(--primary-main);
-}
-
-.trip-profile-day-comp-add-title-button.MuiButton-root {
-  margin-left: auto;
-  padding: 0.3rem 0.5rem;
-  border-radius: 20rem;
-
-  &.mobile {
-    margin-left: 0;
-  }
-}
-
 .trip-profile-day-comp-content-box {
   flex: 1;
   display: flex;
+  position: relative;
   flex-direction: column;
   overflow-x: hidden;
   overflow-y: auto;
 }
 
+.trip-profile-day-comp-view-tab-box {
+  top: .5rem;
+  display: flex;
+  position: sticky;
+  margin: .25rem auto;
+  z-index: 100;
+}
 
 .trip-profile-day-comp-schedule-box {
-  max-width: 360px;
+  max-width: 400px;
   width: 80vw;
   margin: 1rem 2rem;
-  margin-left: auto;
 
   &.mobile {
-    max-width: 200px;
+    margin-left: .5rem;
+    max-width: 260px;
+  }
+
+  &.day-schedule {
+    max-width: 360px;
+    margin-left: auto;
+
+    &.mobile {
+      max-width: 200px;
+    }
   }
 }

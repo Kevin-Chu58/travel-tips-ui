@@ -1,43 +1,34 @@
-import { Box, Container, Grid, Typography } from "@mui/material";
-import alone from "@assets/alone.png";
+import { Box, Container, Typography } from "@mui/material";
+import { useIsMobile } from "@hooks/useIsMobile";
+import TLogo from "@assets/T.svg";
+import clsx from "clsx";
+import "./index.scss";
 
 const Main = () => {
+  const isMobile = useIsMobile();
+
   return (
-    <Container maxWidth={false} disableGutters sx={{ m: 0, p: 0, mt: "-64px" }}>
-      <Grid direction="column" container>
-        <Grid
-          size={12}
-          height="100vh"
-          display="flex"
-          justifyContent="end"
-          alignItems="center"
-          sx={{
-            backgroundImage: `url(${alone})`,
-            backgroundPosition: "center",
-            backgroundRepeat: "no-repeat",
-            backgroundSize: "cover",
-            filter: "brightness(1.3)",
-          }}
+    <Container className="main-page-container" maxWidth={false} disableGutters>
+      <Box className="main-page-content-container">
+        {/* slogan */}
+        <Box
+          className={clsx("main-page-slogan-container", isMobile && "mobile")}
         >
-          <Box mt={-10} mr={10} textAlign="end">
-            <Typography
-                variant="h1"
-                mb={2}
-                fontFamily="lily script one"
-                color="primary"
-            >
-                Enjoy Peace
-            </Typography>
-            <Typography
-                variant="h3"
-                color="white"
-                fontFamily="lily script one"
-            >
-                before everyone
-            </Typography>
-          </Box>
-        </Grid>
-      </Grid>
+            {isMobile ? <img className="main-page-logo" src={TLogo} /> : undefined}
+          <Typography
+            variant={isMobile ? "h3" : "h1"}
+            className="main-page-slogan-highlight"
+          >
+            Enjoy Peace
+          </Typography>
+          <Typography
+            variant={isMobile ? "h5" : "h3"}
+            className="main-page-slogan"
+          >
+            before everyone
+          </Typography>
+        </Box>
+      </Box>
     </Container>
   );
 };

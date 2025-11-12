@@ -5,11 +5,10 @@ import AttachFileIcon from "@mui/icons-material/AttachFile";
 import { ImagesService, type Image } from "@services/images";
 import { useEffect, useState } from "react";
 import { BehaviorUtils } from "@utils/BehaviorUtils";
-import type { RootState } from "@redux/store";
-import { useSelector } from "react-redux";
 import { tripsService } from "@services/trips";
 import { enqueueSnackbar } from "notistack";
 import { useIsMobile } from "@hooks/useIsMobile";
+import ImageLibrary from "@components/ImageLibrary";
 import clsx from "clsx";
 import "./index.scss";
 
@@ -41,14 +40,12 @@ const LibraryDialog = ({
   ) : (
     <AttachFileIcon />
   );
-  // others
-  const token = useSelector((state: RootState) => state.auth.accessToken);
 
   // rerender library images on openLibraryDialog
   useEffect(() => {
     const initLibraryImages = async () => {
-      if (open && token) {
-        let imageViewModels = await ImagesService.getMyImages(token);
+      if (open) {
+        let imageViewModels = await ImagesService.getMyImages();
         let unattachedImages = imageViewModels.filter(
           (image) => !imageIds.includes(image.id)
         );
@@ -59,14 +56,13 @@ const LibraryDialog = ({
   }, [open]);
 
   const handleImageAttach = async () => {
-    if (tripId && selectedImageId && token) {
+    if (tripId && selectedImageId) {
       try {
         setIsLoading(true);
 
         let newImage = await tripsService.postTripImage(
           tripId,
-          selectedImageId,
-          token
+          selectedImageId
         );
 
         syncAddImage(newImage);
@@ -106,44 +102,11 @@ const LibraryDialog = ({
         <Divider variant="middle" flexItem />
 
         {/* image library */}
-        {images.length > 0 ? (
-          <Box className="library-dialog-image-library">
-            {images.map((image) => (
-              <Box
-                key={image.id}
-                className={clsx(
-                  "library-dialog-image-container",
-                  image.id === selectedImageId && "focus"
-                )}
-                onClick={() => setSelectedImageId(image.id)}
-              >
-                <Box className="library-dialog-image-box">
-                  <img
-                    src={image.url}
-                    className="library-dialog-image"
-                    loading="lazy"
-                  />
-                </Box>
-
-                {/* name */}
-                {image.name && (
-                  <Typography className="library-dialog-image-name">
-                    {image.name}
-                  </Typography>
-                )}
-
-                {/* guid */}
-                <Typography className="library-dialog-image-guid">
-                  {image.guid}
-                </Typography>
-              </Box>
-            ))}
-          </Box>
-        ) : (
-          <Box className="library-dialog-no-image-box">
-            <Typography>No images found.</Typography>
-          </Box>
-        )}
+        <ImageLibrary
+          images={images}
+          selectedImageId={selectedImageId}
+          setSelectedImageId={setSelectedImageId}
+        />
 
         {/* attach button */}
         <Box className="library-dialog-button-box">

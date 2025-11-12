@@ -1,37 +1,27 @@
 import TripCard from "@components/Cards/TripCard";
-import { Box, Grid } from "@mui/material";
+import { Box } from "@mui/material";
 import type { Trip } from "@services/trips";
 import { useNavigate } from "react-router";
+import "./index.scss";
 
 type TripsProps = {
   trips: Trip[];
-  setIsUpdated: () => void;
-}
+  syncDeleteTrip: (state: Trip) => void;
+};
 
-const Trips = ({
-  trips,
-  setIsUpdated,
-}: TripsProps) => {
+const Trips = ({ trips, syncDeleteTrip }: TripsProps) => {
   const navigate = useNavigate();
 
   return (
-    <Box
-      display="flex"
-      flexWrap="wrap"
-      sx={{
-        mt: 2,
-        gap: 2,
-      }}
-    >
+    <Box className="workshop-main-content-trips-container">
       {trips.map((trip) => (
         <TripCard
           key={`trip-${trip.id}`}
           trip={trip}
           onClick={() => navigate(`/workshop/trip/${trip.id}`)}
-          setIsParentUpdated={setIsUpdated}
+          syncDeleteTrip={syncDeleteTrip}
         />
       ))}
-      <Grid size={12} height={4} />
     </Box>
   );
 };

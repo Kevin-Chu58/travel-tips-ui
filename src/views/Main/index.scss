@@ -1,0 +1,52 @@
+@use "../../stylings/box_shadows" as *;
+
+.main-page-container {
+  margin: 0;
+  padding: 0;
+  margin-top: -4rem;
+
+  .main-page-content-container {
+    height: 100vh;
+    width: 100vw;
+    position: relative;
+    background-image: url("../../assets/alone.png");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+  }
+
+  .main-page-slogan-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    position: absolute;
+    text-align: end;
+    right: 4rem;
+    top: 20rem;
+
+    &.mobile {
+      right: auto;
+      top: auto;
+      bottom: 13rem;
+      text-align: initial;
+      align-items: center;
+    }
+  }
+
+  .main-page-logo {
+    height: 60px;
+    margin-bottom: 1rem;
+    box-shadow: $box-shadow;
+  }
+
+  .main-page-slogan.MuiTypography-root,
+  .main-page-slogan-highlight.MuiTypography-root {
+    font-family: lily script one;
+  }
+
+  .main-page-slogan-highlight.MuiTypography-root {
+    margin-bottom: 1rem;
+    color: var(--primary-main);
+  }
+}

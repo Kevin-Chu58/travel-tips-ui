@@ -45,8 +45,6 @@ export type SelectType = {
   label: string;
 };
 
-// trip
-
 // day
 export type DayId = { id?: number };
 
@@ -91,6 +89,7 @@ export type Route = {
 // map
 export type Marker = {
   id?: string;
+  groupId?: number;
   label?: string;
   lat: number;
   lng: number;

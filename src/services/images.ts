@@ -14,26 +14,45 @@ export type ImageRelation = {
   imageId: number;
 };
 
-const getMyImages = async (token: string): Promise<Image[]> => {
-  return await http.get(http.apiBaseURLs.api, "images/my", undefined, token);
+const getMyImages = async (): Promise<Image[]> => {
+  return await http.get(http.apiBaseURLs.api, "images/my", undefined);
 };
 
 const uploadImage = async (
-  token: string,
   file: Blob | File,
   name?: string
 ): Promise<Image> => {
   return await http.postImage(
     http.apiBaseURLs.api,
-    "images/upload",
+    "images",
     file,
     name,
+    undefined
+  );
+};
+
+const updateImageName = async (id: number, name: string): Promise<void> => {
+
+  return await http.patch(
+    http.apiBaseURLs.api,
+    `images/${id}/name/${name}`,
     undefined,
-    token
+    undefined
+  );
+};
+
+const deleteImage = async (id: number): Promise<number> => {
+  return await http.del(
+    http.apiBaseURLs.api,
+    `images/${id}`,
+    undefined,
+    undefined
   );
 };
 
 export const ImagesService = {
   getMyImages,
   uploadImage,
+  updateImageName,
+  deleteImage,
 };

@@ -1,70 +1,66 @@
-import ListToolBar from "@components/ListToolBar";
-import type { RootState } from "@redux/store";
-import { attractionsService, type AttractionV2 } from "@services/attractions";
-import SortUtils, {
-  sortTypeTitleAsc,
-  sortTypeTitleDesc,
-} from "@utils/SortUtils";
-import { useEffect } from "react";
-import { useSelector } from "react-redux";
-
-const sortTypes = [
-  sortTypeTitleAsc,
-  sortTypeTitleDesc,
-];
+import ListToolBar from "@components/ListTool";
+import { Box, IconButton } from "@mui/material";
+import { type Attraction } from "@services/attractions";
+import SortUtils from "@utils/SortUtils";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+import React, { useEffect } from "react";
+import ToolTip from "@components/ToolTip";
+import type { SortType } from "@constants/Types";
+import "./index.scss";
 
 type HighlightsToolProps = {
+  sortTypes: SortType[];
   sortTypeIndex: number;
   setSortTypeIndex: (state: number) => void;
-  setAttractions: (
-    state: AttractionV2[] | ((prevState: AttractionV2[]) => AttractionV2[])
-  ) => void;
-  syncAttractions: boolean;
+  attractionsRef: React.RefObject<Attraction[]>;
+  getMyAttractions: () => void;
+  asyncAttractions: (state: Attraction[]) => void;
+  showHovers: boolean;
+  setShowHovers: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 const HighlightsTool = ({
+  sortTypes,
   sortTypeIndex,
   setSortTypeIndex,
-  setAttractions,
-  syncAttractions,
+  attractionsRef,
+  getMyAttractions,
+  asyncAttractions,
+  showHovers,
+  setShowHovers,
 }: HighlightsToolProps) => {
-  // others
-  const token = useSelector((state: RootState) => state.auth.accessToken);
-
-  // rerender on access token and syncAttractions
+  // rerender on access token
   useEffect(() => {
-    const getMyHighlights = async () => {
-      if (token) {
-        const myAttractions = await attractionsService.getMyAttractionsByName(token);
-        setAttractions(SortUtils.sortList(myAttractions, sortTypes, sortTypeIndex));
-      }
-    };
-    getMyHighlights();
-  }, [token, syncAttractions]);
+    getMyAttractions();
+  }, []);
 
   // rerender on sortTypeIndex to request sorting
   useEffect(() => {
-    setAttractions((prevHighlights) =>
-      SortUtils.sortList([...prevHighlights], sortTypes, sortTypeIndex)
+    asyncAttractions(
+      SortUtils.sortList(attractionsRef.current, sortTypes, sortTypeIndex)
     );
   }, [sortTypeIndex]);
 
-  // const handleDelete = async () => {
-  //   if (token && selected.length > 0) {
-  //     await attractionsService.deleteHighlights(selected, token);
-  //     setIsUpdated();
-  //     setSelected([]);
-  //   }
-  // }
-
   return (
-    <ListToolBar
-      showSort
-      showFilter
-      sortType={sortTypeIndex}
-      setSortType={setSortTypeIndex}
-      sortTypes={sortTypes}
-    />
+    <Box className="workshop-main-content-highlights-tool-container">
+      <ListToolBar
+        showSort
+        showFilter
+        sortType={sortTypeIndex}
+        setSortType={setSortTypeIndex}
+        sortTypes={sortTypes}
+      />
+
+      <ToolTip
+        title={showHovers ? "Hide Details" : "Show Details"}
+        offsetY={-12}
+      >
+        <IconButton size="small" onClick={() => setShowHovers((prev) => !prev)}>
+          {showHovers ? <VisibilityIcon /> : <VisibilityOffIcon />}
+        </IconButton>
+      </ToolTip>
+    </Box>
   );
 };
 
