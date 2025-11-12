@@ -19,12 +19,14 @@
 }
 
 .trip-profile-description-comp-button.MuiButton-root {
+  width: 100%;
   margin-left: -.5rem;
   color: black;
   background-color: white;
   border-radius: .5rem;
   text-transform: none;
-  text-align: left;
+  text-align: left !important;
+  justify-content: flex-start;
   padding-left: .75rem;
 
   &:hover {

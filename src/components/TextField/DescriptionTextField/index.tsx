@@ -1,8 +1,8 @@
 import TTButton from "@components/TTButton";
 import { Box, TextField } from "@mui/material";
+import MarkdownBox from "@components/MarkdownBox";
 import { useState } from "react";
 import "./index.scss";
-import MarkdownBox from "@components/MarkdownBox";
 
 type DescriptionTextFieldProps = {
   value: string;

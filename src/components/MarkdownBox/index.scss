@@ -1,5 +1,3 @@
-@use "../../stylings/box_shadows" as *;
-
 .description-text-field-view-preview {
   margin: 1rem;
 
@@ -22,14 +20,12 @@
   code {
     background: var(--grey-200);
     padding: 0.2rem 0.4rem;
-    border-radius: 3px;
+    border-radius: .2rem;
     font-family: monospace;
   }
   img {
     max-width: 100%;
     height: auto;
-    border-radius: 8px;
-    box-shadow: $box-shadow;
     display: block;
     margin: 0;
   }

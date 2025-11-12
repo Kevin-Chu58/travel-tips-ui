@@ -102,7 +102,7 @@ const DescriptionComponent = ({
                 className="trip-profile-description-comp-button"
                 onClick={() => setIsEditingDescription(true)}
               >
-                <MarkdownBox text={tripBasicRef.current?.description} />
+                <MarkdownBox text={tripBasicRef.current?.description} disableGap />
               </Button>
             ) : (
               <Button
