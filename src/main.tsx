@@ -1,9 +1,12 @@
 import { StrictMode, type JSX } from "react";
 import { createRoot } from "react-dom/client";
-import { BrowserRouter as Router, HashRouter } from "react-router-dom";
+import {
+  // BrowserRouter as Router,
+  HashRouter,
+} from "react-router-dom";
 import { Auth0Provider, type AppState } from "@auth0/auth0-react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { SnackbarProvider } from 'notistack';
+import { SnackbarProvider } from "notistack";
 import { ThemeProvider } from "@mui/material";
 import theme from "./theme.tsx";
 import { Provider } from "react-redux";
@@ -33,7 +36,7 @@ const Auth0Layer = (): JSX.Element => {
       authorizationParams={{
         redirect_uri: window.location.origin,
         audience: audience,
-        scope: 'openid profile email offline_access',
+        scope: "openid profile email offline_access",
       }}
       onRedirectCallback={onRedirectCallback}
       useRefreshTokens={true}
@@ -44,9 +47,9 @@ const Auth0Layer = (): JSX.Element => {
           {/* <Router> */}
           <HashRouter>
             <SnackbarProvider maxSnack={3}>
-            <ThemeProvider theme={theme}>
-              <App />
-            </ThemeProvider>
+              <ThemeProvider theme={theme}>
+                <App />
+              </ThemeProvider>
             </SnackbarProvider>
           </HashRouter>
           {/* </Router> */}
