@@ -4,11 +4,11 @@ import GoogleIcon from "@mui/icons-material/Google";
 import React from "react";
 import Map from "@components/Map";
 import MapUtils from "@utils/MapUtils";
-import type { AttractionV2 } from "@services/attractions";
+import type { Attraction } from "@services/attractions";
 import "./index.scss";
 
 type AttractionFragmentProps = {
-  attraction: AttractionV2 | undefined;
+  attraction: Attraction | undefined;
   isAttractionLoading: boolean;
   isMobile: boolean;
 };
