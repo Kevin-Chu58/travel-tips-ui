@@ -67,6 +67,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
   const [day, setDay] = useState<Day | undefined>();
   // taoGeos
   const taoGeosRef = useRef<TaoGeo[] | undefined>(undefined);
+  const [taoGeos, setTaoGeos] = useState<TaoGeo[] | undefined>();
   const [dayOverviewFocus, setDayOverviewFocus] = useState<number>(0);
   // taos
   const taosMapRef = useRef(new Map<number, Tao[]>()); // day.id => tao[]
@@ -112,7 +113,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
         zoom: MapUtils.resultTypeToZoom(tao.attraction.resultType),
       };
     }) ??
-    taoGeosRef.current?.map((taoGeo) => {
+    taoGeos?.map((taoGeo) => {
       // markers - all taos
       return {
         id: String(taoGeo.id),
@@ -175,6 +176,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
     if (tripBasic?.id) {
       let taoGeos = await tripsService.getTripTaoGeosById(tripBasic.id);
       taoGeosRef.current = taoGeos;
+      setTaoGeos(taoGeos);
     }
   };
 
@@ -321,6 +323,8 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
           lat: tao.attraction.lat,
           lng: tao.attraction.lng,
         });
+
+        setTaoGeos(taoGeosRef.current);
       }
     }
   };
@@ -367,6 +371,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
 
         // also delete from taoGeos
         taoGeosRef.current = taoGeosRef.current?.filter((t) => t.id !== tao.id);
+        setTaoGeos(taoGeosRef.current);
       }
     }
   };

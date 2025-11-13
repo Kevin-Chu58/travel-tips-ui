@@ -2,10 +2,10 @@ import { Box, Grid, Typography } from "@mui/material";
 import type { Day } from "@services/days";
 import { ArrowRight } from "react-feather";
 import { useNavigate } from "react-router";
+import { useIsMobile } from "@hooks/useIsMobile";
 import React from "react";
 import clsx from "clsx";
 import "./index.scss";
-import { useIsMobile } from "@hooks/useIsMobile";
 
 type DayOverviewComponentProps = {
   days: Day[];
