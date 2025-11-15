@@ -63,4 +63,5 @@ jobs:
         with:
           app-name: 'travel-tips-ui-us-west'
           slot-name: 'Production'
-          package: ui.zip
+          package: node-app/ui.zip
+
