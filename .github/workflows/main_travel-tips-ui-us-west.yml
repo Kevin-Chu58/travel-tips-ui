@@ -30,7 +30,7 @@ jobs:
 
       - name: Zip production build
         run: |
-          powershell Compress-Archive -Path dist\* -DestinationPath ui.zip
+          zip -r ui.zip dist
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
@@ -64,4 +64,5 @@ jobs:
           app-name: 'travel-tips-ui-us-west'
           slot-name: 'Production'
           package: ui.zip
+
 
