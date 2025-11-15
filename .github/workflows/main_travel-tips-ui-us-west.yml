@@ -41,6 +41,9 @@ jobs:
       - name: Show all files in workspace
         run: ls -R .
 
+      - name: Inspect zip contents
+        run: unzip -l ui.zip
+
   deploy:
     runs-on: ubuntu-latest
     needs: build
@@ -67,5 +70,6 @@ jobs:
           app-name: 'travel-tips-ui-us-west'
           slot-name: 'Production'
           package: ui.zip
+
 
 
