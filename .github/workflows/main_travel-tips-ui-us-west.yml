@@ -12,50 +12,56 @@ on:
 jobs:
   build:
     runs-on: windows-latest
+    permissions:
+      contents: read
+
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v3
+      - name: Set up Node.js version
+        uses: actions/setup-node@v3
         with:
           node-version: '22.x'
 
-      - name: Install & build
+      - name: Install dependencies and build
         run: |
           npm install
           npm run build
 
+      - name: Zip production build
+        run: |
+          powershell Compress-Archive -Path dist\* -DestinationPath ui.zip
+
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ui-build
-          path: build/   # 👈 ONLY upload the built files
-          if-no-files-found: error
+          name: node-app
+          path: ui.zip
 
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     needs: build
     permissions:
       id-token: write
       contents: read
 
     steps:
-      - name: Download build artifact
+      - name: Download artifact
         uses: actions/download-artifact@v4
         with:
-          name: ui-build
+          name: node-app
 
-      - name: Login to Azure
+      - name: Azure Login
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_21967D4E69864DF8ADA7FD8519D88B05 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_763A35B3DAAA4C13BEDB02BA26AD673D }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_CA9D7F6EC9C04ADFBA0D723814E1570C }}
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'travel-tips-ui-us-west'
+          app-name: 'travel-tips-ui'
           slot-name: 'Production'
-          package: .   # 👈 now "." contains ONLY the build output
-          
+          package: ui.zip      
           
