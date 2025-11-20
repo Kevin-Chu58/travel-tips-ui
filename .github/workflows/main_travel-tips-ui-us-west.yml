@@ -11,7 +11,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     permissions:
       contents: read #This is required for actions/checkout
 
@@ -28,12 +28,12 @@ jobs:
           npm install
           npm run build --if-present
           npm run test --if-present
-
+      
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: node-app
-          path: dist
+          path: .
 
   deploy:
     runs-on: ubuntu-latest
@@ -51,16 +51,15 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_2C593CB3877742CB8E526A1097F5B0EF }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_D2B7431B90024DC4B1FD3BA7DA8AF14F }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_59FB7B632D7746F286C35987464833D1 }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_21967D4E69864DF8ADA7FD8519D88B05 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_763A35B3DAAA4C13BEDB02BA26AD673D }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_CA9D7F6EC9C04ADFBA0D723814E1570C }}
 
       - name: 'Deploy to Azure Web App'
-        id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
+        id: deploy-to-webapp
         with:
           app-name: 'travel-tips-ui-us-west'
           slot-name: 'Production'
           package: .
           
-
