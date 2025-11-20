@@ -61,7 +61,8 @@ jobs:
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'travel-tips-ui'
+          app-name: 'travel-tips-ui-us-west'
           slot-name: 'Production'
           package: ui.zip      
           
+
