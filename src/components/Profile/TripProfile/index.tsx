@@ -308,7 +308,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
 
       if (dayTaos) {
         dayTaos.push(tao);
-        TimeUtils.orderTaos(dayTaos);
+        dayTaos = TimeUtils.orderTaos(dayTaos);
 
         taosMapRef.current.set(day.id, dayTaos);
         setTaos(dayTaos);
@@ -499,7 +499,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
                   images={images}
                   index={imageIndex}
                   setIndex={setImageIndex}
-                  height={isMobile ? 180 : 200}
+                  height={isMobile ? 200 : 240}
                   onDelete={deleteTripImage}
                   readonly={readonly}
                 />
@@ -672,7 +672,11 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
           isDefaultDirectingRef.current = false;
 
           setNavTabValue(newDayId);
-          navigate(`${overViewNavTab.to}/day/${newDayId}`, { replace: true });
+
+          if (newDayId === 0)
+            navigate(`${overViewNavTab.to}`, { replace: true });
+          else
+            navigate(`${overViewNavTab.to}/day/${newDayId}`, { replace: true });
         }}
       />
 

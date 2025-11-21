@@ -159,7 +159,6 @@ const Map = React.memo(
           setMyLocation();
         }
 
-        // https://api.maptiler.com/maps/streets-v2/256/{z}/{x}/{y}@2x.png?key=${apiKey}
         L.tileLayer(
           `https://api.maptiler.com/maps/streets-v2/256/{z}/{x}/{y}@2x.png?key=${apiKey}`,
           {
@@ -227,7 +226,7 @@ const Map = React.memo(
 
         let nextMarker = i < markers.length ? markers[i + 1] : undefined;
         let isNextFocus =
-          focusOnRoute && nextMarker && nextMarker.id === focusId;
+          !focusOnGroup && focusOnRoute && nextMarker && nextMarker.id === focusId;
 
         let icon = isFocus
           ? MapPin("var(--success-main)")
@@ -274,7 +273,7 @@ const Map = React.memo(
         maxZoom: markers.length === 1 ? markers[0].zoom : 15,
       });
 
-      if (focusId && focusMapShift) {
+      if (focusId && !focusOnGroup && focusMapShift) {
         let marker = markers.find((m) => m.id === focusId);
         if (marker) mapInstanceRef.current?.panTo([marker.lat, marker.lng]);
       }

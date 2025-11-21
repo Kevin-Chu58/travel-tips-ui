@@ -46,6 +46,11 @@ const HeaderBar = () => {
       to: "/workshop",
       requireAuth: true,
     },
+    {
+      name: "Guide",
+      to: "/guide",
+      requireAuth: false,
+    },
   ];
   const userMenuItems = [
     {

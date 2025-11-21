@@ -14,8 +14,8 @@ import SearchIcon from "@mui/icons-material/Search";
 import { enqueueSnackbar } from "notistack";
 import { taosService, type Tao } from "@services/taos";
 import TimeUtils from "@utils/TimeUtils";
-import { hmma } from "@constants/Times";
-import TTMobileTimePicker from "@components/TTMobileTimePicker";
+import { HHmmss, hmma } from "@constants/Times";
+import TTTimePicker from "@components/TTTimePicker";
 import type { GeoCoordinate } from "@constants/Types";
 import type { Dayjs } from "dayjs";
 import dayjs from "dayjs";
@@ -52,10 +52,15 @@ const TaoForm = ({
   // windows
   const isMobile = useIsMobile();
   // start/end time
-  const [_start, _setStart] = useState<string | undefined>();
-  const [_end, _setEnd] = useState<string | undefined>();
+  const [_start, _setStart] = useState<Dayjs | undefined>();
+  const [_end, _setEnd] = useState<Dayjs | undefined>();
+  const _startHmma = _start ? TimeUtils.dayjsToString(hmma, _start) : "";
+  const _endHmma = _end ? TimeUtils.dayjsToString(hmma, _end) : "";
+  // const [_start, _setStart] = useState<string | undefined>();
+  // const [_end, _setEnd] = useState<string | undefined>();
   const areTimesValid =
-    _end === "12:00 AM" || TimeUtils.compareTime(hmma, _start, _end);
+    _endHmma === "12:00 AM" ||
+    TimeUtils.compareTime(hmma, _startHmma, _endHmma);
   // attraction
   const [attraction, setAttraction] = useState<Attraction | undefined>();
   // attraction finder
@@ -86,23 +91,23 @@ const TaoForm = ({
     // init patch states
     if (open) {
       if (tao) {
-        _setStart(TimeUtils.formatTimeHHmmssTohmmA(tao.start));
-        _setEnd(TimeUtils.formatTimeHHmmssTohmmA(tao.end));
+        _setStart(dayjs(tao.start, hmma));
+        _setEnd(dayjs(tao.end, hmma));
         setAttraction(tao.attraction);
       } else {
-        _setStart(TimeUtils.formatTimeHHmmTohmmA(start!));
-        _setEnd(TimeUtils.formatTimeHHmmTohmmA(end!));
+        _setStart(dayjs(start!, hmma));
+        _setEnd(dayjs(end!, hmma));
       }
     }
   }, [open]);
 
   // handle set start/end
   const handleSetStart = (start: Dayjs | null) => {
-    _setStart(TimeUtils.dayjsToString(hmma, start));
+    _setStart(start ?? undefined);
   };
 
   const handleSetEnd = (end: Dayjs | null) => {
-    _setEnd(TimeUtils.dayjsToString(hmma, end));
+    _setEnd(end ?? undefined);
   };
 
   // handle action
@@ -121,8 +126,8 @@ const TaoForm = ({
       try {
         setIsProcessing(true);
 
-        let startTime = TimeUtils.formatTimehmmAToHHmmss(_start);
-        let endTime = TimeUtils.formatTimehmmAToHHmmss(_end);
+        let startTime = TimeUtils.dayjsToString(HHmmss, _start);
+        let endTime = TimeUtils.dayjsToString(HHmmss, _end);
 
         if (tao) {
           let isSameAttraction = tao?.attraction.id === attraction.id;
@@ -187,8 +192,8 @@ const TaoForm = ({
                 <Typography className="tao-form-time-text">
                   Start Time:
                 </Typography>
-                <TTMobileTimePicker
-                  value={dayjs(_start, hmma)}
+                <TTTimePicker
+                  value={_start}
                   setValue={handleSetStart}
                   minutesStep={15}
                 />
@@ -199,8 +204,8 @@ const TaoForm = ({
                 <Typography className="tao-form-time-text">
                   End Time:
                 </Typography>
-                <TTMobileTimePicker
-                  value={dayjs(_end, hmma)}
+                <TTTimePicker
+                  value={_end}
                   setValue={handleSetEnd}
                   minutesStep={15}
                 />

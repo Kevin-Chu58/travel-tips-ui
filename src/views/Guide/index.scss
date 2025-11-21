@@ -1,0 +1,29 @@
+@use "../../stylings/layout" as *;
+
+.guide-container {
+  position: relative;
+  overflow: auto;
+  height: $screen-height;
+  color: black;
+  overflow-y: auto;
+
+  .guide-container-box {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 4rem;
+  }
+
+  .guide-markdown-container {
+    max-width: 900px;
+  }
+
+  .guide-iframe-container {
+    display: flex;
+    justify-content: center;
+  }
+
+  .guide-center-container {
+    display: flex;
+    justify-content: center;
+  }
+}

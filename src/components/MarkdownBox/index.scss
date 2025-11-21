@@ -4,21 +4,31 @@
   white-space: pre-wrap;       /* preserve user line breaks */
   word-wrap: break-word;       /* break long words if needed */
   overflow-wrap: anywhere;     /* modern alternative for breaking long strings */
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
 
   &.disableGap {
     margin: 0;
   }
 
   /* Markdown styles */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
   p {
-    margin: 0.5rem 0;
+    margin: .5rem 0;
   }
   ul,
   ol {
-    margin-left: 1.25rem;
+    margin: 0;
+    margin-left: .5rem;
   }
   code {
-    background: var(--grey-200);
+    background: var(--grey-300);
     padding: 0.2rem 0.4rem;
     border-radius: .2rem;
     font-family: monospace;

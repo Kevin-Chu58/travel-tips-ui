@@ -41,7 +41,7 @@ const DescriptionTextField = ({
       </Box>
 
       {isPreview ? (
-        <MarkdownBox text={value || "*Nothing to preview*"} />
+        <MarkdownBox text={value} />
       ) : (
         <TextField
           className="description-text-field-view-input-text-field"

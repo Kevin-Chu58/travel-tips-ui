@@ -1,22 +1,25 @@
 import HighlightProfile from "@components/Profile/HighlightProfile";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import TTButton from "@components/TTButton";
-import { Container } from "@mui/material";
+import { Box, Container } from "@mui/material";
+import "./index.scss";
 
 const Highlight = () => {
 
   return (
-    <Container maxWidth="lg" disableGutters>
+    <Container maxWidth={false} disableGutters>
       {/* nav back button */}
-      <TTButton
-        label="back"
-        color="info"
-        variant="text"
-        startIcon={<NavigateBeforeIcon />}
-        to="/workshop/highlights"
-        sx={{ fontSize: "1rem", mt: 1 }}
-      />
-      <HighlightProfile />
+      <Box className="highlight-container">
+        <TTButton
+          className="highlight-back-button"
+          label="back"
+          // color="info"
+          variant="text"
+          startIcon={<NavigateBeforeIcon />}
+          to="/workshop/highlights"
+        />
+        <HighlightProfile />
+      </Box>
     </Container>
   );
 };

@@ -2,6 +2,7 @@ import Workshop from "@views/Workshop";
 import Home from "./views/Home";
 import Main from "./views/Main";
 import Trip from "@views/Trip";
+import Guide from "@views/Guide";
 
 const routes = [{
     name: "Main",
@@ -19,6 +20,10 @@ const routes = [{
     name: "Workshop",
     path: "/workshop/*",
     element: <Workshop/>,
+}, {
+    name: "Guide",
+    path: "/guide",
+    element: <Guide/>,
 }];
 
 export default routes;

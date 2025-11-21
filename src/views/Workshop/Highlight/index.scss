@@ -1,0 +1,14 @@
+@use "../../../stylings/layout" as *;
+
+.highlight-container {
+  position: relative;
+  overflow: auto;
+  height: $screen-height;
+
+  .highlight-back-button {
+    font-size: 1rem;
+    margin-top: .5rem;
+    color: black;
+    font-weight: bold;
+  }
+}
