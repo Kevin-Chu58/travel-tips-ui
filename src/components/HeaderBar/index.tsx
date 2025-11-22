@@ -18,6 +18,7 @@ import TLogo from "@assets/T.svg";
 import TBoard from "@assets/TT_Board.svg";
 import Layouts from "@constants/Layouts";
 import { useIsMobile } from "@hooks/useIsMobile";
+import { markLoggedIn, markLoggedOut } from "@services/tokens";
 import clsx from "clsx";
 import "./index.scss";
 
@@ -64,7 +65,10 @@ const HeaderBar = () => {
     {
       name: "logout",
       to: "",
-      onClick: logout,
+      onClick: () => {
+        logout();
+        markLoggedOut();
+      },
     },
   ];
 
@@ -79,7 +83,7 @@ const HeaderBar = () => {
   const username = user?.name ?? "";
   const userPicture = user?.picture ?? "";
 
-  const toAuthPortal = () =>
+  const toAuthPortal = () => {
     loginWithRedirect({
       authorizationParams: {
         audience: import.meta.env.VITE_AUTH0_AUDIENCE,
@@ -87,6 +91,8 @@ const HeaderBar = () => {
       },
       appState: { returnTo: window.location.pathname },
     });
+    markLoggedIn();
+  };
 
   return (
     <AppBar key="app-bar" className={`app-bar ${onPage}`}>
