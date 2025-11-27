@@ -134,15 +134,17 @@ const TripCard = ({
         >
           <List>
             {/* button - delete */}
-            <ListItemButton onClick={(e) => handleDeleteTripClick(e)}>
-              <ListItemIcon className="image-selector-list-item-error-icon">
-                <DeleteIcon />
-              </ListItemIcon>
-              <ListItemText
-                sx={{ color: "var(--error-main)" }}
-                primary="Delete"
-              />
-            </ListItemButton>
+            {!readonly ? (
+              <ListItemButton onClick={(e) => handleDeleteTripClick(e)}>
+                <ListItemIcon className="image-selector-list-item-error-icon">
+                  <DeleteIcon />
+                </ListItemIcon>
+                <ListItemText
+                  sx={{ color: "var(--error-main)" }}
+                  primary="Delete"
+                />
+              </ListItemButton>
+            ) : undefined}
           </List>
         </Popover>
 
