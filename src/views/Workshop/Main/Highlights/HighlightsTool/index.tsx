@@ -13,6 +13,7 @@ type HighlightsToolProps = {
   sortTypes: SortType[];
   sortTypeIndex: number;
   setSortTypeIndex: (state: number) => void;
+  addOnClick: () => void;
   attractionsRef: React.RefObject<Attraction[]>;
   getMyAttractions: () => void;
   asyncAttractions: (state: Attraction[]) => void;
@@ -24,6 +25,7 @@ const HighlightsTool = ({
   sortTypes,
   sortTypeIndex,
   setSortTypeIndex,
+  addOnClick,
   attractionsRef,
   getMyAttractions,
   asyncAttractions,
@@ -34,6 +36,14 @@ const HighlightsTool = ({
   useEffect(() => {
     getMyAttractions();
   }, []);
+
+  const showHoverButton = (
+    <ToolTip key="show-hover-button" title={showHovers ? "Hide Details" : "Show Details"} offsetY={-8}>
+      <IconButton size="small" onClick={() => setShowHovers((prev) => !prev)}>
+        {showHovers ? <VisibilityIcon /> : <VisibilityOffIcon />}
+      </IconButton>
+    </ToolTip>
+  );
 
   // rerender on sortTypeIndex to request sorting
   useEffect(() => {
@@ -50,16 +60,10 @@ const HighlightsTool = ({
         sortType={sortTypeIndex}
         setSortType={setSortTypeIndex}
         sortTypes={sortTypes}
+        addOnClick={addOnClick}
+        addLabel="New Highlight"
+        otherButtons={[showHoverButton]}
       />
-
-      <ToolTip
-        title={showHovers ? "Hide Details" : "Show Details"}
-        offsetY={-12}
-      >
-        <IconButton size="small" onClick={() => setShowHovers((prev) => !prev)}>
-          {showHovers ? <VisibilityIcon /> : <VisibilityOffIcon />}
-        </IconButton>
-      </ToolTip>
     </Box>
   );
 };

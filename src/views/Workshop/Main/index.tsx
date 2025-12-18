@@ -1,7 +1,6 @@
-import { Box, Container, Drawer, Fab, Typography } from "@mui/material";
+import { Box, Container, Drawer, Typography } from "@mui/material";
 import { tripsService, type Trip } from "@services/trips";
 import { useEffect, useRef, useState } from "react";
-import AddIcon from "@mui/icons-material/Add";
 import type { NavTab } from "@constants/Types";
 import TripForm from "@components/Forms/TripForm";
 import { Route, Routes } from "react-router";
@@ -31,7 +30,6 @@ import SortUtils, {
   sortTypeTitleDesc,
 } from "@utils/SortUtils";
 import "./index.scss";
-import clsx from "clsx";
 
 const Main = () => {
   // windows
@@ -60,14 +58,6 @@ const Main = () => {
   const [selected, setSelected] = useState<number[]>([]);
   // drawer
   const [openDrawer, setOpenDrawer] = useState<boolean>(false);
-  // hide UI (e.g. fab add button) when forms are opened
-  const [isFormOpened, setIsFormOpened] = useState<boolean>(false); // not to open form, but just tracking forms other than add forms
-  const showUI = !(
-    isAddTripOpen ||
-    isAddHighlightOpen ||
-    isAddImageOpen ||
-    isFormOpened
-  );
   // ref
   const fileInputRef = useRef<HTMLInputElement>(null);
   //sortTypes
@@ -246,6 +236,7 @@ const Main = () => {
           sortTypeIndex={sortTypeIndex}
           setSortTypeIndex={setSortTypeIndex}
           selected={selected}
+          addOnClick={() => setIsAddTripOpen(true)}
           tripsRef={tripsRef}
           getMyTrips={getMyTrips}
           asyncTrips={asyncTrips}
@@ -258,8 +249,6 @@ const Main = () => {
           syncAddTrip={syncAddTrip}
         />
       ),
-      addFabOnClick: () => setIsAddTripOpen(true),
-      addFabLabel: "New Trip",
     },
     {
       name: "Highlights",
@@ -275,6 +264,7 @@ const Main = () => {
           sortTypes={attractionsSortTypes}
           sortTypeIndex={sortTypeIndex}
           setSortTypeIndex={setSortTypeIndex}
+          addOnClick={() => setIsAddHighlightOpen(true)}
           attractionsRef={attractionsRef}
           getMyAttractions={getMyAttractions}
           asyncAttractions={asyncAttractions}
@@ -289,8 +279,6 @@ const Main = () => {
           syncAddAttraction={syncAddAttraction}
         />
       ),
-      addFabOnClick: () => setIsAddHighlightOpen(true),
-      addFabLabel: "New Highlight",
     },
     {
       name: "Images",
@@ -298,7 +286,6 @@ const Main = () => {
       element: (
         <Images
           images={images}
-          setIsFormOpened={setIsFormOpened}
           syncUpdateImage={syncUpdateImage}
           syncDeleteImage={syncDeleteImage}
         />
@@ -308,6 +295,16 @@ const Main = () => {
           sortTypes={imagesSortTypes}
           sortTypeIndex={sortTypeIndex}
           setSortTypeIndex={setSortTypeIndex}
+          addOnClick={openFileDialog}
+          addInput={
+            <input
+              type="file"
+              accept="image/*"
+              ref={fileInputRef}
+              className="image-selector-cropper-file-input"
+              onChange={handleFileChange}
+            />
+          }
           imagesRef={imagesRef}
           getMyImages={getMyImages}
           asyncImages={asyncImages}
@@ -319,17 +316,6 @@ const Main = () => {
           onClose={() => setIsAddImageOpen(false)}
           imageSrc={imageSrc}
           syncAddImage={syncAddImage}
-        />
-      ),
-      addFabOnClick: openFileDialog,
-      addFabLabel: "Upload Image",
-      addFabInput: (
-        <input
-          type="file"
-          accept="image/*"
-          ref={fileInputRef}
-          className="image-selector-cropper-file-input"
-          onChange={handleFileChange}
         />
       ),
     },
@@ -373,42 +359,30 @@ const Main = () => {
 
                 {/* content */}
                 <Box className="workshop-main-content-container">
-                  <Box className="workshop-main-content-title-container">
-                    {isMobile && (
-                      <Hamburger toggled={false} toggle={setOpenDrawer} />
-                    )}
-                    <Typography
-                      className="workshop-main-content-title"
-                      variant="h4"
-                    >
-                      {route.name}
-                    </Typography>
-                  </Box>
+                  <Box className="workshop-main-content-header-container">
+                    <Box className="workshop-main-content-title-container">
+                      {isMobile && (
+                        <Hamburger toggled={false} toggle={setOpenDrawer} />
+                      )}
+                      <Typography
+                        className="workshop-main-content-title"
+                        variant="h4"
+                      >
+                        {route.name}
+                      </Typography>
+                    </Box>
 
-                  {/* tools */}
-                  <Box className="workshop-main-content-tool-container">
-                    {route.tool}
+                    {/* tools */}
+                    <Box className="workshop-main-content-tool-container">
+                      {route.tool}
+                    </Box>
                   </Box>
 
                   {/* content list */}
-                  {route.element}
+                  <Box className="workshop-main-content-content-container">
+                    {route.element}
+                  </Box>
                 </Box>
-
-                {/* add icon */}
-                <Fab
-                  variant="extended"
-                  aria-label="add"
-                  onClick={route.addFabOnClick}
-                  disableRipple
-                  className={clsx(
-                    "workshop-main-content-add-icon-fab",
-                    showUI && "visible"
-                  )}
-                >
-                  <AddIcon />
-                  {route.addFabLabel}
-                  {route.addFabInput}
-                </Fab>
 
                 {/* new Item form */}
                 {route.addForm}

@@ -5,9 +5,9 @@ import TTIconButton from "@components/TTIconButton";
 import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-import "./index.scss";
-import clsx from "clsx";
 import { useIsMobile } from "@hooks/useIsMobile";
+import clsx from "clsx";
+import "./index.scss";
 
 type PreloadCarouselProps = {
   images: Image[];
@@ -17,6 +17,7 @@ type PreloadCarouselProps = {
   onDelete?: (state: number) => void;
   interval?: number;
   height?: number;
+  innerButtons?: boolean;
   children?: ReactNode;
 };
 
@@ -28,6 +29,7 @@ const PreloadCarousel = ({
   onDelete = () => {},
   interval = 4000,
   height = 200,
+  innerButtons = false,
   children,
 }: PreloadCarouselProps) => {
   // window
@@ -104,31 +106,38 @@ const PreloadCarousel = ({
       }}
     >
       {/* image-layer */}
-      <Box
-        className={clsx("preload-carousel-image-box", animating && "animate")}
-        sx={{
-          width: `${3 * slideWidthPercent}%`,
-          transform: `translateX(${translate}%)`,
-        }}
-      >
-        {imageSrc.map((image) => (
-          <img
-            key={image.alt}
-            className="preload-carousel-image"
-            src={image.src}
-            alt={image.alt}
-            style={{
-              width: `${slideWidthPercent}%`,
-            }}
-          />
-        ))}
+      <Box className="preload-carousel-image-overflow-container">
+        <Box
+          className={clsx("preload-carousel-image-box", animating && "animate")}
+          sx={{
+            width: `${3 * slideWidthPercent}%`,
+            transform: `translateX(${translate}%)`,
+          }}
+        >
+          {imageSrc.map((image) => (
+            <img
+              key={image.alt}
+              className="preload-carousel-image"
+              src={image.src}
+              alt={image.alt}
+              style={{
+                width: `${slideWidthPercent}%`,
+              }}
+            />
+          ))}
+        </Box>
       </Box>
 
       {/* action layer */}
       {(isHovered || isMobile) && (
         <React.Fragment>
           {/* scroll buttons */}
-          <Box className="preload-carousel-scroll-left-button-box">
+          <Box
+            className={clsx(
+              "preload-carousel-scroll-left-button-box",
+              innerButtons && "inner"
+            )}
+          >
             <TTIconButton
               className="preload-carousel-scroll-button"
               onClick={(e) => scrollToLeft(e)}
@@ -137,7 +146,12 @@ const PreloadCarousel = ({
               <KeyboardArrowLeftIcon />
             </TTIconButton>
           </Box>
-          <Box className="preload-carousel-scroll-right-button-box">
+          <Box
+            className={clsx(
+              "preload-carousel-scroll-right-button-box",
+              innerButtons && "inner"
+            )}
+          >
             <TTIconButton
               onClick={(e) => scrollToRight(e)}
               className="preload-carousel-scroll-button"

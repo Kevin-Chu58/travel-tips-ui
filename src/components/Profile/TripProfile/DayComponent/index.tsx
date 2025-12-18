@@ -51,8 +51,6 @@ const DayComponent = ({
 
   return (
     <React.Fragment>
-      
-
       <Divider flexItem />
 
       <Box className="trip-profile-day-comp-content-box">

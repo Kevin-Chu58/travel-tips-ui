@@ -108,7 +108,7 @@ const TripCard = ({
       <Box className="trip-card-info-box">
         {/* title */}
         <Box display="flex">
-          <Typography fontSize="1.1rem" className="trip-card-title">
+          <Typography fontSize="1.2rem" className="trip-card-title">
             {trip.title}
           </Typography>
 
@@ -155,7 +155,7 @@ const TripCard = ({
       </Box>
 
       {!readonly ? (
-        <Box display="flex" my={0.5} gap=".5rem">
+        <Box className="trip-card-chip-container">
           <Chip
             icon={trip.isPublic ? <VisibilityIcon /> : <VisibilityOffIcon />}
             label={trip.isPublic ? "public" : "private"}

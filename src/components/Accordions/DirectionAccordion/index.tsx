@@ -77,7 +77,7 @@ const DirectionAccordion = ({ section, taoId }: DirectionAccordionProps) => {
             </Typography>
             {/* time */}
             <Typography>
-              {TimeUtils.secondToMinuteStr(
+              {TimeUtils.secondToTimeStr(
                 section.summary?.duration ?? section.travelSummary?.duration!
               )}
             </Typography>

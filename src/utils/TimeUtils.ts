@@ -44,12 +44,23 @@ const secondToMinute = (seconds: number) => {
   return Math.round(seconds / 60);
 };
 
-const secondToMinuteStr = (seconds: number) => {
-  const minutes = Math.round(seconds / 60);
+const secondToTimeStr = (seconds: number) => {
+  if (seconds < 60) return `${seconds} sec${seconds === 1 ? "" : "s"}`;
 
-  if (seconds > 0 && minutes === 0) return `${seconds} secs`;
+  const minutes = Math.floor(seconds / 60);
 
-  return `${minutes} min${minutes === 1 ? "" : "s"}`;
+  if (minutes < 60) {
+    return `${minutes} min${minutes === 1 ? "" : "s"}`;
+  }
+
+  const hours = Math.floor(minutes / 60);
+  const remainingMinutes = minutes % 60;
+
+  if (remainingMinutes === 0) {
+    return `${hours} hr${hours === 1 ? "" : "s"}`;
+  }
+
+  return `${hours} hr${hours === 1 ? "" : "s"} ${remainingMinutes} min${remainingMinutes === 1 ? "" : "s"}`;
 };
 
 const formatTimeDiff = (diff: number) => {
@@ -130,7 +141,7 @@ const TimeUtils = {
   formatDays,
   formatMinutes,
   secondToMinute,
-  secondToMinuteStr,
+  secondToTimeStr,
   formatTimeDiff,
   // update time useState
   updateTimeByHour,

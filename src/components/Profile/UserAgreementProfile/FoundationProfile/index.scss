@@ -1,0 +1,74 @@
+@use "../../../../stylings/box_shadows" as *;
+
+.user-agreement-foundation-container {
+  display: flex;
+  flex-direction: column;
+  background-color: white;
+  border-radius: .5rem;
+  overflow: hidden;
+  box-shadow: $mild-box-shadow;
+}
+
+.user-agreement-foundation-header-container {
+  color: white;
+  background-color: black;
+  padding: 1rem;
+}
+
+.user-agreement-foundation-header-content-container {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.user-agreement-foundation-content-container {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  gap: .5rem;
+}
+
+.user-agreement-foundation-content.MuiTypography-root {
+  font-size: .9rem;
+  text-align: justify;
+  hyphens: auto;
+
+  &.disabled {
+    opacity: .5;
+  }
+}
+
+.user-agreement-checking-container {
+  margin: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+}
+
+.user-agreement-foundation-checking-content-container {
+  display: flex;
+  align-items: center;
+  margin: -.2rem 0;
+}
+
+.user-agreement-foundation-checkbox.MuiCheckbox-root {
+  &.Mui-checked {
+    color: black;
+  }
+  &.Mui-disabled {
+    opacity: .5;
+  }
+}
+
+.user-agreement-foundation-checkbox-button.MuiButton-root {
+  &:not(.Mui-disabled) {
+    background-color: black;
+    color: white;
+  }
+}
+
+.user-agreement-foundation-checking-helper.MuiTypography-root {
+  margin-left: auto;
+  margin-right: 1rem;
+  font-style: italic;
+}

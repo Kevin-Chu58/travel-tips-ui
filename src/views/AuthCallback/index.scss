@@ -1,0 +1,17 @@
+@use "../../stylings/layout" as *;
+
+.auth-callback-container{
+  height: $screen-height;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: black;
+  gap: 1rem;
+}
+
+.auth-callback-icon.MuiSvgIcon-root {
+  width: 6rem;
+  height: 6rem;
+  color: var(--error-main);
+}

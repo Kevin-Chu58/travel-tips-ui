@@ -99,7 +99,7 @@ const getCurrentLocation = (): Promise<GeoCoordinate> => {
         });
       },
       (err) => reject(err),
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      { enableHighAccuracy: true, timeout: Infinity, maximumAge: Infinity }
     );
   });
 };

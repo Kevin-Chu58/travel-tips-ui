@@ -35,6 +35,10 @@
   gap: .5rem;
   overflow-x: hidden;
   overflow-y: auto;
+
+  &.mobile {
+    justify-content: center;
+  }
 }
 
 .library-dialog-image-container {

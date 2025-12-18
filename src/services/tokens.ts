@@ -9,6 +9,9 @@ let logoutFn: (() => void) | null = null;
 /** Tracks whether the user is currently logged in */
 let isLoggedIn = false;
 
+/** Tracks the user's url before logging in */
+let returnToUrl: string | undefined = undefined;
+
 // ============================================================================
 // Public API
 // ============================================================================
@@ -31,6 +34,14 @@ export const markLoggedOut = () => {
   isLoggedIn = false;
   cachedToken = undefined;
   tokenExpiry = undefined;
+};
+
+export const setReturnToUrl = (returnTo: string) => {
+  returnToUrl = returnTo;
+};
+
+export const getReturnToUrl = () => {
+  return returnToUrl;
 };
 
 // ============================================================================

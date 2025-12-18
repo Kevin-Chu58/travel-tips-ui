@@ -14,7 +14,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import { enqueueSnackbar } from "notistack";
 import { taosService, type Tao } from "@services/taos";
 import TimeUtils from "@utils/TimeUtils";
-import { HHmmss, hmma } from "@constants/Times";
+import { hhmm, hhmmss, HHmmss, hmma } from "@constants/Times";
 import TTTimePicker from "@components/TTTimePicker";
 import type { GeoCoordinate } from "@constants/Types";
 import type { Dayjs } from "dayjs";
@@ -91,12 +91,12 @@ const TaoForm = ({
     // init patch states
     if (open) {
       if (tao) {
-        _setStart(dayjs(tao.start, hmma));
-        _setEnd(dayjs(tao.end, hmma));
+        _setStart(dayjs(tao.start, hhmmss));
+        _setEnd(dayjs(tao.end, hhmmss));
         setAttraction(tao.attraction);
       } else {
-        _setStart(dayjs(start!, hmma));
-        _setEnd(dayjs(end!, hmma));
+        _setStart(dayjs(start!, hhmm));
+        _setEnd(dayjs(end!, hhmm));
       }
     }
   }, [open]);

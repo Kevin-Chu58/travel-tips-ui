@@ -1,4 +1,5 @@
 @use "../../../stylings/layout" as *;
+@use "../../../stylings/box_shadows" as *;
 
 .workshop-main-route-container {
   width: 100%;
@@ -17,11 +18,24 @@
 
 .workshop-main-content-container {
   display: flex;
+  position: relative;
   width: 100%;
   flex-direction: column;
-  padding: 1rem;
   background-color: white;
   overflow-y: auto;
+}
+
+.workshop-main-content-header-container {
+  position: sticky;
+  top: 0;
+  z-index: 1101;
+  background-color: white;
+  padding: 1rem;
+  padding-bottom: .5rem;
+}
+
+.workshop-main-content-content-container {
+  padding: 0 1rem;
 }
 
 .workshop-main-content-title-container {
@@ -36,25 +50,4 @@
 
 .workshop-main-content-tool-container {
   margin-top: .5rem;
-}
-
-.workshop-main-content-add-icon-fab.MuiFab-root {
-  display: none;
-
-  &:hover {
-    background-color: var(--primary-main);  // have to specify the color otherwise would be default white
-    filter: brightness(.9);
-  }
-
-  &.visible {
-    display: flex;
-    position: absolute;
-    bottom: 20px;
-    right: 20px;
-    gap: .5rem;
-    background-color: var(--primary-main);
-    color: white;
-    text-transform: capitalize;
-    z-index: 2000;
-  }
 }

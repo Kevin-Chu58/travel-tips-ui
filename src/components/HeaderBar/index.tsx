@@ -18,7 +18,7 @@ import TLogo from "@assets/T.svg";
 import TBoard from "@assets/TT_Board.svg";
 import Layouts from "@constants/Layouts";
 import { useIsMobile } from "@hooks/useIsMobile";
-import { markLoggedIn, markLoggedOut } from "@services/tokens";
+import { markLoggedOut, setReturnToUrl } from "@services/tokens";
 import clsx from "clsx";
 import "./index.scss";
 
@@ -83,15 +83,23 @@ const HeaderBar = () => {
   const username = user?.name ?? "";
   const userPicture = user?.picture ?? "";
 
+  const returnToUrl =
+    window.location.pathname !== "/auth/callback"
+      ? window.location.pathname + window.location.search
+      : "/";
+
+  useEffect(() => {
+    setReturnToUrl(returnToUrl);
+  }, [returnToUrl]);
+
   const toAuthPortal = () => {
     loginWithRedirect({
       authorizationParams: {
         audience: import.meta.env.VITE_AUTH0_AUDIENCE,
-        redirect_uri: window.location.origin,
+        redirect_uri: window.location.origin + "/auth/callback",
       },
-      appState: { returnTo: window.location.pathname },
+      appState: { returnTo: returnToUrl },
     });
-    markLoggedIn();
   };
 
   return (

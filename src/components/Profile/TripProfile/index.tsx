@@ -502,6 +502,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
                   height={isMobile ? 200 : 240}
                   onDelete={deleteTripImage}
                   readonly={readonly}
+                  innerButtons
                 />
               ) : (
                 <Box className="trip-profile-default-image-box">

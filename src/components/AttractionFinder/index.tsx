@@ -79,7 +79,7 @@ const AttractionFinder = ({
     setSearch("");
     setFocusId(undefined);
     setResult([]);
-    setGeoCoordinate(undefined);
+    // setGeoCoordinate(undefined);
     setDescription("");
     // hide the animation of shifting back to right side
     await BehaviorUtils.sleep(100);

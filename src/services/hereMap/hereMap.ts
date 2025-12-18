@@ -98,6 +98,16 @@ export type RouteIncident = {
   type?: string;
 };
 
+const getSuggestionByName = async (input: string): Promise<string[]> => {
+  const params = new URLSearchParams();
+  params.set("input", input.toString());
+
+  return await http.get(
+    http.apiBaseURLs.api,
+    `hereMap/suggestion?${params.toString()}`
+  );
+};
+
 const searchPlaceByName = async (
   query: string,
   lat: number,
@@ -139,6 +149,7 @@ const getRoutingsOnDay = async (
 };
 
 export const hereMapService = {
+  getSuggestionByName,
   searchPlaceByName,
   getRoutingByTaoId,
   getRoutingsOnDay,
