@@ -6,8 +6,12 @@ import {
   Box,
   Divider,
   IconButton,
+  ListItemIcon,
+  ListItemText,
   MenuItem,
+  MenuList,
   Select,
+  Typography,
   // Tooltip,
   // Typography,
   type SelectChangeEvent,
@@ -16,12 +20,15 @@ import {
 // import VisibilityIcon from "@mui/icons-material/Visibility";
 // import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 // import DeleteIcon from "@mui/icons-material/Delete";
-import type { SortType } from "@constants/Types";
+import type { ListToolButton, SortType } from "@constants/Types";
 import AddIcon from "@mui/icons-material/Add";
 import UploadIcon from "@mui/icons-material/Upload";
-// import { mild_box_shadow } from "@constants/Shadows";
-import { type JSX } from "react";
 import ToolTip from "@components/ToolTip";
+import { useIsMobile } from "@hooks/useIsMobile";
+import SettingsIcon from "@mui/icons-material/Settings";
+import SettingsApplicationsIcon from "@mui/icons-material/SettingsApplications";
+import TTDialog from "@components/TTDialog";
+import React, { useState, type JSX } from "react";
 import "./index.scss";
 
 type ListToolSortProps = {
@@ -48,7 +55,7 @@ type ListToolAddProps = {
   addInput?: JSX.Element;
   addIcon?: "add" | "upload";
   addLabel?: string;
-  otherButtons?: JSX.Element[];
+  otherButtons?: ListToolButton[];
 };
 
 type ListToolProps = ListToolSortProps &
@@ -81,6 +88,10 @@ const ListTool = ({
 // handlePublish,
 // handleDelete,
 ListToolProps) => {
+  // window
+  const isMobile = useIsMobile();
+  // mobile more option dialog
+  const [isOpen, setIsOpen] = useState<boolean>(false);
   // others
   // const selectButtonSx = { scale: 0.9, height: 32 };
 
@@ -99,44 +110,142 @@ ListToolProps) => {
     if (setSortType) setSortType(Number.parseInt(e.target.value));
   };
 
-  return (
-    <Box className="list-tool-container">
-      {showSort && (
-        <Box className="list-tool-sort-container">
-          <SortIcon fontSize="small" />
-          <Select
-            className="list-tool-sort-select"
-            value={sortType?.toString()}
-            onChange={handleSortChange}
-            size="small"
-          >
-            {sortTypes?.map((_sortType, i) => (
-              <MenuItem
-                key={_sortType.label}
-                value={i.toString()}
-                className="list-tool-sort-select-item"
-              >
-                {_sortType.label}
+  // list tool components
+
+  const sortComponent = (
+    <Select
+      className="list-tool-sort-select"
+      value={sortType?.toString()}
+      onChange={handleSortChange}
+      size="small"
+    >
+      {sortTypes?.map((_sortType, i) => (
+        <MenuItem
+          key={_sortType.label}
+          value={i.toString()}
+          className="list-tool-sort-select-item"
+        >
+          {_sortType.label}
+        </MenuItem>
+      ))}
+    </Select>
+  );
+
+  // more option dialog
+
+  const addOnClickInDialog = () => {
+    setIsOpen(false);
+    if (addOnClick) addOnClick();
+  };
+
+  const moreOptionDialog = (
+    <TTDialog
+      className="list-tool-dialog"
+      open={isOpen}
+      onClose={() => setIsOpen(false)}
+      hidePadding
+    >
+      <Box>
+        <Box className="list-tool-dialog-section-container">
+          {/* sort section */}
+          <Box className="list-tool-dialog-header">
+            <SortIcon />
+            <Typography variant="h6">Sort</Typography>
+          </Box>
+          {sortComponent}
+
+          <Divider />
+
+          {/* action section */}
+          <Box className="list-tool-dialog-header">
+            <SettingsApplicationsIcon />
+            <Typography variant="h6">Action</Typography>
+          </Box>
+          <MenuList>
+            {/* add button */}
+            {addOnClick ? (
+              <MenuItem onClick={addOnClickInDialog}>
+                <ListItemIcon>
+                  {addSvgIcon}
+                  {addInput}
+                </ListItemIcon>
+                <ListItemText>{addLabel}</ListItemText>
+              </MenuItem>
+            ) : undefined}
+            {/* add button */}
+            {otherButtons?.map((button) => (
+              <MenuItem onClick={button.onClick}>
+                <ListItemIcon>
+                  <button.icon />
+                  {button.input}
+                </ListItemIcon>
+                <ListItemText>{button.label}</ListItemText>
               </MenuItem>
             ))}
-          </Select>
+          </MenuList>
         </Box>
-      )}
-      {addOnClick ? (
-        <Box className="list-tool-button-container">
-          <Divider orientation="vertical" variant="middle" flexItem />
-          <Box>
-            <ToolTip title={addLabel} offsetY={-8}>
-              <IconButton size="small" onClick={addOnClick}>
-                {addSvgIcon}
-                {addInput}
+      </Box>
+    </TTDialog>
+  );
+
+  return (
+    <Box className="list-tool-container">
+      {isMobile ? (
+        <React.Fragment>
+          <Box className="list-tool-button-container">
+            <ToolTip title="more options" offsetY={-4}>
+              <IconButton
+                className="list-tool-more-button"
+                size="small"
+                onClick={() => setIsOpen(true)}
+              >
+                <SettingsIcon />
               </IconButton>
             </ToolTip>
-            {/** display other buttons */}
-            {otherButtons?.map(button => button)}
           </Box>
-        </Box>
-      ) : undefined}
+        </React.Fragment>
+      ) : (
+        <React.Fragment>
+          {showSort && (
+            <Box className="list-tool-sort-container">
+              <SortIcon fontSize="small" />
+              {sortComponent}
+            </Box>
+          )}
+          <Box className="list-tool-button-container">
+            <Divider orientation="vertical" variant="middle" flexItem />
+            <Box className="list-tool-button-content-container">
+              {addOnClick ? (
+                <ToolTip title={addLabel} offsetY={-4}>
+                  <IconButton
+                    className="list-tool-add-button"
+                    size="small"
+                    onClick={addOnClick}
+                  >
+                    {addSvgIcon}
+                    {addInput}
+                  </IconButton>
+                </ToolTip>
+              ) : undefined}
+              {/** display other buttons */}
+              {otherButtons?.map((button) => (
+                <ToolTip title={button.label} offsetY={-4}>
+                  <IconButton
+                    size="small"
+                    onClick={button.onClick}
+                  >
+                    <button.icon />
+                    {button.input}
+                  </IconButton>
+                </ToolTip>
+              ))}
+            </Box>
+          </Box>
+        </React.Fragment>
+      )}
+
+      {/* more option form */}
+      {moreOptionDialog}
       {/* {showFilter && (
         <TTCard
           color="black"

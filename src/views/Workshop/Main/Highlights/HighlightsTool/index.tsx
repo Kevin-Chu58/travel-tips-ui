@@ -1,12 +1,11 @@
 import ListToolBar from "@components/ListTool";
-import { Box, IconButton } from "@mui/material";
+import { Box } from "@mui/material";
 import { type Attraction } from "@services/attractions";
 import SortUtils from "@utils/SortUtils";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import React, { useEffect } from "react";
-import ToolTip from "@components/ToolTip";
-import type { SortType } from "@constants/Types";
+import type { ListToolButton, SortType } from "@constants/Types";
 import "./index.scss";
 
 type HighlightsToolProps = {
@@ -37,13 +36,11 @@ const HighlightsTool = ({
     getMyAttractions();
   }, []);
 
-  const showHoverButton = (
-    <ToolTip key="show-hover-button" title={showHovers ? "Hide Details" : "Show Details"} offsetY={-8}>
-      <IconButton size="small" onClick={() => setShowHovers((prev) => !prev)}>
-        {showHovers ? <VisibilityIcon /> : <VisibilityOffIcon />}
-      </IconButton>
-    </ToolTip>
-  );
+  const showHoverButton: ListToolButton = {
+    label: showHovers ? "Hide Details" : "Show Details",
+    icon: showHovers ? VisibilityIcon : VisibilityOffIcon,
+    onClick: () => setShowHovers((prev) => !prev),
+  };
 
   // rerender on sortTypeIndex to request sorting
   useEffect(() => {

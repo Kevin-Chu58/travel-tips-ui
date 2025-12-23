@@ -17,10 +17,10 @@ const FoundationProfile = ({
   const [checked, setChecked] = useState<boolean>(false);
 
   return (
-    <Box className="user-agreement-foundation-container">
+    <Box className="user-agreement-container">
       {/* header */}
-      <Box className="user-agreement-foundation-header-container">
-        <Box className="user-agreement-foundation-header-content-container">
+      <Box className="user-agreement-header-container">
+        <Box className="user-agreement-header-content-container">
           <img src={crossSvg} height={48} />
           <Box>
             <Typography variant="h5">User Agreement</Typography>
@@ -31,14 +31,14 @@ const FoundationProfile = ({
         </Box>
       </Box>
 
-      <Box className="user-agreement-foundation-content-container">
+      <Box className="user-agreement-content-container">
         {/* sub header */}
         <Typography variant="h6">
           All Cultures Bow Before the Word of God.
         </Typography>
 
         {/* content */}
-        <Typography className="user-agreement-foundation-content">
+        <Typography className="user-agreement-content">
           TravelTips is operated as a Christian-values platform. We welcome
           users from all backgrounds, beliefs, and cultures to explore, browse,
           and enjoy travel content. However, because this platform is built upon
@@ -66,26 +66,26 @@ const FoundationProfile = ({
       {!readonly ? (
         <Box className="user-agreement-checking-container">
           <Box
-            className="user-agreement-foundation-checking-content-container"
+            className="user-agreement-checking-content-container"
             onClick={() => setChecked((prev) => !prev)}
           >
             <Checkbox
-              className="user-agreement-foundation-checkbox"
+              className="user-agreement-checkbox"
               color="default"
               checked={checked}
             />
-            <Typography className="user-agreement-foundation-content">
+            <Typography className="user-agreement-content">
               I <b>understand</b> that TravelTips is built on Christian values,
               and I <b>agree to respect</b> them when <b>using the platform.</b>
             </Typography>
           </Box>
 
-          <Box className="user-agreement-foundation-checking-content-container">
-            <Typography className="user-agreement-foundation-checking-helper">
+          <Box className="user-agreement-checking-content-container">
+            <Typography className="user-agreement-checking-helper">
               Next: Terms of Service
             </Typography>
             <TTButton
-              className="user-agreement-foundation-checkbox-button"
+              className="user-agreement-checkbox-button"
               circular
               disabled={!checked}
               onClick={next}

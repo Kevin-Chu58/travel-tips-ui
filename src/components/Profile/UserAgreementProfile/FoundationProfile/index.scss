@@ -1,6 +1,6 @@
 @use "../../../../stylings/box_shadows" as *;
 
-.user-agreement-foundation-container {
+.user-agreement-container {
   display: flex;
   flex-direction: column;
   background-color: white;
@@ -9,26 +9,26 @@
   box-shadow: $mild-box-shadow;
 }
 
-.user-agreement-foundation-header-container {
+.user-agreement-header-container {
   color: white;
   background-color: black;
   padding: 1rem;
 }
 
-.user-agreement-foundation-header-content-container {
+.user-agreement-header-content-container {
   display: flex;
   gap: 1rem;
   align-items: center;
 }
 
-.user-agreement-foundation-content-container {
+.user-agreement-content-container {
   display: flex;
   flex-direction: column;
   padding: 1rem;
   gap: .5rem;
 }
 
-.user-agreement-foundation-content.MuiTypography-root {
+.user-agreement-content.MuiTypography-root {
   font-size: .9rem;
   text-align: justify;
   hyphens: auto;
@@ -45,13 +45,13 @@
   gap: .5rem;
 }
 
-.user-agreement-foundation-checking-content-container {
+.user-agreement-checking-content-container {
   display: flex;
   align-items: center;
   margin: -.2rem 0;
 }
 
-.user-agreement-foundation-checkbox.MuiCheckbox-root {
+.user-agreement-checkbox.MuiCheckbox-root {
   &.Mui-checked {
     color: black;
   }
@@ -60,15 +60,20 @@
   }
 }
 
-.user-agreement-foundation-checkbox-button.MuiButton-root {
+.user-agreement-checkbox-button.MuiButton-root {
   &:not(.Mui-disabled) {
     background-color: black;
     color: white;
   }
 }
 
-.user-agreement-foundation-checking-helper.MuiTypography-root {
+.user-agreement-checking-helper.MuiTypography-root {
   margin-left: auto;
   margin-right: 1rem;
   font-style: italic;
+}
+
+.user-agreement-link {
+  color: var(--info-main);
+  cursor: pointer;
 }

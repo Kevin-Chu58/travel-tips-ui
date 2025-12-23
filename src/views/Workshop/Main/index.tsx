@@ -80,6 +80,19 @@ const Main = () => {
     sortTypeNameDesc,
   ];
 
+  // rerender to top of the scrollbar when nav tab changes
+  useEffect(() => {
+    const container = document.querySelector(
+      ".workshop-main-content-container"
+    ) as HTMLElement | null;
+    if (!container) return;
+
+    requestAnimationFrame(() => {
+      container.style.scrollBehavior = "auto";
+      container.scrollTop = 0;
+    });
+  }, [navTabValue]);
+
   // async functions
 
   const asyncTrips = (trips: Trip[]) => {
@@ -362,20 +375,15 @@ const Main = () => {
                   <Box className="workshop-main-content-header-container">
                     <Box className="workshop-main-content-title-container">
                       {isMobile && (
-                        <Hamburger toggled={false} toggle={setOpenDrawer} />
+                        <Hamburger size={24} toggled={false} toggle={setOpenDrawer} />
                       )}
-                      <Typography
-                        className="workshop-main-content-title"
-                        variant="h4"
-                      >
+                      <Typography className="workshop-main-content-title">
                         {route.name}
                       </Typography>
                     </Box>
 
                     {/* tools */}
-                    <Box className="workshop-main-content-tool-container">
-                      {route.tool}
-                    </Box>
+                    <Box>{route.tool}</Box>
                   </Box>
 
                   {/* content list */}

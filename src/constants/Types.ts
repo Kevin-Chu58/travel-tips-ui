@@ -2,7 +2,7 @@
 
 import type { JSX } from "react";
 import type { Dayjs } from "dayjs";
-import type { SxProps } from "@mui/material";
+import type { SvgIconProps, SxProps } from "@mui/material";
 
 // UI
 export type NavTab = {
@@ -22,6 +22,13 @@ export type IndicatorItem = {
   label: string;
   isIcon?: boolean;
   sx: SxProps;
+};
+
+export type ListToolButton = {
+  label: string;
+  icon: React.ComponentType<SvgIconProps>;
+  input?: JSX.Element;
+  onClick: () => void;
 };
 
 // form

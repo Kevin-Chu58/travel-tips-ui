@@ -1,5 +1,6 @@
 @use "../../../stylings/layout" as *;
 @use "../../../stylings/box_shadows" as *;
+@use "../../../stylings/color" as *;
 
 .workshop-main-route-container {
   width: 100%;
@@ -12,7 +13,7 @@
 
 .workshop-main-nav-drawer-container {
   width: 200px;
-  height: $screen-height;
+  height: 100%;
   background-color: var(--secondary-main);
 }
 
@@ -27,15 +28,30 @@
 
 .workshop-main-content-header-container {
   position: sticky;
-  top: 0;
+  top: 0.2rem;
   z-index: 1101;
-  background-color: white;
-  padding: 1rem;
-  padding-bottom: .5rem;
+  margin: 1rem;
+  margin-bottom: 0;
+  padding: 0.5rem;
+  color: white;
+  background-color: var(--grey-900);
+  display: flex;
+  flex-direction: row;
+  align-items: end;
+  gap: 0.5rem;
+  border-radius: 0.5rem;
+  box-shadow: $mild-box-shadow;
+  width: fit-content;
+  align-items: center;
+
+  .MuiTypography-root {
+    font-size: 1.2rem;
+  }
 }
 
 .workshop-main-content-content-container {
-  padding: 0 1rem;
+  padding: 1rem;
+  padding-top: 0;
 }
 
 .workshop-main-content-title-container {
@@ -45,9 +61,5 @@
 }
 
 .workshop-main-content-title.MuiTypography-root {
-  margin-left: .25rem;
-}
-
-.workshop-main-content-tool-container {
-  margin-top: .5rem;
+  margin-left: 0.25rem;
 }

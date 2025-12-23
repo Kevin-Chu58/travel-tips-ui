@@ -1,46 +1,115 @@
 .list-tool-container {
   display: flex;
   flex-direction: row;
-  color: dimgrey;
-  gap: .5rem;
-}
+  color: white;
+  gap: 0.5rem;
 
-.list-tool-sort-container {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: .5rem;
-}
+  $highlight-color: var(--grey-300);
+  $background-color: black;
 
-.list-tool-sort-select.MuiSelect-root {
-  height: 24px;
-  font-size: .8rem;
-  border-radius: 1rem;
-  color: dimgrey;
+  .MuiDivider-root {
+    background-color: $highlight-color;
+  }
 
-  &:hover .MuiOutlinedInput-notchedOutline,
-  &.Mui-focused .MuiOutlinedInput-notchedOutline {
-    border-color: var(--primary-700);
+  .list-tool-sort-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .list-tool-sort-select.MuiSelect-root {
+    height: 20px;
+    font-size: 0.8rem;
+    border-radius: 1rem;
+    background-color: $highlight-color;
+
+    &:hover .MuiOutlinedInput-notchedOutline,
+    &.Mui-focused .MuiOutlinedInput-notchedOutline {
+      border-color: $highlight-color;
+    }
+
+    &:hover,
+    &.Mui-focused {
+      background-color: white;
+    }
+  }
+
+  .list-tool-sort-select-item.MuiMenuItem-root {
+    font-size: 0.8rem;
+  }
+
+  .list-tool-button-container {
+    display: flex;
+    gap: 0.5rem;
+
+    .list-tool-button-content-container {
+      display: flex;
+      gap: 0.2rem;
+    }
+  }
+
+  .MuiIconButton-root {
+    border-radius: 0.2rem;
+
+    .MuiSvgIcon-root {
+      fill: $highlight-color;
+    }
+
+    &:hover {
+      background-color: var(--grey-800);
+
+      .MuiSvgIcon-root {
+        fill: white;
+      }
+    }
+
+    &.list-tool-add-button {
+      background-color: var(--primary-main);
+
+      .MuiSvgIcon-root {
+        fill: white;
+      }
+    }
+
+    &.list-tool-more-button {
+      .MuiSvgIcon-root {
+        transition: transform 0.2s;
+      }
+
+      &:hover {
+        .MuiSvgIcon-root {
+          transform: rotate(30deg);
+        }
+      }
+    }
   }
 }
 
-.list-tool-sort-select-item.MuiMenuItem-root {
-  font-size: .8rem;
-}
+.list-tool-dialog {
+  .MuiPaper-root {
+    max-height: 80vh;
+    height: fit-content;
+    min-width: 240px;
+    width: 20vw;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    border-radius: .5rem;
 
-.list-tool-button-container {
-  display: flex;
-  gap: .2rem;
-
-  .MuiIconButton-root {
-    border-radius: .2rem;
-
-    &:hover {
-      background-color: var(--primary-100);
-
-      .MuiSvgIcon-root {
-        fill: var(--primary-700);
-      }
+    .list-tool-dialog-section-container {
+      display: flex;
+      flex-direction: column;
+      max-height: 80vh;
+      overflow-y: auto;
+      gap: .5rem;
     }
+  }
+
+  .list-tool-dialog-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: var(--primary-main);
   }
 }

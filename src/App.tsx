@@ -13,7 +13,8 @@ function App() {
   const user = useSelector((state: RootState) => state.user);
 
   useEffect(() => {
-    if (!user.userAgreement) navigate("/user-agreement");
+    // userAgreement is null in default
+    if (user.userAgreement === false) navigate("/user-agreement");
   }, [user.userAgreement]);
 
   return (
