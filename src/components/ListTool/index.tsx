@@ -193,7 +193,7 @@ ListToolProps) => {
       {isMobile ? (
         <React.Fragment>
           <Box className="list-tool-button-container">
-            <ToolTip title="more options" offsetY={-4}>
+            <ToolTip title="More Options" offsetY={-4}>
               <IconButton
                 className="list-tool-more-button"
                 size="small"
