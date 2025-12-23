@@ -83,6 +83,7 @@ const TripCard = ({
             index={imageIndex}
             setIndex={setImageIndex}
             readonly
+            circularBorder
             height={200}
           />
         ) : (

@@ -28,6 +28,7 @@ import { useIsMobile } from "@hooks/useIsMobile";
 import SettingsIcon from "@mui/icons-material/Settings";
 import SettingsApplicationsIcon from "@mui/icons-material/SettingsApplications";
 import TTDialog from "@components/TTDialog";
+import TTButton from "@components/TTButton";
 import React, { useState, type JSX } from "react";
 import "./index.scss";
 
@@ -145,45 +146,50 @@ ListToolProps) => {
       onClose={() => setIsOpen(false)}
       hidePadding
     >
-      <Box>
-        <Box className="list-tool-dialog-section-container">
-          {/* sort section */}
-          <Box className="list-tool-dialog-header">
-            <SortIcon />
-            <Typography variant="h6">Sort</Typography>
-          </Box>
-          {sortComponent}
-
-          <Divider />
-
-          {/* action section */}
-          <Box className="list-tool-dialog-header">
-            <SettingsApplicationsIcon />
-            <Typography variant="h6">Action</Typography>
-          </Box>
-          <MenuList>
-            {/* add button */}
-            {addOnClick ? (
-              <MenuItem onClick={addOnClickInDialog}>
-                <ListItemIcon>
-                  {addSvgIcon}
-                  {addInput}
-                </ListItemIcon>
-                <ListItemText>{addLabel}</ListItemText>
-              </MenuItem>
-            ) : undefined}
-            {/* add button */}
-            {otherButtons?.map((button) => (
-              <MenuItem onClick={button.onClick}>
-                <ListItemIcon>
-                  <button.icon />
-                  {button.input}
-                </ListItemIcon>
-                <ListItemText>{button.label}</ListItemText>
-              </MenuItem>
-            ))}
-          </MenuList>
+      <Box className="list-tool-dialog-section-container">
+        {/* sort section */}
+        <Box className="list-tool-dialog-header">
+          <SortIcon />
+          <Typography variant="h6">Sort</Typography>
+          <TTButton
+            className="list-tool-dialog-close-button"
+            color="primary"
+            onClick={() => setIsOpen(false)}
+          >
+            Close
+          </TTButton>
         </Box>
+        {sortComponent}
+
+        <Divider />
+
+        {/* action section */}
+        <Box className="list-tool-dialog-header">
+          <SettingsApplicationsIcon />
+          <Typography variant="h6">Action</Typography>
+        </Box>
+        <MenuList>
+          {/* add button */}
+          {addOnClick ? (
+            <MenuItem onClick={addOnClickInDialog}>
+              <ListItemIcon>
+                {addSvgIcon}
+                {addInput}
+              </ListItemIcon>
+              <ListItemText>{addLabel}</ListItemText>
+            </MenuItem>
+          ) : undefined}
+          {/* add button */}
+          {otherButtons?.map((button) => (
+            <MenuItem key={button.label} onClick={button.onClick}>
+              <ListItemIcon>
+                <button.icon />
+                {button.input}
+              </ListItemIcon>
+              <ListItemText>{button.label}</ListItemText>
+            </MenuItem>
+          ))}
+        </MenuList>
       </Box>
     </TTDialog>
   );
@@ -229,11 +235,8 @@ ListToolProps) => {
               ) : undefined}
               {/** display other buttons */}
               {otherButtons?.map((button) => (
-                <ToolTip title={button.label} offsetY={-4}>
-                  <IconButton
-                    size="small"
-                    onClick={button.onClick}
-                  >
+                <ToolTip key={button.label} title={button.label} offsetY={-4}>
+                  <IconButton size="small" onClick={button.onClick}>
                     <button.icon />
                     {button.input}
                   </IconButton>

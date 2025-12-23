@@ -18,6 +18,7 @@ type PreloadCarouselProps = {
   interval?: number;
   height?: number;
   innerButtons?: boolean;
+  circularBorder?: boolean;
   children?: ReactNode;
 };
 
@@ -30,6 +31,7 @@ const PreloadCarousel = ({
   interval = 4000,
   height = 200,
   innerButtons = false,
+  circularBorder = false,
   children,
 }: PreloadCarouselProps) => {
   // window
@@ -106,7 +108,12 @@ const PreloadCarousel = ({
       }}
     >
       {/* image-layer */}
-      <Box className="preload-carousel-image-overflow-container">
+      <Box
+        className={clsx(
+          "preload-carousel-image-overflow-container",
+          circularBorder && "circular-border"
+        )}
+      >
         <Box
           className={clsx("preload-carousel-image-box", animating && "animate")}
           sx={{

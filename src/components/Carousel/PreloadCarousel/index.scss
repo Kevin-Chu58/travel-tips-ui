@@ -9,6 +9,10 @@
 
 .preload-carousel-image-overflow-container {
   overflow: hidden;
+  
+  &.circular-border {
+    border-radius: 1rem;
+  }
 }
 
 .preload-carousel-image-box {

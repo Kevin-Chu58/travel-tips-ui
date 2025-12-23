@@ -1,3 +1,4 @@
+import { ImageUtils } from "@utils/ImageUtils";
 import http from "./http";
 
 export type Image = {
@@ -31,8 +32,18 @@ const uploadImage = async (
   );
 };
 
-const updateImageName = async (id: number, name: string): Promise<void> => {
+const downloadImage = async (id: number): Promise<Blob> => {
+  const res: { base64: string } = await http.get(
+    http.apiBaseURLs.api,
+    `images/download/${id}`,
+    undefined
+  );
 
+  const base64 = ImageUtils.addImagePrefix(res.base64);
+  return http.dataURItoBlob(base64);
+};
+
+const updateImageName = async (id: number, name: string): Promise<void> => {
   return await http.patch(
     http.apiBaseURLs.api,
     `images/${id}/name/${name}`,
@@ -53,6 +64,7 @@ const deleteImage = async (id: number): Promise<number> => {
 export const ImagesService = {
   getMyImages,
   uploadImage,
+  downloadImage,
   updateImageName,
   deleteImage,
 };
