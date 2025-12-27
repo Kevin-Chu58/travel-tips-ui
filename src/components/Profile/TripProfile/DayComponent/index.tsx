@@ -15,8 +15,8 @@ type DayComponentProps = {
   taos: Tao[] | undefined;
   navTabValue: number;
   setTao: (state: Tao) => void;
-  syncAddDayTaos: (state: Tao) => void;
-  syncEditDayTaos: (state: Tao) => void;
+  asyncAddDayTaos: (state: Tao) => void;
+  asyncEditDayTaos: (state: Tao) => void;
   lastGeoCoordinate?: GeoCoordinate | undefined;
   setLastGeoCoordinate?: (state: GeoCoordinate) => void;
   readonly?: boolean;
@@ -27,8 +27,8 @@ const DayComponent = ({
   taos,
   navTabValue,
   setTao,
-  syncAddDayTaos,
-  syncEditDayTaos,
+  asyncAddDayTaos,
+  asyncEditDayTaos,
   lastGeoCoordinate,
   setLastGeoCoordinate,
   readonly = false,
@@ -79,8 +79,8 @@ const DayComponent = ({
               dayId={day?.id}
               taos={taos}
               setTao={setTao}
-              syncAddDayTaos={syncAddDayTaos}
-              syncEditDayTaos={syncEditDayTaos}
+              asyncAddDayTaos={asyncAddDayTaos}
+              asyncEditDayTaos={asyncEditDayTaos}
               lastGeoCoordinate={lastGeoCoordinate}
               setLastGeoCoordinate={setLastGeoCoordinate}
               readonly={readonly}

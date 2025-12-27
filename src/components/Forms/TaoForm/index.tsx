@@ -32,8 +32,8 @@ type TaoFormProps = {
   end?: string;
   lastGeoCoordinate?: GeoCoordinate | undefined;
   setLastGeoCoordinate?: (state: GeoCoordinate) => void;
-  syncAddDayTaos: (state: Tao) => void;
-  syncEditDayTaos: (state: Tao) => void;
+  asyncAddDayTaos: (state: Tao) => void;
+  asyncEditDayTaos: (state: Tao) => void;
 };
 
 const TaoForm = ({
@@ -46,8 +46,8 @@ const TaoForm = ({
   end,
   lastGeoCoordinate,
   setLastGeoCoordinate,
-  syncAddDayTaos,
-  syncEditDayTaos,
+  asyncAddDayTaos,
+  asyncEditDayTaos,
 }: TaoFormProps) => {
   // windows
   const isMobile = useIsMobile();
@@ -140,7 +140,7 @@ const TaoForm = ({
 
           let updatedTao = await taosService.patchTao(tao.id, _tao);
 
-          syncEditDayTaos(updatedTao);
+          asyncEditDayTaos(updatedTao);
         } else {
           let _tao = {
             dayId: _dayId,
@@ -150,7 +150,7 @@ const TaoForm = ({
           };
           let newTao = await taosService.postTao(_dayId, _tao);
 
-          syncAddDayTaos(newTao);
+          asyncAddDayTaos(newTao);
         }
 
         await BehaviorUtils.sleep();

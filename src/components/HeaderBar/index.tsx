@@ -4,14 +4,14 @@ import {
   Box,
   Container,
   Link,
+  Menu,
+  MenuItem,
   Toolbar,
   Typography,
 } from "@mui/material";
 import Header from "./Header";
 import { useAuth0 } from "@auth0/auth0-react";
 import React, { useEffect, useState } from "react";
-import UserMenu from "./UserMenu";
-import UserMenuItem from "./UserMenu/UserMenuItem";
 import { useLocation } from "react-router";
 import Pages from "@constants/Pages";
 import TLogo from "@assets/T.svg";
@@ -19,6 +19,8 @@ import TBoard from "@assets/TT_Board.svg";
 import Layouts from "@constants/Layouts";
 import { useIsMobile } from "@hooks/useIsMobile";
 import { markLoggedOut, setReturnToUrl } from "@services/tokens";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
 import clsx from "clsx";
 import "./index.scss";
 
@@ -30,11 +32,12 @@ const HeaderBar = () => {
     useAuth0();
   // others
   const location = useLocation();
-  const [anchorElUser, setAnchorElUser] = useState<HTMLElement | null>();
+  const [anchorElHeader, setAnchorElHeader] = useState<HTMLElement | null>(); // header menu
+  const [anchorElUser, setAnchorElUser] = useState<HTMLElement | null>(); // user menu
   const onPage = location.pathname === "/" ? Pages.Main : Pages.Undefined;
 
   // render on mount
-  useEffect(() => {}, []);
+  // useEffect(() => {}, []);
 
   const headers = [
     {
@@ -53,10 +56,19 @@ const HeaderBar = () => {
       requireAuth: false,
     },
   ];
+
+  const currentHeader =
+    headers.find((h) => location.pathname.startsWith(h.to))?.name ??
+    (onPage ? "Main" : "");
+
   const userMenuItems = [
     {
       name: "profile",
       to: "/profile",
+    },
+    {
+      name: "document",
+      to: "/document",
     },
     {
       name: "setting",
@@ -71,6 +83,16 @@ const HeaderBar = () => {
       },
     },
   ];
+
+  // anchoring menu
+
+  const handleOpenHeaderMenu = (e: React.MouseEvent<HTMLElement>) => {
+    setAnchorElHeader(e.currentTarget);
+  };
+
+  const handleCloseHeaderMenu = () => {
+    setAnchorElHeader(null);
+  };
 
   const handleOpenUserMenu = (e: React.MouseEvent<HTMLElement>) => {
     setAnchorElUser(e.currentTarget);
@@ -129,25 +151,70 @@ const HeaderBar = () => {
           )}
 
           {/* headers */}
-          <Box
-            className={clsx("app-bar-headers-container", isMobile && "mobile")}
-          >
-            {headers.map(
-              (header, i) =>
-                (isAuthenticated || !header.requireAuth) && (
-                  <Header
-                    key={`app-bar-header-${i}`}
-                    name={header.name}
-                    to={header.to}
-                  />
-                )
-            )}
-          </Box>
+          {!isLoading ? (
+            isMobile ? (
+              <Box>
+                {/* current header */}
+                <Box
+                  className={clsx(
+                    "app-bar-headers-container mobile",
+                    Boolean(anchorElHeader) && "focus"
+                  )}
+                  onClick={handleOpenHeaderMenu}
+                >
+                  <Header name={currentHeader} />
+                  {Boolean(anchorElHeader) ? (
+                    <ArrowDropUpIcon />
+                  ) : (
+                    <ArrowDropDownIcon />
+                  )}
+                </Box>
+
+                {/* header menu */}
+                <Menu
+                  className="app-bar-menu"
+                  anchorEl={anchorElHeader}
+                  open={Boolean(anchorElHeader)}
+                  onClose={handleCloseHeaderMenu}
+                >
+                  {headers
+                    .filter(
+                      (h) =>
+                        !h.requireAuth || (h.requireAuth && isAuthenticated)
+                    )
+                    .map((h) => (
+                      <Link
+                        className="app-bar-menu-link"
+                        key={h.name}
+                        href={h.to}
+                      >
+                        <MenuItem>{h.name}</MenuItem>
+                      </Link>
+                    ))}
+                </Menu>
+              </Box>
+            ) : (
+              <Box className="app-bar-headers-container">
+                {headers.map(
+                  (header, i) =>
+                    (isAuthenticated || !header.requireAuth) && (
+                      <Header
+                        key={`app-bar-header-${i}`}
+                        name={header.name}
+                        to={header.to}
+                        focus={header.name === currentHeader}
+                        enableHighlight
+                      />
+                    )
+                )}
+              </Box>
+            )
+          ) : undefined}
 
           {/* auth */}
           <Box className="app-bar-auth-container">
-            {!isLoading && (
-              <>
+            {!isLoading ? (
+              <React.Fragment>
                 {isAuthenticated ? (
                   isMobile ? (
                     <Avatar
@@ -156,48 +223,47 @@ const HeaderBar = () => {
                       onClick={handleOpenUserMenu}
                     />
                   ) : (
-                    <>
+                    <React.Fragment>
                       <Header
                         name={username}
                         color="primary"
                         toUpperCase={false}
                         onClick={handleOpenUserMenu}
+                        enableHighlight
                       />
                       <Avatar alt={username} src={userPicture} />
-                    </>
+                    </React.Fragment>
                   )
                 ) : (
-                  <>
-                    <Header
-                      extraClassName="app-bar-sign-up"
-                      name="sign up"
-                      onClick={toAuthPortal}
-                    />
-                    <Typography
-                      key="app-bar-login"
-                      className="app-bar-login"
-                      variant="h6"
-                      onClick={toAuthPortal}
-                    >
-                      LOGIN
-                    </Typography>
-                  </>
+                  <Typography
+                    className="app-bar-login"
+                    variant="h6"
+                    onClick={toAuthPortal}
+                  >
+                    SIGN IN
+                  </Typography>
                 )}
-              </>
-            )}
+              </React.Fragment>
+            ) : undefined}
           </Box>
 
-          <UserMenu anchor={anchorElUser} onClose={handleCloseUserMenu}>
-            {userMenuItems.map((item, i) => (
-              <UserMenuItem
-                key={`app-bar-user-menu-item-${i}`}
-                name={item.name}
-                to={item.to}
+          <Menu
+            className="app-bar-menu flex"
+            open={Boolean(anchorElUser)}
+            anchorEl={anchorElUser}
+            onClose={handleCloseUserMenu}
+          >
+            {userMenuItems.map((item) => (
+              <Link
+                className="app-bar-menu-link"
+                key={item.name}
+                href={item.to}
                 onClick={item.onClick}
-                focusColor="primary.main"
-              />
+              >
+                <MenuItem>{item.name}</MenuItem>
+              </Link>
             ))}
-          </UserMenu>
+          </Menu>
         </Toolbar>
       </Container>
     </AppBar>

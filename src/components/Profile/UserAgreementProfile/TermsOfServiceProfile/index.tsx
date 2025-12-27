@@ -7,8 +7,8 @@ import clsx from "clsx";
 
 type TermsOfServiceProfileProps = {
   readonly?: boolean;
-  next: () => void;
-  back: () => void;
+  next?: () => void;
+  back?: () => void;
 };
 
 const TermsOfServiceProfile = ({
@@ -33,10 +33,10 @@ const TermsOfServiceProfile = ({
   };
 
   return (
-    <Box className="user-agreement-container">
+    <Box className="user-agreement-profile-container">
       {/* header */}
-      <Box className="user-agreement-header-container">
-        <Box className="user-agreement-header-content-container">
+      <Box className="user-agreement-profile-header-container">
+        <Box className="user-agreement-profile-header-content-container">
           <img src={crossSvg} height={48} />
           <Box>
             <Typography variant="h5">User Agreement</Typography>
@@ -45,10 +45,10 @@ const TermsOfServiceProfile = ({
         </Box>
       </Box>
 
-      <Box className="user-agreement-content-container">
+      <Box className="user-agreement-profile-content-container">
         {/* section 1 */}
         <Typography variant="h6">1. Scope of This Agreement</Typography>
-        <Typography className="user-agreement-content">
+        <Typography className="user-agreement-profile-content">
           This User Agreement (“Agreement”) applies{" "}
           <b>only to individuals who create a TravelTips account</b> (“Users”).{" "}
           <br />
@@ -72,7 +72,7 @@ const TermsOfServiceProfile = ({
         </Typography>
         <Typography
           component="div"
-          className="user-agreement-content"
+          className="user-agreement-profile-content"
         >
           Users may:
           <ul>
@@ -89,7 +89,7 @@ const TermsOfServiceProfile = ({
         <Typography variant="subtitle1">2.2 Guests</Typography>
         <Typography
           component="div"
-          className="user-agreement-content"
+          className="user-agreement-profile-content"
         >
           Guests are individuals who do <b>not</b> create an account.
           <br />
@@ -118,7 +118,7 @@ const TermsOfServiceProfile = ({
         </Typography>
         <Typography
           component="div"
-          className="user-agreement-content"
+          className="user-agreement-profile-content"
         >
           A guest becomes a User the moment they:
           <ul>
@@ -130,7 +130,7 @@ const TermsOfServiceProfile = ({
 
         {/* section 3 */}
         <Typography variant="h6">3. Acceptance of Terms</Typography>
-        <Typography className="user-agreement-content">
+        <Typography className="user-agreement-profile-content">
           By accessing or using the TravelTips app (“the App”), you agree to be
           bound by this User Agreement and all applicable laws. If you do not
           agree, you may not use the App.
@@ -138,7 +138,7 @@ const TermsOfServiceProfile = ({
 
         {/* section 4 */}
         <Typography variant="h6">4. Description of Service</Typography>
-        <Typography className="user-agreement-content">
+        <Typography className="user-agreement-profile-content">
           TravelTips provides travel-related content, including recommendations,
           user-created trip plans, attraction information, and interactive tools
           to assist with travel planning.
@@ -149,7 +149,7 @@ const TermsOfServiceProfile = ({
 
         {/* section 5 */}
         <Typography variant="h6">5. Eligibility</Typography>
-        <Typography className="user-agreement-content">
+        <Typography className="user-agreement-profile-content">
           You must be at least 13 years old to use the App.
           <br />
           If you are under the age of majority in your jurisdiction, you must
@@ -160,7 +160,7 @@ const TermsOfServiceProfile = ({
         <Typography variant="h6">6. User Accounts</Typography>
         <Typography
           component="div"
-          className="user-agreement-content"
+          className="user-agreement-profile-content"
         >
           <ul>
             <li>
@@ -184,7 +184,7 @@ const TermsOfServiceProfile = ({
         </Typography>
         <Typography
           component="div"
-          className="user-agreement-content"
+          className="user-agreement-profile-content"
         >
           “User Content” includes any text, images, reviews, travel tips, or
           other materials submitted by users.
@@ -335,7 +335,7 @@ const TermsOfServiceProfile = ({
         <Typography variant="h6">8. Prohibited Conduct</Typography>
         <Typography
           component="div"
-          className="user-agreement-content"
+          className="user-agreement-profile-content"
         >
           Users must not:
           <ul>
@@ -357,7 +357,7 @@ const TermsOfServiceProfile = ({
         <Typography variant="h6">9. Third-Party Services</Typography>
         <Typography
           component="div"
-          className="user-agreement-content"
+          className="user-agreement-profile-content"
         >
           TravelTips may link to third-party websites, map providers, booking
           services, or external APIs.
@@ -375,7 +375,7 @@ const TermsOfServiceProfile = ({
 
         {/* section 10 */}
         <Typography variant="h6">10. Intellectual Property</Typography>
-        <Typography className="user-agreement-content">
+        <Typography className="user-agreement-profile-content">
           All content, trademarks, branding, code and materials in the App
           (excluding User Content) are the property of TravelTips or its
           licensors.
@@ -389,7 +389,7 @@ const TermsOfServiceProfile = ({
         <Typography variant="h6">11. Disclaimers</Typography>
         <Typography
           component="div"
-          className="user-agreement-content"
+          className="user-agreement-profile-content"
         >
           TravelTips provides content <b>“as is” without warranties</b> of any
           kind.
@@ -411,7 +411,7 @@ const TermsOfServiceProfile = ({
         <Typography variant="h6">12. Limitation of Liability</Typography>
         <Typography
           component="div"
-          className="user-agreement-content"
+          className="user-agreement-profile-content"
         >
           To the fullest extent permitted by law:
           <ul>
@@ -425,7 +425,7 @@ const TermsOfServiceProfile = ({
 
         {/* section 13 */}
         <Typography variant="h6">13. Privacy</Typography>
-        <Typography className="user-agreement-content">
+        <Typography className="user-agreement-profile-content">
           Your use of the App is also governed by our Privacy Policy.
         </Typography>
 
@@ -433,7 +433,7 @@ const TermsOfServiceProfile = ({
         <Typography variant="h6">14. Termination</Typography>
         <Typography
           component="div"
-          className="user-agreement-content"
+          className="user-agreement-profile-content"
         >
           We may suspend or terminate your access for:
           <ul>
@@ -446,7 +446,7 @@ const TermsOfServiceProfile = ({
 
         {/* section 15 */}
         <Typography variant="h6">15. Changes to the Terms</Typography>
-        <Typography className="user-agreement-content">
+        <Typography className="user-agreement-profile-content">
           We may update these Terms at any time.
           <br />
           <br />
@@ -457,7 +457,7 @@ const TermsOfServiceProfile = ({
 
         {/* section 16 */}
         <Typography variant="h6">16. Governing Law</Typography>
-        <Typography className="user-agreement-content">
+        <Typography className="user-agreement-profile-content">
           These Terms are governed by the laws of the United States of America
           (where this company is registered).
           <br />
@@ -467,7 +467,7 @@ const TermsOfServiceProfile = ({
 
         {/* section 17 */}
         <Typography variant="h6">17. Contact Us</Typography>
-        <Typography className="user-agreement-content">
+        <Typography className="user-agreement-profile-content">
           If you have questions about these Terms, contact us at: [email]
         </Typography>
       </Box>
@@ -476,21 +476,21 @@ const TermsOfServiceProfile = ({
 
       {/* agreement checking */}
       {!readonly ? (
-        <Box className="user-agreement-checking-container">
+        <Box className="user-agreement-profile-checking-container">
           <Box
-            className="user-agreement-checking-content-container"
+            className="user-agreement-profile-checking-content-container"
             onClick={handleCheckboxSection7OnClick}
           >
             <Checkbox
-              className="user-agreement-checkbox"
+              className="user-agreement-profile-checkbox"
               color="default"
               checked={checkedSection7}
             />
-            <Typography className="user-agreement-content">
+            <Typography className="user-agreement-profile-content">
               By checking the box, you agree to how TravelTips manage User
               Content in{" "}
               <span
-                className="user-agreement-link"
+                className="user-agreement-profile-link"
                 onClick={scrollToSection7}
               >
                 Section 7
@@ -499,18 +499,18 @@ const TermsOfServiceProfile = ({
             </Typography>
           </Box>
           <Box
-            className="user-agreement-checking-content-container"
+            className="user-agreement-profile-checking-content-container"
             onClick={() => setChecked((prev) => !prev)}
           >
             <Checkbox
-              className="user-agreement-checkbox"
+              className="user-agreement-profile-checkbox"
               color="default"
               disabled={!checkedSection7}
               checked={checked}
             />
             <Typography
               className={clsx(
-                "user-agreement-content",
+                "user-agreement-profile-content",
                 !checkedSection7 && "disabled"
               )}
             >
@@ -519,15 +519,15 @@ const TermsOfServiceProfile = ({
             </Typography>
           </Box>
 
-          <Box className="user-agreement-checking-content-container">
+          <Box className="user-agreement-profile-checking-content-container">
             <TTButton circular variant="outlined" onClick={back}>
               Back
             </TTButton>
-            <Typography className="user-agreement-checking-helper">
+            <Typography className="user-agreement-profile-checking-helper">
               Next: Privacy Policy
             </Typography>
             <TTButton
-              className="user-agreement-checkbox-button"
+              className="user-agreement-profile-checkbox-button"
               circular
               disabled={!checked || !checkedSection7}
               onClick={next}

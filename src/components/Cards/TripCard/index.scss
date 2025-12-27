@@ -67,6 +67,16 @@
   text-overflow: ellipsis;
 }
 
+.trip-card-error-menu-item {
+  .MuiSvgIcon-root {
+    fill: var(--error-main);
+  };
+
+  .MuiTypography-root {
+    color: var(--error-main);
+  }
+}
+
 .trip-card-num-days {
   font-size: .9rem;
   color: dimgrey;

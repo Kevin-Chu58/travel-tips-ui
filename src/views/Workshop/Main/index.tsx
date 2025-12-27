@@ -110,21 +110,28 @@ const Main = () => {
     setImages(images);
   };
 
-  // sync functions
+  // async functions
 
   const getMyTrips = async () => {
     const myTrips = await tripsService.getMyTrips();
     asyncTrips(SortUtils.sortList(myTrips, tripsSortTypes, sortTypeIndex));
   };
 
-  const syncAddTrip = async (trip: Trip) => {
+  const asyncAddTrip = async (trip: Trip) => {
     tripsRef.current.push(trip);
     asyncTrips(
       SortUtils.sortList(tripsRef.current, tripsSortTypes, sortTypeIndex)
     );
   };
 
-  const syncDeleteTrip = async (trip: Trip) => {
+  const asyncUpdateTrip = async (trip: Trip) => {
+    const trips = tripsRef.current;
+    const tripIndex = trips.findIndex((t) => t.id === trip.id);
+    trips[tripIndex] = trip;
+    asyncTrips(SortUtils.sortList(trips, tripsSortTypes, sortTypeIndex));
+  };
+
+  const asyncDeleteTrip = async (trip: Trip) => {
     let filteredTrips = tripsRef.current.filter(
       (_trip) => _trip.id !== trip.id
     );
@@ -140,7 +147,7 @@ const Main = () => {
     );
   };
 
-  const syncAddAttraction = async (attraction: Attraction) => {
+  const asyncAddAttraction = async (attraction: Attraction) => {
     let attractions = attractionsRef.current;
     const attractionIndex = attractions.findIndex(
       (_attraction) => _attraction.id === attraction.id
@@ -162,14 +169,14 @@ const Main = () => {
     asyncImages(SortUtils.sortList(myImages, imagesSortTypes, sortTypeIndex));
   };
 
-  const syncAddImage = async (image: Image) => {
+  const asyncAddImage = async (image: Image) => {
     imagesRef.current.push(image);
     asyncImages(
       SortUtils.sortList(imagesRef.current, imagesSortTypes, sortTypeIndex)
     );
   };
 
-  const syncUpdateImage = async (image: Image) => {
+  const asyncUpdateImage = async (image: Image) => {
     let _image = imagesRef.current.find((_image) => _image.id === image.id);
     if (_image) {
       _image.name = image.name;
@@ -179,7 +186,7 @@ const Main = () => {
     }
   };
 
-  const syncDeleteImage = async (id: number) => {
+  const asyncDeleteImage = async (id: number) => {
     let filteredImages = imagesRef.current.filter((_image) => _image.id !== id);
     asyncImages(
       SortUtils.sortList(filteredImages, imagesSortTypes, sortTypeIndex)
@@ -242,7 +249,13 @@ const Main = () => {
       name: "Trips",
       index: true,
       path: "",
-      element: <Trips trips={trips} syncDeleteTrip={syncDeleteTrip} />,
+      element: (
+        <Trips
+          trips={trips}
+          asyncUpdateTrip={asyncUpdateTrip}
+          asyncDeleteTrip={asyncDeleteTrip}
+        />
+      ),
       tool: (
         <TripsTool
           sortTypes={tripsSortTypes}
@@ -259,7 +272,7 @@ const Main = () => {
         <TripForm
           isOpen={isAddTripOpen}
           setIsOpen={setIsAddTripOpen}
-          syncAddTrip={syncAddTrip}
+          asyncAddTrip={asyncAddTrip}
         />
       ),
     },
@@ -289,7 +302,7 @@ const Main = () => {
         <AttractionFinder
           open={isAddHighlightOpen}
           setOpen={setIsAddHighlightOpen}
-          syncAddAttraction={syncAddAttraction}
+          asyncAddAttraction={asyncAddAttraction}
         />
       ),
     },
@@ -299,8 +312,8 @@ const Main = () => {
       element: (
         <Images
           images={images}
-          syncUpdateImage={syncUpdateImage}
-          syncDeleteImage={syncDeleteImage}
+          asyncUpdateImage={asyncUpdateImage}
+          asyncDeleteImage={asyncDeleteImage}
         />
       ),
       tool: (
@@ -328,7 +341,7 @@ const Main = () => {
           open={isAddImageOpen}
           onClose={() => setIsAddImageOpen(false)}
           imageSrc={imageSrc}
-          syncAddImage={syncAddImage}
+          asyncAddImage={asyncAddImage}
         />
       ),
     },
@@ -375,7 +388,11 @@ const Main = () => {
                   <Box className="workshop-main-content-header-container">
                     <Box className="workshop-main-content-title-container">
                       {isMobile && (
-                        <Hamburger size={24} toggled={false} toggle={setOpenDrawer} />
+                        <Hamburger
+                          size={24}
+                          toggled={false}
+                          toggle={setOpenDrawer}
+                        />
                       )}
                       <Typography className="workshop-main-content-title">
                         {route.name}

@@ -16,10 +16,10 @@ import "./index.scss";
 type TripFormProps = {
   isOpen: boolean;
   setIsOpen: (state: boolean) => void;
-  syncAddTrip: (state: Trip) => void;
+  asyncAddTrip: (state: Trip) => void;
 };
 
-const TripForm = ({ isOpen, setIsOpen, syncAddTrip }: TripFormProps) => {
+const TripForm = ({ isOpen, setIsOpen, asyncAddTrip }: TripFormProps) => {
   // snackbar
   const { enqueueSnackbar } = useSnackbar();
   // new trip attributes
@@ -52,7 +52,7 @@ const TripForm = ({ isOpen, setIsOpen, syncAddTrip }: TripFormProps) => {
 
       await BehaviorUtils.sleep();
       handleCloseMenu();
-      syncAddTrip(newTrip);
+      asyncAddTrip(newTrip);
 
       enqueueSnackbar("Successfully created new trip.", {
         variant: "success",

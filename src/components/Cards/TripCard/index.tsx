@@ -4,9 +4,9 @@ import {
   Chip,
   IconButton,
   List,
-  ListItemButton,
   ListItemIcon,
   ListItemText,
+  MenuItem,
   Popover,
   Typography,
 } from "@mui/material";
@@ -16,7 +16,7 @@ import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import TimeUtils from "@utils/TimeUtils";
 import TLogo from "@assets/T.svg";
 import PreloadCarousel from "@components/Carousel/PreloadCarousel";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { enqueueSnackbar } from "notistack";
@@ -26,14 +26,16 @@ type TripCardProps = {
   trip: Trip;
   readonly?: boolean;
   onClick: () => void;
-  syncDeleteTrip?: (state: Trip) => void;
+  asyncUpdateTrip?: (state: Trip) => void;
+  asyncDeleteTrip?: (state: Trip) => void;
 };
 
 const TripCard = ({
   trip,
   readonly = false,
   onClick,
-  syncDeleteTrip,
+  asyncUpdateTrip,
+  asyncDeleteTrip,
 }: TripCardProps) => {
   // trip images
   const [imageIndex, setImageIndex] = useState<number>(0);
@@ -41,13 +43,37 @@ const TripCard = ({
   const [popoverAnchorEl, setPopoverAnchorEl] =
     React.useState<HTMLButtonElement | null>(null);
 
-  const handleDeleteTripClick = async (e: React.MouseEvent<HTMLDivElement>) => {
+  // rerender on trip isPublic
+  useEffect(() => {}, [trip.isPublic]);
+
+  const handleVisibilityTripClick = async (e: React.MouseEvent<HTMLLIElement>) => {
+    e.stopPropagation();
+
+    if (trip) {
+      try {
+        tripsService.patchTripIsPublic([trip.id], !trip.isPublic);
+        trip.isPublic = !trip.isPublic;
+        if (asyncUpdateTrip) asyncUpdateTrip(trip);
+
+        // triggers direct UI update on chip
+        setPopoverAnchorEl(null);
+
+        enqueueSnackbar("Successfully set trip visibility.", { variant: "success" });
+      } catch (e) {
+        if (e instanceof Error) {
+          enqueueSnackbar(e.message, { variant: "error" });
+        }
+      }
+    }
+  };
+
+  const handleDeleteTripClick = async (e: React.MouseEvent<HTMLLIElement>) => {
     e.stopPropagation();
 
     if (trip) {
       try {
         await tripsService.patchTripIsHidden([trip.id], true);
-        if (syncDeleteTrip) syncDeleteTrip(trip);
+        if (asyncDeleteTrip) asyncDeleteTrip(trip);
 
         enqueueSnackbar("Successfully deleted trip.", { variant: "success" });
       } catch (e) {
@@ -134,17 +160,27 @@ const TripCard = ({
           onClose={(e) => handleClosePopover(e)}
         >
           <List>
-            {/* button - delete */}
             {!readonly ? (
-              <ListItemButton onClick={(e) => handleDeleteTripClick(e)}>
-                <ListItemIcon className="image-selector-list-item-error-icon">
-                  <DeleteIcon />
-                </ListItemIcon>
-                <ListItemText
-                  sx={{ color: "var(--error-main)" }}
-                  primary="Delete"
-                />
-              </ListItemButton>
+              <React.Fragment>
+                {/* button - public/private */}
+                <MenuItem onClick={(e) => handleVisibilityTripClick(e)}>
+                  <ListItemIcon>
+                    {trip.isPublic ? <VisibilityOffIcon/> : <VisibilityIcon/>}
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={`Set ${trip.isPublic ? "Private" : "Public"}`}
+                  />
+                </MenuItem>
+                {/* button - delete */}
+                <MenuItem className="trip-card-error-menu-item" onClick={(e) => handleDeleteTripClick(e)}>
+                  <ListItemIcon>
+                    <DeleteIcon />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary="Delete"
+                  />
+                </MenuItem>
+              </React.Fragment>
             ) : undefined}
           </List>
         </Popover>

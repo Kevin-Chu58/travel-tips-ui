@@ -17,7 +17,7 @@ type LibraryDialogProps = {
   onClose: () => void;
   imageIds: number[];
   tripId?: number;
-  syncAddImage: (state: Image) => void;
+  asyncAddImage: (state: Image) => void;
 };
 
 const LibraryDialog = ({
@@ -25,7 +25,7 @@ const LibraryDialog = ({
   onClose,
   imageIds,
   tripId,
-  syncAddImage,
+  asyncAddImage,
 }: LibraryDialogProps) => {
   // window
   const isMobile = useIsMobile();
@@ -65,7 +65,7 @@ const LibraryDialog = ({
           selectedImageId
         );
 
-        syncAddImage(newImage);
+        asyncAddImage(newImage);
 
         enqueueSnackbar("Successfully attached image.", { variant: "success" });
       } catch (e) {

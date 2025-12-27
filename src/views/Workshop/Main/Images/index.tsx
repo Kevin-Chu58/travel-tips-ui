@@ -6,14 +6,14 @@ import ImageForm from "@components/Forms/ImageForm";
 
 type ImageProps = {
   images: Image[];
-  syncUpdateImage: (state: Image) => void;
-  syncDeleteImage: (state: number) => void;
+  asyncUpdateImage: (state: Image) => void;
+  asyncDeleteImage: (state: number) => void;
 };
 
 const Images = ({
   images,
-  syncUpdateImage,
-  syncDeleteImage,
+  asyncUpdateImage,
+  asyncDeleteImage,
 }: ImageProps) => {
   // image
   const [selectedImage, setSelectedImage] = useState<Image | undefined>();
@@ -28,8 +28,8 @@ const Images = ({
       <ImageForm
         image={selectedImage}
         onClose={() => setSelectedImage(undefined)}
-        syncUpdateImage={syncUpdateImage}
-        syncDeleteImage={syncDeleteImage}
+        asyncUpdateImage={asyncUpdateImage}
+        asyncDeleteImage={asyncDeleteImage}
       />
     </Box>
   );

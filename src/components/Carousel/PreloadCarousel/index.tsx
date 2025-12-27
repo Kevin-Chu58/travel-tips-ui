@@ -14,6 +14,7 @@ type PreloadCarouselProps = {
   index: number;
   setIndex: React.Dispatch<React.SetStateAction<number>>;
   readonly?: boolean;
+  onClick?: () => void;
   onDelete?: (state: number) => void;
   interval?: number;
   height?: number;
@@ -27,6 +28,7 @@ const PreloadCarousel = ({
   index,
   setIndex,
   readonly = false,
+  onClick,
   onDelete = () => {},
   interval = 4000,
   height = 200,
@@ -101,6 +103,7 @@ const PreloadCarousel = ({
   return (
     <Box
       className="preload-carousel-box"
+      onClick={onClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       sx={{

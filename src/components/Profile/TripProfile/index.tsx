@@ -37,6 +37,7 @@ import {
   wikiCommonsService,
   type WikiImage,
 } from "@services/wikiCommons/wikiCommons";
+import ImageForm from "@components/Forms/ImageForm";
 import { isEqual } from "lodash";
 import clsx from "clsx";
 import "./index.scss";
@@ -91,6 +92,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
   const [openDeleteDayForm, setOpenDeleteDayForm] = useState<boolean>(false);
   const [openEditTaoForm, setOpenEditTaoForm] = useState<boolean>(false);
   const [openDeleteTaoForm, setOpenDeleteTaoForm] = useState<boolean>(false);
+  const [openImageForm, setOpenImageForm] = useState<number | undefined>();
   const [openUI, setOpenUI] = useState<boolean>(true);
   // behavior
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -98,6 +100,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
   // others
   const { tripId, dayId } = useParams(); // dayId - day index in days, not day.id
   const prevDayId = useRef<number | undefined>(undefined);
+  const image = openImageForm !== undefined ? images[openImageForm] : undefined; // current image in images
   const inputRef = useRef<HTMLInputElement>(null);
   const correctUri = uri.length > 1 ? uri : "";
   const navigate = useNavigate();
@@ -139,10 +142,10 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
         // get trip basic
         let tripBasic = await tripsService.getTripById(Number(tripId));
         tripBasicRef.current = tripBasic;
-        syncTrip();
-        
+        asyncTrip();
+
         imagesRef.current = tripBasic.images ?? [];
-        syncImages();
+        asyncImages();
 
         BehaviorUtils.sleep();
         setIsLoading(false);
@@ -160,7 +163,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
         let imageId = images[index].id;
         await tripsService.deleteTripImage(tripBasic.id, imageId);
 
-        syncDetachImage(imageId);
+        asyncDetachImage(imageId);
 
         enqueueSnackbar("Successfully detached image.", {
           variant: "success",
@@ -280,29 +283,38 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
     setRouteResponses(routeResponses);
   };
 
-  // ref sync functions
+  // ref async functions
 
-  const syncTrip = () => {
+  const asyncTrip = () => {
     setTripBasic(tripBasicRef.current);
   };
 
-  const syncImages = () => {
+  const asyncImages = () => {
     setImages([...imagesRef.current]); // ensure new reference
   };
 
-  const syncAddImage = (image: Image) => {
+  const asyncAddImage = (image: Image) => {
     imagesRef.current.push(image);
-    syncImages();
+    asyncImages();
   };
 
-  const syncDetachImage = (imageId: number) => {
+  const asyncDetachImage = (imageId: number) => {
     imagesRef.current = imagesRef.current.filter((i) => i.id !== imageId);
-    syncImages();
+    asyncImages();
+  };
+
+  const asyncUpdateImage = (image: Image) => {
+    let images = imagesRef.current;
+    let imageIndex = images.findIndex((img) => img.id === image.id);
+    images[imageIndex] = image;
+
+    imagesRef.current = images;
+    asyncImages();
   };
 
   // add day and delete day auto-reflects on days by useEffect triggered on tripBasic.numDays
 
-  const syncAddDayTaos = (tao: Tao) => {
+  const asyncAddDayTaos = (tao: Tao) => {
     if (day) {
       let dayTaos = taosMapRef.current.get(day.id);
 
@@ -329,7 +341,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
     }
   };
 
-  const syncEditDayTaos = async (tao: Tao) => {
+  const asyncEditDayTaos = async (tao: Tao) => {
     if (day) {
       let dayTaos = taosMapRef.current.get(day.id);
 
@@ -357,7 +369,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
     }
   };
 
-  const syncDeleteDayTaos = (tao: Tao | undefined) => {
+  const asyncDeleteDayTaos = (tao: Tao | undefined) => {
     if (day && tao) {
       let dayTaos = taosMapRef.current.get(day.id);
 
@@ -462,7 +474,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
         await daysService.postNewDay(tripBasic.id);
 
         tripBasicRef.current!.numDays! += 1;
-        syncTrip();
+        asyncTrip();
         navigate(`${overViewNavTab.to}/day/${tripBasicRef.current?.numDays}`);
 
         enqueueSnackbar("Successfully create a day.", { variant: "success" });
@@ -502,6 +514,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
                   height={isMobile ? 200 : 240}
                   onDelete={deleteTripImage}
                   readonly={readonly}
+                  onClick={() => setOpenImageForm(imageIndex)}
                   innerButtons
                 />
               ) : (
@@ -518,7 +531,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
                     tripId={tripBasic?.id}
                     imageIds={images.map((image) => image.id)}
                     disabled={isMaxImageCountReached}
-                    syncAddImage={syncAddImage}
+                    asyncAddImage={asyncAddImage}
                     readonly={readonly}
                   >
                     <TTChipButton
@@ -551,7 +564,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
             <Box className="trip-profile-title-box">
               <NameComponent
                 tripBasicRef={tripBasicRef}
-                syncTrip={syncTrip}
+                asyncTrip={asyncTrip}
                 isLoading={isLoading}
                 inputRef={inputRef}
                 readonly={readonly}
@@ -579,8 +592,8 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
                 taos={taos}
                 navTabValue={navTabValue}
                 setTao={initTao}
-                syncAddDayTaos={syncAddDayTaos}
-                syncEditDayTaos={syncEditDayTaos}
+                asyncAddDayTaos={asyncAddDayTaos}
+                asyncEditDayTaos={asyncEditDayTaos}
                 lastGeoCoordinate={lastGeoCoordinate}
                 setLastGeoCoordinate={setLastGeoCoordinate}
                 readonly={readonly}
@@ -590,7 +603,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
             <Box className="trip-profile-description-box">
               <DescriptionComponent
                 tripBasicRef={tripBasicRef}
-                syncTrip={syncTrip}
+                asyncTrip={asyncTrip}
                 isLoading={isLoading}
                 readonly={readonly}
               />
@@ -614,7 +627,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
               routeResponses={routeResponses}
               setRouteResponses={initRoutes}
               onClose={() => initTao(undefined)}
-              syncEditDayTaos={syncEditDayTaos}
+              asyncEditDayTaos={asyncEditDayTaos}
               readonly={readonly}
             />
           </Box>
@@ -668,7 +681,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
         day={days[Number(dayId ?? 0) - 1]}
         dayId={Number(dayId)}
         tripBasicRef={tripBasicRef}
-        syncDeleteDay={() => {
+        asyncDeleteDay={() => {
           let newDayId = Number(dayId) - 1;
           isDefaultDirectingRef.current = false;
 
@@ -687,7 +700,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
         tao={tao}
         setIsParentUpdated={() => {
           setTao(undefined);
-          syncDeleteDayTaos(tao);
+          asyncDeleteDayTaos(tao);
         }}
       />
 
@@ -699,8 +712,16 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
         tao={tao}
         lastGeoCoordinate={lastGeoCoordinate}
         setLastGeoCoordinate={setLastGeoCoordinate}
-        syncAddDayTaos={syncAddDayTaos}
-        syncEditDayTaos={syncEditDayTaos}
+        asyncAddDayTaos={asyncAddDayTaos}
+        asyncEditDayTaos={asyncEditDayTaos}
+      />
+
+      <ImageForm
+        image={image}
+        onClose={() => setOpenImageForm(undefined)}
+        asyncUpdateImage={asyncUpdateImage}
+        asyncDeleteImage={asyncDetachImage}
+        readonly={readonly}
       />
     </Box>
   );

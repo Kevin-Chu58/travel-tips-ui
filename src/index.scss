@@ -166,6 +166,19 @@ body {
   overflow-x: hidden;
 }
 
+// custom styled typography - TODO
+
+.theme-typography {
+  &.MuiTypography-root {
+    &.MuiTypography-h6 {
+      font-size: 1.4rem;
+    }
+    &.MuiTypography-subtitle1 {
+      font-size: 1.25rem;
+    }
+  }
+}
+
 a {
   color: var(--info-main);
 }

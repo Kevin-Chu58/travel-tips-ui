@@ -9,9 +9,11 @@ const compressImage = async (file: File): Promise<File> => {
 
   try {
     const compressedBlob = await imageCompression(file, options);
-    const maxSizeKB = options.maxSizeMB * 1024;
+    const maxSizeKB = options.maxSizeMB * 1000;
     if (compressedBlob.size > maxSizeKB * 1024) {
-      throw new Error(`Cropped image must be smaller than ${maxSizeKB} KB`);
+      throw new Error(
+        `Cropped image must be smaller than ${maxSizeKB} KB`
+      );
     }
 
     return compressedBlob;

@@ -22,16 +22,16 @@ import "./index.scss";
 type ImageFormProps = {
   image: Image | undefined;
   onClose: () => void;
-  syncUpdateImage: (state: Image) => void;
-  syncDeleteImage: (state: number) => void;
+  asyncUpdateImage: (state: Image) => void;
+  asyncDeleteImage: (state: number) => void;
   readonly?: boolean;
 };
 
 const ImageForm = ({
   image,
   onClose,
-  syncUpdateImage,
-  syncDeleteImage,
+  asyncUpdateImage,
+  asyncDeleteImage,
   readonly = false,
 }: ImageFormProps) => {
   // windows
@@ -89,7 +89,7 @@ const ImageForm = ({
         setName(name);
 
         let updatedImage = { ...image, name: name };
-        syncUpdateImage(updatedImage);
+        asyncUpdateImage(updatedImage);
       } catch (e) {
         if (e instanceof Error) {
           enqueueSnackbar(e.message, { variant: "error" });
@@ -109,7 +109,7 @@ const ImageForm = ({
           variant: "success",
         });
 
-        syncDeleteImage(imageId);
+        asyncDeleteImage(imageId);
         handleClose();
       } catch (e) {
         if (e instanceof Error) {
@@ -159,39 +159,41 @@ const ImageForm = ({
             </Box>
 
             {/* detail */}
-            <Box className="image-form-detail-container">
-              <Box className="image-form-name-container">
-                {isEditingName ? (
-                  <FormControl variant="outlined">
-                    <OutlinedInput
-                      className="image-form-name-input"
-                      ref={inputRef}
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      endAdornment={`${name?.length ?? 0}/50`}
-                      onKeyDown={(e) => handleNameKeyDown(e)}
-                      onBlur={updateName}
-                      autoFocus
-                      size="small"
-                    />
-                  </FormControl>
-                ) : (
-                  <Button
-                    className="image-form-name-button"
-                    onClick={() => setIsEditingName(true)}
-                  >
-                    <Typography
-                      className={clsx(
-                        "image-form-name",
-                        !image?.name && "no-name"
-                      )}
+            {!readonly ? (
+              <Box className="image-form-detail-container">
+                <Box className="image-form-name-container">
+                  {isEditingName ? (
+                    <FormControl variant="outlined">
+                      <OutlinedInput
+                        className="image-form-name-input"
+                        ref={inputRef}
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        endAdornment={`${name?.length ?? 0}/50`}
+                        onKeyDown={(e) => handleNameKeyDown(e)}
+                        onBlur={updateName}
+                        autoFocus
+                        size="small"
+                      />
+                    </FormControl>
+                  ) : (
+                    <Button
+                      className="image-form-name-button"
+                      onClick={() => setIsEditingName(true)}
                     >
-                      {image?.name ?? MISSING_NAME} <EditIcon />
-                    </Typography>
-                  </Button>
-                )}
+                      <Typography
+                        className={clsx(
+                          "image-form-name",
+                          !image?.name && "no-name"
+                        )}
+                      >
+                        {image?.name ?? MISSING_NAME} <EditIcon />
+                      </Typography>
+                    </Button>
+                  )}
+                </Box>
               </Box>
-            </Box>
+            ) : undefined}
           </Box>
 
           {/* buttons */}

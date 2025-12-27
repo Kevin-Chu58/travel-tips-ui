@@ -68,8 +68,8 @@
   }
 
   .app-bar-login {
-    margin: 1rem;
-    padding: 0.1rem 1.5rem;
+    margin: .5rem;
+    padding: .2rem 1rem;
     font-weight: bold;
     color: var(--primary-main);
     border-radius: 0.5rem;
@@ -85,10 +85,15 @@
   .app-bar-headers-container {
     display: flex;
     flex-direction: row;
+    align-items: center;
     margin-left: 10rem;
 
     &.mobile {
       margin-left: 1rem;
+    }
+
+    .MuiSvgIcon-root {
+      font-size: 2rem;
     }
   }
 
@@ -119,4 +124,29 @@
       font-family: tagesschrift;
     }
   }
+}
+
+.app-bar-menu {
+  .MuiPaper-root {
+    width: 200px;
+    background-color: var(--grey-900);
+
+    .app-bar-menu-link.MuiTypography-root {
+      text-decoration: none;
+      text-transform: uppercase;
+      color: white;
+
+      &:hover .MuiMenuItem-root {
+        background-color: var(--grey-800);
+      }
+    }
+  }
+
+  &.flex .MuiPaper-root {
+      width: auto;
+
+      .MuiTypography-root {
+        text-transform: capitalize;
+      }
+    }
 }

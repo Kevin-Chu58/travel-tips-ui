@@ -24,7 +24,7 @@ type CropperDialogProps = {
   onClose: () => void;
   imageSrc: string | null;
   tripId?: number;
-  syncAddImage: (state: Image) => void;
+  asyncAddImage: (state: Image) => void;
 };
 
 const CropperDialog = ({
@@ -32,7 +32,7 @@ const CropperDialog = ({
   onClose,
   imageSrc = null,
   tripId,
-  syncAddImage,
+  asyncAddImage,
 }: CropperDialogProps) => {
   // window
   const isMobile = useIsMobile();
@@ -87,7 +87,7 @@ const CropperDialog = ({
 
         const newImage = await ImagesService.uploadImage(compressedBlob, name);
 
-        syncAddImage(newImage);
+        asyncAddImage(newImage);
 
         if (tripId) {
           await tripsService.postTripImage(tripId, newImage.id);

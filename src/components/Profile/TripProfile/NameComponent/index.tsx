@@ -13,7 +13,7 @@ import "./index.scss";
 
 type NameComponentProps = {
   tripBasicRef: React.RefObject<Trip | undefined>;
-  syncTrip: () => void;
+  asyncTrip: () => void;
   isLoading: boolean;
   inputRef: React.RefObject<HTMLInputElement | null>;
   readonly?: boolean;
@@ -21,7 +21,7 @@ type NameComponentProps = {
 
 const NameComponent = ({
   tripBasicRef,
-  syncTrip,
+  asyncTrip,
   isLoading,
   inputRef,
   readonly = false,
@@ -67,7 +67,7 @@ const NameComponent = ({
         });
 
         tripBasicRef.current.title = tripPatch.title!;
-        syncTrip();
+        asyncTrip();
       } catch (e) {
         if (e instanceof Error)
           enqueueSnackbar(e.message, { variant: "error" });

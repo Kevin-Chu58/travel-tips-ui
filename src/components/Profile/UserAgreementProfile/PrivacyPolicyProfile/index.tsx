@@ -5,8 +5,8 @@ import TTButton from "@components/TTButton";
 
 type PrivacyPolicyProfileProps = {
   readonly?: boolean;
-  next: () => void;
-  back: () => void;
+  next?: () => void;
+  back?: () => void;
 };
 
 const PrivacyPolicyProfile = ({
@@ -18,10 +18,10 @@ const PrivacyPolicyProfile = ({
   const [checked, setChecked] = useState<boolean>(false);
 
   return (
-    <Box className="user-agreement-container">
+    <Box className="user-agreement-profile-container">
       {/* header */}
-      <Box className="user-agreement-header-container">
-        <Box className="user-agreement-header-content-container">
+      <Box className="user-agreement-profile-header-container">
+        <Box className="user-agreement-profile-header-content-container">
           <img src={crossSvg} height={48} />
           <Box>
             <Typography variant="h5">User Agreement</Typography>
@@ -30,12 +30,12 @@ const PrivacyPolicyProfile = ({
         </Box>
       </Box>
 
-      <Box className="user-agreement-content-container">
+      <Box className="user-agreement-profile-content-container">
         {/* introduction */}
         <Typography>
           <b>Last Updated:</b> 12/9/2025
         </Typography>
-        <Typography className="user-agreement-content">
+        <Typography className="user-agreement-profile-content">
           TravelTips (“we”, “our” “us”) is committed to protecting your privacy.
           <br />
           <br />
@@ -50,7 +50,7 @@ const PrivacyPolicyProfile = ({
 
         {/* section 1 */}
         <Typography variant="h6">1. Information We Collect</Typography>
-        <Typography className="user-agreement-content">
+        <Typography className="user-agreement-profile-content">
           We collect the following types of information:
         </Typography>
         <Typography variant="subtitle1">
@@ -58,7 +58,7 @@ const PrivacyPolicyProfile = ({
         </Typography>
         <Typography
           component="div"
-          className="user-agreement-content"
+          className="user-agreement-profile-content"
         >
           When you create an account or use user-only features, we may collect:
           <ul>
@@ -76,7 +76,7 @@ const PrivacyPolicyProfile = ({
         </Typography>
         <Typography
           component="div"
-          className="user-agreement-content"
+          className="user-agreement-profile-content"
         >
           When you access the App, we may automatically collect:
           <ul>
@@ -94,7 +94,7 @@ const PrivacyPolicyProfile = ({
         </Typography>
         <Typography
           component="div"
-          className="user-agreement-content"
+          className="user-agreement-profile-content"
         >
           We use cookies and similar tools to:
           <ul>
@@ -114,7 +114,7 @@ const PrivacyPolicyProfile = ({
         <Typography variant="h6">2. How We Use Your Information</Typography>
         <Typography
           component="div"
-          className="user-agreement-content"
+          className="user-agreement-profile-content"
         >
           We may use collected information to:
           <ul>
@@ -134,21 +134,21 @@ const PrivacyPolicyProfile = ({
 
         {/* section 3 */}
         <Typography variant="h6">3. How We Share Your Information</Typography>
-        <Typography className="user-agreement-content">
+        <Typography className="user-agreement-profile-content">
           We do <b>not</b> sell your personal information.
           <br />
           <br />
           We may share information with:
         </Typography>
         <Typography variant="subtitle1">3.1 Service Providers</Typography>
-        <Typography className="user-agreement-content">
+        <Typography className="user-agreement-profile-content">
           Trusted vendors who help us operate the App (hosting, analytics, email
           services, etc.).
         </Typography>
         <Typography variant="subtitle1">3.2 Legal Requirements</Typography>
         <Typography
           component="div"
-          className="user-agreement-content"
+          className="user-agreement-profile-content"
         >
           We may disclose information if required to:
           <ul>
@@ -159,7 +159,7 @@ const PrivacyPolicyProfile = ({
           </ul>
         </Typography>
         <Typography variant="subtitle1">3.3 User-Submitted Content</Typography>
-        <Typography className="user-agreement-content">
+        <Typography className="user-agreement-profile-content">
           Any content you choose to make public (trips, photos, highlights) can
           be viewed by others.
         </Typography>
@@ -168,7 +168,7 @@ const PrivacyPolicyProfile = ({
         <Typography variant="h6">4. Data Storage and Security</Typography>
         <Typography
           component="div"
-          className="user-agreement-content"
+          className="user-agreement-profile-content"
         >
           We take reasonable technical and administrative measures to protect
           your data from:
@@ -189,7 +189,7 @@ const PrivacyPolicyProfile = ({
         <Typography variant="h6">5. Your Choices and Rights</Typography>
         <Typography
           component="div"
-          className="user-agreement-content"
+          className="user-agreement-profile-content"
         >
           Depending on your location, you may have the right to:
           <ul>
@@ -210,7 +210,7 @@ const PrivacyPolicyProfile = ({
         <Typography variant="h6">6. Data Retention</Typography>
         <Typography
           component="div"
-          className="user-agreement-content"
+          className="user-agreement-profile-content"
         >
           We retain data for as long as necessary to:
           <ul>
@@ -225,7 +225,7 @@ const PrivacyPolicyProfile = ({
 
         {/* section 7 */}
         <Typography variant="h6">7. Children's Privacy</Typography>
-        <Typography className="user-agreement-content">
+        <Typography className="user-agreement-profile-content">
           TravelTips is not intended for children under 13.
           <br />
           <br />
@@ -237,7 +237,7 @@ const PrivacyPolicyProfile = ({
 
         {/* section 8 */}
         <Typography variant="h6">8. International Data Transfers</Typography>
-        <Typography className="user-agreement-content">
+        <Typography className="user-agreement-profile-content">
           Your information may be processed or stored in servers located outside
           your country.
           <br />
@@ -250,7 +250,7 @@ const PrivacyPolicyProfile = ({
         <Typography variant="h6">
           9. Third-Party Websites and Services
         </Typography>
-        <Typography className="user-agreement-content">
+        <Typography className="user-agreement-profile-content">
           The App may contain links to external sites not operated by
           TravelTips.
           <br />
@@ -261,7 +261,7 @@ const PrivacyPolicyProfile = ({
 
         {/* section 10 */}
         <Typography variant="h6">10. Changes to This Privacy Policy</Typography>
-        <Typography className="user-agreement-content">
+        <Typography className="user-agreement-profile-content">
           We may update this Privacy Policy from time to time.
           <br />
           <br />
@@ -276,7 +276,7 @@ const PrivacyPolicyProfile = ({
         <Typography variant="h6">11. Advertising and Cookies</Typography>
         <Typography
           component="div"
-          className="user-agreement-content"
+          className="user-agreement-profile-content"
         >
           The App may use third-party advertising services, including Google Ads
           and Google AdSense, which may use cookies, web beacons, or similar
@@ -304,7 +304,7 @@ const PrivacyPolicyProfile = ({
         </Typography>
         <Typography
           component="div"
-          className="user-agreement-content"
+          className="user-agreement-profile-content"
         >
           Google may use the following cookies and technologies:
           <ul>
@@ -331,7 +331,7 @@ const PrivacyPolicyProfile = ({
         <Typography variant="subtitle1">11.2 Your Choices</Typography>
         <Typography
           component="div"
-          className="user-agreement-content"
+          className="user-agreement-profile-content"
         >
           Depending on your location, you may:
           <ul>
@@ -355,7 +355,7 @@ const PrivacyPolicyProfile = ({
 
         {/* section 12 */}
         <Typography variant="h6">12. Contact Us</Typography>
-        <Typography className="user-agreement-content">
+        <Typography className="user-agreement-profile-content">
           If you have questions about this Privacy Policy, or want to exercise
           your rights, contact us at:
           <br />
@@ -369,29 +369,29 @@ const PrivacyPolicyProfile = ({
 
       {/* agreement checking */}
       {!readonly ? (
-        <Box className="user-agreement-checking-container">
+        <Box className="user-agreement-profile-checking-container">
           <Box
-            className="user-agreement-checking-content-container"
+            className="user-agreement-profile-checking-content-container"
             onClick={() => setChecked((prev) => !prev)}
           >
             <Checkbox
-              className="user-agreement-checkbox"
+              className="user-agreement-profile-checkbox"
               color="default"
               checked={checked}
             />
-            <Typography className="user-agreement-content">
+            <Typography className="user-agreement-profile-content">
               I <b>understand</b> that TravelTips is built on Christian values,
               and I <b>agree to respect</b> them when <b>using the platform.</b>
             </Typography>
           </Box>
 
-          <Box className="user-agreement-checking-content-container">
+          <Box className="user-agreement-profile-checking-content-container">
             <TTButton circular variant="outlined" onClick={back}>
               Back
             </TTButton>
-            <Typography className="user-agreement-checking-helper"/>
+            <Typography className="user-agreement-profile-checking-helper"/>
             <TTButton
-              className="user-agreement-checkbox-button"
+              className="user-agreement-profile-checkbox-button"
               circular
               disabled={!checked}
               onClick={next}

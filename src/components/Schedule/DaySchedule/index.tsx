@@ -18,8 +18,8 @@ type DayScheduleProps = {
   showHourMarkers?: boolean;
   lastGeoCoordinate?: GeoCoordinate | undefined;
   setLastGeoCoordinate?: (state: GeoCoordinate) => void;
-  syncAddDayTaos: (state: Tao) => void;
-  syncEditDayTaos: (state: Tao) => void;
+  asyncAddDayTaos: (state: Tao) => void;
+  asyncEditDayTaos: (state: Tao) => void;
   readonly?: boolean;
 };
 
@@ -31,8 +31,8 @@ const DaySchedule = ({
   showHourMarkers = true,
   lastGeoCoordinate,
   setLastGeoCoordinate,
-  syncAddDayTaos,
-  syncEditDayTaos,
+  asyncAddDayTaos,
+  asyncEditDayTaos,
   readonly = false,
 }: DayScheduleProps) => {
   // behavior - index of time entries
@@ -330,8 +330,8 @@ const DaySchedule = ({
         end={end}
         lastGeoCoordinate={lastGeoCoordinate}
         setLastGeoCoordinate={setLastGeoCoordinate}
-        syncAddDayTaos={syncAddDayTaos}
-        syncEditDayTaos={syncEditDayTaos}
+        asyncAddDayTaos={asyncAddDayTaos}
+        asyncEditDayTaos={asyncEditDayTaos}
       />
     </Box>
   );
