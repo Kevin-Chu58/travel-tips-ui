@@ -49,34 +49,34 @@ const HighlightProfile = () => {
 
   // sync methods
 
-  const syncHighligts = () => {
+  const asyncHighligts = () => {
         setHighlights([...highlightsRef.current]);
   };
 
-  const syncAddHighlight = (highlight?: Highlight) => {
+  const asyncAddHighlight = (highlight?: Highlight) => {
     if (highlight) {
       highlightsRef.current.push(highlight);
-      syncHighligts();
+      asyncHighligts();
     }
   };
 
-  const syncUpdateHighlight = (highlight?: Highlight) => {
+  const asyncUpdateHighlight = (highlight?: Highlight) => {
     if (highlight) {
       let highlightId = highlightsRef.current.findIndex((h) => h.id === highlight.id);
 
       if (highlightId >= 0) {
         highlightsRef.current[highlightId] = highlight;
-        syncHighligts();
+        asyncHighligts();
       }
     }
   };
 
-  const syncDeleteHighlight = (highlight: Highlight) => {
+  const asyncDeleteHighlight = (highlight: Highlight) => {
     if (highlightsRef.current) {
       highlightsRef.current = highlightsRef.current.filter(
         (h) => h.id !== highlight.id
       );
-      syncHighligts();
+      asyncHighligts();
     }
   };
 
@@ -133,7 +133,7 @@ const HighlightProfile = () => {
       );
 
       await BehaviorUtils.sleep();
-      syncDeleteHighlight(deletedHighlight);
+      asyncDeleteHighlight(deletedHighlight);
 
       setIsDeleting(false);
       enqueueSnackbar("Successfully deleted highlight.", {
@@ -159,8 +159,8 @@ const HighlightProfile = () => {
           highlights={highlights}
           isHighlightLoading={isHighlightLoading}
           setDeleteHighlightId={setDeleteHighlightId}
-          syncAddHighlight={syncAddHighlight}
-          syncUpdateHighlight={syncUpdateHighlight}
+          asyncAddHighlight={asyncAddHighlight}
+          asyncUpdateHighlight={asyncUpdateHighlight}
         />
       </Box>
 

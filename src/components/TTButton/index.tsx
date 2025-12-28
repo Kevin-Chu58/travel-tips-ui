@@ -15,6 +15,7 @@ type TTButtonProps = {
   fullWidth?: boolean;
   disabled?: boolean;
   disableRipple?: boolean;
+  circular?: boolean;
   onClick?: () => void;
   sx?: SxProps;
   children?: ReactNode;
@@ -33,6 +34,7 @@ const TTButton = ({
   fullWidth = false,
   disabled = false,
   disableRipple = false,
+  circular = false,
   onClick = () => {},
   sx,
   children,
@@ -42,6 +44,7 @@ const TTButton = ({
   let muiButtonRootSx = {
     "&.MuiButton-root": {
       textTransform: "capitalize",
+      borderRadius: circular ? "100rem" : "default",
       ...sx,
     },
   } as SxProps;

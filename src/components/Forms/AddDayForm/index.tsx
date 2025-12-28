@@ -17,7 +17,7 @@ import "./index.scss";
 type AddDayFormProps = {
   tripId?: number;
   tripBasicRef: React.RefObject<Trip | undefined>;
-  syncTrip: () => void;
+  asyncTrip: () => void;
   open: boolean;
   onClose: () => void;
 };
@@ -25,7 +25,7 @@ type AddDayFormProps = {
 const AddDayForm = ({
   tripId,
   tripBasicRef,
-  syncTrip,
+  asyncTrip,
   open,
   onClose,
 }: AddDayFormProps) => {
@@ -47,7 +47,7 @@ const AddDayForm = ({
         BehaviorUtils.sleep();
 
         tripBasicRef.current!.numDays! += 1;
-        syncTrip();
+        asyncTrip();
 
         enqueueSnackbar("Successfully create a day.", { variant: "success" });
       } catch (e) {

@@ -20,7 +20,7 @@ type ImageSelectorProps = {
   tripId?: number;
   imageIds: number[];
   disabled?: boolean;
-  syncAddImage: (state: Image) => void;
+  asyncAddImage: (state: Image) => void;
   readonly?: boolean;
   children: ReactNode;
 };
@@ -29,7 +29,7 @@ const ImageSelector = ({
   tripId,
   imageIds,
   disabled = false,
-  syncAddImage,
+  asyncAddImage,
   readonly = false,
   children,
 }: ImageSelectorProps) => {
@@ -150,7 +150,7 @@ const ImageSelector = ({
         onClose={handleCloseLibraryDialog}
         imageIds={imageIds}
         tripId={tripId}
-        syncAddImage={syncAddImage}
+        asyncAddImage={asyncAddImage}
       />
 
       {/* dialog - cropper */}
@@ -159,7 +159,7 @@ const ImageSelector = ({
         onClose={handleCloseCropperDialog}
         imageSrc={imageSrc}
         tripId={tripId}
-        syncAddImage={syncAddImage}
+        asyncAddImage={asyncAddImage}
       />
     </React.Fragment>
   );

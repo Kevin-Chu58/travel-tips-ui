@@ -9,6 +9,7 @@ type TripsToolProps = {
   sortTypeIndex: number;
   setSortTypeIndex: (state: number) => void;
   selected: number[];
+  addOnClick: () => void;
   tripsRef: React.RefObject<Trip[]>;
   getMyTrips: () => void;
   asyncTrips: (state: Trip[]) => void;
@@ -19,6 +20,7 @@ const TripsTool = ({
   sortTypeIndex,
   setSortTypeIndex,
   selected,
+  addOnClick,
   tripsRef,
   getMyTrips,
   asyncTrips,
@@ -47,6 +49,8 @@ const TripsTool = ({
       setSortType={setSortTypeIndex}
       sortTypes={sortTypes}
       selected={selected}
+      addOnClick={addOnClick}
+      addLabel="New Trip"
     />
   );
 };

@@ -22,6 +22,7 @@
   --grey-700: #616161;
   --grey-800: #424242;
   --grey-900: #212121;
+  --grey-1000: #101010;
 
   --primary-main: #e4572e;
   --primary-100: #faded5;
@@ -163,6 +164,19 @@ body {
 
   overflow-y: auto;
   overflow-x: hidden;
+}
+
+// custom styled typography - TODO
+
+.theme-typography {
+  &.MuiTypography-root {
+    &.MuiTypography-h6 {
+      font-size: 1.4rem;
+    }
+    &.MuiTypography-subtitle1 {
+      font-size: 1.25rem;
+    }
+  }
 }
 
 a {

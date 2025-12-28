@@ -1,0 +1,60 @@
+.stepper-container {
+  margin: 0 auto;
+
+  .MuiStep-root {
+    $radius: 1.5rem;
+    $line-width: 0.4rem;
+
+    .MuiStepConnector-root {
+      top: calc($radius - $line-width/2);
+      left: calc(-50% + $radius);
+      right: calc(50% + $radius);
+
+      .MuiStepConnector-line {
+        height: $line-width;
+        border-top-width: 0;
+        background-color: var(--grey-500);
+      }
+    }
+
+    .stepper-label {
+      .MuiSvgIcon-root {
+        width: $radius * 2;
+        height: $radius * 2;
+      }
+
+      .MuiStepLabel-alternativeLabel {
+        font-size: 1.4rem;
+        font-family: lily script one;
+      }
+    }
+
+    &.reached {
+      .MuiStepConnector-line {
+        background: var(--success-700);
+      }
+    }
+
+    &.Mui-completed {
+      .MuiStepIcon-root {
+        color: var(--success-700);
+      }
+    }
+
+    .Mui-active {
+      .MuiStepIcon-root {
+        color: black;
+      }
+    }
+
+    &.Mui-completed {
+      .MuiStepIcon-root {
+        color: var(--success-700);
+      }
+    }
+  }
+}
+
+.stepper-content-container {
+  margin-top: 2rem;
+}

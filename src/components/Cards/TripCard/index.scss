@@ -13,7 +13,7 @@
   border-radius: 1rem;
   background-color: var(--primary-main);
   box-shadow: $box-shadow;
-  overflow: hidden;
+  // overflow: hidden;
   display: flex;
   flex-direction: column;
   position: relative;
@@ -55,7 +55,7 @@
 }
 
 .trip-card-info-box {
-  margin-top: 1rem;
+  margin-top: .8rem;
 }
 
 .trip-card-title {
@@ -67,9 +67,25 @@
   text-overflow: ellipsis;
 }
 
+.trip-card-error-menu-item {
+  .MuiSvgIcon-root {
+    fill: var(--error-main);
+  };
+
+  .MuiTypography-root {
+    color: var(--error-main);
+  }
+}
+
 .trip-card-num-days {
   font-size: .9rem;
   color: dimgrey;
+}
+
+.trip-card-chip-container {
+  display: flex;
+  margin: .25rem 0;
+  gap: .5rem;
 }
 
 .trip-card-delete-chip.MuiChip-root {

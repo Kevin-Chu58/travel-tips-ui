@@ -7,6 +7,14 @@
   flex-direction: column;
 }
 
+.preload-carousel-image-overflow-container {
+  overflow: hidden;
+  
+  &.circular-border {
+    border-radius: 1rem;
+  }
+}
+
 .preload-carousel-image-box {
   display: flex;
   height: 100%;
@@ -24,24 +32,31 @@
 }
 
 .preload-carousel-scroll-left-button-box {
-  left: 5px;
+  left: -5px;
+  &.inner {
+    left: 5px;
+  }
 }
 
 .preload-carousel-scroll-right-button-box {
-  right: 5px;
+  right: -5px;
+  &.inner {
+    right: 5px;
+  }
 }
 
 .preload-carousel-scroll-left-button-box,
 .preload-carousel-scroll-right-button-box {
   position: absolute;
-  top: 10px;
-  height: 100%;
+  top: 40%;
+  margin: auto 0;
   display: flex;
   align-items: center;
+  transition: all ease-in-out .2s;
 }
 
 .preload-carousel-scroll-button.MuiIconButton-root {
-  color: lightgrey;
+  color: grey;
   background-color: black;
   box-shadow: $mild_box_shadow_lg;
   border: none;

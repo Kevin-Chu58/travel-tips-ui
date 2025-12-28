@@ -10,6 +10,7 @@
 
   .MuiBackdrop-root {
     background-color: rgba(0, 0, 0, .8);
+    backdrop-filter: blur(4px);
   }
 
   .image-form-content-container {
@@ -17,7 +18,7 @@
     border-radius: 1rem;
     overflow: hidden;
     
-    box-shadow: $box-shadow-light;
+    box-shadow: $box-shadow;
   }
 
   .image-form-image-container {
@@ -85,6 +86,38 @@
     &:hover {
       color: var(--primary-main);
       background-color: rgba(255, 255, 255, .1);
+    }
+  }
+
+  .image-form-button-container {
+    margin: 0 auto;
+    margin-top: 2rem;
+    display: flex;
+    flex-direction: row;
+    gap: .2rem;
+    background-color: var(--grey-1000);
+    border-radius: .5rem;
+    box-shadow: $box-shadow;
+    width: fit-content;
+
+    .MuiDivider-root {
+      background-color: var(--grey-500);
+      margin: 1rem 0;
+    }
+
+    .image-form-icon-button.MuiIconButton-root {
+      margin: .5rem;
+      display: flex;
+      flex-direction: column;
+      color: var(--grey-500);
+
+      .image-form-svg-icon {
+        font-size: 1.8rem;
+      }
+
+      &:hover {
+        color: var(--primary-main);
+      }
     }
   }
 

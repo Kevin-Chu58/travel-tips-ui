@@ -31,6 +31,7 @@ const theme = createTheme({
     fontFamily: [
       "open sans",
       "noto serif",
+      "sora",
       "arial",
       "tagesschrift",
       "lily script one",

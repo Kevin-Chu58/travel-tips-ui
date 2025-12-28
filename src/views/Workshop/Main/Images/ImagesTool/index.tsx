@@ -2,12 +2,14 @@ import ListTool from "@components/ListTool";
 import type { SortType } from "@constants/Types";
 import type { Image } from "@services/images";
 import SortUtils from "@utils/SortUtils";
-import React, { useEffect } from "react";
+import React, { useEffect, type JSX } from "react";
 
 type ImagesToolProps = {
   sortTypes: SortType[];
   sortTypeIndex: number;
   setSortTypeIndex: (state: number) => void;
+  addOnClick: () => void;
+  addInput: JSX.Element;
   imagesRef: React.RefObject<Image[]>;
   getMyImages: () => void;
   asyncImages: (state: Image[]) => void;
@@ -17,6 +19,8 @@ const ImagesTool = ({
   sortTypes,
   sortTypeIndex,
   setSortTypeIndex,
+  addOnClick,
+  addInput,
   imagesRef,
   getMyImages,
   asyncImages,
@@ -39,6 +43,10 @@ const ImagesTool = ({
       sortType={sortTypeIndex}
       setSortType={setSortTypeIndex}
       sortTypes={sortTypes}
+      addOnClick={addOnClick}
+      addInput={addInput}
+      addIcon="upload"
+      addLabel="Upload Image"
     />
   );
 };

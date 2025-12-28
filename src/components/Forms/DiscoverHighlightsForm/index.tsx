@@ -14,14 +14,14 @@ import "./index.scss";
 
 type DiscoverHighlightsFormProps = {
   tao: Tao | undefined;
-  syncEditDayTaos: (state: Tao) => void;
+  asyncEditDayTaos: (state: Tao) => void;
   open: boolean;
   onClose: () => void;
 };
 
 const DiscoverHighlightsForm = ({
   tao,
-  syncEditDayTaos,
+  asyncEditDayTaos,
   open,
   onClose,
 }: DiscoverHighlightsFormProps) => {
@@ -68,7 +68,7 @@ const DiscoverHighlightsForm = ({
         let updatedTao = await taosService.patchTao(tao.id, taoPatch);
 
         await BehaviorUtils.sleep();
-        syncEditDayTaos(updatedTao);
+        asyncEditDayTaos(updatedTao);
 
         enqueueSnackbar("Successfully attached highlight.", {
           variant: "success",

@@ -1,0 +1,26 @@
+@use "../../stylings/layout" as *;
+
+.user-agreement-container {
+  height: $screen-height;
+  overflow-y: auto;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: black;
+  padding: 2rem 8rem;
+  box-sizing: border-box;
+
+  &.mobile {
+    padding: 2rem .5rem;
+  }
+
+  & > * {
+    flex-shrink: 0; // prevent children from being compressed
+    width: 100%;    // optional: make children fill horizontal space
+  }
+}
+
+.user-agreement-content-container {
+  max-width: 900px;
+}

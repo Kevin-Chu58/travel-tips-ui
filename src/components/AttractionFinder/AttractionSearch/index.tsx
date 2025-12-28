@@ -3,8 +3,9 @@ import { useIsMobile } from "@hooks/useIsMobile";
 import SearchIcon from "@mui/icons-material/Search";
 import {
   Box,
-  CircularProgress,
   Divider,
+  List,
+  ListItemButton,
   TextField,
   Typography,
 } from "@mui/material";
@@ -16,7 +17,7 @@ import type { GeoCoordinate } from "@constants/Types";
 import ActionSpan from "@components/ActionSpan";
 import ToolTip from "@components/ToolTip";
 import { enqueueSnackbar } from "notistack";
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "./index.scss";
 
 type AttractionSearchProps = {
@@ -44,14 +45,36 @@ const AttractionSearch = ({
     : "attraction-search-textfield";
   // search
   const [isSearchLoading, setIsSearchLoading] = useState<boolean>(false);
+  // search suggestion
+  const isSuggestionValid = search.split(" ").length <= 3;
+  const [suggestion, setSuggestion] = useState<string[]>([]);
+  const [enableSuggestion, setEnableSuggestion] = useState<boolean>(true);
+  // suggestion UI
+  const suggestionRef = useRef<HTMLDivElement | null>(null);
+  const rect = suggestionRef.current?.getBoundingClientRect();
 
-  const handleSearch = async () => {
-    if (search.length > 0 && geoCoordinate) {
+  useEffect(() => {
+    const timer = setTimeout(async () => {
+      // only asks for suggestion when search is not empty
+      if (enableSuggestion && search.length > 0 && isSuggestionValid) {
+        let searchSuggestion =
+          (await hereMapService.getSuggestionByName(search)) ?? []; // search has not changed for .5 second
+        setSuggestion(searchSuggestion);
+      }
+    }, 500);
+
+    return () => clearTimeout(timer); // reset timer when search changes
+  }, [search]);
+
+  const handleSearch = async (input?: string) => {
+    let searchInput = input ?? search;
+
+    if (searchInput.length > 0 && geoCoordinate) {
       try {
         setIsSearchLoading(true);
 
         const searchResult = await hereMapService.searchPlaceByName(
-          search,
+          searchInput,
           geoCoordinate.lat,
           geoCoordinate.lng
         );
@@ -73,6 +96,12 @@ const AttractionSearch = ({
     if (event.key === "Enter") {
       handleSearch();
     }
+  };
+
+  const handleSuggestionClick = (suggestInput: string) => {
+    setSearch(suggestInput);
+    setEnableSuggestion(false);
+    handleSearch(suggestInput);
   };
 
   return (
@@ -111,6 +140,7 @@ const AttractionSearch = ({
         </ToolTip>
       </TTIconButton>
       <TextField
+        ref={suggestionRef}
         disabled={isSearchLoading || !Boolean(geoCoordinate)}
         size="small"
         placeholder="Find Attraction"
@@ -118,18 +148,30 @@ const AttractionSearch = ({
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         onKeyDown={handleKeyDown}
+        onClick={() => setEnableSuggestion(true)}
       />
       <TTIconButton
         disabled={isSearchLoading || !Boolean(geoCoordinate)}
-        onClick={handleSearch}
+        onClick={() => handleSearch()}
         className="attraction-search-search-button"
+        loading={isSearchLoading}
       >
-        {isSearchLoading ? (
-          <CircularProgress size="1.4rem" sx={{ color: "white" }} />
-        ) : (
-          <SearchIcon />
-        )}
+        <SearchIcon />
       </TTIconButton>
+
+      {enableSuggestion && suggestion.length > 0 && rect ? (
+        <Box className="attraction-search-suggestion-container" top={rect.top} left={rect.left - rect.width}>
+          <List disablePadding className="attraction-search-suggestion-list">
+              {suggestion.map((suggestInput) => (
+                <ListItemButton
+                  onClick={() => handleSuggestionClick(suggestInput)}
+                >
+                  <Typography>{suggestInput}</Typography>
+                </ListItemButton>
+              ))}
+          </List>
+        </Box>
+      ) : undefined}
     </React.Fragment>
   );
 };

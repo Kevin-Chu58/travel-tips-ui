@@ -1,6 +1,8 @@
 import AttractionCard from "@components/Cards/AttractionCard";
 import { Box } from "@mui/material";
 import { type Attraction } from "@services/attractions";
+import { useIsMobile } from "@hooks/useIsMobile";
+import clsx from "clsx";
 import "./index.scss";
 
 type HighlightsProps = {
@@ -8,14 +10,15 @@ type HighlightsProps = {
   showHovers?: boolean;
 };
 
-const Highlights = ({
-  attractions,
-  showHovers,
-}: HighlightsProps) => {
+const Highlights = ({ attractions, showHovers }: HighlightsProps) => {
+  const isMobile = useIsMobile();
 
   return (
     <Box
-      className="workshop-main-content-highlights-container"
+      className={clsx(
+        "workshop-main-content-highlights-container",
+        isMobile && "mobile"
+      )}
     >
       {attractions.map((a) => (
         <AttractionCard

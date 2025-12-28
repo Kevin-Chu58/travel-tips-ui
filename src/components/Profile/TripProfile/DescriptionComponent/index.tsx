@@ -9,14 +9,14 @@ import "./index.scss";
 
 type DescriptionComponentProps = {
   tripBasicRef: React.RefObject<Trip | undefined>;
-  syncTrip: () => void;
+  asyncTrip: () => void;
   isLoading: boolean;
   readonly?: boolean;
 };
 
 const DescriptionComponent = ({
   tripBasicRef,
-  syncTrip,
+  asyncTrip,
   isLoading,
   readonly = false,
 }: DescriptionComponentProps) => {
@@ -56,7 +56,7 @@ const DescriptionComponent = ({
         });
 
         tripBasicRef.current.description = tripPatch.description;
-        syncTrip();
+        asyncTrip();
         setIsEditingDescription(false);
       } catch (e) {
         if (e instanceof Error)

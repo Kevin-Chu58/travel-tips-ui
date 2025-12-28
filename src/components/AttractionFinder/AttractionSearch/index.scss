@@ -44,3 +44,15 @@
 .attraction-search-coordinate-tooltip-divider {
   background-color: white;
 }
+
+.attraction-search-suggestion-container {
+  position: absolute;
+  background-color: var(--primary-100);
+  border-radius: .5rem;
+  box-shadow: $mild_box_shadow;
+  overflow: hidden;
+}
+
+.attraction-search-suggestion-list {
+  background-color: white;
+}

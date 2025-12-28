@@ -28,7 +28,7 @@ type AttractionFinderProps = {
   setOpen: (isOpen: boolean) => void;
   lastGeoCoordinate?: GeoCoordinate | undefined;
   setLastGeoCoordinate?: (state: GeoCoordinate) => void;
-  syncAddAttraction?: (state: Attraction) => void;
+  asyncAddAttraction?: (state: Attraction) => void;
   setParentAttraction?: (state: Attraction) => void;
 };
 
@@ -37,7 +37,7 @@ const AttractionFinder = ({
   setOpen,
   lastGeoCoordinate,
   setLastGeoCoordinate,
-  syncAddAttraction,
+  asyncAddAttraction,
   setParentAttraction,
 }: AttractionFinderProps) => {
   // window
@@ -79,7 +79,7 @@ const AttractionFinder = ({
     setSearch("");
     setFocusId(undefined);
     setResult([]);
-    setGeoCoordinate(undefined);
+    // setGeoCoordinate(undefined);
     setDescription("");
     // hide the animation of shifting back to right side
     await BehaviorUtils.sleep(100);
@@ -149,7 +149,7 @@ const AttractionFinder = ({
         });
 
         // add attraction after posted to database
-        if (syncAddAttraction) syncAddAttraction(attraction);
+        if (asyncAddAttraction) asyncAddAttraction(attraction);
 
         setIsPosting(false);
         handleClose();

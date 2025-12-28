@@ -13,18 +13,18 @@ import { Cropper, type ReactCropperElement } from "react-cropper";
 import { useIsMobile } from "@hooks/useIsMobile";
 import { enqueueSnackbar } from "notistack";
 import { tripsService } from "@services/trips";
-import imageCompression from "browser-image-compression";
 import { ImagesService, type Image } from "@services/images";
 import { BehaviorUtils } from "@utils/BehaviorUtils";
 import clsx from "clsx";
 import "./index.scss";
+import { ImageUtils } from "@utils/ImageUtils";
 
 type CropperDialogProps = {
   open: boolean;
   onClose: () => void;
   imageSrc: string | null;
   tripId?: number;
-  syncAddImage: (state: Image) => void;
+  asyncAddImage: (state: Image) => void;
 };
 
 const CropperDialog = ({
@@ -32,7 +32,7 @@ const CropperDialog = ({
   onClose,
   imageSrc = null,
   tripId,
-  syncAddImage,
+  asyncAddImage,
 }: CropperDialogProps) => {
   // window
   const isMobile = useIsMobile();
@@ -80,38 +80,17 @@ const CropperDialog = ({
       // Convert Blob to File
       const fileFromBlob = new File([blob], "cropped.jpg", { type: blob.type });
 
-      // Compression options
-      const options = {
-        maxSizeMB: 0.08, // target max size
-        maxWidthOrHeight: 1000, // resize if larger
-        useWebWorker: true,
-      };
-
       try {
         // Compress image
-        const compressedBlob = await imageCompression(fileFromBlob, options);
-
-        if (compressedBlob.size > 80 * 1024) {
-          enqueueSnackbar("Cropped image must be smaller than 80 KB", {
-            variant: "error",
-          });
-          return;
-        }
-
+        const compressedBlob = await ImageUtils.compressImage(fileFromBlob);
         setIsLoading(true);
 
-        const newImage = await ImagesService.uploadImage(
-          compressedBlob,
-          name
-        );
+        const newImage = await ImagesService.uploadImage(compressedBlob, name);
 
-        syncAddImage(newImage);
+        asyncAddImage(newImage);
 
         if (tripId) {
-          await tripsService.postTripImage(
-            tripId,
-            newImage.id
-          );
+          await tripsService.postTripImage(tripId, newImage.id);
 
           enqueueSnackbar("Successfully uploaded image.", {
             variant: "success",
@@ -192,7 +171,8 @@ const CropperDialog = ({
             </Typography>
             <Typography className="cropper-dialog-secondary-text">
               Preview updates automatically as you adjust the crop.
-              <br/>*All images are converted to jpeg format.
+              <br />
+              *All images are converted to jpeg format.
             </Typography>
 
             {/* image preview */}

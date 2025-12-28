@@ -18,8 +18,8 @@ type HighlightsFragmentProps = {
   setDeleteHighlightId?: (state: number | undefined) => void;
   selectHighlightId?: number;
   setSelectHighlightId?: (state: number | undefined) => void;
-  syncAddHighlight?: (state?: Highlight) => void;
-  syncUpdateHighlight?: (state?: Highlight) => void;
+  asyncAddHighlight?: (state?: Highlight) => void;
+  asyncUpdateHighlight?: (state?: Highlight) => void;
 };
 
 const HighlightsFragment = ({
@@ -30,8 +30,8 @@ const HighlightsFragment = ({
   setDeleteHighlightId,
   selectHighlightId,
   setSelectHighlightId,
-  syncAddHighlight,
-  syncUpdateHighlight,
+  asyncAddHighlight,
+  asyncUpdateHighlight,
 }: HighlightsFragmentProps) => {
   // post
   const [openPost, setOpenPost] = useState<boolean>(false);
@@ -46,7 +46,7 @@ const HighlightsFragment = ({
       highlight={highlight}
       showMenu={allowChangeHighlight}
       isLast={noDivider || i + 1 === highlights.length}
-      onUpdate={syncUpdateHighlight}
+      onUpdate={asyncUpdateHighlight}
       onDelete={setDeleteHighlightId}
     />
   );
@@ -103,7 +103,7 @@ const HighlightsFragment = ({
             <React.Fragment>
               <HighlightForm
                 highlight={{ ...getDefaultHighlight(attraction.id) }}
-                onAction={syncAddHighlight}
+                onAction={asyncAddHighlight}
                 onClose={() => setOpenPost(false)}
                 isPost
               />

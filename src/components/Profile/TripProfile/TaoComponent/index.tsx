@@ -37,7 +37,7 @@ type TaoComponentProps = {
   routeResponsesMapRef: React.RefObject<Map<number, HereRoutingResponse[]>>;
   routeResponses: HereRoutingResponse[] | undefined;
   setRouteResponses: (state: HereRoutingResponse[]) => void;
-  syncEditDayTaos: (state: Tao) => void;
+  asyncEditDayTaos: (state: Tao) => void;
   onClose: () => void;
   readonly?: boolean;
 };
@@ -49,7 +49,7 @@ const TaoComponent = ({
   routeResponsesMapRef,
   routeResponses,
   setRouteResponses,
-  syncEditDayTaos,
+  asyncEditDayTaos,
   onClose,
   readonly = false,
 }: TaoComponentProps) => {
@@ -101,7 +101,7 @@ const TaoComponent = ({
         };
 
         let updatedTao = await taosService.patchTao(tao.id, taoPatch);
-        syncEditDayTaos(updatedTao);
+        asyncEditDayTaos(updatedTao);
         setDescription("");
 
         enqueueSnackbar("Successfully created highlight for this event.", {
@@ -119,7 +119,7 @@ const TaoComponent = ({
     if (tao) {
       try {
         let updatedTao = { ...tao, highlight: highlight };
-        syncEditDayTaos(updatedTao);
+        asyncEditDayTaos(updatedTao);
         console.log(highlight);
         setHighlight(highlight);
       } catch (e) {
@@ -134,7 +134,7 @@ const TaoComponent = ({
     if (tao) {
       try {
         let updatedTao = await taosService.patchTaoDetachHighlight(tao.id);
-        syncEditDayTaos(updatedTao);
+        asyncEditDayTaos(updatedTao);
 
         enqueueSnackbar("Successfully detached highlight.", {
           variant: "success",
@@ -166,7 +166,7 @@ const TaoComponent = ({
         setTransportMode(newTransportMode);
 
         let updatedTao = { ...tao, transportMode: newTransportMode };
-        syncEditDayTaos(updatedTao);
+        asyncEditDayTaos(updatedTao);
 
         let updatedRouteResponse = await hereMapService.getRoutingByTaoId(
           tao.id
@@ -414,7 +414,7 @@ const TaoComponent = ({
         tao={tao}
         open={openDiscoverHighlights}
         onClose={() => setOpenDiscoverHighlights(false)}
-        syncEditDayTaos={syncEditDayTaos}
+        asyncEditDayTaos={asyncEditDayTaos}
       />
     </Box>
   );

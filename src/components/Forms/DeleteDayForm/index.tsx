@@ -16,7 +16,7 @@ type DeleteDayFormProps = {
   day: Day | undefined;
   dayId: number | undefined;
   tripBasicRef: React.RefObject<Trip | undefined>;
-  syncDeleteDay: () => void;
+  asyncDeleteDay: () => void;
 };
 
 const DeleteDayForm = ({
@@ -25,7 +25,7 @@ const DeleteDayForm = ({
   day,
   dayId,
   tripBasicRef,
-  syncDeleteDay,
+  asyncDeleteDay,
 }: DeleteDayFormProps) => {
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
 
@@ -52,7 +52,7 @@ const DeleteDayForm = ({
         setIsDeleting(false);
 
         tripBasicRef.current!.numDays! -= 1;
-        syncDeleteDay();
+        asyncDeleteDay();
 
         enqueueSnackbar("Successfully deleted day.", { variant: "success" });
       }

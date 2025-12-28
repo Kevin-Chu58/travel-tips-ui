@@ -1,7 +1,6 @@
-import { Box, Container, Drawer, Fab, Typography } from "@mui/material";
+import { Box, Container, Drawer, Typography } from "@mui/material";
 import { tripsService, type Trip } from "@services/trips";
 import { useEffect, useRef, useState } from "react";
-import AddIcon from "@mui/icons-material/Add";
 import type { NavTab } from "@constants/Types";
 import TripForm from "@components/Forms/TripForm";
 import { Route, Routes } from "react-router";
@@ -31,7 +30,6 @@ import SortUtils, {
   sortTypeTitleDesc,
 } from "@utils/SortUtils";
 import "./index.scss";
-import clsx from "clsx";
 
 const Main = () => {
   // windows
@@ -60,14 +58,6 @@ const Main = () => {
   const [selected, setSelected] = useState<number[]>([]);
   // drawer
   const [openDrawer, setOpenDrawer] = useState<boolean>(false);
-  // hide UI (e.g. fab add button) when forms are opened
-  const [isFormOpened, setIsFormOpened] = useState<boolean>(false); // not to open form, but just tracking forms other than add forms
-  const showUI = !(
-    isAddTripOpen ||
-    isAddHighlightOpen ||
-    isAddImageOpen ||
-    isFormOpened
-  );
   // ref
   const fileInputRef = useRef<HTMLInputElement>(null);
   //sortTypes
@@ -90,6 +80,19 @@ const Main = () => {
     sortTypeNameDesc,
   ];
 
+  // rerender to top of the scrollbar when nav tab changes
+  useEffect(() => {
+    const container = document.querySelector(
+      ".workshop-main-content-container"
+    ) as HTMLElement | null;
+    if (!container) return;
+
+    requestAnimationFrame(() => {
+      container.style.scrollBehavior = "auto";
+      container.scrollTop = 0;
+    });
+  }, [navTabValue]);
+
   // async functions
 
   const asyncTrips = (trips: Trip[]) => {
@@ -107,21 +110,28 @@ const Main = () => {
     setImages(images);
   };
 
-  // sync functions
+  // async functions
 
   const getMyTrips = async () => {
     const myTrips = await tripsService.getMyTrips();
     asyncTrips(SortUtils.sortList(myTrips, tripsSortTypes, sortTypeIndex));
   };
 
-  const syncAddTrip = async (trip: Trip) => {
+  const asyncAddTrip = async (trip: Trip) => {
     tripsRef.current.push(trip);
     asyncTrips(
       SortUtils.sortList(tripsRef.current, tripsSortTypes, sortTypeIndex)
     );
   };
 
-  const syncDeleteTrip = async (trip: Trip) => {
+  const asyncUpdateTrip = async (trip: Trip) => {
+    const trips = tripsRef.current;
+    const tripIndex = trips.findIndex((t) => t.id === trip.id);
+    trips[tripIndex] = trip;
+    asyncTrips(SortUtils.sortList(trips, tripsSortTypes, sortTypeIndex));
+  };
+
+  const asyncDeleteTrip = async (trip: Trip) => {
     let filteredTrips = tripsRef.current.filter(
       (_trip) => _trip.id !== trip.id
     );
@@ -137,7 +147,7 @@ const Main = () => {
     );
   };
 
-  const syncAddAttraction = async (attraction: Attraction) => {
+  const asyncAddAttraction = async (attraction: Attraction) => {
     let attractions = attractionsRef.current;
     const attractionIndex = attractions.findIndex(
       (_attraction) => _attraction.id === attraction.id
@@ -159,14 +169,14 @@ const Main = () => {
     asyncImages(SortUtils.sortList(myImages, imagesSortTypes, sortTypeIndex));
   };
 
-  const syncAddImage = async (image: Image) => {
+  const asyncAddImage = async (image: Image) => {
     imagesRef.current.push(image);
     asyncImages(
       SortUtils.sortList(imagesRef.current, imagesSortTypes, sortTypeIndex)
     );
   };
 
-  const syncUpdateImage = async (image: Image) => {
+  const asyncUpdateImage = async (image: Image) => {
     let _image = imagesRef.current.find((_image) => _image.id === image.id);
     if (_image) {
       _image.name = image.name;
@@ -176,7 +186,7 @@ const Main = () => {
     }
   };
 
-  const syncDeleteImage = async (id: number) => {
+  const asyncDeleteImage = async (id: number) => {
     let filteredImages = imagesRef.current.filter((_image) => _image.id !== id);
     asyncImages(
       SortUtils.sortList(filteredImages, imagesSortTypes, sortTypeIndex)
@@ -239,13 +249,20 @@ const Main = () => {
       name: "Trips",
       index: true,
       path: "",
-      element: <Trips trips={trips} syncDeleteTrip={syncDeleteTrip} />,
+      element: (
+        <Trips
+          trips={trips}
+          asyncUpdateTrip={asyncUpdateTrip}
+          asyncDeleteTrip={asyncDeleteTrip}
+        />
+      ),
       tool: (
         <TripsTool
           sortTypes={tripsSortTypes}
           sortTypeIndex={sortTypeIndex}
           setSortTypeIndex={setSortTypeIndex}
           selected={selected}
+          addOnClick={() => setIsAddTripOpen(true)}
           tripsRef={tripsRef}
           getMyTrips={getMyTrips}
           asyncTrips={asyncTrips}
@@ -255,11 +272,9 @@ const Main = () => {
         <TripForm
           isOpen={isAddTripOpen}
           setIsOpen={setIsAddTripOpen}
-          syncAddTrip={syncAddTrip}
+          asyncAddTrip={asyncAddTrip}
         />
       ),
-      addFabOnClick: () => setIsAddTripOpen(true),
-      addFabLabel: "New Trip",
     },
     {
       name: "Highlights",
@@ -275,6 +290,7 @@ const Main = () => {
           sortTypes={attractionsSortTypes}
           sortTypeIndex={sortTypeIndex}
           setSortTypeIndex={setSortTypeIndex}
+          addOnClick={() => setIsAddHighlightOpen(true)}
           attractionsRef={attractionsRef}
           getMyAttractions={getMyAttractions}
           asyncAttractions={asyncAttractions}
@@ -286,11 +302,9 @@ const Main = () => {
         <AttractionFinder
           open={isAddHighlightOpen}
           setOpen={setIsAddHighlightOpen}
-          syncAddAttraction={syncAddAttraction}
+          asyncAddAttraction={asyncAddAttraction}
         />
       ),
-      addFabOnClick: () => setIsAddHighlightOpen(true),
-      addFabLabel: "New Highlight",
     },
     {
       name: "Images",
@@ -298,9 +312,8 @@ const Main = () => {
       element: (
         <Images
           images={images}
-          setIsFormOpened={setIsFormOpened}
-          syncUpdateImage={syncUpdateImage}
-          syncDeleteImage={syncDeleteImage}
+          asyncUpdateImage={asyncUpdateImage}
+          asyncDeleteImage={asyncDeleteImage}
         />
       ),
       tool: (
@@ -308,6 +321,16 @@ const Main = () => {
           sortTypes={imagesSortTypes}
           sortTypeIndex={sortTypeIndex}
           setSortTypeIndex={setSortTypeIndex}
+          addOnClick={openFileDialog}
+          addInput={
+            <input
+              type="file"
+              accept="image/*"
+              ref={fileInputRef}
+              className="image-selector-cropper-file-input"
+              onChange={handleFileChange}
+            />
+          }
           imagesRef={imagesRef}
           getMyImages={getMyImages}
           asyncImages={asyncImages}
@@ -318,18 +341,7 @@ const Main = () => {
           open={isAddImageOpen}
           onClose={() => setIsAddImageOpen(false)}
           imageSrc={imageSrc}
-          syncAddImage={syncAddImage}
-        />
-      ),
-      addFabOnClick: openFileDialog,
-      addFabLabel: "Upload Image",
-      addFabInput: (
-        <input
-          type="file"
-          accept="image/*"
-          ref={fileInputRef}
-          className="image-selector-cropper-file-input"
-          onChange={handleFileChange}
+          asyncAddImage={asyncAddImage}
         />
       ),
     },
@@ -373,42 +385,29 @@ const Main = () => {
 
                 {/* content */}
                 <Box className="workshop-main-content-container">
-                  <Box className="workshop-main-content-title-container">
-                    {isMobile && (
-                      <Hamburger toggled={false} toggle={setOpenDrawer} />
-                    )}
-                    <Typography
-                      className="workshop-main-content-title"
-                      variant="h4"
-                    >
-                      {route.name}
-                    </Typography>
-                  </Box>
+                  <Box className="workshop-main-content-header-container">
+                    <Box className="workshop-main-content-title-container">
+                      {isMobile && (
+                        <Hamburger
+                          size={24}
+                          toggled={false}
+                          toggle={setOpenDrawer}
+                        />
+                      )}
+                      <Typography className="workshop-main-content-title">
+                        {route.name}
+                      </Typography>
+                    </Box>
 
-                  {/* tools */}
-                  <Box className="workshop-main-content-tool-container">
-                    {route.tool}
+                    {/* tools */}
+                    <Box>{route.tool}</Box>
                   </Box>
 
                   {/* content list */}
-                  {route.element}
+                  <Box className="workshop-main-content-content-container">
+                    {route.element}
+                  </Box>
                 </Box>
-
-                {/* add icon */}
-                <Fab
-                  variant="extended"
-                  aria-label="add"
-                  onClick={route.addFabOnClick}
-                  disableRipple
-                  className={clsx(
-                    "workshop-main-content-add-icon-fab",
-                    showUI && "visible"
-                  )}
-                >
-                  <AddIcon />
-                  {route.addFabLabel}
-                  {route.addFabInput}
-                </Fab>
 
                 {/* new Item form */}
                 {route.addForm}

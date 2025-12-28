@@ -1,7 +1,7 @@
 import { StrictMode, type JSX } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter as Router } from "react-router-dom";
-import { Auth0Provider, type AppState } from "@auth0/auth0-react";
+import { Auth0Provider } from "@auth0/auth0-react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { SnackbarProvider } from 'notistack';
 import { ThemeProvider } from "@mui/material";
@@ -18,13 +18,6 @@ let audience = import.meta.env.VITE_AUTH0_AUDIENCE;
 const queryClient = new QueryClient();
 
 const Auth0Layer = (): JSX.Element => {
-  const onRedirectCallback = (appState?: AppState) => {
-    window.history.replaceState(
-      {},
-      document.title,
-      appState?.returnTo || window.location.pathname + window.location.search
-    );
-  };
 
   return (
     <Auth0Provider
@@ -35,7 +28,6 @@ const Auth0Layer = (): JSX.Element => {
         audience: audience,
         scope: 'openid profile email offline_access',
       }}
-      onRedirectCallback={onRedirectCallback}
       useRefreshTokens={true}
       cacheLocation="localstorage"
     >

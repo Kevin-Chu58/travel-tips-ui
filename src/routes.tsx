@@ -3,6 +3,9 @@ import Home from "./views/Home";
 import Main from "./views/Main";
 import Trip from "@views/Trip";
 import Guide from "@views/Guide";
+import AuthCallback from "@views/AuthCallback";
+import UserAgreement from "@views/UserAgreement";
+import Document from "@views/Document";
 
 const routes = [{
     name: "Main",
@@ -24,6 +27,18 @@ const routes = [{
     name: "Guide",
     path: "/guide",
     element: <Guide/>,
+}, {
+    name: "AuthCallback",
+    path: "/auth/callback",
+    element: <AuthCallback/>,
+}, {
+    name: "UserAgreement",
+    path: "/user-agreement",
+    element: <UserAgreement/>,
+}, {
+    name: "Document",
+    path: "/document",
+    element: <Document/>,
 }];
 
 export default routes;

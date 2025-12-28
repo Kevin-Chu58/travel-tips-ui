@@ -43,7 +43,7 @@
 }
 
 .attraction-list-item-focus.MuiButton-root {
-  background-color: var(--primary-100);
+  background-color: var(--info-100);
 }
 
 .attraction-list-item,
@@ -68,6 +68,11 @@
 .attraction-list-item-chip {
   margin-left: -.2rem;
   text-transform: capitalize;
+
+  &.MuiChip-root {
+  color: white;
+  background: linear-gradient(to right, var(--info-900), var(--info-500));
+}
 }
 
 .attraction-list-item-address.MuiTypography-root {

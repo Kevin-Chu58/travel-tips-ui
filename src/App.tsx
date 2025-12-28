@@ -2,20 +2,20 @@ import { Route, Routes, useNavigate } from "react-router";
 import HeaderBar from "./components/HeaderBar";
 import routes from "./routes";
 import { AuthInitializer } from "./AuthInitializer";
-import { useAuth0 } from "@auth0/auth0-react";
-import { useEffect } from "react";
 import { Box } from "@mui/material";
 import { UserBasicInitializer } from "./UserBasicInitializer";
+import { useSelector } from "react-redux";
+import type { RootState } from "@redux/store";
+import { useEffect } from "react";
 
 function App() {
-  const { isLoading, isAuthenticated } = useAuth0();
   const navigate = useNavigate();
+  const user = useSelector((state: RootState) => state.user);
 
-  // rerender to the correct page when login
   useEffect(() => {
-    if (!isLoading && isAuthenticated)
-      navigate(window.location.pathname + window.location.search);
-  }, [isLoading, isAuthenticated]);
+    // userAgreement is null in default
+    if (user.userAgreement === false) navigate("/user-agreement");
+  }, [user.userAgreement]);
 
   return (
     <Box id="app">
