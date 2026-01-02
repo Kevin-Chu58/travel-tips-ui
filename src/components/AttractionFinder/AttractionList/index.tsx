@@ -2,6 +2,8 @@ import TTButton from "@components/TTButton";
 import { useIsMobile } from "@hooks/useIsMobile";
 import { Box, Chip, Divider, Typography } from "@mui/material";
 import type { Attraction } from "@services/attractions";
+import NavButton from "@components/Button/NavButton";
+import MapUtils from "@utils/MapUtils";
 import React from "react";
 import "./index.scss";
 
@@ -55,7 +57,12 @@ const AttractionList = ({
               <Box className="attraction-list-item-content">
                 {/* attraction item header */}
                 <Box className="attraction-list-item-header">
-                  <Typography>{a.title}</Typography>
+                  <NavButton
+                    className="attraction-list-item-link"
+                    link={MapUtils.getGoogleMapLink(a.address ?? "")}
+                  >
+                    <Typography>{a.title}</Typography>
+                  </NavButton>
                 </Box>
                 <Typography className="attraction-list-item-address">
                   {a.address}

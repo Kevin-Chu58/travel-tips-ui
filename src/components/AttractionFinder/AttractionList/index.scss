@@ -1,4 +1,5 @@
 @use "../../../stylings/box_shadows" as *;
+@use "../../../stylings/color" as *;
 
 .attraction-list-header-box {
   display: flex;
@@ -65,14 +66,33 @@
   flex-direction: row;
 }
 
+.attraction-list-item-link {
+  text-decoration: none;
+
+  .MuiTypography-root {
+    color: black;
+  }
+
+  &:hover {
+    .MuiTypography-root {
+      background: $info-gradient-right;
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      -webkit-text-fill-color: transparent;
+    }
+    
+  }
+}
+
 .attraction-list-item-chip {
   margin-left: -.2rem;
   text-transform: capitalize;
 
   &.MuiChip-root {
-  color: white;
-  background: linear-gradient(to right, var(--info-900), var(--info-500));
-}
+    color: white;
+    background: $info-gradient-right;
+  }
 }
 
 .attraction-list-item-address.MuiTypography-root {

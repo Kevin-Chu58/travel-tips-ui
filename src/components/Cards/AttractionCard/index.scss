@@ -57,6 +57,16 @@
   font-size: 1.1rem;
 }
 
+.attraction-card-info-chip {
+  margin-left: -.2rem;
+  text-transform: capitalize;
+
+  &.MuiChip-root {
+    color: white;
+    background: $info-gradient-right;
+  }
+}
+
 .attraction-card-info-address.MuiTypography-root {
   font-size: 0.9rem;
   color: dimgrey;

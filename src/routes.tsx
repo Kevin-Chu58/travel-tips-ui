@@ -6,6 +6,7 @@ import Guide from "@views/Guide";
 import AuthCallback from "@views/AuthCallback";
 import UserAgreement from "@views/UserAgreement";
 import Document from "@views/Document";
+import Attraction from "@views/Attraction";
 
 const routes = [{
     name: "Main",
@@ -19,6 +20,10 @@ const routes = [{
     name: "Trip",
     path: "/trip/*",
     element: <Trip/>,
+}, {
+    name: "Attraction",
+    path: "/attraction/:attractionId",
+    element: <Attraction/>,
 }, {
     name: "Workshop",
     path: "/workshop/*",

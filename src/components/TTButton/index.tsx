@@ -16,7 +16,7 @@ type TTButtonProps = {
   disabled?: boolean;
   disableRipple?: boolean;
   circular?: boolean;
-  onClick?: () => void;
+  onClick?: React.MouseEventHandler<HTMLButtonElement>;
   sx?: SxProps;
   children?: ReactNode;
 };
@@ -65,7 +65,7 @@ const TTButton = ({
       href={to}
       onClick={(e) => {
         e.stopPropagation();
-        to ? navigate(to) : onClick();
+        to ? navigate(to) : onClick(e);
       }}
       sx={muiButtonRootSx}
     >

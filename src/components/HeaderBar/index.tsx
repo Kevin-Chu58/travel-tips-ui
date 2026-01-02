@@ -36,9 +36,6 @@ const HeaderBar = () => {
   const [anchorElUser, setAnchorElUser] = useState<HTMLElement | null>(); // user menu
   const onPage = location.pathname === "/" ? Pages.Main : Pages.Undefined;
 
-  // render on mount
-  // useEffect(() => {}, []);
-
   const headers = [
     {
       name: "home",

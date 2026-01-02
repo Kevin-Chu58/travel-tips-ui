@@ -2,29 +2,30 @@ import TTButton from "@components/TTButton";
 import TTDialog from "@components/TTDialog";
 import { Box, CircularProgress, Typography } from "@mui/material";
 import type { RootState } from "@redux/store";
-import { attractionsService, type Attraction } from "@services/attractions";
+import { attractionsService } from "@services/attractions";
 import { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router";
 import { highlightsService, type Highlight } from "@services/highlights";
-import { useIsMobile } from "@hooks/useIsMobile";
 import WarningIcon from "@mui/icons-material/Warning";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { BehaviorUtils } from "@utils/BehaviorUtils";
 import { useSnackbar } from "notistack";
 import AttractionFragment from "./AttractionFragment";
 import HighlightsFragment from "./HighlightsFragment";
+import { type HerePlace } from "@services/hereMap/hereMap";
+import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import "./index.scss";
 
-const HighlightProfile = () => {
-  // window
-  const isMobile = useIsMobile();
+type HighlightPropfileProps = {
+  back?: boolean;
+};
+
+const HighlightProfile = ({ back = false }: HighlightPropfileProps) => {
   // snackbar
   const { enqueueSnackbar } = useSnackbar();
-  // attraction
-  const [attraction, setAttraction] = useState<Attraction | undefined>();
-  const [isAttractionLoading, setIsAttractionLoading] =
-    useState<boolean>(false);
+  // herePlace
+  const [herePlace, setHerePlace] = useState<HerePlace | undefined>();
   // highlight
   const highlightsRef = useRef<Highlight[]>([]);
   const [highlights, setHighlights] = useState<Highlight[]>([]);
@@ -38,6 +39,7 @@ const HighlightProfile = () => {
   // others
   const userId = useSelector((state: RootState) => state.user.id);
   const { attractionId } = useParams();
+  const _attractionId = attractionId ? parseInt(attractionId) : undefined;
   const hasFetchedRef = useRef(false);
   const navigate = useNavigate();
 
@@ -50,7 +52,7 @@ const HighlightProfile = () => {
   // sync methods
 
   const asyncHighligts = () => {
-        setHighlights([...highlightsRef.current]);
+    setHighlights([...highlightsRef.current]);
   };
 
   const asyncAddHighlight = (highlight?: Highlight) => {
@@ -62,7 +64,9 @@ const HighlightProfile = () => {
 
   const asyncUpdateHighlight = (highlight?: Highlight) => {
     if (highlight) {
-      let highlightId = highlightsRef.current.findIndex((h) => h.id === highlight.id);
+      let highlightId = highlightsRef.current.findIndex(
+        (h) => h.id === highlight.id
+      );
 
       if (highlightId >= 0) {
         highlightsRef.current[highlightId] = highlight;
@@ -86,30 +90,26 @@ const HighlightProfile = () => {
       if (hasFetchedRef.current) return;
       hasFetchedRef.current = true;
 
-      if (attractionId && !attraction) {
+      if (_attractionId && !herePlace) {
         try {
-          setIsAttractionLoading(true);
-          // TODO - update this to HereMap & UpStash API services, with better information returned
-          const attraction = await attractionsService.getAttractionById(
-            parseInt(attractionId)
-          );
-          setAttraction(attraction);
-          setIsAttractionLoading(false);
+          const hereMapPlace =
+            await attractionsService.getHerePlaceByAttractionId(_attractionId);
+          setHerePlace(hereMapPlace);
         } catch (_) {
           navigate("/");
         }
       }
     };
     getAttraction();
-  }, [attractionId]);
+  }, [_attractionId]);
 
   // render highlights on userId
   useEffect(() => {
     const getHighlights = async () => {
-      if (attractionId && userId) {
+      if (_attractionId && userId) {
         setIsHighlightLoading(true);
         let highlights = await highlightsService.getHighlightsByAttractionId(
-          parseInt(attractionId),
+          _attractionId,
           userId ?? undefined
         );
         highlightsRef.current = highlights;
@@ -146,16 +146,24 @@ const HighlightProfile = () => {
   return (
     <Box className="highlight-profile-box" maxWidth="lg">
       <Box className="highlight-profile-content-box">
+        {/* nav back button */}
+        {back ? (
+          <Box>
+            <TTButton
+              label="back"
+              variant="text"
+              startIcon={<NavigateBeforeIcon />}
+              onClick={() => navigate(-1)}
+            />
+          </Box>
+        ) : undefined}
+
         {/* attraction */}
-        <AttractionFragment
-          attraction={attraction}
-          isAttractionLoading={isAttractionLoading}
-          isMobile={isMobile}
-        />
+        <AttractionFragment herePlace={herePlace} />
 
         {/* highlights */}
         <HighlightsFragment
-          attraction={attraction}
+          attractionId={_attractionId}
           highlights={highlights}
           isHighlightLoading={isHighlightLoading}
           setDeleteHighlightId={setDeleteHighlightId}

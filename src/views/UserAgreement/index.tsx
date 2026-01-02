@@ -13,10 +13,13 @@ import { enqueueSnackbar } from "notistack";
 import { setUserAgreement } from "@redux/userSlice";
 import clsx from "clsx";
 import "./index.scss";
+import { useAuth0 } from "@auth0/auth0-react";
 
 const UserAgreement = () => {
   // window
   const mobile = useIsMobile();
+  // auth
+  const { isLoading, isAuthenticated } = useAuth0();
   // user
   const user = useSelector((state: RootState) => state.user);
   const dispatch = useDispatch();
@@ -27,8 +30,8 @@ const UserAgreement = () => {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (user.userAgreement) navigate("/");
-  }, [user.userAgreement]);
+    if (user.userAgreement || (!isLoading && !isAuthenticated)) navigate("/");
+  }, [user.userAgreement, isLoading, isAuthenticated]);
 
   const changeStep = (change: number) => {
     setActiveStep(activeStep + change);

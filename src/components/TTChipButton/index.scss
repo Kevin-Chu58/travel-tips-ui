@@ -1,11 +1,33 @@
+@use "../../stylings/color" as *;
+@use "../../stylings/box_shadows" as *;
+
 .TTChipButton.MuiChip-root {
   cursor: pointer;
-  background-color: lightgrey;
+  background-color: var(--grey-300);
+  box-shadow: $mild_box_shadow;
   filter: brightness(1.05);
 
+  &.hovered,
   &:hover {
     color: white;
-    background: linear-gradient(to right, var(--info-900), var(--info-500));
+
+    &.info {
+      background: $info-gradient-right;
+    }
+    &.error {
+      background: $error-gradient-right;
+    }
+    &.success {
+      background: $success-gradient-right;
+    }
+
+    &.tripadvisor {
+      background: darkgreen;
+    }
+
+    &.yelp {
+      background: darkred;
+    }
 
     .MuiChip-icon {
       color: white;  

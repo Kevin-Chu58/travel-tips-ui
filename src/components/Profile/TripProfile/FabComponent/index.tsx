@@ -56,9 +56,9 @@ const FabComponent = ({
         setIsPublished(newPublishState);
 
         enqueueSnackbar(
-          `Successfully ${
-            tripBasicRef.current.isPublic ? "published" : "unpublished"
-          } the trip.`,
+          `Successfully make the trip ${
+            tripBasicRef.current.isPublic ? "public" : "private"
+          }.`,
           {
             variant: "success",
           }
@@ -72,10 +72,10 @@ const FabComponent = ({
 
   return (
     <React.Fragment>
-      {/* publish action - private/public status */}
+      {/* visibility action - private/public status */}
       {!readonly ? (
         <ToolTip
-          title={tripBasicRef.current?.isPublic ? "Unpublish" : "Publish"}
+          title={tripBasicRef.current?.isPublic ? "Private" : "Public"}
           placement="right"
         >
           <Fab

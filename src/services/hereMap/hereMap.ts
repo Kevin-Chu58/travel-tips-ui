@@ -1,6 +1,74 @@
 import type { Attraction } from "@services/attractions";
 import http from "@services/http";
 
+export interface HerePlace {
+  title: string;
+  id: string;
+  resultType: string;
+  address: HereAddress;
+  position: HerePosition;
+  access?: HerePosition[];
+  distance?: number;
+  categories?: HereCategory[];
+  references?: HereReference[];
+  contacts?: HereContact[];
+  openingHours?: HereOpeningHours[];
+  foodTypes?: HereFoodTypes[];
+}
+
+export interface HereAddress {
+  label: string;
+  countryCode?: string;
+  countryName?: string;
+  stateCode?: string;
+  state?: string;
+  county?: string;
+  city?: string;
+  district?: string;
+  street?: string;
+  postalCode?: string;
+  houseNumber?: string;
+}
+
+export interface HerePosition {
+  lat: number;
+  lng: number;
+}
+
+export interface HereCategory {
+  id: string;
+  name: string;
+  primary?: boolean;
+}
+
+export interface HereReference {
+  supplier?: HereSupplier;
+  id: string;
+}
+
+export interface HereSupplier {
+  id: string;  // "core", "tripadvisor", "yelp", etc.
+}
+
+export interface HereContact {
+  phone?: HereValue[];
+  www?: HereValue[];
+}
+
+export interface HereOpeningHours {
+  text?: string[];
+}
+
+export interface HereFoodTypes {
+  id: string;
+  name: string;
+  primary?: boolean;
+}
+
+export interface HereValue {
+  value: string;
+}
+
 export type HereRoutingResponse = {
   notices?: Notice[];
   routes?: Route[];

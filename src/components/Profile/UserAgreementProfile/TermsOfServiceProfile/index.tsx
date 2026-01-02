@@ -500,7 +500,7 @@ const TermsOfServiceProfile = ({
           </Box>
           <Box
             className="user-agreement-profile-checking-content-container"
-            onClick={() => setChecked((prev) => !prev)}
+            onClick={() => checkedSection7 ? setChecked((prev) => !prev) : undefined}
           >
             <Checkbox
               className="user-agreement-profile-checkbox"

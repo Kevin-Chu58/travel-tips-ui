@@ -1,5 +1,5 @@
 import Map from "@components/Map";
-import { Box, Typography } from "@mui/material";
+import { Box, Chip, Typography } from "@mui/material";
 import type { Attraction } from "@services/attractions";
 import MapUtils from "@utils/MapUtils";
 import { useState } from "react";
@@ -12,7 +12,10 @@ type AttractionCardProps = {
   showHovers?: boolean;
 };
 
-const AttractionCard = ({ attraction, showHovers = false }: AttractionCardProps) => {
+const AttractionCard = ({
+  attraction,
+  showHovers = false,
+}: AttractionCardProps) => {
   const [isHover, setIsHover] = useState<boolean>(false);
   const navigate = useNavigate();
 
@@ -36,7 +39,7 @@ const AttractionCard = ({ attraction, showHovers = false }: AttractionCardProps)
       className="attraction-card-box"
       onMouseEnter={() => setIsHover(true)}
       onMouseLeave={() => setIsHover(false)}
-      onClick={() => navigate(`/workshop/highlight/${attraction.id}`)}
+      onClick={() => navigate(`/attraction/${attraction.id}`)}
     >
       {/* attraction location on map (read-only) */}
       <Box className="attraction-card-map-box">
@@ -58,6 +61,14 @@ const AttractionCard = ({ attraction, showHovers = false }: AttractionCardProps)
         <Typography className="attraction-card-info-title">
           {attraction.title}
         </Typography>
+
+        {attraction.category && (
+          <Chip
+            size="small"
+            label={attraction.category}
+            className="attraction-card-info-chip"
+          />
+        )}
 
         <Typography className="attraction-card-info-address">
           {attraction.address}

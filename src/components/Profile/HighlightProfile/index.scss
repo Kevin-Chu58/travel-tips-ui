@@ -1,5 +1,6 @@
 .highlight-profile-box {
   color: black;
+  background-color: white;
   overflow-y: auto;
   display: flex;
   position: relative;
@@ -37,4 +38,18 @@
   justify-content: right;
   margin-top: 1;
   gap: .5rem;
+}
+
+.highlight-profile-button.MuiButton-root {
+  color: white;
+  background-color: black;
+  &:hover {
+    background-color: var(--grey-1000);
+  }
+}
+
+.highlight-profile-limit-text.MuiTypography-root {
+  margin-left: .5rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

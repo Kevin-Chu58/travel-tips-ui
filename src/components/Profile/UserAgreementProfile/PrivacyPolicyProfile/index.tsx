@@ -380,8 +380,7 @@ const PrivacyPolicyProfile = ({
               checked={checked}
             />
             <Typography className="user-agreement-profile-content">
-              I <b>understand</b> that TravelTips is built on Christian values,
-              and I <b>agree to respect</b> them when <b>using the platform.</b>
+              By checking the box, you agree to all terms in this full Privacy Policy.
             </Typography>
           </Box>
 

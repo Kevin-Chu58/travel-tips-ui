@@ -1,6 +1,5 @@
 import { Navigate, Route, Routes } from "react-router";
 import { useAuth0 } from "@auth0/auth0-react";
-import Highlight from "./Highlight";
 import Trip from "./Trip";
 import Main from "./Main";
 
@@ -16,7 +15,6 @@ const Workshop = () => {
       <Route path="/*" element={<Main />} />
       <Route path="/trip/:tripId" element={<Trip />} />
       <Route path="/trip/:tripId/day/:dayId" element={<Trip />} />
-      <Route path="/highlight/:attractionId" element={<Highlight />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

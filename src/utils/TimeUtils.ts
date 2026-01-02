@@ -1,10 +1,172 @@
 import { dayjsFormat, ha, HHmm, HHmmss, hmma } from "@constants/Times";
 import customParseFormat from "dayjs/plugin/customParseFormat";
+import type { Tao } from "@services/taos";
 import type { Dayjs } from "dayjs";
 import dayjs from "dayjs";
-import type { Tao } from "@services/taos";
 
 dayjs.extend(customParseFormat);
+
+// get surrounding dates
+
+export interface DateInfo {
+  day: string; // e.g., "Mon"
+  month: string; // e.g., "Jan"
+  dayOfMonth: number;
+  year: number;
+}
+
+const getSurroundingDates = (
+  center: Date = new Date(),
+  range: number = 4
+): DateInfo[] => {
+  const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const months = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+
+  const results: DateInfo[] = [];
+
+  for (let offset = -range; offset <= range; offset++) {
+    const d = new Date(center);
+    d.setDate(center.getDate() + offset);
+
+    results.push({
+      day: daysOfWeek[d.getDay()],
+      month: months[d.getMonth()],
+      dayOfMonth: d.getDate(),
+      year: d.getFullYear(),
+    });
+  }
+
+  return results;
+};
+
+// parse opening hours
+
+export interface DayHours {
+  start: string; // "09:00"
+  end: string;   // "17:00"
+}
+
+// Map day names to indices
+const dayIndex: Record<string, number> = {
+  Mon: 0,
+  Tue: 1,
+  Wed: 2,
+  Thu: 3,
+  Fri: 4,
+  Sat: 5,
+  Sun: 6,
+};
+
+const getDayIndex = (day: string) => {
+  return dayIndex[day];
+};
+
+/**
+ * @author ChatGPT
+ * weekHours must be an array of 7 elements (Mon=0 ... Sun=6)
+ * Each element is either { start, end } or null (closed)
+ */
+const isOpenNow = (weekHours: (DayHours | null)[]): boolean => {
+  const now = new Date();
+
+  // Convert JS day (Sun=0) → Mon=0...Sun=6
+  const dayIndex = (now.getDay() + 6) % 7;
+
+  const hours = weekHours[dayIndex];
+  if (!hours) return false; // closed today
+
+  const { start, end } = hours;
+
+  // Convert "HH:mm" -> minutes since midnight
+  const toMinutes = (str: string): number => {
+    const [h, m] = str.split(":").map(Number);
+    return h * 60 + m;
+  };
+
+  const startMin = toMinutes(start);
+  const endMin = toMinutes(end);
+  const nowMin = now.getHours() * 60 + now.getMinutes();
+
+  // Case 1: Normal same-day range (e.g. 09:00–17:00)
+  if (startMin < endMin) {
+    return nowMin >= startMin && nowMin < endMin;
+  }
+
+  // Case 2: Overnight (e.g. 22:00–02:00)
+  // Meaning: open from start to midnight, and midnight to end
+  return nowMin >= startMin || nowMin < endMin;
+};
+
+/**
+ * @author ChatGPT
+ * Parses weekly business hours strings like:
+ *   ["Mon-Fri: 09:00 - 17:00", "Sat, Sun: 09:00 - 18:00"]
+ * into:
+ *   [ {start, end}, ..., null ]
+ */
+const parseWeeklyHours = (
+  hoursInput: string[] | undefined
+): (DayHours | null)[] => {
+  const weekHours: (DayHours | null)[] = Array(7).fill(null);
+
+  if (!hoursInput) return weekHours;
+
+  hoursInput.forEach((str) => {
+    // Split only at the FIRST colon
+    const colonPos = str.indexOf(":");
+    if (colonPos === -1) return; // skip invalid string
+
+    const daysPart = str.slice(0, colonPos).trim();
+    const hoursPart = str.slice(colonPos + 1).trim();
+
+    const [start, end] = hoursPart.split("-").map((s) => s.trim());
+
+    let days: number[] = [];
+
+    if (daysPart.includes("-")) {
+      // Example: Mon-Fri
+      const [startDay, endDay] = daysPart.split("-").map((s) => s.trim());
+      const startIdx = dayIndex[startDay];
+      const endIdx = dayIndex[endDay];
+      for (let i = startIdx; i <= endIdx; i++) {
+        days.push(i);
+      }
+    } else if (daysPart.includes(",")) {
+      // Example: Sat, Sun
+      days = daysPart
+        .split(",")
+        .map((s) => dayIndex[s.trim()])
+        .filter((i) => i !== undefined);
+    } else {
+      // Single day
+      days = [dayIndex[daysPart]];
+    }
+
+    // Assign parsed hours to each matched day
+    days.forEach((i) => {
+      if (i != null) {
+        weekHours[i] = { start, end };
+      }
+    });
+  });
+
+  return weekHours;
+};
+
+// format time & change time
 
 const addMinutesToTime = (timeStr: string, minutesToAdd: number) => {
   const [hours, minutes] = timeStr.split(":").map(Number);
@@ -60,7 +222,9 @@ const secondToTimeStr = (seconds: number) => {
     return `${hours} hr${hours === 1 ? "" : "s"}`;
   }
 
-  return `${hours} hr${hours === 1 ? "" : "s"} ${remainingMinutes} min${remainingMinutes === 1 ? "" : "s"}`;
+  return `${hours} hr${hours === 1 ? "" : "s"} ${remainingMinutes} min${
+    remainingMinutes === 1 ? "" : "s"
+  }`;
 };
 
 const formatTimeDiff = (diff: number) => {
@@ -137,6 +301,13 @@ const formatTimehmmAToHHmmss = (time: string) => {
 };
 
 const TimeUtils = {
+  // get surrounding dates
+  getSurroundingDates,
+  // parse opening hours
+  getDayIndex,
+  isOpenNow,
+  parseWeeklyHours,
+  // format time & change time
   addMinutesToTime,
   formatDays,
   formatMinutes,

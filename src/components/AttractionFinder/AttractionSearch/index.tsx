@@ -61,12 +61,14 @@ const AttractionSearch = ({
           (await hereMapService.getSuggestionByName(search)) ?? []; // search has not changed for .5 second
         setSuggestion(searchSuggestion);
       }
-    }, 500);
+    }, 400);
 
     return () => clearTimeout(timer); // reset timer when search changes
   }, [search]);
 
   const handleSearch = async (input?: string) => {
+    setEnableSuggestion(false);
+
     let searchInput = input ?? search;
 
     if (searchInput.length > 0 && geoCoordinate) {
@@ -164,6 +166,7 @@ const AttractionSearch = ({
           <List disablePadding className="attraction-search-suggestion-list">
               {suggestion.map((suggestInput) => (
                 <ListItemButton
+                  key={suggestInput}
                   onClick={() => handleSuggestionClick(suggestInput)}
                 >
                   <Typography>{suggestInput}</Typography>

@@ -1,3 +1,4 @@
+import type { HerePlace } from "./hereMap/hereMap";
 import http from "./http";
 
 type AttractionBasic = {
@@ -20,6 +21,10 @@ export type Attraction = AttractionBasic & {
 
 const getAttractionById = async (id: number): Promise<Attraction> => {
   return await http.get(http.apiBaseURLs.api, `attractions/${id}`, undefined);
+};
+
+const getHerePlaceByAttractionId = async (id: number): Promise<HerePlace> => {
+  return await http.get(http.apiBaseURLs.api, `attractions/${id}/here-map`);
 };
 
 const getMyAttractionsByName = async (
@@ -47,6 +52,7 @@ const postNewAttraction = async (hereId: string): Promise<Attraction> => {
 
 export const attractionsService = {
   getAttractionById,
+  getHerePlaceByAttractionId,
   getMyAttractionsByName,
   postNewAttraction,
 };

@@ -1,0 +1,55 @@
+@use "../../stylings/box_shadows" as *;
+@use "../../stylings/color" as *;
+
+.opening-hours-container {
+  display: flex;
+  position: relative;
+  justify-content: space-between;
+  width: 100%;
+  border-radius: 1rem;
+  overflow: hidden;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    box-shadow: $mild_box_shadow_inset;
+    pointer-events: none;     /* so it doesn’t block clicks */
+    z-index: 1;               /* on top of parent background */
+  }
+}
+
+.opening-hours-box {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  align-items: center;
+  text-align: center;
+  padding: .5rem;
+  width: 100%;
+  overflow: hidden;
+
+  &.past {
+    background-color: var(--grey-200);
+    color: var(--grey-600);
+  }
+
+  &.today {
+    background: $info-gradient-right;
+
+    .MuiTypography-root {
+      color: white;
+    }
+  }
+}
+
+.opening-hours-date {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border-radius: .5rem;
+}

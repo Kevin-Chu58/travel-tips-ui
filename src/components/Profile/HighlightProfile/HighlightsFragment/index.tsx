@@ -5,13 +5,12 @@ import React, { useState } from "react";
 import HighlightForm from "@components/Forms/HighlightForm";
 import HighlightItem from "@components/Item/HighlightItem";
 import { getDefaultHighlight, type Highlight } from "@services/highlights";
-import type { Attraction } from "@services/attractions";
 import TTButton from "@components/TTButton";
 import clsx from "clsx";
 import "./index.scss";
 
 type HighlightsFragmentProps = {
-  attraction: Attraction | undefined;
+  attractionId: number | undefined;
   highlights: Highlight[];
   isHighlightLoading?: boolean;
   allowChangeHighlight?: boolean;
@@ -23,7 +22,7 @@ type HighlightsFragmentProps = {
 };
 
 const HighlightsFragment = ({
-  attraction,
+  attractionId,
   highlights,
   isHighlightLoading = false,
   allowChangeHighlight = true,
@@ -99,10 +98,10 @@ const HighlightsFragment = ({
           <Divider flexItem />
 
           {/* new highlight form - highlight item in edit */}
-          {openPost && attraction && (
+          {openPost && attractionId && (
             <React.Fragment>
               <HighlightForm
-                highlight={{ ...getDefaultHighlight(attraction.id) }}
+                highlight={{ ...getDefaultHighlight(attractionId) }}
                 onAction={asyncAddHighlight}
                 onClose={() => setOpenPost(false)}
                 isPost

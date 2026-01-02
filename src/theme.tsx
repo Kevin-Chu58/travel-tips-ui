@@ -41,7 +41,6 @@ const theme = createTheme({
   palette: {
     primary: primary,
     secondary: secondary,
-    // error: error,
   },
 });
 

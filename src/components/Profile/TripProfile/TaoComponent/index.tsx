@@ -14,8 +14,7 @@ import { taosService, TransportModes, type Tao } from "@services/taos";
 import MapUtils from "@utils/MapUtils";
 import TimeUtils from "@utils/TimeUtils";
 import React, { useEffect, useState } from "react";
-import TTChipButton from "@components/TTChipButton";
-import GoogleIcon from "@mui/icons-material/Google";
+import { SiGooglemaps } from 'react-icons/si';
 import HighlightItem from "@components/Item/HighlightItem";
 import { highlightsService, type Highlight } from "@services/highlights";
 import HighlightForm from "@components/Forms/HighlightForm";
@@ -28,6 +27,7 @@ import {
   hereMapService,
   type HereRoutingResponse,
 } from "@services/hereMap/hereMap";
+import NavButton from "@components/Button/NavButton";
 import "./index.scss";
 
 type TaoComponentProps = {
@@ -398,13 +398,12 @@ const TaoComponent = ({
           <Box className="trip-profile-tao-comp-link-box">
             {/* links */}
             <Box>
-              <a
-                href={MapUtils.getGoogleMapLink(attraction?.address ?? "")}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <TTChipButton icon={<GoogleIcon />} label="Google Map" />
-              </a>
+              <NavButton
+                link={MapUtils.getGoogleMapLink(attraction?.address ?? "")}
+                icon={<SiGooglemaps size={24} />}
+                label="Google Map"
+                color="success"
+              />
             </Box>
           </Box>
         </Box>
