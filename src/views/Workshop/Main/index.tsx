@@ -30,10 +30,14 @@ import SortUtils, {
   sortTypeTitleDesc,
 } from "@utils/SortUtils";
 import "./index.scss";
+import type { RootState } from "@redux/store";
+import { useSelector } from "react-redux";
 
 const Main = () => {
   // windows
   const isMobile = useIsMobile();
+  // user
+  const user = useSelector((state: RootState) => state.user);
   // basic strcutures
   const [navTabValue, setNavTabValue] = useState<number>(0);
   // Trips
@@ -141,10 +145,14 @@ const Main = () => {
   };
 
   const getMyAttractions = async () => {
-    const myAttractions = await attractionsService.getMyAttractionsByName();
-    asyncAttractions(
-      SortUtils.sortList(myAttractions, attractionsSortTypes, sortTypeIndex)
-    );
+    if (user.id) {
+      const myAttractions = await attractionsService.getAttractionsByParam({
+        ownerId: user.id,
+      });
+      asyncAttractions(
+        SortUtils.sortList(myAttractions, attractionsSortTypes, sortTypeIndex)
+      );
+    }
   };
 
   const asyncAddAttraction = async (attraction: Attraction) => {

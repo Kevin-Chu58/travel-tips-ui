@@ -2,6 +2,7 @@ import http from "@services/http";
 import type { UserBasic } from "./users";
 import type { Image, ImageRelation } from "./images";
 import type { TaoGeo } from "./taos";
+import type { RegionComplete } from "./search/regions";
 
 export type TripPost = {
   title: string;
@@ -19,6 +20,7 @@ export type Trip = TripPost & {
   createdAt: Date;
   numDays?: number;
   isPublic: boolean;
+  region?: RegionComplete;
   images?: Image[];
 };
 
@@ -83,6 +85,17 @@ const patchTripIsHidden = async (
   );
 };
 
+// tags
+
+const patchTripRegionTag = async (id: number, regionId: number) => {
+  return await http.patch(
+    http.apiBaseURLs.api,
+    `trips/${id}/region/${regionId}`,
+    undefined,
+    undefined
+  );
+};
+
 // image
 
 const postTripImage = async (
@@ -119,6 +132,8 @@ export const tripsService = {
   patchTrip,
   patchTripIsPublic,
   patchTripIsHidden,
+  //tags
+  patchTripRegionTag,
   // image
   postTripImage,
   deleteTripImage,

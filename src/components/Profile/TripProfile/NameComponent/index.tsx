@@ -1,4 +1,5 @@
 import {
+  Box,
   Button,
   FormControl,
   OutlinedInput,
@@ -9,6 +10,9 @@ import { tripsService, type Trip, type TripPatch } from "@services/trips";
 import TimeUtils from "@utils/TimeUtils";
 import { enqueueSnackbar } from "notistack";
 import React, { useEffect, useState } from "react";
+import SettingsIcon from "@mui/icons-material/Settings";
+import TTChipButton from "@components/TTChipButton";
+import ToolTip from "@components/ToolTip";
 import "./index.scss";
 
 type NameComponentProps = {
@@ -89,6 +93,7 @@ const NameComponent = ({
     <React.Fragment>
       {!isLoading ? (
         <React.Fragment>
+          {/* title */}
           {!readonly ? (
             isEditingTitle ? (
               <FormControl variant="outlined">
@@ -119,9 +124,23 @@ const NameComponent = ({
               {tripBasicRef.current?.title}
             </Typography>
           )}
-          <Typography className="trip-profile-name-comp-num-days">
-            {TimeUtils.formatDays(tripBasicRef.current?.numDays ?? 0)}
-          </Typography>
+
+          {/* days & tags */}
+          <Box className="trip-profile-name-comp-tag-container">
+            <Typography className="trip-profile-name-comp-num-days">
+              {TimeUtils.formatDays(tripBasicRef.current?.numDays ?? 0)}
+            </Typography>
+            {!readonly ? (
+              <ToolTip title="Update Tags" offsetY={-8}>
+                <TTChipButton
+                  className="utility hovered"
+                  icon={<SettingsIcon />}
+                  label="tags"
+                  size="small"
+                />
+              </ToolTip>
+            ) : undefined}
+          </Box>
         </React.Fragment>
       ) : (
         <React.Fragment>

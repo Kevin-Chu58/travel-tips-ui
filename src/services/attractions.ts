@@ -1,6 +1,17 @@
 import type { HerePlace } from "./hereMap/hereMap";
 import http from "./http";
 
+export interface GetAttractionsParams {
+  title?: string;
+  category?: string;
+  resultType?: string;
+  hereId?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  ownerId?: number;
+}
+
 type AttractionBasic = {
   hereId: string;
   title: string;
@@ -27,21 +38,28 @@ const getHerePlaceByAttractionId = async (id: number): Promise<HerePlace> => {
   return await http.get(http.apiBaseURLs.api, `attractions/${id}/here-map`);
 };
 
-const getMyAttractionsByName = async (
-  name?: string
+const getAttractionsByParam = async (
+  params: GetAttractionsParams
 ): Promise<Attraction[]> => {
-  const params = new URLSearchParams();
+  const searchParams = new URLSearchParams();
 
-  if (name) params.set("name", name);
+  if (params.title) searchParams.set("title", params.title);
+  if (params.category) searchParams.set("category", params.category);
+  if (params.resultType) searchParams.set("resultType", params.resultType);
+  if (params.hereId) searchParams.set("hereId", params.hereId);
+  if (params.city) searchParams.set("city", params.city);
+  if (params.state) searchParams.set("state", params.state);
+  if (params.country) searchParams.set("country", params.country);
+  if (params.ownerId) searchParams.set("ownerId", params.ownerId.toString());
 
   return await http.get(
     http.apiBaseURLs.api,
-    `attractions/my?${params.toString()}`,
+    `attractions?${searchParams.toString()}`,
     undefined
   );
 };
 
-const postNewAttraction = async (hereId: string): Promise<Attraction> => {
+const postNewAttraction = async (hereId: string): Promise<HerePlace> => {
   return await http.post(
     http.apiBaseURLs.api,
     `attractions/${hereId}`,
@@ -53,6 +71,6 @@ const postNewAttraction = async (hereId: string): Promise<Attraction> => {
 export const attractionsService = {
   getAttractionById,
   getHerePlaceByAttractionId,
-  getMyAttractionsByName,
+  getAttractionsByParam,
   postNewAttraction,
 };

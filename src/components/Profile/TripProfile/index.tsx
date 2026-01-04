@@ -41,6 +41,7 @@ import ImageForm from "@components/Forms/ImageForm";
 import { isEqual } from "lodash";
 import clsx from "clsx";
 import "./index.scss";
+import ToolTip from "@components/ToolTip";
 
 type TripProfileProps = {
   uri?: string;
@@ -534,8 +535,8 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
                     asyncAddImage={asyncAddImage}
                     readonly={readonly}
                   >
-                    <TTChipButton
-                      className="trip-profile-image-chip-button"
+                    <ToolTip title="Add Images" offsetY={-8}><TTChipButton
+                      className="utility hovered"
                       label={`${images.length}/${maxImageCount}`}
                       size="small"
                       icon={
@@ -543,11 +544,11 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
                           <AddIcon />
                         )
                       }
-                    />
+                    /></ToolTip>
                   </ImageSelector>
                 ) : images.length > 0 ? (
                   <TTChipButton
-                    className="trip-profile-image-chip-button"
+                    className="utility hovered"
                     label={`${imageIndex + 1}/${images.length}`}
                     size="small"
                     icon={

@@ -21,7 +21,7 @@ type HighlightPropfileProps = {
   back?: boolean;
 };
 
-const HighlightProfile = ({ back = false }: HighlightPropfileProps) => {
+const AttractionProfile = ({ back = false }: HighlightPropfileProps) => {
   // snackbar
   const { enqueueSnackbar } = useSnackbar();
   // herePlace
@@ -207,4 +207,4 @@ const HighlightProfile = ({ back = false }: HighlightPropfileProps) => {
   );
 };
 
-export default HighlightProfile;
+export default AttractionProfile;

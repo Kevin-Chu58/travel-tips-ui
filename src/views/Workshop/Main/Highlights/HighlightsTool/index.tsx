@@ -7,6 +7,8 @@ import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import React, { useEffect } from "react";
 import type { ListToolButton, SortType } from "@constants/Types";
 import "./index.scss";
+import { useSelector } from "react-redux";
+import type { RootState } from "@redux/store";
 
 type HighlightsToolProps = {
   sortTypes: SortType[];
@@ -31,10 +33,13 @@ const HighlightsTool = ({
   showHovers,
   setShowHovers,
 }: HighlightsToolProps) => {
+  // user
+  const user = useSelector((state: RootState) => state.user);
+
   // rerender on access token
   useEffect(() => {
     getMyAttractions();
-  }, []);
+  }, [user.id]);
 
   const showHoverButton: ListToolButton = {
     label: showHovers ? "Hide Details" : "Show Details",

@@ -281,7 +281,7 @@ const AttractionFragment = ({ herePlace }: AttractionFragmentProps) => {
                       open={Boolean(anchorElYelp)}
                       onClose={handleCloseYelpMenu}
                     >
-                      {tripadvisor?.map((id) => (
+                      {yelp?.map((id) => (
                         <NavButton
                           key={id}
                           link={`https://www.yelp.com/biz/${id}`}

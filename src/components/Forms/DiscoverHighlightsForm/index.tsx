@@ -1,4 +1,4 @@
-import HighlightsFragment from "@components/Profile/HighlightProfile/HighlightsFragment";
+import HighlightsFragment from "@components/Profile/AttractionProfile/HighlightsFragment";
 import TTButton from "@components/TTButton";
 import TTDialog from "@components/TTDialog";
 import { Box, CircularProgress, Divider, Typography } from "@mui/material";
@@ -107,7 +107,7 @@ const DiscoverHighlightsForm = ({
           <Box className="discover-highlights-form-highlight-list-box">
             {highlights ? (
               <HighlightsFragment
-                attraction={attraction}
+                attractionId={attraction?.id}
                 highlights={highlights}
                 allowChangeHighlight={false}
                 selectHighlightId={selectedHighlightId}

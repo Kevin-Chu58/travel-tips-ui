@@ -34,6 +34,12 @@
   margin: .32rem 0;
 }
 
+.trip-profile-name-comp-tag-container {
+  display: flex;
+  gap: .5rem;
+  align-items: center;
+}
+
 .trip-profile-name-comp-num-days.MuiTypography-root {
   font-size: 0.8rem;
   color: dimgrey;

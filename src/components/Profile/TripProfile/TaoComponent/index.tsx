@@ -310,7 +310,7 @@ const TaoComponent = ({
                         className="trip-profile-tao-comp-highlight-button"
                         onClick={() => setIsCreating(true)}
                       >
-                        create/share
+                        create & share
                       </TTButton>
                     </Box>
                   </Box>

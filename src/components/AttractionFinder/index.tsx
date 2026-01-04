@@ -13,7 +13,7 @@ import AttractionList from "./AttractionList";
 import { attractionsService, type Attraction } from "@services/attractions";
 import MapUtils from "@utils/MapUtils";
 import { BehaviorUtils } from "@utils/BehaviorUtils";
-import AttractionFragment from "@components/Profile/HighlightProfile/AttractionFragment";
+import AttractionFragment from "@components/Profile/AttractionProfile/AttractionFragment";
 import DescriptionTextField from "@components/TextField/DescriptionTextField";
 import AddIcon from "@mui/icons-material/Add";
 import TTButton from "@components/TTButton";
@@ -22,6 +22,7 @@ import { useSnackbar } from "notistack";
 import { type GeoCoordinate } from "@constants/Types";
 import clsx from "clsx";
 import "./index.scss";
+import type { HerePlace } from "@services/hereMap/hereMap";
 
 type AttractionFinderProps = {
   open: boolean;
@@ -58,6 +59,7 @@ const AttractionFinder = ({
   // mobile view
   const [showResult, setShowResult] = useState<boolean>(true);
   // attraction layer
+  const [herePlace, setHerePlace] = useState<HerePlace | undefined>();
   const [attraction, setAttraction] = useState<Attraction | undefined>();
   const [isAttractionLoading, setIsAttractionLoading] =
     useState<boolean>(false);
@@ -72,7 +74,7 @@ const AttractionFinder = ({
 
         console.log(geoCoordinate);
 
-        setGeoCoordinate(prev => {
+        setGeoCoordinate((prev) => {
           return prev ?? geoCoords;
         });
       }
@@ -95,28 +97,34 @@ const AttractionFinder = ({
     if (focusId) {
       try {
         setIsAttractionLoading(true);
+        let herePlace = await attractionsService.postNewAttraction(focusId);
+        let attraction = await attractionsService.getAttractionsByParam({
+          hereId: herePlace.id,
+        });
 
-        let attraction = await attractionsService.postNewAttraction(focusId);
+        setHerePlace(herePlace);
 
         await BehaviorUtils.sleep();
 
         if (setLastGeoCoordinate) {
-          setLastGeoCoordinate({ lat: attraction.lat, lng: attraction.lng });
+          setLastGeoCoordinate({
+            lat: herePlace.position.lat,
+            lng: herePlace.position.lng,
+          });
         }
 
         // if has setParentAttraction, then return the attraction to the parent
         // then skipping the attraction layer and close the dialog
         if (setParentAttraction) {
-          setParentAttraction(attraction);
+          setParentAttraction(attraction[0]);
           handleClose();
         } else {
-          setAttraction(attraction);
+          setAttraction(attraction[0]);
         }
       } catch (e) {
         if (e instanceof Error)
           enqueueSnackbar(e.message, { variant: "error" });
       }
-
       setIsAttractionLoading(false);
     }
   };
@@ -301,11 +309,7 @@ const AttractionFinder = ({
         </Box>
 
         <Box className="attraction-finder-attraction-fragment-box">
-          <AttractionFragment
-            attraction={attraction}
-            isAttractionLoading={false}
-            isMobile={isMobile}
-          />
+          <AttractionFragment herePlace={herePlace} />
         </Box>
 
         <Box className="attraction-finder-new-highlight-box">

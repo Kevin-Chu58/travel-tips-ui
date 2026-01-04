@@ -116,22 +116,6 @@ $trip-profile-content-width-mobile: 280px;
   bottom: 10px;
 }
 
-.trip-profile-image-chip-button.MuiChip-root {
-  color: lightgrey;
-  background-color: black;
-  box-shadow: $box_shadow_light;
-
-  .MuiChip-icon {
-    color: inherit;
-  }
-
-  &:hover {
-    color: whitesmoke;
-    background: black;
-    background-color: black;
-  }
-}
-
 .trip-profile-title-button.MuiButton-root {
   color: black;
   background-color: transparent;
