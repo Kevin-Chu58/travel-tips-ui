@@ -20,6 +20,8 @@ import React, { useEffect, useState } from "react";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { enqueueSnackbar } from "notistack";
+import { RegionUtils } from "@utils/RegionUtils";
+import ShareIcon from "@mui/icons-material/Share";
 import "./index.scss";
 
 type TripCardProps = {
@@ -46,7 +48,9 @@ const TripCard = ({
   // rerender on trip isPublic
   useEffect(() => {}, [trip.isPublic]);
 
-  const handleVisibilityTripClick = async (e: React.MouseEvent<HTMLLIElement>) => {
+  const handleVisibilityTripClick = async (
+    e: React.MouseEvent<HTMLLIElement>
+  ) => {
     e.stopPropagation();
 
     if (trip) {
@@ -58,7 +62,9 @@ const TripCard = ({
         // triggers direct UI update on chip
         setPopoverAnchorEl(null);
 
-        enqueueSnackbar("Successfully set trip visibility.", { variant: "success" });
+        enqueueSnackbar("Successfully set trip visibility.", {
+          variant: "success",
+        });
       } catch (e) {
         if (e instanceof Error) {
           enqueueSnackbar(e.message, { variant: "error" });
@@ -160,25 +166,33 @@ const TripCard = ({
           onClose={(e) => handleClosePopover(e)}
         >
           <List>
+            {/* TODO: button - share */}
+            <MenuItem>
+              <ListItemIcon>
+                <ShareIcon />
+              </ListItemIcon>
+              <ListItemText primary="Share" />
+            </MenuItem>
             {!readonly ? (
               <React.Fragment>
                 {/* button - public/private */}
                 <MenuItem onClick={(e) => handleVisibilityTripClick(e)}>
                   <ListItemIcon>
-                    {trip.isPublic ? <VisibilityOffIcon/> : <VisibilityIcon/>}
+                    {trip.isPublic ? <VisibilityOffIcon /> : <VisibilityIcon />}
                   </ListItemIcon>
                   <ListItemText
                     primary={`Set ${trip.isPublic ? "Private" : "Public"}`}
                   />
                 </MenuItem>
                 {/* button - delete */}
-                <MenuItem className="trip-card-error-menu-item" onClick={(e) => handleDeleteTripClick(e)}>
+                <MenuItem
+                  className="trip-card-error-menu-item"
+                  onClick={(e) => handleDeleteTripClick(e)}
+                >
                   <ListItemIcon>
                     <DeleteIcon />
                   </ListItemIcon>
-                  <ListItemText
-                    primary="Delete"
-                  />
+                  <ListItemText primary="Delete" />
                 </MenuItem>
               </React.Fragment>
             ) : undefined}
@@ -191,15 +205,22 @@ const TripCard = ({
         </Typography>
       </Box>
 
-      {!readonly ? (
-        <Box className="trip-card-chip-container">
+      <Box className="trip-card-chip-container">
+        {!readonly ? (
           <Chip
             icon={trip.isPublic ? <VisibilityIcon /> : <VisibilityOffIcon />}
             label={trip.isPublic ? "public" : "private"}
             size="small"
           />
-        </Box>
-      ) : undefined}
+        ) : undefined}
+        {trip.region ? (
+          <Chip
+            color="region"
+            size="small"
+            label={RegionUtils.getRegionAddress(trip.region)}
+          />
+        ) : undefined}
+      </Box>
     </Box>
   );
 };

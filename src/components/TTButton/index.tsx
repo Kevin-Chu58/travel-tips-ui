@@ -13,6 +13,7 @@ type TTButtonProps = {
   endIcon?: React.ReactNode;
   to?: string;
   fullWidth?: boolean;
+  loading?: boolean;
   disabled?: boolean;
   disableRipple?: boolean;
   circular?: boolean;
@@ -32,6 +33,7 @@ const TTButton = ({
   endIcon,
   to,
   fullWidth = false,
+  loading = false,
   disabled = false,
   disableRipple = false,
   circular = false,
@@ -60,6 +62,7 @@ const TTButton = ({
       startIcon={startIcon}
       endIcon={endIcon}
       fullWidth={fullWidth}
+      loading={loading}
       disabled={disabled}
       disableTouchRipple={disableRipple}
       href={to}

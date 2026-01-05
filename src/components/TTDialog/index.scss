@@ -4,11 +4,17 @@
 .TTDialog {
   .MuiPaper-root {
     overflow: hidden;
-    border-radius: 1rem;
+    border-radius: 0.2rem;
     box-shadow: $mild_box_shadow_lg;
+  }
+
+  &.panel {
+    .MuiPaper-root {
+      border-radius: 1rem;
+    }
   }
 }
 
 .TTDialog-box {
-   padding: 1rem;
+  padding: 1rem;
 }

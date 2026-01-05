@@ -399,10 +399,11 @@ const TaoComponent = ({
             {/* links */}
             <Box>
               <NavButton
+                className="success"
                 link={MapUtils.getGoogleMapLink(attraction?.address ?? "")}
                 icon={<SiGooglemaps size={24} />}
                 label="Google Map"
-                color="success"
+                hovered
               />
             </Box>
           </Box>

@@ -1,0 +1,35 @@
+.tag-form {
+
+  .section {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: .5rem;
+
+    &.mobile {
+      flex-direction: column;
+    }
+  }
+
+  .table {
+    tr {
+      cursor: pointer;
+      &:hover {
+        background-color: var(--grey-50);
+      }
+    }
+
+    th {
+      text-align: right;
+      padding: .5rem;
+      &.type {
+        text-align: left;
+      }
+    }
+  }
+
+  .select-form-control.MuiFormControl-root {
+    min-width: 120px;
+    width: 100%;
+  }
+}

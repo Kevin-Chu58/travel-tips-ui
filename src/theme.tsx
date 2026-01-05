@@ -1,5 +1,43 @@
 import { createTheme } from "@mui/material";
 
+declare module "@mui/material/styles" {
+  interface PaletteColor {
+    100?: string;
+    200?: string;
+    300?: string;
+    400?: string;
+    500?: string;
+    600?: string;
+    700?: string;
+    800?: string;
+    900?: string;
+  }
+
+  interface Palette {
+    region: Palette["primary"];
+    utility: Palette["primary"];
+  }
+
+  interface PaletteOptions {
+    region?: PaletteOptions["primary"];
+    utility?: PaletteOptions["primary"];
+  }
+}
+
+declare module "@mui/material/Button" {
+  interface ButtonPropsColorOverrides {
+    region: true;
+    utility: true;
+  }
+}
+
+declare module "@mui/material/Chip" {
+  interface ChipPropsColorOverrides {
+    region: true;
+    utility: true;
+  }
+}
+
 export const primary = {
   main: "#E4572E",
   100: "#FADED5",
@@ -26,6 +64,33 @@ export const secondary = {
   900: "#3B3224",
 };
 
+export const region = {
+  main: "#880088",
+  100: "#FCF7FC",
+  200: "#F6EAF6",
+  300: "#EFD6EF",
+  400: "#E1B8E1",
+  500: "#880088",
+  600: "#6D006D",
+  700: "#520052",
+  800: "#360036",
+  900: "#1B001B",
+};
+
+export const utility = {
+  main: "#101010", // intentionally 900
+  50: "#f5f5f5",
+  100: "#eeeeee",
+  200: "#e0e0e0",
+  300: "#bdbdbd",
+  400: "#9e9e9e",
+  500: "#757575",
+  600: "#616161",
+  700: "#424242",
+  800: "#212121",
+  900: "#101010",
+};
+
 const theme = createTheme({
   typography: {
     fontFamily: [
@@ -41,6 +106,62 @@ const theme = createTheme({
   palette: {
     primary: primary,
     secondary: secondary,
+    region: region,
+    utility: utility,
+  },
+  components: {
+    MuiButton: {
+      styleOverrides: {
+        root: ({ownerState, theme}) => ({
+          ...(ownerState.color === "region" &&
+            ownerState.variant === "contained" && {
+              borderColor: theme.palette.region.main,
+              color: "white",
+            }),
+            ...(ownerState.color === "utility" &&
+            ownerState.variant === "contained" && {
+              borderColor: theme.palette.utility[900],
+              color: "white",
+            }),
+        })
+      }
+    },
+    MuiChip: {
+      styleOverrides: {
+        root: ({ ownerState, theme }) => ({
+          ...(ownerState.color === "region" &&
+            ownerState.variant === "outlined" && {
+              backgroundColor: "transparent",
+              borderColor: theme.palette.region.main,
+              color: theme.palette.region.main,
+            }),
+          ...(ownerState.color === "region" &&
+            ownerState.variant === "filled" && {
+              backgroundColor: theme.palette.region[300],
+              color: theme.palette.region[800],
+              "&:hover": {
+                backgroundColor: theme.palette.region[300],
+                color: theme.palette.region[800],
+              }
+            }),
+          ...(ownerState.color === "utility" &&
+            ownerState.variant === "outlined" && {
+              backgroundColor: "transparent",
+              borderColor: theme.palette.utility[900],
+              color: theme.palette.utility[900],
+            }),
+          ...(ownerState.color === "utility" &&
+            ownerState.variant === "filled" && {
+              backgroundColor: theme.palette.utility[900],
+              color: "white",
+              "&:hover": {
+                backgroundColor: theme.palette.utility[800],
+                color: "white",
+              }
+            }),
+        }),
+      },
+    },
   },
 });
 

@@ -3,7 +3,6 @@
 
 .TTChipButton.MuiChip-root {
   cursor: pointer;
-  background-color: var(--grey-300);
   box-shadow: $mild_box_shadow;
   filter: brightness(1.05);
 
@@ -19,18 +18,6 @@
     }
     &.success {
       background: $success-gradient-right;
-    }
-
-    &.utility {
-      background: black;
-    }
-
-    &.tripadvisor {
-      background: darkgreen;
-    }
-
-    &.yelp {
-      background: darkred;
     }
 
     .MuiChip-icon {

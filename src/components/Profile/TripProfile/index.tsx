@@ -535,21 +535,23 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
                     asyncAddImage={asyncAddImage}
                     readonly={readonly}
                   >
-                    <ToolTip title="Add Images" offsetY={-8}><TTChipButton
-                      className="utility hovered"
-                      label={`${images.length}/${maxImageCount}`}
-                      size="small"
-                      icon={
-                        isMaxImageCountReached || readonly ? undefined : (
-                          <AddIcon />
-                        )
-                      }
-                    /></ToolTip>
+                    <ToolTip title="Add Images" offsetY={-8}>
+                      <TTChipButton
+                        label={`${images.length}/${maxImageCount}`}
+                        color="utility"
+                        size="small"
+                        icon={
+                          isMaxImageCountReached || readonly ? undefined : (
+                            <AddIcon />
+                          )
+                        }
+                      />
+                    </ToolTip>
                   </ImageSelector>
                 ) : images.length > 0 ? (
                   <TTChipButton
-                    className="utility hovered"
                     label={`${imageIndex + 1}/${images.length}`}
+                    color="utility"
                     size="small"
                     icon={
                       isMaxImageCountReached || readonly ? undefined : (

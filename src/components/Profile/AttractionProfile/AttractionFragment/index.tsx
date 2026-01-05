@@ -95,11 +95,10 @@ const AttractionFragment = ({ herePlace }: AttractionFragmentProps) => {
       <React.Fragment>
         {herePlace ? (
           <NavButton
-            className={className}
+            className={clsx(className, "success hovered")}
             link={MapUtils.getGoogleMapLink(herePlace.address.label)}
             icon={<SiGooglemaps size={24} />}
             label="Google Map"
-            color="success"
             hovered
           />
         ) : undefined}
@@ -204,7 +203,7 @@ const AttractionFragment = ({ herePlace }: AttractionFragmentProps) => {
                 {hasWebsite ? (
                   <React.Fragment>
                     <TTButton
-                      className="highlight-profile-button"
+                      color="utility"
                       endIcon={websites.length}
                       onClick={(e) => handleOpenOfficialMenu(e)}
                       circular
@@ -234,7 +233,7 @@ const AttractionFragment = ({ herePlace }: AttractionFragmentProps) => {
                 {hasTripAdvisor ? (
                   <React.Fragment>
                     <TTButton
-                      className="highlight-profile-button"
+                      color="utility"
                       startIcon={<SiTripadvisor size={24} />}
                       endIcon={tripadvisor.length}
                       onClick={(e) => handleOpenTripAdvisorMenu(e)}
@@ -268,7 +267,7 @@ const AttractionFragment = ({ herePlace }: AttractionFragmentProps) => {
                 {hasYelp ? (
                   <React.Fragment>
                     <TTButton
-                      className="highlight-profile-button"
+                      color="utility"
                       startIcon={<SiYelp size={24} />}
                       endIcon={yelp.length}
                       onClick={(e) => handleOpenYelpMenu(e)}

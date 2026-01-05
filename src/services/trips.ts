@@ -87,10 +87,14 @@ const patchTripIsHidden = async (
 
 // tags
 
-const patchTripRegionTag = async (id: number, regionId: number) => {
+const patchTripRegionTag = async (id: number, regionId?: number) => {
+  const params = new URLSearchParams();
+
+  params.set("regionId", regionId?.toString() ?? "");
+
   return await http.patch(
     http.apiBaseURLs.api,
-    `trips/${id}/region/${regionId}`,
+    `trips/${id}/region?${params.toString()}`,
     undefined,
     undefined
   );

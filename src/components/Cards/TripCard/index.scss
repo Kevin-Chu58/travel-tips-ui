@@ -84,6 +84,7 @@
 
 .trip-card-chip-container {
   display: flex;
+  flex-wrap: wrap;
   margin: .25rem 0;
   gap: .5rem;
 }

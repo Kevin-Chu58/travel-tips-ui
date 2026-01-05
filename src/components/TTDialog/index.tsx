@@ -10,6 +10,7 @@ type TTDialogProps = {
   maxWidth?: DialogProps["maxWidth"];
   hideBackdrop?: boolean;
   hidePadding?: boolean;
+  panel?: boolean;
   children: ReactNode;
   sx?: SxProps;
 };
@@ -19,15 +20,15 @@ const TTDialog = ({
   maxWidth = false,
   hideBackdrop = false,
   hidePadding = false,
+  panel = true,
   open,
   onClose,
   children,
   sx,
 }: TTDialogProps) => {
-
   return (
     <Dialog
-      className={`TTDialog ${className}`}
+      className={clsx("TTDialog", className, panel && "panel")}
       maxWidth={maxWidth}
       open={open}
       onClose={onClose}

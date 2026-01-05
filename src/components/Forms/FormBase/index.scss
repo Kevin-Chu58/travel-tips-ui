@@ -1,0 +1,48 @@
+@use "../../../stylings/box_shadows" as *;
+
+.form-base-container {
+  width: fit-content;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+
+  .header,
+  .content {
+    padding: .5rem 1rem;
+  }
+
+  .header {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    .subtitle.MuiTypography-root {
+      color: var(--grey-600);
+    }
+    .divider.MuiDivider-root {
+      margin-top: .5rem;
+    }
+  }
+
+  .content {
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .footer {
+    margin-top: auto;
+    &.content-overflow {
+      box-shadow: $mild_box_shadow_up;
+    }
+
+    .buttons {
+      width: max-content;
+      display: flex;
+      flex-direction: row;
+      gap: 1rem;
+      margin-left: auto;
+      padding: .5rem;
+    }
+  }
+}
