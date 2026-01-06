@@ -52,33 +52,33 @@ export type SelectType = {
   label: string;
 };
 
-// day
-export type DayId = { id?: number };
+// // day
+// export type DayId = { id?: number };
 
-export type DayParams = DayId & {
-  name: string | undefined;
-  description: string | undefined;
-  start: Dayjs | null;
-  end: Dayjs | null;
-};
+// export type DayParams = DayId & {
+//   name: string | undefined;
+//   description: string | undefined;
+//   start: Dayjs | null;
+//   end: Dayjs | null;
+// };
 
-export type DayMarkers = {
-  dayId: number;
-  markers: Marker[];
-};
+// export type DayMarkers = {
+//   dayId: number;
+//   markers: Marker[];
+// };
 
-// tao
-export type TaoId = { id?: number };
+// // tao
+// export type TaoId = { id?: number };
 
-export type TaoParams = TaoId & {
-  order: number;
-  highlightId: number;
-  estimateTime: number;
-  estimateTravelTime: number;
-  isDrivePreferred: boolean;
-  isBikePreferred: boolean;
-  isOnFootPreferred: boolean;
-};
+// export type TaoParams = TaoId & {
+//   order: number;
+//   highlightId: number;
+//   estimateTime: number;
+//   estimateTravelTime: number;
+//   isDrivePreferred: boolean;
+//   isBikePreferred: boolean;
+//   isOnFootPreferred: boolean;
+// };
 
 // route
 export type RouteOptionParams = {
@@ -111,4 +111,15 @@ export type MapView = {
 export type GeoCoordinate = {
   lat: number;
   lng: number;
+};
+
+// labels
+
+export const BudgetLabels: {[index: number]: string} = {
+  0: "No Budget Set",
+  1: "Less than $100",
+  2: "Between $100 and $500",
+  3: "Between $500 and $1k",
+  4: "Between $1k and $2k",
+  5: "More than $2k",
 };

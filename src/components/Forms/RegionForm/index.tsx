@@ -5,8 +5,6 @@ import {
   type Region,
   type RegionComplete,
 } from "@services/search/regions";
-import { enqueueSnackbar } from "notistack";
-import { tripsService } from "@services/trips";
 import {
   Box,
   FormControl,
@@ -20,17 +18,15 @@ import CheckIcon from "@mui/icons-material/Check";
 type RegionFormProps = {
   open: boolean;
   onClose: () => void;
-  tripId?: number; // TODO - make this id customizable, and a handleActionClick that is also customizable
+  onUpdate: (state?: number) => void;
   completeRegion?: RegionComplete;
-  asyncRegion?: (state: RegionComplete) => void;
 };
 
 const RegionForm = ({
   open,
   onClose,
-  tripId,
+  onUpdate,
   completeRegion,
-  asyncRegion,
 }: RegionFormProps) => {
   // region data
   const [countries, setCountries] = useState<Region[]>([]);
@@ -71,16 +67,16 @@ const RegionForm = ({
     const initStates = async () => {
       setState("");
 
-      if (country != "") {
+      if (_country) {
         const states = (await regionsService.browse({
           type: "State",
-          parentRegionId: _country?.id,
+          parentRegionId: _country.id,
         })) as Region[];
         setStates(states);
       } else setStates([]);
     };
     initStates();
-  }, [country]);
+  }, [_country?.id]);
 
   // rerender country and state selects on complete region
   useEffect(() => {
@@ -109,26 +105,24 @@ const RegionForm = ({
     setState(event.target.value);
   };
 
-  const handleUpdateClick = async () => {
-    try {
-      if (!tripId) return;
+  // const handleUpdateClick = async () => {
+  //   try {
+  //     if (!tripId) return;
 
-      const newCompleteRegion = (await tripsService.patchTripRegionTag(
-        tripId,
-        _regionId
-      )) as RegionComplete;
+  //     const newCompleteRegion = (await tripsService.patchTripRegionTag(
+  //       tripId,
+  //       _regionId
+  //     )) as RegionComplete;
 
-      if (asyncRegion) asyncRegion(newCompleteRegion);
+  //     if (onUpdate) onUpdate(newCompleteRegion);
 
-      enqueueSnackbar("Successfully updated region.", { variant: "success" });
-
-      handleClose();
-    } catch (e) {
-      if (e instanceof Error) {
-        enqueueSnackbar(e.message, { variant: "error" });
-      }
-    }
-  };
+  //     handleClose();
+  //   } catch (e) {
+  //     if (e instanceof Error) {
+  //       enqueueSnackbar(e.message, { variant: "error" });
+  //     }
+  //   }
+  // };
 
   return (
     <FormBase
@@ -137,24 +131,31 @@ const RegionForm = ({
       title="Choose Region"
       actionButtonLabel="Update"
       actionButtonStartIcon={<CheckIcon />}
-      actionButtonOnClick={handleUpdateClick}
+      actionButtonOnClick={() => onUpdate(_regionId)}
       disableActionButton={regionId === _regionId}
     >
       <Box sx={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
         {/* country */}
         <FormControl className="select-form-control">
-          <InputLabel id="select-country-label">Country</InputLabel>
+          <InputLabel id="select-country-label" color="region">
+            Country
+          </InputLabel>
           <Select
             id="select-country-input"
             value={country}
             label="Country"
+            color="region"
             onChange={handleCountryChange}
           >
-            <MenuItem value="">
+            <MenuItem className="region" value="">
               <em>None</em>
             </MenuItem>
             {countries.map((country) => (
-              <MenuItem key={country.id} value={country.name}>
+              <MenuItem
+                key={country.id}
+                className="region"
+                value={country.name}
+              >
                 {country.name}
               </MenuItem>
             ))}
@@ -162,18 +163,21 @@ const RegionForm = ({
         </FormControl>
         {/* state */}
         <FormControl className="select-form-control">
-          <InputLabel id="select-state-label">State</InputLabel>
+          <InputLabel id="select-state-label" color="region">
+            State
+          </InputLabel>
           <Select
             id="select-state-input"
             value={state}
             label="State"
+            color="region"
             onChange={handleStateChange}
           >
-            <MenuItem value="">
+            <MenuItem className="region" value="">
               <em>None</em>
             </MenuItem>
             {states.map((state) => (
-              <MenuItem key={state.id} value={state.name}>
+              <MenuItem key={state.id} className="region" value={state.name}>
                 {state.name}
               </MenuItem>
             ))}

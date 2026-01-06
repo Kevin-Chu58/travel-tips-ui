@@ -10,17 +10,19 @@ import {
 import { tripsService, type Trip, type TripPatch } from "@services/trips";
 import TimeUtils from "@utils/TimeUtils";
 import { enqueueSnackbar } from "notistack";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import SettingsIcon from "@mui/icons-material/Settings";
 import TTChipButton from "@components/TTChipButton";
 import TagForm from "@components/Forms/TagForm";
 import ToolTip from "@components/ToolTip";
-import "./index.scss";
 import type { RegionComplete } from "@services/search/regions";
 import { RegionUtils } from "@utils/RegionUtils";
+import { StringUtils } from "@utils/StringUtils";
+import "./index.scss";
 
 type NameComponentProps = {
   tripBasicRef: React.RefObject<Trip | undefined>;
+  tripBasic: Trip | undefined;
   asyncTrip: () => void;
   isLoading: boolean;
   inputRef: React.RefObject<HTMLInputElement | null>;
@@ -29,41 +31,52 @@ type NameComponentProps = {
 
 const NameComponent = ({
   tripBasicRef,
+  tripBasic,
   asyncTrip,
   isLoading,
   inputRef,
   readonly = false,
 }: NameComponentProps) => {
   // title
-  const [title, setTitle] = useState<string | undefined>();
+  const [title, setTitle] = useState<string | undefined>(tripBasic?.title);
   const [isEditingTitle, setIsEditingTitle] = useState<boolean>(false);
   // form
   const [openTagForm, setOpenTagForm] = useState<boolean>(false);
 
-  // render title on trip basic
-  useEffect(() => {
-    setTitle(tripBasicRef.current?.title);
-  }, [tripBasicRef.current?.title]);
+  const handleUpdateRegion = async (regionId?: number) => {
+    try {
+      if (tripBasicRef.current) {
+        const completeRegion = (await tripsService.patchTripRegionTag(
+          tripBasicRef.current.id,
+          regionId
+        )) as RegionComplete;
+        tripBasicRef.current.region =
+          Object.keys(completeRegion).length > 0 ? completeRegion : undefined;
+        asyncTrip();
 
-  const asyncRegion = (region: RegionComplete) => {
-    if (tripBasicRef.current) {
-      tripBasicRef.current.region = region;
-      asyncTrip();
+        enqueueSnackbar("Region tag updated.", {
+          variant: "success",
+        });
+      }
+    } catch (e) {
+      if (e instanceof Error) {
+        enqueueSnackbar(e.message, { variant: "error" });
+      }
     }
   };
 
-  const handleRegionDeleteClick = async () => {
+  const handleUpdateBudget = async (budget?: number) => {
     try {
       if (tripBasicRef.current) {
-        await tripsService.patchTripRegionTag(
+        const newBudget = (await tripsService.patchTripBudgetTag(
           tripBasicRef.current.id,
-          undefined
-        );
+          budget
+        )) as number;
 
-        tripBasicRef.current.region = undefined;
+        tripBasicRef.current.budget = newBudget;
         asyncTrip();
 
-        enqueueSnackbar("Successfully removed region tag.", {
+        enqueueSnackbar("Budget tag updated.", {
           variant: "success",
         });
       }
@@ -166,16 +179,31 @@ const NameComponent = ({
             <Typography className="num-days">
               {TimeUtils.formatDays(tripBasicRef.current?.numDays ?? 0)}
             </Typography>
-            {tripBasicRef.current?.region ? (
+            {/* region tag */}
+            {tripBasicRef?.current?.region ? (
               <Chip
                 color="region"
                 size="small"
                 label={RegionUtils.getRegionAddress(
-                  tripBasicRef.current?.region
+                  tripBasicRef?.current?.region
                 )}
-                onDelete={!readonly ? handleRegionDeleteClick : undefined}
+                onDelete={
+                  !readonly ? () => handleUpdateRegion(undefined) : undefined
+                }
               />
             ) : undefined}
+            {/* budget tag */}
+            {tripBasicRef.current?.budget ? (
+              <Chip
+                color="success"
+                size="small"
+                label={StringUtils.getBudgetStr(tripBasicRef.current.budget)}
+                onDelete={
+                  !readonly ? () => handleUpdateBudget(undefined) : undefined
+                }
+              />
+            ) : undefined}
+            {/* tag form button */}
             {!readonly ? (
               <ToolTip title="Update Tags" offsetY={-8}>
                 <TTChipButton
@@ -202,7 +230,8 @@ const NameComponent = ({
         open={openTagForm}
         onClose={() => setOpenTagForm(false)}
         trip={tripBasicRef.current}
-        asyncRegion={asyncRegion}
+        onUpdateRegion={handleUpdateRegion}
+        onUpdateBudget={handleUpdateBudget}
       />
     </Box>
   );

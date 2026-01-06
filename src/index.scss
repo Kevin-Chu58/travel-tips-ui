@@ -207,6 +207,14 @@ body {
   }
 }
 
+
+// custom styled selected menu item
+.MuiMenuItem-root.Mui-selected {
+  &.region {
+    background-color: var(--region-100);
+  }
+}
+
 a {
   color: var(--info-main);
 }

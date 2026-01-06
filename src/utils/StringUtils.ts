@@ -12,7 +12,18 @@ const getFirstTwoJoined = (input: string) => {
   return firstTwo.join(", ");
 }
 
+// budget
+
+const getBudgetStr = (budget?: number) => {
+  if (!budget)
+    return "None";
+
+  return "$".repeat(budget);
+};
+
 export const StringUtils = {
   containsSomeWords,
   getFirstTwoJoined,
+  // budget
+  getBudgetStr,
 };

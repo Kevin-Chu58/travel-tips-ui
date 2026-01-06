@@ -23,6 +23,7 @@ import { enqueueSnackbar } from "notistack";
 import { RegionUtils } from "@utils/RegionUtils";
 import ShareIcon from "@mui/icons-material/Share";
 import "./index.scss";
+import { StringUtils } from "@utils/StringUtils";
 
 type TripCardProps = {
   trip: Trip;
@@ -206,6 +207,7 @@ const TripCard = ({
       </Box>
 
       <Box className="trip-card-chip-container">
+        {/* visibility tag */}
         {!readonly ? (
           <Chip
             icon={trip.isPublic ? <VisibilityIcon /> : <VisibilityOffIcon />}
@@ -213,11 +215,20 @@ const TripCard = ({
             size="small"
           />
         ) : undefined}
+        {/* region tag */}
         {trip.region ? (
           <Chip
             color="region"
             size="small"
             label={RegionUtils.getRegionAddress(trip.region)}
+          />
+        ) : undefined}
+        {/* budget tag */}
+        {trip.budget ? (
+          <Chip
+            color="success"
+            size="small"
+            label={StringUtils.getBudgetStr(trip.budget)}
           />
         ) : undefined}
       </Box>

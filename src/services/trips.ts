@@ -21,6 +21,7 @@ export type Trip = TripPost & {
   numDays?: number;
   isPublic: boolean;
   region?: RegionComplete;
+  budget?: number;
   images?: Image[];
 };
 
@@ -88,14 +89,23 @@ const patchTripIsHidden = async (
 // tags
 
 const patchTripRegionTag = async (id: number, regionId?: number) => {
-  const params = new URLSearchParams();
-
-  params.set("regionId", regionId?.toString() ?? "");
+  const body = JSON.stringify(regionId);
 
   return await http.patch(
     http.apiBaseURLs.api,
-    `trips/${id}/region?${params.toString()}`,
-    undefined,
+    `trips/${id}/region`,
+    body,
+    undefined
+  );
+};
+
+const patchTripBudgetTag = async (id: number, budget?: number) => {
+  const body = JSON.stringify(budget);
+
+  return await http.patch(
+    http.apiBaseURLs.api,
+    `trips/${id}/budget`,
+    body,
     undefined
   );
 };
@@ -138,6 +148,7 @@ export const tripsService = {
   patchTripIsHidden,
   //tags
   patchTripRegionTag,
+  patchTripBudgetTag,
   // image
   postTripImage,
   deleteTripImage,

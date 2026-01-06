@@ -5,34 +5,48 @@ import FormBase from "../FormBase";
 import RegionForm from "../RegionForm";
 import type { Trip } from "@services/trips";
 import { useIsMobile } from "@hooks/useIsMobile";
-import type { RegionComplete } from "@services/search/regions";
+import { StringUtils } from "@utils/StringUtils";
+import BudgetForm from "../BudgetForm";
 import "./index.scss";
 
 type TagFormProps = {
   trip?: Trip;
   open: boolean;
   onClose: () => void;
-  asyncRegion?: (state: RegionComplete) => void;
+  onUpdateRegion: (state?: number) => void;
+  onUpdateBudget: (state?: number) => void;
 };
 
 const tagForm = ({
   trip,
   open,
   onClose,
-  asyncRegion,
+  onUpdateRegion,
+  onUpdateBudget,
 }: TagFormProps) => {
   // window
   const isMobile = useIsMobile();
   // forms
   const [openRegionForm, setOpenRegionForm] = useState<boolean>(false);
+  const [openBudgetForm, setOpenBudgetForm] = useState<boolean>(false);
+  const _open = open && !openRegionForm && !openBudgetForm;
+
+  const handleUpdateRegion = (regionId?: number) => {
+    onUpdateRegion(regionId);
+    setOpenRegionForm(false);
+  };
+
+  const handleUpdateBudget = (budget?: number) => {
+    onUpdateBudget(budget);
+    setOpenBudgetForm(false);
+  };
 
   return (
     <React.Fragment>
       <FormBase
-        open={open}
+        open={_open}
         onClose={onClose}
         className="tag-form"
-        width="30vw"
         title="Tag Settings"
         subTitle="Click to Edit"
         closeButtonLabel="Close"
@@ -40,15 +54,23 @@ const tagForm = ({
         panel
       >
         {isMobile ? (
-          <Box>
+          <Box className="container">
             {/* region tag */}
             <Box onClick={() => setOpenRegionForm(true)}>
               <Typography>Region</Typography>
               <Chip
                 color="region"
-                label={RegionUtils.getRegionAddress(
-                  trip?.region
-                )}
+                size="small"
+                label={RegionUtils.getRegionAddress(trip?.region)}
+              />
+            </Box>
+            {/* budget tag */}
+            <Box onClick={() => setOpenBudgetForm(true)}>
+              <Typography>Budget</Typography>
+              <Chip
+                color="success"
+                size="small"
+                label={StringUtils.getBudgetStr(trip?.budget)}
               />
             </Box>
           </Box>
@@ -60,9 +82,17 @@ const tagForm = ({
                 <th>
                   <Chip
                     color="region"
-                    label={RegionUtils.getRegionAddress(
-                      trip?.region
-                    )}
+                    label={RegionUtils.getRegionAddress(trip?.region)}
+                  />
+                </th>
+              </tr>
+              <tr onClick={() => setOpenBudgetForm(true)}>
+                <th className="type">Budget</th>
+                <th>
+                  <Chip
+                    color="success"
+                    variant="filled"
+                    label={StringUtils.getBudgetStr(trip?.budget)}
                   />
                 </th>
               </tr>
@@ -75,9 +105,16 @@ const tagForm = ({
       <RegionForm
         open={openRegionForm}
         onClose={() => setOpenRegionForm(false)}
-        tripId={trip?.id}
         completeRegion={trip?.region}
-        asyncRegion={asyncRegion}
+        onUpdate={handleUpdateRegion}
+      />
+
+      <BudgetForm
+        open={openBudgetForm}
+        onClose={() => setOpenBudgetForm(false)}
+        tripId={trip?.id}
+        budget={trip?.budget}
+        onUpdate={handleUpdateBudget}
       />
     </React.Fragment>
   );

@@ -38,6 +38,27 @@ declare module "@mui/material/Chip" {
   }
 }
 
+declare module "@mui/material/InputBase" {
+  interface InputBasePropsColorOverrides {
+    region: true;
+    utility: true;
+  }
+}
+
+declare module "@mui/material/FormLabel" {
+  interface FormLabelPropsColorOverrides {
+    region: true;
+    utility: true;
+  }
+}
+
+declare module "@mui/material/InputBase" {
+  interface InputBasePropsColorOverrides {
+    region: true;
+    utility: true;
+  }
+}
+
 export const primary = {
   main: "#E4572E",
   100: "#FADED5",
@@ -62,6 +83,20 @@ export const secondary = {
   700: "#A99673",
   800: "#766548",
   900: "#3B3224",
+};
+
+export const success = {
+  main: "#4caf50",
+  50: "#e8f5e9",
+  100: "#c8e6c9",
+  200: "#a5d6a7",
+  300: "#81c784",
+  400: "#66bb6a",
+  500: "#4caf50",
+  600: "#43a047",
+  700: "#388e3c",
+  800: "#2e7d32",
+  900: "#1b5e20",
 };
 
 export const region = {
@@ -106,29 +141,40 @@ const theme = createTheme({
   palette: {
     primary: primary,
     secondary: secondary,
+    success: success,
     region: region,
     utility: utility,
   },
   components: {
     MuiButton: {
       styleOverrides: {
-        root: ({ownerState, theme}) => ({
+        root: ({ ownerState, theme }) => ({
           ...(ownerState.color === "region" &&
             ownerState.variant === "contained" && {
               borderColor: theme.palette.region.main,
               color: "white",
             }),
-            ...(ownerState.color === "utility" &&
+          ...(ownerState.color === "utility" &&
             ownerState.variant === "contained" && {
               borderColor: theme.palette.utility[900],
               color: "white",
             }),
-        })
-      }
+        }),
+      },
     },
     MuiChip: {
       styleOverrides: {
         root: ({ ownerState, theme }) => ({
+          ...(ownerState.color === "success" &&
+            ownerState.variant === "filled" && {
+              backgroundColor: theme.palette.success[100],
+              color: theme.palette.success[900],
+            }),
+          ...(ownerState.color === "region" && {
+            ".MuiChip-deleteIcon": {
+              fill: theme.palette.region[800],
+            }
+          }),
           ...(ownerState.color === "region" &&
             ownerState.variant === "outlined" && {
               backgroundColor: "transparent",
@@ -142,7 +188,7 @@ const theme = createTheme({
               "&:hover": {
                 backgroundColor: theme.palette.region[300],
                 color: theme.palette.region[800],
-              }
+              },
             }),
           ...(ownerState.color === "utility" &&
             ownerState.variant === "outlined" && {
@@ -157,7 +203,7 @@ const theme = createTheme({
               "&:hover": {
                 backgroundColor: theme.palette.utility[800],
                 color: "white",
-              }
+              },
             }),
         }),
       },

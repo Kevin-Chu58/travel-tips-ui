@@ -39,9 +39,9 @@ import {
 } from "@services/wikiCommons/wikiCommons";
 import ImageForm from "@components/Forms/ImageForm";
 import { isEqual } from "lodash";
+import ToolTip from "@components/ToolTip";
 import clsx from "clsx";
 import "./index.scss";
-import ToolTip from "@components/ToolTip";
 
 type TripProfileProps = {
   uri?: string;
@@ -287,7 +287,8 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
   // ref async functions
 
   const asyncTrip = () => {
-    setTripBasic(tripBasicRef.current);
+    if (!tripBasicRef.current) return;
+    setTripBasic({ ...tripBasicRef.current });
   };
 
   const asyncImages = () => {
@@ -567,6 +568,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
             <Box className="trip-profile-title-box">
               <NameComponent
                 tripBasicRef={tripBasicRef}
+                tripBasic={tripBasic}
                 asyncTrip={asyncTrip}
                 isLoading={isLoading}
                 inputRef={inputRef}
