@@ -6,7 +6,7 @@
   flex-direction: column;
   position: relative;
 
-  .header,
+  .header.panel,
   .content {
     padding: .5rem 1rem;
   }
@@ -15,6 +15,17 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
+
+    .title {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+
+      .MuiSvgIcon-root {
+        width: 1.8rem;
+        height: 1.8rem;
+      }
+    }
 
     .subtitle.MuiTypography-root {
       color: var(--grey-600);

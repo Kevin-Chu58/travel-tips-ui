@@ -1,5 +1,5 @@
 import http from "@services/http";
-import type { UserBasic } from "./users";
+import type { UserBasic, UserSimple } from "./users";
 import type { Image, ImageRelation } from "./images";
 import type { TaoGeo } from "./taos";
 import type { RegionComplete } from "./search/regions";
@@ -23,6 +23,7 @@ export type Trip = TripPost & {
   region?: RegionComplete;
   budget?: number;
   images?: Image[];
+  sharedUsers: UserSimple[];
 };
 
 const getTripsByTitle = async (title: string): Promise<Trip[]> => {
@@ -86,9 +87,51 @@ const patchTripIsHidden = async (
   );
 };
 
+// trip shares
+
+const getSharedUsersByTripId = async (id: number): Promise<UserSimple[]> => {
+  return await http.get(http.apiBaseURLs.api, `trips/${id}/share`, undefined);
+};
+
+const shareTripWithUser = async (
+  id: number,
+  userId: string
+): Promise<UserSimple> => {
+  return await http.post(
+    http.apiBaseURLs.api,
+    `trips/${id}/share/${userId}`,
+    undefined,
+    undefined
+  );
+};
+
+const unshareTripWithUser = async (
+  id: number,
+  userId: string
+): Promise<UserSimple> => {
+  return await http.del(
+    http.apiBaseURLs.api,
+    `trips/${id}/unshare/${userId}`,
+    undefined,
+    undefined
+  );
+};
+
+const unshareTripWithAll = async (id: number): Promise<number> => {
+  return await http.del(
+    http.apiBaseURLs.api,
+    `trips/${id}/unshare`,
+    undefined,
+    undefined
+  );
+};
+
 // tags
 
-const patchTripRegionTag = async (id: number, regionId?: number) => {
+const patchTripRegionTag = async (
+  id: number,
+  regionId?: number
+): Promise<RegionComplete> => {
   const body = JSON.stringify(regionId);
 
   return await http.patch(
@@ -99,7 +142,10 @@ const patchTripRegionTag = async (id: number, regionId?: number) => {
   );
 };
 
-const patchTripBudgetTag = async (id: number, budget?: number) => {
+const patchTripBudgetTag = async (
+  id: number,
+  budget?: number
+): Promise<number> => {
   const body = JSON.stringify(budget);
 
   return await http.patch(
@@ -146,6 +192,11 @@ export const tripsService = {
   patchTrip,
   patchTripIsPublic,
   patchTripIsHidden,
+  // trip shares
+  getSharedUsersByTripId,
+  shareTripWithUser,
+  unshareTripWithUser,
+  unshareTripWithAll,
   //tags
   patchTripRegionTag,
   patchTripBudgetTag,

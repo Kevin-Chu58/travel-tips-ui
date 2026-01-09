@@ -42,6 +42,7 @@ import { isEqual } from "lodash";
 import ToolTip from "@components/ToolTip";
 import clsx from "clsx";
 import "./index.scss";
+import TripShareForm from "@components/Forms/TripShareForm";
 
 type TripProfileProps = {
   uri?: string;
@@ -94,6 +95,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
   const [openEditTaoForm, setOpenEditTaoForm] = useState<boolean>(false);
   const [openDeleteTaoForm, setOpenDeleteTaoForm] = useState<boolean>(false);
   const [openImageForm, setOpenImageForm] = useState<number | undefined>();
+  const [openTripShareForm, setOpenTripShareForm] = useState<boolean>(false);
   const [openUI, setOpenUI] = useState<boolean>(true);
   // behavior
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -659,6 +661,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
             tripBasic={tripBasic}
             tao={tao}
             isOverview={isOverview}
+            setOpenTripShareForm={setOpenTripShareForm}
             setOpenDeleteDayForm={setOpenDeleteDayForm}
             setOpenEditTaoForm={setOpenEditTaoForm}
             setOpenDeleteTaoForm={setOpenDeleteTaoForm}
@@ -679,6 +682,14 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
           openPopUp
         />
       </Box>
+
+      <TripShareForm
+        open={openTripShareForm}
+        onClose={() => setOpenTripShareForm(false)}
+        tripBasicRef={tripBasicRef}
+        sharedUsers={tripBasic?.sharedUsers ?? []}
+        asyncTrip={asyncTrip}
+      />
 
       <DeleteDayForm
         open={openDeleteDayForm}

@@ -206,15 +206,16 @@ const TripCard = ({
         </Typography>
       </Box>
 
+      {/* visibility tag */}
+      {!readonly ? (
+        <Chip
+          icon={trip.isPublic ? <VisibilityIcon /> : <VisibilityOffIcon />}
+          label={trip.isPublic ? "public" : "private"}
+          size="small"
+        />
+      ) : undefined}
+      
       <Box className="trip-card-chip-container">
-        {/* visibility tag */}
-        {!readonly ? (
-          <Chip
-            icon={trip.isPublic ? <VisibilityIcon /> : <VisibilityOffIcon />}
-            label={trip.isPublic ? "public" : "private"}
-            size="small"
-          />
-        ) : undefined}
         {/* region tag */}
         {trip.region ? (
           <Chip

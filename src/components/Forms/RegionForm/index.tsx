@@ -48,7 +48,7 @@ const RegionForm = ({
 
   // rerender region selects on complete region
   useEffect(() => {
-    initSelectRegions();
+    if (completeRegion) initSelectRegions();
   }, [completeRegion]);
 
   // render countries on initalization
@@ -59,14 +59,13 @@ const RegionForm = ({
       })) as Region[];
       setCountries(countries);
     };
-    initCountries();
-  }, []);
+
+    if (open) initCountries();
+  }, [open]);
 
   // rerender states on country
   useEffect(() => {
     const initStates = async () => {
-      setState("");
-
       if (_country) {
         const states = (await regionsService.browse({
           type: "State",
@@ -104,25 +103,6 @@ const RegionForm = ({
   const handleStateChange = (event: SelectChangeEvent) => {
     setState(event.target.value);
   };
-
-  // const handleUpdateClick = async () => {
-  //   try {
-  //     if (!tripId) return;
-
-  //     const newCompleteRegion = (await tripsService.patchTripRegionTag(
-  //       tripId,
-  //       _regionId
-  //     )) as RegionComplete;
-
-  //     if (onUpdate) onUpdate(newCompleteRegion);
-
-  //     handleClose();
-  //   } catch (e) {
-  //     if (e instanceof Error) {
-  //       enqueueSnackbar(e.message, { variant: "error" });
-  //     }
-  //   }
-  // };
 
   return (
     <FormBase

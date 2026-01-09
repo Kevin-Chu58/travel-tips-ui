@@ -1,0 +1,35 @@
+@use "../../../stylings/color" as *;
+
+.trip-share-form {
+  .user-box {
+    display: flex;
+    position: relative;
+    border-radius: 0.2rem;
+    align-items: center;
+
+    &:hover {
+      background-color: var(--grey-50);
+    }
+  }
+
+  .user-box:not(:first-child) {
+    border-top: 1px $divider solid;
+  }
+
+  .action-box {
+    margin: 0 1rem;
+    margin-left: auto;
+
+    &.mobile {
+      position: absolute;
+      top: 0.8rem;
+      right: 1rem;
+    }
+  }
+
+  .no-content-box {
+    display: flex;
+    width: max-content;
+    margin: 2rem auto;
+  }
+}

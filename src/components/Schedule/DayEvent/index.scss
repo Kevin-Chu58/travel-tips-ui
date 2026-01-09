@@ -1,40 +1,48 @@
 @use "../../../stylings/box_shadows" as *;
+@use "../../../stylings/color" as *;
 
 .day-event-container-box {
   display: flex;
   flex-direction: column;
-  gap: .5rem;
-}
+  gap: 0.5rem;
 
-.day-event-event-box {
-  position: relative;
-  cursor: pointer;
-  
-  width: 100%;
-  padding: .4rem;
-  border-radius: .2rem;
-
-  .day-event-arrow-box {
-    position: absolute;
-    right: 1rem;
-    top: 0;
-    height: 100%;
+  .event-box {
+    position: relative;
+    cursor: pointer;
     display: flex;
-    align-items: center;
-    opacity: 0;
-    // transition: .2s ease-in all;
-  }
+    flex-direction: column;
 
-  &:hover {
-    background-color: whitesmoke;
+    width: 100%;
+    padding: 0.4rem;
+    border-radius: 0.2rem;
 
-    .day-event-arrow-box {
-      opacity: 1;
+    .time-box {    
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .arrow-box {
+      position: absolute;
+      right: 1rem;
+      top: 0;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      opacity: 0;
+    }
+
+    &:hover {
+      background-color: whitesmoke;
+
+      .arrow-box {
+        opacity: 1;
+      }
     }
   }
-}
 
-.day-event-event-category.MuiChip-root {
-  color: white;
-  background: linear-gradient(to right, var(--info-900), var(--info-500));
+  .event-category.MuiChip-root {
+    color: white;
+    background: $info-gradient-right;
+  }
 }

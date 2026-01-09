@@ -72,8 +72,6 @@ const AttractionFinder = ({
         const geoCoords =
           lastGeoCoordinate ?? (await MapUtils.getCurrentLocation());
 
-        console.log(geoCoordinate);
-
         setGeoCoordinate((prev) => {
           return prev ?? geoCoords;
         });

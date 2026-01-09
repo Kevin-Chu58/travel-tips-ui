@@ -1,8 +1,10 @@
 import { Box, Chip, Divider, Typography } from "@mui/material";
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import type { Tao } from "@services/taos";
 import TimeUtils from "@utils/TimeUtils";
 import { useIsMobile } from "@hooks/useIsMobile";
+import LockIcon from "@mui/icons-material/Lock";
+import ToolTip from "@components/ToolTip";
 import React from "react";
 import clsx from "clsx";
 import "./index.scss";
@@ -32,33 +34,45 @@ const DayEvent = ({ taos, setTao }: DayEventProps) => {
         return (
           <React.Fragment key={tao.id}>
             {/* event routing */}
-            {i > 0 ? <Divider/> : undefined}
+            {i > 0 ? <Divider /> : undefined}
 
             {/* event content */}
             <Box
-              className={clsx(
-                  "day-event-event-box",
-                  isMobile && "mobile"
-                )}
+              className={clsx("event-box", isMobile && "mobile")}
               onClick={(e) => handleClickTao(e, tao)}
             >
-              <Box>
+              {/* time & privacy status */}
+              <Box className="time-box">
                 <Typography variant="h6">
                   {startTime} - {endTime}
                 </Typography>
-                <Typography>{tao.attraction.title}</Typography>
-                {/* attraction category */}
-                {tao.attraction?.category ? (
-                  <Chip
-                    className="day-event-event-category"
-                    size="small"
-                    label={<Typography variant="caption">{tao.attraction.category}</Typography>}
-                  />
+                {tao.isPrivate ? (
+                  <ToolTip
+                    title="Only visible to you and shared users"
+                    offsetY={-4}
+                  >
+                    <LockIcon />
+                  </ToolTip>
                 ) : undefined}
-
-                <Box className="day-event-arrow-box">
-                  <ArrowForwardIcon/>
+              </Box>
+              <Typography>{tao.attraction.title}</Typography>
+              {/* attraction category */}
+              {tao.attraction?.category ? (
+                <Box>
+                  <Chip
+                    className="event-category"
+                    size="small"
+                    label={
+                      <Typography variant="caption">
+                        {tao.attraction.category}
+                      </Typography>
+                    }
+                  />
                 </Box>
+              ) : undefined}
+
+              <Box className="arrow-box">
+                <ArrowForwardIcon />
               </Box>
             </Box>
           </React.Fragment>

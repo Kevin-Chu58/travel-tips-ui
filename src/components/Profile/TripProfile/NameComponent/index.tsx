@@ -15,7 +15,6 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import TTChipButton from "@components/TTChipButton";
 import TagForm from "@components/Forms/TagForm";
 import ToolTip from "@components/ToolTip";
-import type { RegionComplete } from "@services/search/regions";
 import { RegionUtils } from "@utils/RegionUtils";
 import { StringUtils } from "@utils/StringUtils";
 import "./index.scss";
@@ -46,12 +45,15 @@ const NameComponent = ({
   const handleUpdateRegion = async (regionId?: number) => {
     try {
       if (tripBasicRef.current) {
-        const completeRegion = (await tripsService.patchTripRegionTag(
+        const completeRegion = await tripsService.patchTripRegionTag(
           tripBasicRef.current.id,
           regionId
-        )) as RegionComplete;
-        tripBasicRef.current.region =
-          Object.keys(completeRegion).length > 0 ? completeRegion : undefined;
+        );
+        tripBasicRef.current.region = RegionUtils.getRegionAddress(
+          completeRegion
+        )
+          ? completeRegion
+          : undefined;
         asyncTrip();
 
         enqueueSnackbar("Region tag updated.", {
@@ -68,12 +70,12 @@ const NameComponent = ({
   const handleUpdateBudget = async (budget?: number) => {
     try {
       if (tripBasicRef.current) {
-        const newBudget = (await tripsService.patchTripBudgetTag(
+        const newBudget = await tripsService.patchTripBudgetTag(
           tripBasicRef.current.id,
           budget
-        )) as number;
+        );
 
-        tripBasicRef.current.budget = newBudget;
+        tripBasicRef.current.budget = newBudget > 0 ? newBudget : undefined;
         asyncTrip();
 
         enqueueSnackbar("Budget tag updated.", {

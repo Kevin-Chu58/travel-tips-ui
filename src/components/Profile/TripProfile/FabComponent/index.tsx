@@ -4,6 +4,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+import GroupIcon from '@mui/icons-material/Group';
 import AddIcon from "@mui/icons-material/Add";
 import { enqueueSnackbar } from "notistack";
 import { tripsService, type Trip } from "@services/trips";
@@ -17,6 +18,7 @@ type FabComponentProps = {
   tripBasic: Trip | undefined;
   tao: Tao | undefined;
   isOverview: boolean;
+  setOpenTripShareForm: (state: boolean) => void;
   setOpenDeleteDayForm: (state: boolean) => void;
   setOpenEditTaoForm: (state: boolean) => void;
   setOpenDeleteTaoForm: (state: boolean) => void;
@@ -28,6 +30,7 @@ const FabComponent = ({
   tripBasic,
   tao,
   isOverview,
+  setOpenTripShareForm,
   setOpenDeleteDayForm,
   setOpenEditTaoForm,
   setOpenDeleteTaoForm,
@@ -88,6 +91,26 @@ const FabComponent = ({
             size="medium"
           >
             {isPublished ? <VisibilityIcon /> : <VisibilityOffIcon />}
+          </Fab>
+        </ToolTip>
+      ) : undefined}
+
+      {/* shared group setting */}
+      {!readonly ? (
+        <ToolTip
+          title="Shared Users"
+          placement="right"
+        >
+          <Fab
+            color="primary"
+            className={clsx(
+              "trip-profile-fab-comp-tool-fab",
+              !Boolean(tao) && "visible"
+            )}
+            onClick={() => setOpenTripShareForm(true)}
+            size="medium"
+          >
+            <GroupIcon />
           </Fab>
         </ToolTip>
       ) : undefined}

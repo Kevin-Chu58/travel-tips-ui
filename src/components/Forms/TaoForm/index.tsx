@@ -11,6 +11,7 @@ import React, { useEffect, useState } from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import AddIcon from "@mui/icons-material/Add";
 import SearchIcon from "@mui/icons-material/Search";
+import EditIcon from "@mui/icons-material/Edit";
 import { enqueueSnackbar } from "notistack";
 import { taosService, type Tao } from "@services/taos";
 import TimeUtils from "@utils/TimeUtils";
@@ -81,6 +82,8 @@ const TaoForm = ({
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const actionButtonIcon = isProcessing ? (
     <CircularProgress size="1rem" sx={{ color: "white" }} />
+  ) : tao ? (
+    <EditIcon />
   ) : (
     <AddIcon />
   );

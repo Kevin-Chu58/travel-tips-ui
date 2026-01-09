@@ -1,8 +1,13 @@
 import http from "./http";
 
-export type UserBasic = {
+export type UserSimple = {
   id: number;
+  userId: string;
   username: string;
+  email: string;
+};
+
+export type UserBasic = UserSimple & {
   userAgreement: boolean;
 };
 
@@ -11,7 +16,11 @@ const getUserBasicInfo = async (): Promise<UserBasic> => {
 };
 
 const acceptUserAgreement = async (): Promise<boolean> => {
-  return await http.patch(http.apiBaseURLs.api, "users/me/user-agreement", undefined);
+  return await http.patch(
+    http.apiBaseURLs.api,
+    "users/me/user-agreement",
+    undefined
+  );
 };
 
 export const usersService = {

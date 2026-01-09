@@ -168,7 +168,7 @@ const Map = React.memo(
             updateWhenZooming: false, // don’t load intermediate zoom tiles
             keepBuffer: 1,
             attribution:
-              '&copy; 2025 HERE | &copy; <a href="https://www.maptiler.com/copyright/" target="_blank" rel="noopener noreferrer">MapTiler</a> &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors',
+              '&copy; 2026 HERE | &copy; <a href="https://www.maptiler.com/copyright/" target="_blank" rel="noopener noreferrer">MapTiler</a> &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors',
           }
         ).addTo(mapInstanceRef.current);
       }
