@@ -1,10 +1,10 @@
 import ToolTip from "@components/ToolTip";
-import { Fab } from "@mui/material";
+import { Badge, Fab } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
-import GroupIcon from '@mui/icons-material/Group';
+import GroupIcon from "@mui/icons-material/Group";
 import AddIcon from "@mui/icons-material/Add";
 import { enqueueSnackbar } from "notistack";
 import { tripsService, type Trip } from "@services/trips";
@@ -38,6 +38,8 @@ const FabComponent = ({
 }: FabComponentProps) => {
   // status
   const [isPublished, setIsPublished] = useState<boolean>(false);
+  // others
+  const sharedUserNum = tripBasicRef?.current?.sharedUsers.length ?? 0;
 
   useEffect(() => {
     if (tripBasic) {
@@ -97,10 +99,7 @@ const FabComponent = ({
 
       {/* shared group setting */}
       {!readonly ? (
-        <ToolTip
-          title="Shared Users"
-          placement="right"
-        >
+        <ToolTip title="Shared Users" placement="right">
           <Fab
             color="primary"
             className={clsx(
@@ -110,7 +109,13 @@ const FabComponent = ({
             onClick={() => setOpenTripShareForm(true)}
             size="medium"
           >
-            <GroupIcon />
+            {sharedUserNum ? (
+              <Badge badgeContent={sharedUserNum} color="region">
+                <GroupIcon />
+              </Badge>
+            ) : (
+              <GroupIcon />
+            )}
           </Fab>
         </ToolTip>
       ) : undefined}

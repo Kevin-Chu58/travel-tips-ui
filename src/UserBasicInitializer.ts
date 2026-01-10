@@ -26,6 +26,7 @@ export const UserBasicInitializer = () => {
         dispatch(
           setUser({
             id: user.id,
+            userId: user.userId,
             username: user.username,
             userAgreement: user.userAgreement,
           })

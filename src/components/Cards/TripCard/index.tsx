@@ -22,8 +22,8 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { enqueueSnackbar } from "notistack";
 import { RegionUtils } from "@utils/RegionUtils";
 import ShareIcon from "@mui/icons-material/Share";
-import "./index.scss";
 import { StringUtils } from "@utils/StringUtils";
+import "./index.scss";
 
 type TripCardProps = {
   trip: Trip;
@@ -56,7 +56,7 @@ const TripCard = ({
 
     if (trip) {
       try {
-        tripsService.patchTripIsPublic([trip.id], !trip.isPublic);
+        await tripsService.patchTripIsPublic([trip.id], !trip.isPublic);
         trip.isPublic = !trip.isPublic;
         if (asyncUpdateTrip) asyncUpdateTrip(trip);
 

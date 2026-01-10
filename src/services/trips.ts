@@ -35,6 +35,14 @@ const getMyTrips = async (): Promise<Trip[]> => {
   return await http.get(http.apiBaseURLs.api, "trips/my", undefined);
 };
 
+const getMyHiddenTrips = async (): Promise<Trip[]> => {
+  return await http.get(http.apiBaseURLs.api, "trips/my/hidden", undefined);
+};
+
+const getSharedTrips = async (): Promise<Trip[]> => {
+  return await http.get(http.apiBaseURLs.api, "trips/my/shared", undefined);
+};
+
 const getTripById = async (id: number): Promise<Trip> => {
   return await http.get(http.apiBaseURLs.api, `trips/${id}`, undefined);
 };
@@ -185,6 +193,8 @@ const deleteTripImage = async (
 export const tripsService = {
   getTripsByTitle,
   getMyTrips,
+  getMyHiddenTrips,
+  getSharedTrips, // get trips shared with me
   getTripById,
   getTripTaoGeosById,
   getImagesByTripId,

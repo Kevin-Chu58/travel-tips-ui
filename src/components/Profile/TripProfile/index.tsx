@@ -40,9 +40,9 @@ import {
 import ImageForm from "@components/Forms/ImageForm";
 import { isEqual } from "lodash";
 import ToolTip from "@components/ToolTip";
+import TripShareForm from "@components/Forms/TripShareForm";
 import clsx from "clsx";
 import "./index.scss";
-import TripShareForm from "@components/Forms/TripShareForm";
 
 type TripProfileProps = {
   uri?: string;

@@ -17,6 +17,9 @@ import TagForm from "@components/Forms/TagForm";
 import ToolTip from "@components/ToolTip";
 import { RegionUtils } from "@utils/RegionUtils";
 import { StringUtils } from "@utils/StringUtils";
+import GroupIcon from "@mui/icons-material/Group";
+import type { RootState } from "@redux/store";
+import { useSelector } from "react-redux";
 import "./index.scss";
 
 type NameComponentProps = {
@@ -41,6 +44,12 @@ const NameComponent = ({
   const [isEditingTitle, setIsEditingTitle] = useState<boolean>(false);
   // form
   const [openTagForm, setOpenTagForm] = useState<boolean>(false);
+  // others
+  const user = useSelector((state: RootState) => state.user);
+  const isSharedUser =
+    (tripBasic?.sharedUsers.findIndex(
+      (sharedUser) => sharedUser.userId === user.userId
+    ) ?? -1) > -1;
 
   const handleUpdateRegion = async (regionId?: number) => {
     try {
@@ -205,6 +214,16 @@ const NameComponent = ({
                 }
               />
             ) : undefined}
+            {/* shareWith tag */}
+            {isSharedUser ? (
+              <Chip
+                color="info"
+                size="small"
+                label={"Shared With"}
+                icon={<GroupIcon />}
+              />
+            ) : undefined}
+
             {/* tag form button */}
             {!readonly ? (
               <ToolTip title="Update Tags" offsetY={-8}>

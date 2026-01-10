@@ -52,8 +52,15 @@ declare module "@mui/material/FormLabel" {
   }
 }
 
-declare module "@mui/material/InputBase" {
-  interface InputBasePropsColorOverrides {
+declare module "@mui/material/TextField" {
+  interface TextFieldPropsColorOverrides {
+    region: true;
+    utility: true;
+  }
+}
+
+declare module "@mui/material/Badge" {
+  interface BadgePropsColorOverrides {
     region: true;
     utility: true;
   }
@@ -83,6 +90,20 @@ export const secondary = {
   700: "#A99673",
   800: "#766548",
   900: "#3B3224",
+};
+
+export const info = {
+  main: "#2196f3",
+  50: "#e3f2fd",
+  100: "#bbdefb",
+  200: "#90caf9",
+  300: "#64b5f6",
+  400: "#42a5f5",
+  500: "#2196f3",
+  600: "#1e88e5",
+  700: "#1976d2",
+  800: "#1565c0",
+  900: "#0d47a1",
 };
 
 export const success = {
@@ -141,6 +162,7 @@ const theme = createTheme({
   palette: {
     primary: primary,
     secondary: secondary,
+    info: info,
     success: success,
     region: region,
     utility: utility,
@@ -170,10 +192,15 @@ const theme = createTheme({
               backgroundColor: theme.palette.success[100],
               color: theme.palette.success[900],
             }),
+          ...(ownerState.color === "info" &&
+            ownerState.variant === "filled" && {
+              backgroundColor: theme.palette.info[100],
+              color: theme.palette.info[900],
+            }),
           ...(ownerState.color === "region" && {
             ".MuiChip-deleteIcon": {
               fill: theme.palette.region[800],
-            }
+            },
           }),
           ...(ownerState.color === "region" &&
             ownerState.variant === "outlined" && {
@@ -205,6 +232,20 @@ const theme = createTheme({
                 color: "white",
               },
             }),
+        }),
+      },
+    },
+    MuiBadge: {
+      styleOverrides: {
+        badge: ({ ownerState, theme }) => ({
+          ...(ownerState.color === "region" && {
+            backgroundColor: theme.palette.region[800],
+            color: theme.palette.region[300],
+          }),
+          ...(ownerState.color === "utility" && {
+            backgroundColor: theme.palette.utility[800],
+            color: "white",
+          }),
         }),
       },
     },

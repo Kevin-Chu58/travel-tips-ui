@@ -10,9 +10,15 @@ type TripsProps = {
   trips: Trip[];
   asyncUpdateTrip?: (state: Trip) => void;
   asyncDeleteTrip: (state: Trip) => void;
+  readonly?: boolean;
 };
 
-const Trips = ({ trips, asyncUpdateTrip, asyncDeleteTrip }: TripsProps) => {
+const Trips = ({
+  trips,
+  asyncUpdateTrip,
+  asyncDeleteTrip,
+  readonly = false,
+}: TripsProps) => {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
 
@@ -27,6 +33,7 @@ const Trips = ({ trips, asyncUpdateTrip, asyncDeleteTrip }: TripsProps) => {
         <TripCard
           key={`trip-${trip.id}`}
           trip={trip}
+          readonly={readonly}
           onClick={() => navigate(`/workshop/trip/${trip.id}`)}
           asyncUpdateTrip={asyncUpdateTrip}
           asyncDeleteTrip={asyncDeleteTrip}

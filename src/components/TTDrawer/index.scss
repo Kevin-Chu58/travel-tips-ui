@@ -24,12 +24,24 @@
 }
 
 .TTDrawer-nav-tab {
+  display: flex;
   margin-left: 10%;
   max-width: 90%;
   cursor: pointer;
   border-radius: 2rem 0 0 2rem;
   z-index: 0;
   background-color: var(--secondary-main);
+
+  &.sub {
+    margin-left: 20%;
+    max-width: 80%;
+    justify-content: flex-end;
+    gap: 1rem;
+
+    .MuiSvgIcon-root {
+      fill: var(--grey-700);
+    }
+  }
 
   &:hover {
     background-color: var(--secondary-600);
@@ -74,4 +86,8 @@
 .TTDrawer-nav-tab-label.MuiTypography-root {
   font-size: 1.25rem;
   margin-left: 1rem;
+
+  &.sub {
+    font-size: inherit;
+  }
 }

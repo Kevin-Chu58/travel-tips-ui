@@ -5,10 +5,13 @@ import { Box, Typography } from "@mui/material";
 import React, { useState } from "react";
 import UserCard from "@components/Cards/UserCard";
 import TTButton from "@components/TTButton";
-import GroupOffIcon from "@mui/icons-material/GroupOff";
 import { tripsService, type Trip } from "@services/trips";
 import { enqueueSnackbar } from "notistack";
 import { useIsMobile } from "@hooks/useIsMobile";
+import TTTextField from "@components/TTTextField";
+import GroupAddIcon from "@mui/icons-material/GroupAdd";
+import GroupRemoveIcon from "@mui/icons-material/GroupRemove";
+import GroupOffIcon from "@mui/icons-material/GroupOff";
 import clsx from "clsx";
 import "./index.scss";
 
@@ -29,14 +32,33 @@ const TripShareForm = ({
 }: TripShareFormProps) => {
   // window
   const isMobile = useIsMobile();
-  // response
-  const [response, setResponse] = useState<string>("");
+  // input
+  const [value, setValue] = useState<string>("");
 
   // handle
 
   const handleClose = () => {
     onClose();
-    setResponse("");
+    setValue("");
+  };
+
+  const handleShareClick = async () => {
+    if (!tripBasicRef?.current) return;
+    if (!Boolean(value)) return;
+
+    try {
+      const newShareWith = await tripsService.shareTripWithUser(
+        tripBasicRef.current.id,
+        value
+      );
+
+      tripBasicRef.current.sharedUsers.push(newShareWith);
+      asyncTrip();
+
+      enqueueSnackbar("Share trip with the user.", { variant: "success" });
+    } catch (e) {
+      if (e instanceof Error) enqueueSnackbar(e.message, { variant: "error" });
+    }
   };
 
   const handleUnshareClick = async (userId: string) => {
@@ -57,13 +79,28 @@ const TripShareForm = ({
     }
   };
 
+  const handleUnshareAllClick = async () => {
+    if (!tripBasicRef?.current) return;
+
+    try {
+      await tripsService.unshareTripWithAll(tripBasicRef.current.id);
+
+      tripBasicRef.current.sharedUsers = [];
+      asyncTrip();
+
+      enqueueSnackbar("Unshare trip with all users.", { variant: "success" });
+    } catch (e) {
+      if (e instanceof Error) enqueueSnackbar(e.message, { variant: "error" });
+    }
+  };
+
   return (
     <FormBase
       open={open}
       onClose={handleClose}
       className="trip-share-form"
       width="55vw"
-      height={isMobile ? "80vh" : "60vh"}
+      height={isMobile ? "80vh" : "40vh"}
       maxHeight={isMobile ? "80vh" : undefined}
       panel
       title={
@@ -75,7 +112,41 @@ const TripShareForm = ({
       closeButtonTheme="utility"
       closeButtonVariant="contained"
     >
-      <Box>TODO: input bar - add user by email</Box>
+      {/* header bar */}
+      <Box className={clsx("header-box", isMobile && "mobile")}>
+        <Box className="input-box">
+          <TTTextField
+            className="textfield"
+            value={value}
+            size="small"
+            color="primary"
+            placeholder="Enter Auth0 Id"
+            onChange={(e) => setValue(e.target.value)}
+            fullWidth
+            autoFocus
+          />
+        </Box>
+        <Box className={clsx("action-button-box", isMobile && "mobile")}>
+          <TTButton
+            startIcon={<GroupAddIcon />}
+            label="share with"
+            color="utility"
+            fullWidth={isMobile}
+            size={isMobile ? "small" : "medium"}
+            onClick={handleShareClick}
+          />
+          <TTButton
+            startIcon={<GroupOffIcon />}
+            label="unshare all"
+            color="error"
+            variant="text"
+            size={isMobile ? "small" : "medium"}
+            fullWidth={isMobile}
+            onClick={handleUnshareAllClick}
+          />
+        </Box>
+      </Box>
+      {/* user list */}
       <Box>
         {sharedUsers.length > 0 ? (
           sharedUsers.map((user) => (
@@ -83,7 +154,7 @@ const TripShareForm = ({
               <UserCard user={user} />
               <Box className={clsx("action-box", isMobile && "mobile")}>
                 <TTButton
-                  startIcon={<GroupOffIcon />}
+                  startIcon={<GroupRemoveIcon />}
                   size={isMobile ? "small" : "medium"}
                   color="error"
                   variant="outlined"

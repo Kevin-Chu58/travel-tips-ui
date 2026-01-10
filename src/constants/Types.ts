@@ -5,10 +5,28 @@ import type { Dayjs } from "dayjs";
 import type { SvgIconProps, SxProps } from "@mui/material";
 
 // UI
+export type WorkshopRoute = {
+  name: string;
+  path: string;
+  index?: boolean;
+  element: JSX.Element;
+  tool: JSX.Element;
+  addForm?: JSX.Element;
+};
+
+export type SubNavTab = {
+  name: string;
+  label: string;
+  icon?: JSX.Element;
+  note?: string;
+  to?: string;
+};
+
 export type NavTab = {
   name: string;
   label: string;
   to?: string;
+  subs?: SubNavTab[];
   condition?: (args: any[]) => boolean;
   deletable?: boolean;
 };
@@ -115,7 +133,7 @@ export type GeoCoordinate = {
 
 // labels
 
-export const BudgetLabels: {[index: number]: string} = {
+export const BudgetLabels: { [index: number]: string } = {
   0: "No Budget Set",
   1: "Less than $100",
   2: "Between $100 and $500",

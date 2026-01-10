@@ -127,6 +127,8 @@ const FormBase = ({
       onClose={onClose}
       panel={panel}
       hidePadding={panel}
+      disableAutoFocus
+      disableRestoreFocus
     >
       <Box
         className="form-base-container"
