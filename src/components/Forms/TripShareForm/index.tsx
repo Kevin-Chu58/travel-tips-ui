@@ -21,6 +21,7 @@ type TripShareFormProps = {
   tripBasicRef?: React.RefObject<Trip | undefined>;
   sharedUsers: UserSimple[];
   asyncTrip: () => void;
+  readonly?: boolean;
 };
 
 const TripShareForm = ({
@@ -29,6 +30,7 @@ const TripShareForm = ({
   tripBasicRef,
   sharedUsers,
   asyncTrip,
+  readonly = false,
 }: TripShareFormProps) => {
   // window
   const isMobile = useIsMobile();
@@ -113,56 +115,63 @@ const TripShareForm = ({
       closeButtonVariant="contained"
     >
       {/* header bar */}
-      <Box className={clsx("header-box", isMobile && "mobile")}>
-        <Box className="input-box">
-          <TTTextField
-            className="textfield"
-            value={value}
-            size="small"
-            color="primary"
-            placeholder="Enter Auth0 Id"
-            onChange={(e) => setValue(e.target.value)}
-            fullWidth
-            autoFocus
-          />
+      {!readonly ? (
+        <Box className={clsx("header-box", isMobile && "mobile")}>
+          <Box className="input-box">
+            <TTTextField
+              className="textfield"
+              value={value}
+              size="small"
+              color="primary"
+              placeholder="Enter Auth0 Id"
+              onChange={(e) => setValue(e.target.value)}
+              fullWidth
+              autoFocus
+            />
+          </Box>
+          <Box className={clsx("action-button-box", isMobile && "mobile")}>
+            <TTButton
+              startIcon={<GroupAddIcon />}
+              label="share with"
+              color="utility"
+              fullWidth={isMobile}
+              size={isMobile ? "small" : "medium"}
+              onClick={handleShareClick}
+            />
+            <TTButton
+              startIcon={<GroupOffIcon />}
+              label="unshare all"
+              color="error"
+              variant="text"
+              size={isMobile ? "small" : "medium"}
+              fullWidth={isMobile}
+              onClick={handleUnshareAllClick}
+            />
+          </Box>
         </Box>
-        <Box className={clsx("action-button-box", isMobile && "mobile")}>
-          <TTButton
-            startIcon={<GroupAddIcon />}
-            label="share with"
-            color="utility"
-            fullWidth={isMobile}
-            size={isMobile ? "small" : "medium"}
-            onClick={handleShareClick}
-          />
-          <TTButton
-            startIcon={<GroupOffIcon />}
-            label="unshare all"
-            color="error"
-            variant="text"
-            size={isMobile ? "small" : "medium"}
-            fullWidth={isMobile}
-            onClick={handleUnshareAllClick}
-          />
-        </Box>
-      </Box>
+      ) : (
+        <></>
+      )}
+
       {/* user list */}
       <Box>
         {sharedUsers.length > 0 ? (
           sharedUsers.map((user) => (
             <Box key={user.userId} className="user-box">
               <UserCard user={user} />
-              <Box className={clsx("action-box", isMobile && "mobile")}>
-                <TTButton
-                  startIcon={<GroupRemoveIcon />}
-                  size={isMobile ? "small" : "medium"}
-                  color="error"
-                  variant="outlined"
-                  onClick={() => handleUnshareClick(user.userId)}
-                >
-                  unshare
-                </TTButton>
-              </Box>
+              {!readonly ? (
+                <Box className={clsx("action-box", isMobile && "mobile")}>
+                  <TTButton
+                    startIcon={<GroupRemoveIcon />}
+                    size={isMobile ? "small" : "medium"}
+                    color="error"
+                    variant="outlined"
+                    onClick={() => handleUnshareClick(user.userId)}
+                  >
+                    unshare
+                  </TTButton>
+                </Box>
+              ) : undefined}
             </Box>
           ))
         ) : (

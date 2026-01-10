@@ -9,57 +9,57 @@
   position: relative;
   height: $screen-height;
   color: black;
-}
 
-.workshop-main-nav-drawer-container {
-  width: 200px;
-  height: 100%;
-  background-color: var(--secondary-main);
-}
-
-.workshop-main-content-container {
-  display: flex;
-  position: relative;
-  width: 100%;
-  flex-direction: column;
-  background-color: white;
-  overflow-y: auto;
-}
-
-.workshop-main-content-header-container {
-  position: sticky;
-  top: 0.2rem;
-  z-index: 1101;
-  margin: 1rem;
-  margin-bottom: 0;
-  padding: 0.5rem;
-  color: white;
-  background-color: var(--grey-900);
-  display: flex;
-  flex-direction: row;
-  align-items: end;
-  gap: 0.5rem;
-  border-radius: 0.5rem;
-  box-shadow: $mild-box-shadow;
-  width: fit-content;
-  align-items: center;
-
-  .MuiTypography-root {
-    font-size: 1.2rem;
+  .nav-drawer-container {
+    width: 200px;
+    height: 100%;
+    background-color: var(--secondary-main);
   }
-}
 
-.workshop-main-content-content-container {
-  padding: 1rem;
-  padding-top: 0;
-}
+  .content-container {
+    display: flex;
+    position: relative;
+    width: 100%;
+    flex-direction: column;
+    background-color: white;
+    overflow-y: auto;
+  }
 
-.workshop-main-content-title-container {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-}
+  .content-header-container {
+    position: sticky;
+    top: 0.2rem;
+    z-index: 1101;
+    margin: 1rem;
+    margin-bottom: 0;
+    padding: 0.5rem;
+    color: white;
+    background-color: var(--grey-900);
+    display: flex;
+    flex-direction: row;
+    align-items: end;
+    gap: 0.5rem;
+    border-radius: 0.5rem;
+    box-shadow: $mild-box-shadow;
+    width: fit-content;
+    align-items: center;
 
-.workshop-main-content-title.MuiTypography-root {
-  margin-left: 0.25rem;
+    .MuiTypography-root {
+      font-size: 1.2rem;
+    }
+  }
+
+  .content-content-container {
+    padding: 1rem;
+    padding-top: 0;
+  }
+
+  .content-title-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .content-title.MuiTypography-root {
+    margin-left: 0.25rem;
+  }
 }

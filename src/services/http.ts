@@ -112,8 +112,22 @@ const makeRequest = async <TResponse>(
   });
 
   if (!response.ok) {
-    // This ensures failed message triggers catch
-    throw new Error(await response.text());
+    // try to convert the response to a json file
+    // this only works if the view model sent through request fail to match
+    // the view model's exact requirement defined in API
+    // e.g. fail to comply to the rules like [MinLength(1)], [MaxLength(50)]
+    const data = await response.json().catch(() => null);
+
+    if (data && data.errors) {
+      // Wrap structured validation errors
+      const firstErrors = Object.values(data.errors)[0] as string[] | undefined;
+      const errorMessage = firstErrors?.[0] ?? "Validation failed";
+      throw new Error(errorMessage);
+    } else {
+      // fallback to generic error
+      const text = await response.text();
+      throw new Error(text);
+    }
   }
 
   return parseResponse(response);

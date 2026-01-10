@@ -71,7 +71,7 @@ const Main = () => {
   // rerender to top of the scrollbar when nav tab changes
   useEffect(() => {
     const container = document.querySelector(
-      ".workshop-main-content-container"
+      ".content-container"
     ) as HTMLElement | null;
     if (!container) return;
 
@@ -280,7 +280,7 @@ const Main = () => {
           name: "Archive",
           label: "Archive",
           icon: <ArchiveIcon />,
-          note: "Deleted Trips",
+          note: "Archived Trips",
           to: "/workshop/archive",
         },
       ],
@@ -301,12 +301,16 @@ const Main = () => {
   // Trips routes
   // ==========================
 
-  const tripsElement = (readonly: boolean = false) => (
+  const tripsElement = (
+    emptyMessage: string = "",
+    readonly: boolean = false
+  ) => (
     <Trips
       trips={trips}
       readonly={readonly}
       asyncUpdateTrip={asyncUpdateTrip}
       asyncDeleteTrip={asyncDeleteTrip}
+      emptyMessage={emptyMessage}
     />
   );
 
@@ -329,7 +333,7 @@ const Main = () => {
     name: "Trips",
     index: true,
     path: "",
-    element: tripsElement(),
+    element: tripsElement("No trips created."),
     tool: tripsTool(true),
     addForm: (
       <TripForm
@@ -343,14 +347,14 @@ const Main = () => {
   const tripsSharedRoute = {
     name: "Trips Shared With Me",
     path: "/shared",
-    element: tripsElement(true),
+    element: tripsElement("No trip shared with you.", true),
     tool: tripsTool(),
   };
 
   const tripsArchiveRoute = {
     name: "Archived Trips",
     path: "/archive",
-    element: tripsElement(true),
+    element: tripsElement("No trips in Archive."),
     tool: tripsTool(),
   };
 
@@ -469,20 +473,16 @@ const Main = () => {
                     onClose={() => setOpenDrawer(false)}
                     onClick={() => setOpenDrawer(false)}
                   >
-                    <Box className="workshop-main-nav-drawer-container">
-                      {drawer}
-                    </Box>
+                    <Box className="nav-drawer-container">{drawer}</Box>
                   </Drawer>
                 ) : (
-                  <Box className="workshop-main-nav-drawer-container">
-                    {drawer}
-                  </Box>
+                  <Box className="nav-drawer-container">{drawer}</Box>
                 )}
 
                 {/* content */}
-                <Box className="workshop-main-content-container">
-                  <Box className="workshop-main-content-header-container">
-                    <Box className="workshop-main-content-title-container">
+                <Box className="content-container">
+                  <Box className="content-header-container">
+                    <Box className="content-title-container">
                       {isMobile && (
                         <Hamburger
                           size={24}
@@ -490,7 +490,7 @@ const Main = () => {
                           toggle={setOpenDrawer}
                         />
                       )}
-                      <Typography className="workshop-main-content-title">
+                      <Typography className="content-title">
                         {route.name}
                       </Typography>
                     </Box>
@@ -500,7 +500,7 @@ const Main = () => {
                   </Box>
 
                   {/* content list */}
-                  <Box className="workshop-main-content-content-container">
+                  <Box className="content-content-container">
                     {route.element}
                   </Box>
                 </Box>

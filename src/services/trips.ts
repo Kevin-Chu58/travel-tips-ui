@@ -6,7 +6,6 @@ import type { RegionComplete } from "./search/regions";
 
 export type TripPost = {
   title: string;
-  description?: string;
 };
 
 export type TripPatch = {
@@ -16,10 +15,12 @@ export type TripPatch = {
 
 export type Trip = TripPost & {
   id: number;
+  description?: string;
   createdBy: UserBasic;
   createdAt: Date;
   numDays?: number;
   isPublic: boolean;
+  isHidden: boolean;
   region?: RegionComplete;
   budget?: number;
   images?: Image[];
@@ -55,13 +56,14 @@ const getImagesByTripId = (id: number): Promise<Image[]> => {
   return http.get(http.apiBaseURLs.api, `trips/${id}/images`, undefined);
 };
 
-const postNewTrip = async (name: string): Promise<Trip> => {
-  return await http.post(
-    http.apiBaseURLs.api,
-    `trips/${name}`,
-    undefined,
-    undefined
-  );
+const postNewTrip = async (title: string): Promise<Trip> => {
+  const tripPost = {
+    title: title,
+  } as TripPost;
+
+  const body = JSON.stringify(tripPost);
+
+  return await http.post(http.apiBaseURLs.api, "trips", body, undefined);
 };
 
 const patchTrip = async (id: number, trip: TripPatch): Promise<TripPatch> => {

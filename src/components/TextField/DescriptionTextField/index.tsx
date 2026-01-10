@@ -1,5 +1,5 @@
 import TTButton from "@components/TTButton";
-import { Box, TextField } from "@mui/material";
+import { Box, InputAdornment, TextField } from "@mui/material";
 import MarkdownBox from "@components/MarkdownBox";
 import { useState } from "react";
 import "./index.scss";
@@ -8,23 +8,25 @@ type DescriptionTextFieldProps = {
   value: string;
   setValue: (state: string) => void;
   placeholder?: string;
+  maxLength?: number;
 };
 
 const DescriptionTextField = ({
   value,
   setValue,
   placeholder,
+  maxLength,
 }: DescriptionTextFieldProps) => {
   const [isPreview, setIsPreview] = useState<boolean>(false);
 
   return (
     <Box className="description-text-field-box">
-      <Box className="description-text-field-view-box">
+      <Box className="view-box">
         <TTButton
           label="write"
           variant="text"
           onClick={() => setIsPreview(false)}
-          className={`description-text-field-view-button ${
+          className={`view-button ${
             !isPreview && "focus"
           }`}
           disableRipple
@@ -33,7 +35,7 @@ const DescriptionTextField = ({
           label="preview"
           variant="text"
           onClick={() => setIsPreview(true)}
-          className={`description-text-field-view-button ${
+          className={`view-button ${
             isPreview && "focus"
           }`}
           disableRipple
@@ -43,13 +45,21 @@ const DescriptionTextField = ({
       {isPreview ? (
         <MarkdownBox text={value} />
       ) : (
-        <TextField
-          className="description-text-field-view-input-text-field"
+        <Box className="text-field-box">
+          <TextField
+          className="view-input-text-field"
           value={value}
           onChange={(e) => setValue(e.target.value)}
           placeholder={placeholder}
           multiline
         />
+        
+          <Box className="end-adornment">
+            <InputAdornment position="end">
+              {maxLength ? `${value?.length ?? 0}/${maxLength}` : ""}
+            </InputAdornment>
+          </Box>
+        </Box>
       )}
     </Box>
   );

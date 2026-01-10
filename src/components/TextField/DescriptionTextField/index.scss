@@ -4,50 +4,62 @@
   border: 1px solid $divider;
   border-radius: 1rem;
   overflow: hidden;
-}
 
-.description-text-field-view-box {
-  flex: 1;
-  background-color: whitesmoke;
-  border-bottom: 1px solid $divider;
-}
-
-.description-text-field-view-button.MuiButton-root {
-  border-color: transparent;
-  border-radius: 1rem 1rem 0 0;
-
-  &.focus {
-    border-width: 1px 1px 0 1px;
-    border-style: solid;
-    border-color: $divider;
-    background-color: white;
-    z-index: 5;
-    scale: 1.06;
+  .view-box {
+    flex: 1;
+    background-color: whitesmoke;
+    border-bottom: 1px solid $divider;
   }
-}
 
-.description-text-field-view-input-text-field.MuiTextField-root {
-  background-color: whitesmoke;
-  & .MuiOutlinedInput-root textarea {
-    resize: vertical;
-  }
-}
+  .view-button.MuiButton-root {
+    border-color: transparent;
+    border-radius: 1rem 1rem 0 0;
 
-.description-text-field-view-preview-text-field.MuiTextField-root,
-.description-text-field-view-input-text-field.MuiTextField-root {
-  display: flex;
-  flex: 1;
-  margin: 1rem;
-
-  .MuiOutlinedInput-root {
-    font-size: 0.9rem;
-
-    textarea {
-      min-height: 100px;
+    &.focus {
+      border-width: 1px 1px 0 1px;
+      border-style: solid;
+      border-color: $divider;
+      background-color: white;
+      z-index: 5;
+      scale: 1.06;
     }
   }
 
-  .MuiOutlinedInput-input {
-    overflow-y: auto !important;
+  .text-field-box {
+    position: relative;
+  }
+
+  .view-input-text-field.MuiTextField-root {
+    display: relative;
+    background-color: whitesmoke;
+    & .MuiOutlinedInput-root textarea {
+      resize: vertical;
+    }
+  }
+
+  .view-preview-text-field.MuiTextField-root,
+  .view-input-text-field.MuiTextField-root {
+    display: flex;
+    flex: 1;
+    margin: 1rem;
+
+    .MuiOutlinedInput-root {
+      font-size: 0.9rem;
+
+      textarea {
+        min-height: 100px;
+      }
+    }
+
+    .MuiOutlinedInput-input {
+      overflow-y: auto !important;
+    }
+  }
+
+  .end-adornment {
+    position: absolute;
+    bottom: 0;
+    right: 1.2rem;
+    pointer-events: none;
   }
 }

@@ -66,6 +66,13 @@ declare module "@mui/material/Badge" {
   }
 }
 
+declare module "@mui/material/Fab" {
+  interface FabPropsColorOverrides {
+    region: true;
+    utility: true;
+  }
+}
+
 export const primary = {
   main: "#E4572E",
   100: "#FADED5",
@@ -120,6 +127,20 @@ export const success = {
   900: "#1b5e20",
 };
 
+export const error = {
+  main: "#f44336",
+  50: "#ffebee",
+  100: "#ffcdd2",
+  200: "#ef9a9a",
+  300: "#e57373",
+  400: "#ef5350",
+  500: "#f44336",
+  600: "#e53935",
+  700: "#d32f2f",
+  800: "#c62828",
+  900: "#b71c1c",
+};
+
 export const region = {
   main: "#880088",
   100: "#FCF7FC",
@@ -164,6 +185,7 @@ const theme = createTheme({
     secondary: secondary,
     info: info,
     success: success,
+    error: error,
     region: region,
     utility: utility,
   },
@@ -245,6 +267,44 @@ const theme = createTheme({
           ...(ownerState.color === "utility" && {
             backgroundColor: theme.palette.utility[800],
             color: "white",
+          }),
+        }),
+      },
+    },
+    MuiFab: {
+      styleOverrides: {
+        root: ({ ownerState, theme }) => ({
+          ...(ownerState.color === "info" && {
+            backgroundColor: theme.palette.info[800],
+            color: theme.palette.info[100],
+            ":hover": {
+              backgroundColor: theme.palette.info[800],
+              color: "white",
+            },
+          }),
+          ...(ownerState.color === "error" && {
+            backgroundColor: theme.palette.error[900],
+            color: theme.palette.error[100],
+            ":hover": {
+              backgroundColor: theme.palette.error[900],
+              color: "white",
+            },
+          }),
+          ...(ownerState.color === "region" && {
+            backgroundColor: theme.palette.region[700],
+            color: theme.palette.region[400],
+            ":hover": {
+              backgroundColor: theme.palette.region[700],
+              color: "white",
+            },
+          }),
+          ...(ownerState.color === "utility" && {
+            backgroundColor: theme.palette.utility[900],
+            color: theme.palette.utility[300],
+            ":hover": {
+              backgroundColor: theme.palette.utility[900],
+              color: "white",
+            },
           }),
         }),
       },

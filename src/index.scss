@@ -166,7 +166,7 @@
     --error-900: #ffebee;
 
     --region-main: #c77dff;
-    --region-50:  #120012;
+    --region-50: #120012;
     --region-100: #1b001b;
     --region-200: #2a002a;
     --region-300: #3d003d;
@@ -200,17 +200,82 @@ body {
       font-size: 1.25rem;
     }
     &.MuiTypography-caption {
-      font-size: .8rem;
-      color: var(--grey-700)
+      font-size: 0.8rem;
+      color: var(--grey-700);
     }
   }
 }
 
+/// custom styled selected menu item
 
-// custom styled selected menu item
-.MuiMenuItem-root.Mui-selected {
-  &.region {
-    background-color: var(--region-100);
+// general menu item styling
+.MuiMenuItem-root {
+  text-decoration: none;
+  text-transform: capitalize;
+
+  $theme: var(--grey-800);
+
+  .MuiListItemText-root .MuiTypography-root {
+    color: $theme;
+  }
+  .MuiSvgIcon-root {
+    fill: $theme;
+  }
+
+  &.Mui-selected {
+    &.region {
+      background-color: var(--region-100);
+    }
+  }
+}
+
+// special menu item styling
+.TT-menu {
+  .MuiPaper-root {
+    width: 200px;
+    background-color: var(--grey-900);
+
+    .MuiTypography-root {
+      text-decoration: none;
+    }
+
+    .MuiMenuItem-root {
+      $theme: white;
+      color: $theme;
+      text-decoration: none;
+      text-transform: capitalize;
+
+      .MuiListItemText-root .MuiTypography-root {
+        color: $theme;
+      }
+      .MuiSvgIcon-root {
+        fill: $theme;
+      }
+
+      &:hover {
+        background-color: var(--grey-800);
+      }
+
+      // customized menu item themes
+      &.error {
+        $theme: var(--error-500);
+
+        .MuiListItemText-root .MuiTypography-root {
+          color: $theme;
+        }
+        .MuiSvgIcon-root {
+          fill: $theme;
+        }
+      }
+    }
+  }
+
+  &.flex .MuiPaper-root {
+    width: auto;
+
+    .MuiTypography-root {
+      text-transform: capitalize;
+    }
   }
 }
 

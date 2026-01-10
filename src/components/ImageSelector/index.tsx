@@ -2,11 +2,10 @@ import React, { useRef, useState, type ReactNode } from "react";
 import "cropperjs/dist/cropper.css";
 import {
   Button,
-  List,
-  ListItemButton,
+  MenuItem,
   ListItemIcon,
   ListItemText,
-  Popover,
+  Menu,
 } from "@mui/material";
 import InventoryIcon from "@mui/icons-material/Inventory";
 import FileUploadIcon from "@mui/icons-material/FileUpload";
@@ -105,44 +104,34 @@ const ImageSelector = ({
         {children}
       </Button>
 
-      <Popover
+      <Menu
         anchorEl={popoverAnchorEl}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "left",
-        }}
-        transformOrigin={{
-          vertical: "top",
-          horizontal: "left",
-        }}
         open={Boolean(popoverAnchorEl)}
         onClose={handleClosePopover}
       >
-        <List>
-          {/* button - library  */}
-          <ListItemButton onClick={handleClickLibraryDialog}>
-            <ListItemIcon className="image-selector-list-item-icon">
-              <InventoryIcon />
-            </ListItemIcon>
-            <ListItemText primary="Select From Library" />
-          </ListItemButton>
+        {/* button - library  */}
+        <MenuItem onClick={handleClickLibraryDialog}>
+          <ListItemIcon>
+            <InventoryIcon />
+          </ListItemIcon>
+          <ListItemText primary="Select From Library" />
+        </MenuItem>
 
-          {/* button - upload  */}
-          <ListItemButton onClick={openFileDialog}>
-            <input
-              type="file"
-              accept="image/*"
-              ref={fileInputRef}
-              className="image-selector-cropper-file-input"
-              onChange={handleFileChange}
-            />
-            <ListItemIcon className="image-selector-list-item-icon">
-              <FileUploadIcon />
-            </ListItemIcon>
-            <ListItemText primary="Upload From Device" />
-          </ListItemButton>
-        </List>
-      </Popover>
+        {/* button - upload  */}
+        <MenuItem onClick={openFileDialog}>
+          <input
+            type="file"
+            accept="image/*"
+            ref={fileInputRef}
+            className="image-selector-cropper-file-input"
+            onChange={handleFileChange}
+          />
+          <ListItemIcon>
+            <FileUploadIcon />
+          </ListItemIcon>
+          <ListItemText primary="Upload From Device" />
+        </MenuItem>
+      </Menu>
 
       {/* dialog - library */}
       <LibraryDialog

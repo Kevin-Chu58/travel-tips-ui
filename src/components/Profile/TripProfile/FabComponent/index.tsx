@@ -22,6 +22,7 @@ type FabComponentProps = {
   setOpenDeleteDayForm: (state: boolean) => void;
   setOpenEditTaoForm: (state: boolean) => void;
   setOpenDeleteTaoForm: (state: boolean) => void;
+  isSharedUser?: boolean;
   readonly?: boolean;
 };
 
@@ -34,6 +35,7 @@ const FabComponent = ({
   setOpenDeleteDayForm,
   setOpenEditTaoForm,
   setOpenDeleteTaoForm,
+  isSharedUser = false,
   readonly = false,
 }: FabComponentProps) => {
   // status
@@ -84,7 +86,7 @@ const FabComponent = ({
           placement="right"
         >
           <Fab
-            color="primary"
+            color="utility"
             className={clsx(
               "trip-profile-fab-comp-tool-fab",
               !Boolean(tao) && "visible"
@@ -98,10 +100,10 @@ const FabComponent = ({
       ) : undefined}
 
       {/* shared group setting */}
-      {!readonly ? (
+      {!readonly || isSharedUser ? (
         <ToolTip title="Shared Users" placement="right">
           <Fab
-            color="primary"
+            color="utility"
             className={clsx(
               "trip-profile-fab-comp-tool-fab",
               !Boolean(tao) && "visible"
@@ -110,7 +112,7 @@ const FabComponent = ({
             size="medium"
           >
             {sharedUserNum ? (
-              <Badge badgeContent={sharedUserNum} color="region">
+              <Badge badgeContent={sharedUserNum} color="primary">
                 <GroupIcon />
               </Badge>
             ) : (
@@ -161,9 +163,9 @@ const FabComponent = ({
           placement="right"
         >
           <Fab
+            color="error"
             className={clsx(
               "trip-profile-fab-comp-tool-fab",
-              "delete",
               !isOverview && "visible"
             )}
             onClick={

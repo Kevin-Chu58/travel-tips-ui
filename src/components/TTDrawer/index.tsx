@@ -87,7 +87,11 @@ const TTDrawer = ({
             return (
               <React.Fragment key={subNavTab.name}>
                 {subNavTab.note ? (
-                  <ToolTip title={subNavTab.note} placement="right">
+                  <ToolTip
+                    title={subNavTab.note}
+                    placement="right"
+                    offsetY={-8}
+                  >
                     {subNavTabItem}
                   </ToolTip>
                 ) : (

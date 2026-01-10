@@ -41,6 +41,8 @@ import ImageForm from "@components/Forms/ImageForm";
 import { isEqual } from "lodash";
 import ToolTip from "@components/ToolTip";
 import TripShareForm from "@components/Forms/TripShareForm";
+import { useSelector } from "react-redux";
+import type { RootState } from "@redux/store";
 import clsx from "clsx";
 import "./index.scss";
 
@@ -97,9 +99,17 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
   const [openImageForm, setOpenImageForm] = useState<number | undefined>();
   const [openTripShareForm, setOpenTripShareForm] = useState<boolean>(false);
   const [openUI, setOpenUI] = useState<boolean>(true);
+  const [hideImages, setHideImages] = useState<boolean>(false);
   // behavior
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const isDefaultDirectingRef = useRef<boolean>(true);
+
+  // user
+  const user = useSelector((state: RootState) => state.user);
+  const isSharedUser =
+    (tripBasic?.sharedUsers.findIndex(
+      (sharedUser) => sharedUser.userId === user.userId
+    ) ?? -1) > -1;
   // others
   const { tripId, dayId } = useParams(); // dayId - day index in days, not day.id
   const prevDayId = useRef<number | undefined>(undefined);
@@ -392,18 +402,14 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
     }
   };
 
-  // render trip on initiation
+  // render trip on tripid
   useEffect(() => {
     initTrip();
   }, [tripId]);
 
-  // rerender taoGeos on trip basic id
+  // rerender taoGeos and days on numDays
   useEffect(() => {
     initTaoGeos();
-  }, [tripBasic?.numDays]);
-
-  // rerender days on numDays
-  useEffect(() => {
     initDays();
   }, [tripBasic?.numDays]);
 
@@ -507,7 +513,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
             <Box
               className={clsx(
                 "trip-profile-image-box",
-                !Boolean(dayId) && "visible"
+                !Boolean(dayId) && !hideImages && "visible"
               )}
             >
               {images.length > 0 ? (
@@ -574,6 +580,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
                 asyncTrip={asyncTrip}
                 isLoading={isLoading}
                 inputRef={inputRef}
+                isSharedUser={isSharedUser}
                 readonly={readonly}
               />
             </Box>
@@ -611,6 +618,8 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
               <DescriptionComponent
                 tripBasicRef={tripBasicRef}
                 asyncTrip={asyncTrip}
+                hideImages={hideImages}
+                setHideImages={setHideImages}
                 isLoading={isLoading}
                 readonly={readonly}
               />
@@ -665,6 +674,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
             setOpenDeleteDayForm={setOpenDeleteDayForm}
             setOpenEditTaoForm={setOpenEditTaoForm}
             setOpenDeleteTaoForm={setOpenDeleteTaoForm}
+            isSharedUser={isSharedUser}
             readonly={readonly}
           />
         </Box>
@@ -689,6 +699,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
         tripBasicRef={tripBasicRef}
         sharedUsers={tripBasic?.sharedUsers ?? []}
         asyncTrip={asyncTrip}
+        readonly={readonly}
       />
 
       <DeleteDayForm

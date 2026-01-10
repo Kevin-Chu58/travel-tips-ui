@@ -1,15 +1,20 @@
 import DescriptionTextField from "@components/TextField/DescriptionTextField";
 import TTButton from "@components/TTButton";
-import { Box, Button, Skeleton, Typography } from "@mui/material";
+import { Box, Button, IconButton, Skeleton, Typography } from "@mui/material";
 import { tripsService, type Trip, type TripPatch } from "@services/trips";
 import { enqueueSnackbar } from "notistack";
 import MarkdownBox from "@components/MarkdownBox";
 import React, { useEffect, useState } from "react";
+import ZoomOutMapIcon from "@mui/icons-material/ZoomOutMap";
+import ZoomInMapIcon from "@mui/icons-material/ZoomInMap";
 import "./index.scss";
+import ToolTip from "@components/ToolTip";
 
 type DescriptionComponentProps = {
   tripBasicRef: React.RefObject<Trip | undefined>;
   asyncTrip: () => void;
+  hideImages: boolean;
+  setHideImages: React.Dispatch<React.SetStateAction<boolean>>;
   isLoading: boolean;
   readonly?: boolean;
 };
@@ -17,6 +22,8 @@ type DescriptionComponentProps = {
 const DescriptionComponent = ({
   tripBasicRef,
   asyncTrip,
+  hideImages,
+  setHideImages,
   isLoading,
   readonly = false,
 }: DescriptionComponentProps) => {
@@ -69,9 +76,16 @@ const DescriptionComponent = ({
     <React.Fragment>
       {!isLoading ? (
         <React.Fragment>
-          <Typography className="trip-profile-description-comp-header">
-            Summary
-          </Typography>
+          <Box className="trip-profile-description-comp-header-container">
+            <Typography className="trip-profile-description-comp-header">
+              Summary
+            </Typography>
+            <ToolTip title={hideImages ? "Zoom Out" : "Zoom In"} offsetY={-8}>
+              <IconButton className="zoom-button" onClick={() => setHideImages(prev => !prev)}>
+                {hideImages ? <ZoomOutMapIcon /> : <ZoomInMapIcon />}
+              </IconButton>
+            </ToolTip>
+          </Box>
 
           {!readonly ? (
             isEditingDescription ? (
@@ -80,6 +94,7 @@ const DescriptionComponent = ({
                   value={description ?? ""}
                   setValue={setDescription}
                   placeholder={helperText}
+                  maxLength={800}
                 />
                 <Box className="trip-profile-description-comp-edit-button-box">
                   <TTButton
@@ -102,7 +117,10 @@ const DescriptionComponent = ({
                 className="trip-profile-description-comp-button"
                 onClick={() => setIsEditingDescription(true)}
               >
-                <MarkdownBox text={tripBasicRef.current?.description} disableGap />
+                <MarkdownBox
+                  text={tripBasicRef.current?.description}
+                  disableGap
+                />
               </Button>
             ) : (
               <Button

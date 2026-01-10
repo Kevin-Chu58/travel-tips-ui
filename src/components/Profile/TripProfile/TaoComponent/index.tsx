@@ -282,7 +282,7 @@ const TaoComponent = ({
             ) : tao?.isPrivate ? (
               <React.Fragment>
                 <LockIcon />
-                <Typography variant="caption">
+                <Typography color="textSecondary">
                   Only visible to you and shared users
                 </Typography>
               </React.Fragment>

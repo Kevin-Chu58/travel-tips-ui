@@ -31,6 +31,11 @@ export type NavTab = {
   deletable?: boolean;
 };
 
+export type UtilityItem = {
+  content: any;
+  condition?: boolean; // don't show content when condition is false
+};
+
 export type StringArrUpdate = {
   stringArr: string[];
   update: React.Dispatch<React.SetStateAction<string[]>>;
@@ -69,34 +74,6 @@ export type SelectType = {
   item: any;
   label: string;
 };
-
-// // day
-// export type DayId = { id?: number };
-
-// export type DayParams = DayId & {
-//   name: string | undefined;
-//   description: string | undefined;
-//   start: Dayjs | null;
-//   end: Dayjs | null;
-// };
-
-// export type DayMarkers = {
-//   dayId: number;
-//   markers: Marker[];
-// };
-
-// // tao
-// export type TaoId = { id?: number };
-
-// export type TaoParams = TaoId & {
-//   order: number;
-//   highlightId: number;
-//   estimateTime: number;
-//   estimateTravelTime: number;
-//   isDrivePreferred: boolean;
-//   isBikePreferred: boolean;
-//   isOnFootPreferred: boolean;
-// };
 
 // route
 export type RouteOptionParams = {

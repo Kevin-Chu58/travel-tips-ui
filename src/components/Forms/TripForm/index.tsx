@@ -83,6 +83,11 @@ const TripForm = ({ isOpen, setIsOpen, asyncAddTrip }: TripFormProps) => {
           value={name}
           placeholder="Title"
           onChange={handleChangeName}
+          slotProps={{
+            input: {
+              endAdornment: `${name?.length ?? 0}/50`,
+            },
+          }}
         />
 
         <Box className="trip-form-icon-box">

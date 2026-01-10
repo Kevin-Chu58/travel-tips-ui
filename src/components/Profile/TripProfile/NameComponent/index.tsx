@@ -10,7 +10,7 @@ import {
 import { tripsService, type Trip, type TripPatch } from "@services/trips";
 import TimeUtils from "@utils/TimeUtils";
 import { enqueueSnackbar } from "notistack";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import SettingsIcon from "@mui/icons-material/Settings";
 import TTChipButton from "@components/TTChipButton";
 import TagForm from "@components/Forms/TagForm";
@@ -18,8 +18,6 @@ import ToolTip from "@components/ToolTip";
 import { RegionUtils } from "@utils/RegionUtils";
 import { StringUtils } from "@utils/StringUtils";
 import GroupIcon from "@mui/icons-material/Group";
-import type { RootState } from "@redux/store";
-import { useSelector } from "react-redux";
 import "./index.scss";
 
 type NameComponentProps = {
@@ -28,6 +26,7 @@ type NameComponentProps = {
   asyncTrip: () => void;
   isLoading: boolean;
   inputRef: React.RefObject<HTMLInputElement | null>;
+  isSharedUser?: boolean;
   readonly?: boolean;
 };
 
@@ -37,6 +36,7 @@ const NameComponent = ({
   asyncTrip,
   isLoading,
   inputRef,
+  isSharedUser = false,
   readonly = false,
 }: NameComponentProps) => {
   // title
@@ -44,12 +44,11 @@ const NameComponent = ({
   const [isEditingTitle, setIsEditingTitle] = useState<boolean>(false);
   // form
   const [openTagForm, setOpenTagForm] = useState<boolean>(false);
-  // others
-  const user = useSelector((state: RootState) => state.user);
-  const isSharedUser =
-    (tripBasic?.sharedUsers.findIndex(
-      (sharedUser) => sharedUser.userId === user.userId
-    ) ?? -1) > -1;
+
+  // renreder title on trip basic title
+  useEffect(() => {
+    setTitle(tripBasic?.title);
+  }, [tripBasic?.title]);
 
   const handleUpdateRegion = async (regionId?: number) => {
     try {
