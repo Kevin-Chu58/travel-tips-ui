@@ -27,6 +27,25 @@
 
   .text-field-box {
     position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: .5rem;
+  }
+
+  .text-field-tool-bar {
+    display: flex;
+    align-items: center;
+
+    .MuiIconButton-root {
+      border-radius: .2rem;
+      
+      &.enabled,
+      &:hover {
+        background-color: var(--primary-100);
+        color: var(--primary-main);
+      }
+    }
   }
 
   .view-input-text-field.MuiTextField-root {
@@ -40,8 +59,6 @@
   .view-preview-text-field.MuiTextField-root,
   .view-input-text-field.MuiTextField-root {
     display: flex;
-    flex: 1;
-    margin: 1rem;
 
     .MuiOutlinedInput-root {
       font-size: 0.9rem;
@@ -58,8 +75,8 @@
 
   .end-adornment {
     position: absolute;
-    bottom: 0;
-    right: 1.2rem;
+    bottom: .5rem;
+    right: 1rem;
     pointer-events: none;
   }
 }

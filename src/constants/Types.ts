@@ -32,8 +32,10 @@ export type NavTab = {
 };
 
 export type UtilityItem = {
+  label?: string;
   content: any;
-  condition?: boolean; // don't show content when condition is false
+  condition?: boolean; // don't do something with content (e.g., showing) when condition is false
+  onClick?: () => void;
 };
 
 export type StringArrUpdate = {

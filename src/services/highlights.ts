@@ -15,7 +15,6 @@ export type HighlightPost = {
 };
 
 export type HighlightPatch = {
-  id: number;
   description: string;
 };
 
@@ -53,13 +52,17 @@ const patchHighlight = async (
   description: string
 ): Promise<Highlight> => {
   const highlightPatch = {
-    id: id,
     description: description,
   } as HighlightPatch;
 
   const body = JSON.stringify(highlightPatch);
 
-  return await http.patch(http.apiBaseURLs.api, "highlights", body, undefined);
+  return await http.patch(
+    http.apiBaseURLs.api,
+    `highlights/${id}`,
+    body,
+    undefined
+  );
 };
 
 const deleteHighlight = async (id: number): Promise<Highlight> => {

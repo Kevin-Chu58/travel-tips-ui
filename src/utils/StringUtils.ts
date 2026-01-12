@@ -8,17 +8,32 @@ const containsSomeWords = (base: string, check: string) => {
 
 const getFirstTwoJoined = (input: string) => {
   const parts = input.split(",");
-  const firstTwo = parts.slice(0, 2).map(part => part.trim());
+  const firstTwo = parts.slice(0, 2).map((part) => part.trim());
   return firstTwo.join(", ");
-}
+};
 
 // budget
 
 const getBudgetStr = (budget?: number) => {
-  if (!budget)
-    return "None";
+  if (!budget) return "None";
 
   return "$".repeat(budget);
+};
+
+// markdown identifier
+const BOLD_IDENT = "**";
+const ITALIC_IDENT = "_";
+const STRIKE_THROUGH_IDENT = "~";
+const LINK_IDENT = "[text](url)";
+const IMAGE_IDENT = "![text](url)";
+
+// markdown utils
+const isStylingMet = (text: string, identifier: string) => {
+  return (
+    text.length >= identifier.length * 2 &&
+    text.startsWith(identifier) &&
+    text.endsWith(identifier)
+  );
 };
 
 export const StringUtils = {
@@ -26,4 +41,12 @@ export const StringUtils = {
   getFirstTwoJoined,
   // budget
   getBudgetStr,
+  // markdown identifier
+  BOLD_IDENT,
+  ITALIC_IDENT,
+  STRIKE_THROUGH_IDENT,
+  LINK_IDENT,
+  IMAGE_IDENT,
+  // markdown utils
+  isStylingMet,
 };
