@@ -22,7 +22,7 @@ type FabComponentProps = {
   setOpenDeleteDayForm: (state: boolean) => void;
   setOpenEditTaoForm: (state: boolean) => void;
   setOpenDeleteTaoForm: (state: boolean) => void;
-  isSharedUser?: boolean;
+  isRestricted?: boolean;
   readonly?: boolean;
 };
 
@@ -35,7 +35,7 @@ const FabComponent = ({
   setOpenDeleteDayForm,
   setOpenEditTaoForm,
   setOpenDeleteTaoForm,
-  isSharedUser = false,
+  isRestricted = false,
   readonly = false,
 }: FabComponentProps) => {
   // status
@@ -100,7 +100,7 @@ const FabComponent = ({
       ) : undefined}
 
       {/* shared group setting */}
-      {!readonly || isSharedUser ? (
+      {!readonly || isRestricted ? (
         <ToolTip title="Shared Users" placement="right">
           <Fab
             color="utility"

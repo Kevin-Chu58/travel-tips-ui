@@ -110,6 +110,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
     (tripBasic?.sharedUsers.findIndex(
       (sharedUser) => sharedUser.userId === user.userId
     ) ?? -1) > -1;
+  const isRestricted = tripBasic?.createdBy.id === user.id || isSharedUser;
   // others
   const { tripId, dayId } = useParams(); // dayId - day index in days, not day.id
   const prevDayId = useRef<number | undefined>(undefined);
@@ -674,7 +675,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
             setOpenDeleteDayForm={setOpenDeleteDayForm}
             setOpenEditTaoForm={setOpenEditTaoForm}
             setOpenDeleteTaoForm={setOpenDeleteTaoForm}
-            isSharedUser={isSharedUser}
+            isRestricted={isRestricted}
             readonly={readonly}
           />
         </Box>

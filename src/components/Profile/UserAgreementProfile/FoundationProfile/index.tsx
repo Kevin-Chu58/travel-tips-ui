@@ -1,8 +1,6 @@
-import { Alert, Box, Checkbox, Divider, Typography } from "@mui/material";
-import crossSvg from "@assets/cross.svg";
-import TTButton from "@components/TTButton";
-import { useState } from "react";
-import "./index.scss";
+import { Alert, Box, Checkbox, Typography } from "@mui/material";
+import UserAgreementBase from "../UserAgreementBase";
+import React, { useState } from "react";
 
 type FoundationProfileProps = {
   readonly?: boolean;
@@ -17,28 +15,33 @@ const FoundationProfile = ({
   const [checked, setChecked] = useState<boolean>(false);
 
   return (
-    <Box className="user-agreement-profile-container">
-      {/* header */}
-      <Box className="user-agreement-profile-header-container">
-        <Box className="user-agreement-profile-header-content-container">
-          <img src={crossSvg} height={48} />
-          <Box>
-            <Typography variant="h5">User Agreement</Typography>
-            <Typography fontStyle="italic">
-              Christian Foundation of TravelTips
-            </Typography>
-          </Box>
+    <UserAgreementBase
+      subHeader="Christian Foundation of TravelTips"
+      checkingChildren={
+        <Box
+          className="checking-content-container"
+          onClick={() => setChecked((prev) => !prev)}
+        >
+          <Checkbox className="checkbox" color="default" checked={checked} />
+          <Typography className="content">
+            I <b>understand</b> that TravelTips is built on Christian values,
+            and I <b>agree to respect</b> them when <b>using the platform.</b>
+          </Typography>
         </Box>
-      </Box>
-
-      <Box className="user-agreement-profile-content-container">
+      }
+      nextHelperNote="Terms of Service"
+      nextDisabled={!checked}
+      readonly={readonly}
+      next={next}
+    >
+      <React.Fragment>
         {/* sub header */}
         <Typography variant="h6">
           All Cultures Bow Before the Word of God.
         </Typography>
 
         {/* content */}
-        <Typography className="user-agreement-profile-content">
+        <Typography className="content">
           TravelTips is operated as a Christian-values platform. We welcome
           users from all backgrounds, beliefs, and cultures to explore, browse,
           and enjoy travel content. However, because this platform is built upon
@@ -58,44 +61,8 @@ const FoundationProfile = ({
           This introduction explains the values that shape the platform and sets
           the context for the specific content standards and terms that follow.
         </Alert>
-      </Box>
-
-      {!readonly ? <Divider flexItem variant="middle" /> : undefined}
-
-      {/* agreement checking */}
-      {!readonly ? (
-        <Box className="user-agreement-profile-checking-container">
-          <Box
-            className="user-agreement-profile-checking-content-container"
-            onClick={() => setChecked((prev) => !prev)}
-          >
-            <Checkbox
-              className="user-agreement-profile-checkbox"
-              color="default"
-              checked={checked}
-            />
-            <Typography className="user-agreement-profile-content">
-              I <b>understand</b> that TravelTips is built on Christian values,
-              and I <b>agree to respect</b> them when <b>using the platform.</b>
-            </Typography>
-          </Box>
-
-          <Box className="user-agreement-profile-checking-content-container">
-            <Typography className="user-agreement-profile-checking-helper">
-              Next: Terms of Service
-            </Typography>
-            <TTButton
-              className="user-agreement-profile-checkbox-button"
-              circular
-              disabled={!checked}
-              onClick={next}
-            >
-              Proceed
-            </TTButton>
-          </Box>
-        </Box>
-      ) : undefined}
-    </Box>
+      </React.Fragment>
+    </UserAgreementBase>
   );
 };
 
