@@ -1,11 +1,11 @@
 import SearchIcon from "@mui/icons-material/Search";
 import { useEffect, useRef, useState } from "react";
 import TTTextField from "@components/TTTextField";
-import { Box, IconButton, type SxProps, type Theme } from "@mui/material";
+import { Box, IconButton, type SxProps, type TextFieldProps, type Theme } from "@mui/material";
 import { useSearchParams } from "react-router";
 
 type TTSearchProps = {
-  color: string;
+  color: TextFieldProps["color"];
   placeholder?: string;
   defaultInput?: string;
   autoFocus?: boolean;
@@ -63,8 +63,6 @@ const TTSearch = ({
         autoFocus={autoFocus}
         fullWidth={fullWidth}
         color={color}
-        inputRef={inputRef}
-        input={input}
         onChange={handleChangeInput}
         clearInput={clearInput}
         onEnterDown={handleSearch}
