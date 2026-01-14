@@ -89,7 +89,7 @@ const Home = () => {
       <Grid container spacing={2}>
         <Grid size={12}>
           <TTSearch
-            color="black"
+            color="utility"
             autoFocus={true}
             fullWidth={true}
             placeholder="pick a place"
