@@ -1,64 +1,67 @@
 @use "../../../../stylings/color" as *;
-.trip-profile-description-comp-header-container {
-  display: flex;
-  align-items: center;
 
-  .zoom-button.MuiIconButton-root {
-    margin-left: auto;
+.trip-profile-description-comp {
+  .header-container {
+    display: flex;
+    align-items: center;
 
-    &:hover {
-      color: var(--primary-main);
+    .zoom-button.MuiIconButton-root {
+      margin-left: auto;
+
+      &:hover {
+        color: var(--primary-main);
+      }
     }
   }
-}
 
-.trip-profile-description-comp-header.MuiTypography-root {
-  color: var(--primary-main);
-  font-family: "lily script one";
-  font-size: 1.5rem;
-  margin-bottom: 0.5rem;
-}
-
-.trip-profile-description-comp-edit-button-box {
-  display: flex;
-  justify-content: right;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
-}
-
-.trip-profile-description-comp-edit-button.MuiButton-root {
-  border-radius: 2rem;
-}
-
-.trip-profile-description-comp-button.MuiButton-root {
-  width: 100%;
-  margin-left: -0.5rem;
-  color: black;
-  background-color: white;
-  border-radius: 0.5rem;
-  text-transform: none;
-  text-align: left !important;
-  justify-content: flex-start;
-  padding-left: 0.75rem;
-
-  &:hover {
-    background-color: whitesmoke;
+  .header.MuiTypography-root {
+    color: var(--primary-main);
+    font-family: lily script one;
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
   }
-}
 
-.trip-profile-description-comp-empty-button.MuiButton-root {
-  display: flex;
-  flex-direction: column;
-  height: 100px;
-  color: var(--grey-main);
-  background-color: var(--grey-200);
-  border-radius: 1rem;
-  border: 1px solid $divider;
-  text-transform: none;
-}
+  .edit-button-box {
+    display: flex;
+    justify-content: right;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
 
-.trip-profile-description-comp-skeleton.MuiSkeleton-root {
-  transform: scale(1);
-  width: 100%;
-  height: 200px;
+  .edit-button.MuiButton-root {
+    border-radius: 2rem;
+  }
+
+  .button.MuiButton-root {
+    width: 100%;
+    margin-left: -0.5rem;
+    color: black;
+    background-color: white;
+    border-radius: 0.5rem;
+    text-transform: none;
+    text-align: left !important;
+    justify-content: flex-start;
+    padding-left: 0.75rem;
+
+    &:hover {
+      background-color: whitesmoke;
+    }
+  }
+
+  .empty-button.MuiButton-root {
+    display: flex;
+    flex-direction: column;
+    height: 100px;
+    color: var(--grey-main);
+    background-color: var(--grey-200);
+    border-radius: 1rem;
+    border: 1px solid $divider;
+    text-transform: none;
+  }
+
+  .skeleton.MuiSkeleton-root {
+    transform: scale(1);
+    width: 100%;
+    height: 200px;
+  }
 }

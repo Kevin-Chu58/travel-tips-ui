@@ -22,10 +22,10 @@ import "./index.scss";
 
 type NameComponentProps = {
   tripBasicRef: React.RefObject<Trip | undefined>;
-  tripBasic: Trip | undefined;
-  asyncTrip: () => void;
-  isLoading: boolean;
-  inputRef: React.RefObject<HTMLInputElement | null>;
+  tripBasic?: Trip;
+  asyncTrip?: () => void;
+  isLoading?: boolean;
+  inputRef?: React.RefObject<HTMLInputElement | null>;
   isSharedUser?: boolean;
   readonly?: boolean;
 };
@@ -62,7 +62,7 @@ const NameComponent = ({
         )
           ? completeRegion
           : undefined;
-        asyncTrip();
+        if (asyncTrip) asyncTrip();
 
         enqueueSnackbar("Region tag updated.", {
           variant: "success",
@@ -84,7 +84,7 @@ const NameComponent = ({
         );
 
         tripBasicRef.current.budget = newBudget > 0 ? newBudget : undefined;
-        asyncTrip();
+        if (asyncTrip) asyncTrip();
 
         enqueueSnackbar("Budget tag updated.", {
           variant: "success",
@@ -130,7 +130,7 @@ const NameComponent = ({
         });
 
         tripBasicRef.current.title = tripPatch.title!;
-        asyncTrip();
+        if (asyncTrip) asyncTrip();
       } catch (e) {
         if (e instanceof Error)
           enqueueSnackbar(e.message, { variant: "error" });
@@ -173,13 +173,13 @@ const NameComponent = ({
                 className="title-button"
                 onClick={() => setIsEditingTitle(true)}
               >
-                <Typography className="title">
+                <Typography className="title" variant="h6">
                   {tripBasicRef.current?.title}
                 </Typography>
               </Button>
             )
           ) : (
-            <Typography className="title-readonly">
+            <Typography className="title-readonly" variant="h6">
               {tripBasicRef.current?.title}
             </Typography>
           )}

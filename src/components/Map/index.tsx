@@ -20,6 +20,8 @@ type MapMarkerRouteProps = {
   currentCoordinate?: GeoCoordinate;
   markers?: Marker[];
   mapRoutes?: Route[];
+  showMarkerLabel?: boolean;
+  showRouteColor?: boolean;
 };
 
 type MapInteractionProps = {
@@ -41,21 +43,26 @@ type MapProps = MapConfigProps &
 
 const Map = React.memo(
   ({
+    // map config
     openUI = true,
     readonly = false,
     lat = 38.79,
     lng = -106.53,
+    sx,
+    children,
+    // map marker route
     currentCoordinate,
     setCurrentCoordinate,
     markers = [],
     mapRoutes,
+    showMarkerLabel = false,
+    showRouteColor = false,
+    // map interaction
     focusId = undefined,
     focusRoute = false,
     focusMapShift = true,
     focusOnGroup = false,
     openPopUp = false,
-    children,
-    sx,
   }: MapProps) => {
     // map refs
     const mapRef = useRef<HTMLDivElement>(null);
@@ -191,7 +198,8 @@ const Map = React.memo(
 
       mapRoutes?.forEach((mapRoute, i) => {
         let coords = routeCoords[i];
-        let isFocused = indexFocused === (mapRoute?.groupId ?? 0 + 1);
+        let isFocused =
+          showRouteColor || indexFocused === (mapRoute?.groupId ?? 0 + 1);
 
         // create polyline for each route coords array
         const polyline = L.polyline(coords as L.LatLngExpression[], {
@@ -226,13 +234,30 @@ const Map = React.memo(
 
         let nextMarker = i < markers.length ? markers[i + 1] : undefined;
         let isNextFocus =
-          !focusOnGroup && focusOnRoute && nextMarker && nextMarker.id === focusId;
+          !focusOnGroup &&
+          focusOnRoute &&
+          nextMarker &&
+          nextMarker.id === focusId;
+
+        let markerLabel = undefined;
+
+        if (showMarkerLabel && marker.groupId) {
+          const uniqueGroupIds = Array.from(
+            new Set(markers.map((m) => m.groupId))
+          );
+          uniqueGroupIds.sort();
+
+          const dayLabel =
+            uniqueGroupIds.findIndex((id) => id === marker.groupId) + 1;
+
+          markerLabel = dayLabel.toString();
+        }
 
         let icon = isFocus
-          ? MapPin("var(--success-main)")
+          ? MapPin({ color: "var(--success-main)", label: markerLabel })
           : isNextFocus
-          ? MapPin("var(--info-main)")
-          : MapPin();
+          ? MapPin({ color: "var(--info-main)", label: markerLabel })
+          : MapPin({ label: markerLabel });
         let zIndexOffset = isFocus ? 100 : 0;
 
         const leafletMarker = L.marker([marker.lat, marker.lng], {
@@ -269,7 +294,7 @@ const Map = React.memo(
       if (!bounds.isValid()) return;
 
       mapInstanceRef.current?.fitBounds(bounds, {
-        padding: [20, 25],
+        padding: [35, 35],
         maxZoom: markers.length === 1 ? markers[0].zoom : 15,
       });
 
@@ -291,7 +316,7 @@ const Map = React.memo(
         const leafletMyLocation = L.marker(
           [currentCoordinate.lat, currentCoordinate.lng],
           {
-            icon: MapPin("gold"),
+            icon: MapPin({ color: "gold" }),
           }
         );
 

@@ -47,7 +47,7 @@ type FormBaseProps = FormBaseLayoutProps &
     onClose: () => void;
     className?: string;
     isLoading?: boolean;
-    children: JSX.Element | JSX.Element[];
+    children: React.ReactNode;
   };
 
 const FormBase = ({

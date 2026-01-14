@@ -8,6 +8,7 @@ import GroupIcon from "@mui/icons-material/Group";
 import AddIcon from "@mui/icons-material/Add";
 import { enqueueSnackbar } from "notistack";
 import { tripsService, type Trip } from "@services/trips";
+import DownloadIcon from "@mui/icons-material/Download";
 import type { Tao } from "@services/taos";
 import React, { useEffect, useState } from "react";
 import clsx from "clsx";
@@ -19,6 +20,7 @@ type FabComponentProps = {
   tao: Tao | undefined;
   isOverview: boolean;
   setOpenTripShareForm: (state: boolean) => void;
+  setOpenTripPdfForm: (state: boolean) => void;
   setOpenDeleteDayForm: (state: boolean) => void;
   setOpenEditTaoForm: (state: boolean) => void;
   setOpenDeleteTaoForm: (state: boolean) => void;
@@ -32,6 +34,7 @@ const FabComponent = ({
   tao,
   isOverview,
   setOpenTripShareForm,
+  setOpenTripPdfForm,
   setOpenDeleteDayForm,
   setOpenEditTaoForm,
   setOpenDeleteTaoForm,
@@ -118,6 +121,23 @@ const FabComponent = ({
             ) : (
               <GroupIcon />
             )}
+          </Fab>
+        </ToolTip>
+      ) : undefined}
+
+      {/* download as PDF */}
+      {true ? (
+        <ToolTip title="Download as PDF" placement="right">
+          <Fab
+            color="utility"
+            className={clsx(
+              "trip-profile-fab-comp-tool-fab",
+              !Boolean(tao) && "visible"
+            )}
+            onClick={() => setOpenTripPdfForm(true)}
+            size="medium"
+          >
+            <DownloadIcon />
           </Fab>
         </ToolTip>
       ) : undefined}

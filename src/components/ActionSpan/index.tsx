@@ -20,7 +20,7 @@ const ActionSpan = ({
 }: ActionSpanProps) => {
   return (
     <span
-      className={clsx(`action-span ${className}`, isKeyboard && "keyboard")}
+      className={clsx("action-span", className, isKeyboard && "keyboard")}
       style={{ color: textColor, backgroundColor: fillColor }}
     >
       {children}

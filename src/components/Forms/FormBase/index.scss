@@ -44,6 +44,7 @@
   .footer {
     margin-top: auto;
     &.content-overflow {
+      z-index: 10;
       box-shadow: $mild_box_shadow_up;
     }
 

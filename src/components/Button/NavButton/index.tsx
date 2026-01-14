@@ -6,8 +6,10 @@ import clsx from "clsx";
 type NavButtonProps = {
   link?: string;
   icon?: JSX.Element;
+  deleteIcon?: JSX.Element;
   label?: string;
   color?: ChipOwnProps["color"];
+  size?: ChipOwnProps["size"];
   className?: string;
   hovered?: boolean;
   children?: any;
@@ -16,8 +18,10 @@ type NavButtonProps = {
 const NavButton = ({
   link,
   icon,
+  deleteIcon,
   label,
   color,
+  size = "medium",
   className,
   hovered = false,
   children,
@@ -25,9 +29,11 @@ const NavButton = ({
   const content = children ?? (
     <TTChipButton
       className={clsx(className, hovered && "hovered")}
+      size={size}
       color={color}
-      icon={icon}
       label={label}
+      icon={icon}
+      deleteIcon={deleteIcon}
     />
   );
 

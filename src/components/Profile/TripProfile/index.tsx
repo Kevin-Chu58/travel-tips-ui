@@ -43,6 +43,7 @@ import ToolTip from "@components/ToolTip";
 import TripShareForm from "@components/Forms/TripShareForm";
 import { useSelector } from "react-redux";
 import type { RootState } from "@redux/store";
+import TripPdfForm from "@components/Forms/TripPdfForm";
 import clsx from "clsx";
 import "./index.scss";
 
@@ -76,6 +77,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
   const [dayOverviewFocus, setDayOverviewFocus] = useState<number>(0);
   // taos
   const taosMapRef = useRef(new Map<number, Tao[]>()); // day.id => tao[]
+  const [taosMap, setTaosMap] = useState<Map<number, Tao[]>>();
   const [taos, setTaos] = useState<Tao[] | undefined>();
   // tao
   const [tao, setTao] = useState<Tao | undefined>();
@@ -84,6 +86,8 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
   const [wikiImages, setWikiImages] = useState<WikiImage[]>([]);
   // map
   const routeResponsesMapRef = useRef(new Map<number, HereRoutingResponse[]>()); // day.id => routing response[]
+  const [routeResponsesMap, setRouteResponsesMap] =
+    useState<Map<number, HereRoutingResponse[]>>();
   const [routeResponses, setRouteResponses] = useState<
     HereRoutingResponse[] | undefined
   >();
@@ -98,6 +102,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
   const [openDeleteTaoForm, setOpenDeleteTaoForm] = useState<boolean>(false);
   const [openImageForm, setOpenImageForm] = useState<number | undefined>();
   const [openTripShareForm, setOpenTripShareForm] = useState<boolean>(false);
+  const [openTripPdfForm, setOpenTripPdfForm] = useState<boolean>(false);
   const [openUI, setOpenUI] = useState<boolean>(true);
   const [hideImages, setHideImages] = useState<boolean>(false);
   // behavior
@@ -119,29 +124,30 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
   const correctUri = uri.length > 1 ? uri : "";
   const navigate = useNavigate();
 
-  const markers =
-    taos?.map((tao) => {
-      // markers - taos of a particular day
-      return {
-        id: String(tao.id),
-        label: tao.attraction.title,
-        lat: tao.attraction.lat,
-        lng: tao.attraction.lng,
-        zoom: MapUtils.resultTypeToZoom(tao.attraction.resultType),
-      };
-    }) ??
-    taoGeos?.map((taoGeo) => {
-      // markers - all taos
-      return {
-        id: String(taoGeo.id),
-        groupId: taoGeo.dayId,
-        label: taoGeo.title,
-        lat: taoGeo.lat,
-        lng: taoGeo.lng,
-        zoom: 0,
-      };
-    }) ??
-    [];
+  const taoMarkers = taos?.map((tao) => {
+    // markers - taos of a particular day
+    return {
+      id: String(tao.id),
+      label: tao.attraction.title,
+      lat: tao.attraction.lat,
+      lng: tao.attraction.lng,
+      zoom: MapUtils.resultTypeToZoom(tao.attraction.resultType),
+    };
+  });
+
+  const geoMarkers = taoGeos?.map((taoGeo) => {
+    // markers - all taos
+    return {
+      id: String(taoGeo.id),
+      groupId: taoGeo.dayId,
+      label: taoGeo.title,
+      lat: taoGeo.lat,
+      lng: taoGeo.lng,
+      zoom: 0,
+    };
+  });
+
+  const markers = taoMarkers ?? geoMarkers ?? [];
 
   const maxImageCount = 4;
   const isMaxImageCountReached = images.length === maxImageCount;
@@ -214,19 +220,20 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
     }
   };
 
-  const initTaos = async () => {
-    if (day?.id) {
+  const initTaos = async (dayId?: number, silentUpdate: boolean = false) => {
+    const _dayId = day?.id ?? dayId;
+    if (_dayId) {
       // set taos & tao
       let taos: Tao[] | undefined;
-      let isSameDay = prevDayId.current === day.id;
+      let isSameDay = prevDayId.current === _dayId;
       // try to get taos of a day from cache if day is switched
-      if (!isSameDay) taos = taosMapRef.current.get(day.id);
+      if (!isSameDay) taos = taosMapRef.current.get(_dayId);
       // if taos does not exist in taosMapRef, request it from API
       if (isSameDay || !taos) {
-        taos = await taosService.getTaosByDayId(day.id);
-        taosMapRef.current.set(day.id, taos);
+        taos = await taosService.getTaosByDayId(_dayId);
+        taosMapRef.current.set(_dayId, taos);
       }
-      setTaos(taos);
+      if (!silentUpdate) setTaos(taos);
 
       // optional - also updates tao component if it is opened
       if (tao) {
@@ -258,43 +265,41 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
     }
   };
 
-  const initRouteResponses = async (refresh: boolean = false) => {
-    if (day) {
+  const initRouteResponses = async (
+    refresh: boolean = false,
+    dayId?: number,
+    silentUpdate: boolean = false
+  ) => {
+    const _dayId = dayId ?? day?.id;
+    if (_dayId) {
       // check routeResponsesMapRef first when switches from day to day
       let routeResponses: HereRoutingResponse[] | undefined;
-      if (!refresh) routeResponses = routeResponsesMapRef.current.get(day.id);
+      if (!refresh) routeResponses = routeResponsesMapRef.current.get(_dayId);
 
       // if routeResponsesMapRef has no routing info for that day, get it from API
       if (!routeResponses) {
-        routeResponses = await hereMapService.getRoutingsOnDay(day.id);
-        routeResponsesMapRef.current.set(day.id, routeResponses);
+        routeResponses = await hereMapService.getRoutingsOnDay(_dayId);
+        routeResponsesMapRef.current.set(_dayId, routeResponses);
       }
 
-      prevDayId.current = day.id;
+      prevDayId.current = _dayId;
 
-      await initRoutes(routeResponses);
+      await initRoutes(routeResponses, silentUpdate);
     } else {
       setRoutes(undefined);
     }
   };
 
-  const initRoutes = async (routeResponses: HereRoutingResponse[]) => {
-    let routes = routeResponses
-      .map((res, i) =>
-        res.routes?.map((r) =>
-          r
-            ? r.sections?.map((s) => ({
-                polyline: s.polyline,
-                groupId: i,
-                color: s.transport?.color,
-              }))
-            : undefined
-        )
-      )
-      .flat(2) as Route[];
+  const initRoutes = async (
+    routeResponses: HereRoutingResponse[],
+    silentUpdate: boolean = false
+  ) => {
+    let routes = MapUtils.routingResponses2Routes(routeResponses) as Route[];
 
-    setRoutes(routes);
-    setRouteResponses(routeResponses);
+    if (!silentUpdate) {
+      setRoutes(routes);
+      setRouteResponses(routeResponses);
+    }
   };
 
   // ref async functions
@@ -444,6 +449,17 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
     initTaos();
     initRouteResponses();
   }, [day?.id]);
+
+  const fetchAllDays = async () => {
+    // make taosMap and routeResponsesMap up to date
+    for (const day of days) {
+      await initTaos(day.id, true);
+      await initRouteResponses(false, day.id, true);
+    }
+
+    setTaosMap(taosMapRef.current);
+    setRouteResponsesMap(routeResponsesMapRef.current);
+  };
 
   const overViewNavTab = {
     name: "Overview",
@@ -672,6 +688,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
             tao={tao}
             isOverview={isOverview}
             setOpenTripShareForm={setOpenTripShareForm}
+            setOpenTripPdfForm={setOpenTripPdfForm}
             setOpenDeleteDayForm={setOpenDeleteDayForm}
             setOpenEditTaoForm={setOpenEditTaoForm}
             setOpenDeleteTaoForm={setOpenDeleteTaoForm}
@@ -694,6 +711,8 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
         />
       </Box>
 
+      {/* forms */}
+
       <TripShareForm
         open={openTripShareForm}
         onClose={() => setOpenTripShareForm(false)}
@@ -701,6 +720,17 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
         sharedUsers={tripBasic?.sharedUsers ?? []}
         asyncTrip={asyncTrip}
         readonly={readonly}
+      />
+
+      <TripPdfForm
+        open={openTripPdfForm}
+        onClose={() => setOpenTripPdfForm(false)}
+        tripRef={tripBasicRef}
+        days={days}
+        taosMap={taosMap}
+        routeResponsesMap={routeResponsesMap}
+        geoMarkers={geoMarkers}
+        fetchAllDays={fetchAllDays}
       />
 
       <DeleteDayForm

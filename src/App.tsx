@@ -26,10 +26,13 @@ function App() {
   }, [user.userAgreement]);
 
   useEffect(() => {
-    if (guestUserAgreement !== "true") {
+    if (user.isLoading)
+      return;
+    
+    if (!user.userAgreement && guestUserAgreement !== "true") {
       setOpenGuestAgreement(true);
     }
-  }, [guestUserAgreement]);
+  }, [user.userAgreement, guestUserAgreement]);
 
   return (
     <Box id="app">

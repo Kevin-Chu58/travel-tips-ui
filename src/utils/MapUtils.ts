@@ -1,7 +1,12 @@
-import { GoogleMapLink, type Direction } from "@constants/Maps";
-import type { GeoCoordinate } from "@constants/Types";
+import {
+  GoogleMapLink,
+  GoogleMapRoutingLink,
+  type Direction,
+} from "@constants/Maps";
+import type { GeoCoordinate, Route } from "@constants/Types";
 import type {
-  Route,
+  HereRoutingResponse,
+  Route as HereRoute,
   Section,
 } from "@services/hereMap/hereMap";
 import L from "leaflet";
@@ -18,6 +23,14 @@ const extractAddress = (address: any) => {
 
 const getGoogleMapLink = (address: string) => {
   return GoogleMapLink + encodeURIComponent(address);
+};
+
+const getGoogleRouteLink = (origin: string, destination: string) => {
+  return (
+    GoogleMapRoutingLink +
+    `&origin=${encodeURIComponent(origin)}` +
+    `&destination=${encodeURIComponent(destination)}`
+  );
 };
 
 // calculation
@@ -104,7 +117,26 @@ const getCurrentLocation = (): Promise<GeoCoordinate> => {
   });
 };
 
-const mergeRoutingSections = (route: Route) => {
+// routings
+const routingResponses2Routes = (routeResponses?: HereRoutingResponse[]) => {
+  if (!routeResponses) return [];
+
+  return routeResponses
+    .map((res, i) =>
+      res.routes?.map((r) =>
+        r
+          ? r.sections?.map((s) => ({
+              polyline: s.polyline,
+              groupId: i,
+              color: s.transport?.color,
+            }))
+          : undefined
+      )
+    )
+    .flat(2) as Route[];
+};
+
+const mergeRoutingSections = (route: HereRoute) => {
   const mergedSections: Section[] = [];
   let pedestrianBuffer: Section[] = [];
 
@@ -113,7 +145,7 @@ const mergeRoutingSections = (route: Route) => {
 
     const merged: Section = {
       id: undefined,
-      transport: {mode: "pedestrian"},
+      transport: { mode: "pedestrian" },
       travelSummary: { duration: 0, length: 0 },
       actions: [],
     };
@@ -151,9 +183,12 @@ const mergeRoutingSections = (route: Route) => {
 const MapUtils = {
   extractAddress,
   getGoogleMapLink,
+  getGoogleRouteLink,
   getLatLngDelta,
   resultTypeToZoom,
   getCurrentLocation,
+  // routings
+  routingResponses2Routes,
   mergeRoutingSections,
 };
 

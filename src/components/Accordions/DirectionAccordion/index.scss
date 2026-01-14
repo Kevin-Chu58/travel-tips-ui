@@ -8,24 +8,29 @@
       opacity: 1;
     }
   }
-}
 
-.direction-accordion-summary .MuiAccordionSummary-content {
-  &.Mui-expanded {
-    margin: 12px 0;
+  .summary .MuiAccordionSummary-content {
+    &.Mui-expanded {
+      margin: 12px 0;
+    }
+  }
+
+  .summary-box {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .summary-inner-box {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .summary-transport-mode {
+    text-transform: capitalize;
   }
 }
 
-.direction-accordion-summary-box {
+.simple-container {
   display: flex;
-  flex-direction: column;
-}
-
-.direction-accordion-summary-inner-box {
-  display: flex;
-  gap: .5rem;
-}
-
-.direction-accordion-summary-transport-mode {
-  text-transform: capitalize;
+  gap: 0.5rem;
 }
