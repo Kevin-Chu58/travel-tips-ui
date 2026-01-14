@@ -1,7 +1,7 @@
 import { Box, Container, Drawer, Typography } from "@mui/material";
 import { tripsService, type Trip } from "@services/trips";
 import { useEffect, useRef, useState } from "react";
-import type { NavTab } from "@constants/Types";
+import type { NavTab, WorkshopRoute } from "@constants/Types";
 import TripForm from "@components/Forms/TripForm";
 import { Route, Routes } from "react-router";
 import Trips from "./Trips";
@@ -15,31 +15,28 @@ import { Turn as Hamburger } from "hamburger-react";
 import { useIsMobile } from "@hooks/useIsMobile";
 import CropperDialog from "@components/ImageSelector/CropperDialog";
 import { ImagesService, type Image } from "@services/images";
-import Images from "./Images";
 import ImagesTool from "./Images/ImagesTool";
+import Images from "./Images";
 import SortUtils, {
-  sortTypeDayAsc,
-  sortTypeDayDesc,
-  sortTypeIdAsc,
-  sortTypeIdDesc,
-  sortTypeNameAsc,
-  sortTypeNameDesc,
-  sortTypeNumHighlightsAsc,
-  sortTypeNumHighlightsDesc,
-  sortTypeTitleAsc,
-  sortTypeTitleDesc,
+  workshopAttractionsSortTypes,
+  workshopImagesSortTypes,
+  workshopTripsSortTypes,
 } from "@utils/SortUtils";
-import "./index.scss";
+import GroupIcon from "@mui/icons-material/Group";
+import ArchiveIcon from "@mui/icons-material/Archive";
 import type { RootState } from "@redux/store";
 import { useSelector } from "react-redux";
+import { useLocation } from "react-router";
+import "./index.scss";
 
 const Main = () => {
   // windows
   const isMobile = useIsMobile();
   // user
   const user = useSelector((state: RootState) => state.user);
-  // basic strcutures
+  // nav tabs
   const [navTabValue, setNavTabValue] = useState<number>(0);
+  const [subNavTabValue, setSubNavTabValue] = useState<number | undefined>();
   // Trips
   const tripsRef = useRef<Trip[]>([]);
   const [trips, setTrips] = useState<Trip[]>([]);
@@ -65,29 +62,16 @@ const Main = () => {
   // ref
   const fileInputRef = useRef<HTMLInputElement>(null);
   //sortTypes
-  const tripsSortTypes = [
-    sortTypeTitleAsc,
-    sortTypeTitleDesc,
-    sortTypeDayAsc,
-    sortTypeDayDesc,
-  ];
-  const attractionsSortTypes = [
-    sortTypeTitleAsc,
-    sortTypeTitleDesc,
-    sortTypeNumHighlightsAsc,
-    sortTypeNumHighlightsDesc,
-  ];
-  const imagesSortTypes = [
-    sortTypeIdAsc,
-    sortTypeIdDesc,
-    sortTypeNameAsc,
-    sortTypeNameDesc,
-  ];
+  const tripsSortTypes = workshopTripsSortTypes;
+  const attractionsSortTypes = workshopAttractionsSortTypes;
+  const imagesSortTypes = workshopImagesSortTypes;
+  // others
+  const location = useLocation();
 
   // rerender to top of the scrollbar when nav tab changes
   useEffect(() => {
     const container = document.querySelector(
-      ".workshop-main-content-container"
+      ".content-container"
     ) as HTMLElement | null;
     if (!container) return;
 
@@ -95,7 +79,11 @@ const Main = () => {
       container.style.scrollBehavior = "auto";
       container.scrollTop = 0;
     });
-  }, [navTabValue]);
+  }, [navTabValue, subNavTabValue]);
+
+  // ==========================
+  // Trips state & handlers
+  // ==========================
 
   // async functions
 
@@ -104,21 +92,24 @@ const Main = () => {
     setTrips(trips);
   };
 
-  const asyncAttractions = (attractions: Attraction[]) => {
-    attractionsRef.current = attractions;
-    setAttractions(attractions);
-  };
-
-  const asyncImages = (images: Image[]) => {
-    imagesRef.current = images;
-    setImages(images);
-  };
-
   // async functions
 
   const getMyTrips = async () => {
     const myTrips = await tripsService.getMyTrips();
     asyncTrips(SortUtils.sortList(myTrips, tripsSortTypes, sortTypeIndex));
+  };
+
+  // get trips others shared with me
+  const getSharedTrips = async () => {
+    const sharedTrips = await tripsService.getSharedTrips();
+    asyncTrips(SortUtils.sortList(sharedTrips, tripsSortTypes, sortTypeIndex));
+  };
+
+  const getMyHiddenTrips = async () => {
+    const myHiddenTrips = await tripsService.getMyHiddenTrips();
+    asyncTrips(
+      SortUtils.sortList(myHiddenTrips, tripsSortTypes, sortTypeIndex)
+    );
   };
 
   const asyncAddTrip = async (trip: Trip) => {
@@ -142,6 +133,15 @@ const Main = () => {
     asyncTrips(
       SortUtils.sortList(filteredTrips, tripsSortTypes, sortTypeIndex)
     );
+  };
+
+  // ==========================
+  // Attractions (with my highlights) state & handlers
+  // ==========================
+
+  const asyncAttractions = (attractions: Attraction[]) => {
+    attractionsRef.current = attractions;
+    setAttractions(attractions);
   };
 
   const getMyAttractions = async () => {
@@ -170,6 +170,15 @@ const Main = () => {
     asyncAttractions(
       SortUtils.sortList(attractions, attractionsSortTypes, sortTypeIndex)
     );
+  };
+
+  // ==========================
+  // Images state & handlers
+  // ==========================
+
+  const asyncImages = (images: Image[]) => {
+    imagesRef.current = images;
+    setImages(images);
   };
 
   const getMyImages = async () => {
@@ -201,18 +210,38 @@ const Main = () => {
     );
   };
 
-  // render the nav tab index focus when page initializes
+  // render the nav tab index and sub nav tab index focus when page initializes
+  // refactored by: ChatGPT
   useEffect(() => {
-    let pathname = window.location.pathname;
-    let navTabIndex = navTabs.findIndex((tab) => tab.to === pathname);
+    const pathname = location.pathname;
+
+    // Find the most specific matching tab
+    const navTabIndex =
+      navTabs
+        .map((tab, index) => ({ tab, index }))
+        .filter(({ tab }) => tab.to && pathname.startsWith(tab.to))
+        .sort((a, b) => b.tab.to!.length - a.tab.to!.length)[0]?.index ?? 0;
+
+    const navTab = navTabs[navTabIndex];
+
+    let subNavTabIndex: number | undefined = undefined;
+
+    if (navTab?.subs) {
+      const index = navTab.subs.findIndex((sub) => sub.to === pathname);
+      if (index !== -1) {
+        subNavTabIndex = index;
+      }
+    }
+
     setNavTabValue(navTabIndex);
-  }, []);
+    setSubNavTabValue(subNavTabIndex);
+  }, [location.pathname]);
 
   // rerender on navTabValue to reset tool values
   useEffect(() => {
     setSortTypeIndex(0);
     setSelected([]);
-  }, [navTabValue]);
+  }, [navTabValue, subNavTabValue]);
 
   const openFileDialog = () => {
     fileInputRef.current?.click();
@@ -239,6 +268,22 @@ const Main = () => {
       name: "Trips",
       label: "Trips",
       to: "/workshop",
+      subs: [
+        {
+          name: "Shared",
+          label: "Shared",
+          icon: <GroupIcon />,
+          note: "Others Shared With me",
+          to: "/workshop/shared",
+        },
+        {
+          name: "Archive",
+          label: "Archive",
+          icon: <ArchiveIcon />,
+          note: "Archived Trips",
+          to: "/workshop/archive",
+        },
+      ],
     },
     {
       name: "Highlights",
@@ -252,114 +297,161 @@ const Main = () => {
     },
   ] as NavTab[];
 
+  // ==========================
+  // Trips routes
+  // ==========================
+
+  const tripsElement = (
+    emptyMessage: string = "",
+    readonly: boolean = false
+  ) => (
+    <Trips
+      trips={trips}
+      readonly={readonly}
+      asyncUpdateTrip={asyncUpdateTrip}
+      asyncDeleteTrip={asyncDeleteTrip}
+      emptyMessage={emptyMessage}
+    />
+  );
+
+  const tripsTool = (add: boolean = false) => (
+    <TripsTool
+      sortTypes={tripsSortTypes}
+      sortTypeIndex={sortTypeIndex}
+      setSortTypeIndex={setSortTypeIndex}
+      selected={selected}
+      addOnClick={add ? () => setIsAddTripOpen(true) : undefined}
+      tripsRef={tripsRef}
+      getMyTrips={getMyTrips}
+      getSharedTrips={getSharedTrips}
+      getMyHiddenTrips={getMyHiddenTrips}
+      asyncTrips={asyncTrips}
+    />
+  );
+
+  const tripsMainRoute = {
+    name: "Trips",
+    index: true,
+    path: "",
+    element: tripsElement("No trips created."),
+    tool: tripsTool(true),
+    addForm: (
+      <TripForm
+        isOpen={isAddTripOpen}
+        setIsOpen={setIsAddTripOpen}
+        asyncAddTrip={asyncAddTrip}
+      />
+    ),
+  };
+
+  const tripsSharedRoute = {
+    name: "Trips Shared With Me",
+    path: "/shared",
+    element: tripsElement("No trip shared with you.", true),
+    tool: tripsTool(),
+  };
+
+  const tripsArchiveRoute = {
+    name: "Archived Trips",
+    path: "/archive",
+    element: tripsElement("No trips in Archive."),
+    tool: tripsTool(),
+  };
+
+  // ==========================
+  // Attractions (with my highlights) routes
+  // ==========================
+
+  const attractionsMainRoute = {
+    name: "Highlights",
+    path: "/Highlights",
+    element: (
+      <Highlights attractions={attractions} showHovers={attractionShowHovers} />
+    ),
+    tool: (
+      <HighlightsTool
+        sortTypes={attractionsSortTypes}
+        sortTypeIndex={sortTypeIndex}
+        setSortTypeIndex={setSortTypeIndex}
+        addOnClick={() => setIsAddHighlightOpen(true)}
+        attractionsRef={attractionsRef}
+        getMyAttractions={getMyAttractions}
+        asyncAttractions={asyncAttractions}
+        showHovers={attractionShowHovers}
+        setShowHovers={setAttractionShowHovers}
+      />
+    ),
+    addForm: (
+      <AttractionFinder
+        open={isAddHighlightOpen}
+        setOpen={setIsAddHighlightOpen}
+        asyncAddAttraction={asyncAddAttraction}
+      />
+    ),
+  };
+
+  // ==========================
+  // Images routes
+  // ==========================
+
+  const imagesMainRoute = {
+    name: "Images",
+    path: "/images",
+    element: (
+      <Images
+        images={images}
+        asyncUpdateImage={asyncUpdateImage}
+        asyncDeleteImage={asyncDeleteImage}
+      />
+    ),
+    tool: (
+      <ImagesTool
+        sortTypes={imagesSortTypes}
+        sortTypeIndex={sortTypeIndex}
+        setSortTypeIndex={setSortTypeIndex}
+        addOnClick={openFileDialog}
+        addInput={
+          <input
+            type="file"
+            accept="image/*"
+            ref={fileInputRef}
+            className="image-selector-cropper-file-input"
+            onChange={handleFileChange}
+          />
+        }
+        imagesRef={imagesRef}
+        getMyImages={getMyImages}
+        asyncImages={asyncImages}
+      />
+    ),
+    addForm: (
+      <CropperDialog
+        open={isAddImageOpen}
+        onClose={() => setIsAddImageOpen(false)}
+        imageSrc={imageSrc}
+        asyncAddImage={asyncAddImage}
+      />
+    ),
+  };
+
   const workshopMainRoutes = [
-    {
-      name: "Trips",
-      index: true,
-      path: "",
-      element: (
-        <Trips
-          trips={trips}
-          asyncUpdateTrip={asyncUpdateTrip}
-          asyncDeleteTrip={asyncDeleteTrip}
-        />
-      ),
-      tool: (
-        <TripsTool
-          sortTypes={tripsSortTypes}
-          sortTypeIndex={sortTypeIndex}
-          setSortTypeIndex={setSortTypeIndex}
-          selected={selected}
-          addOnClick={() => setIsAddTripOpen(true)}
-          tripsRef={tripsRef}
-          getMyTrips={getMyTrips}
-          asyncTrips={asyncTrips}
-        />
-      ),
-      addForm: (
-        <TripForm
-          isOpen={isAddTripOpen}
-          setIsOpen={setIsAddTripOpen}
-          asyncAddTrip={asyncAddTrip}
-        />
-      ),
-    },
-    {
-      name: "Highlights",
-      path: "/highlights",
-      element: (
-        <Highlights
-          attractions={attractions}
-          showHovers={attractionShowHovers}
-        />
-      ),
-      tool: (
-        <HighlightsTool
-          sortTypes={attractionsSortTypes}
-          sortTypeIndex={sortTypeIndex}
-          setSortTypeIndex={setSortTypeIndex}
-          addOnClick={() => setIsAddHighlightOpen(true)}
-          attractionsRef={attractionsRef}
-          getMyAttractions={getMyAttractions}
-          asyncAttractions={asyncAttractions}
-          showHovers={attractionShowHovers}
-          setShowHovers={setAttractionShowHovers}
-        />
-      ),
-      addForm: (
-        <AttractionFinder
-          open={isAddHighlightOpen}
-          setOpen={setIsAddHighlightOpen}
-          asyncAddAttraction={asyncAddAttraction}
-        />
-      ),
-    },
-    {
-      name: "Images",
-      path: "/images",
-      element: (
-        <Images
-          images={images}
-          asyncUpdateImage={asyncUpdateImage}
-          asyncDeleteImage={asyncDeleteImage}
-        />
-      ),
-      tool: (
-        <ImagesTool
-          sortTypes={imagesSortTypes}
-          sortTypeIndex={sortTypeIndex}
-          setSortTypeIndex={setSortTypeIndex}
-          addOnClick={openFileDialog}
-          addInput={
-            <input
-              type="file"
-              accept="image/*"
-              ref={fileInputRef}
-              className="image-selector-cropper-file-input"
-              onChange={handleFileChange}
-            />
-          }
-          imagesRef={imagesRef}
-          getMyImages={getMyImages}
-          asyncImages={asyncImages}
-        />
-      ),
-      addForm: (
-        <CropperDialog
-          open={isAddImageOpen}
-          onClose={() => setIsAddImageOpen(false)}
-          imageSrc={imageSrc}
-          asyncAddImage={asyncAddImage}
-        />
-      ),
-    },
-  ];
+    // trips
+    tripsMainRoute,
+    tripsSharedRoute,
+    tripsArchiveRoute,
+    // highlights
+    attractionsMainRoute,
+    // images
+    imagesMainRoute,
+  ] as WorkshopRoute[];
 
   const drawer = (
     <TTDrawer
       navTabs={navTabs}
       navTabValue={navTabValue}
       setNavTabValue={setNavTabValue}
+      subNavTabValue={subNavTabValue}
+      setSubNavTabValue={setSubNavTabValue}
       isMobile={isMobile}
     />
   );
@@ -381,20 +473,16 @@ const Main = () => {
                     onClose={() => setOpenDrawer(false)}
                     onClick={() => setOpenDrawer(false)}
                   >
-                    <Box className="workshop-main-nav-drawer-container">
-                      {drawer}
-                    </Box>
+                    <Box className="nav-drawer-container">{drawer}</Box>
                   </Drawer>
                 ) : (
-                  <Box className="workshop-main-nav-drawer-container">
-                    {drawer}
-                  </Box>
+                  <Box className="nav-drawer-container">{drawer}</Box>
                 )}
 
                 {/* content */}
-                <Box className="workshop-main-content-container">
-                  <Box className="workshop-main-content-header-container">
-                    <Box className="workshop-main-content-title-container">
+                <Box className="content-container">
+                  <Box className="content-header-container">
+                    <Box className="content-title-container">
                       {isMobile && (
                         <Hamburger
                           size={24}
@@ -402,7 +490,7 @@ const Main = () => {
                           toggle={setOpenDrawer}
                         />
                       )}
-                      <Typography className="workshop-main-content-title">
+                      <Typography className="content-title">
                         {route.name}
                       </Typography>
                     </Box>
@@ -412,7 +500,7 @@ const Main = () => {
                   </Box>
 
                   {/* content list */}
-                  <Box className="workshop-main-content-content-container">
+                  <Box className="content-content-container">
                     {route.element}
                   </Box>
                 </Box>

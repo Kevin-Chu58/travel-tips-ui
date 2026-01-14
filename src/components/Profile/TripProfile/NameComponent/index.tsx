@@ -10,22 +10,23 @@ import {
 import { tripsService, type Trip, type TripPatch } from "@services/trips";
 import TimeUtils from "@utils/TimeUtils";
 import { enqueueSnackbar } from "notistack";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import SettingsIcon from "@mui/icons-material/Settings";
 import TTChipButton from "@components/TTChipButton";
 import TagForm from "@components/Forms/TagForm";
 import ToolTip from "@components/ToolTip";
-import type { RegionComplete } from "@services/search/regions";
 import { RegionUtils } from "@utils/RegionUtils";
 import { StringUtils } from "@utils/StringUtils";
+import GroupIcon from "@mui/icons-material/Group";
 import "./index.scss";
 
 type NameComponentProps = {
   tripBasicRef: React.RefObject<Trip | undefined>;
-  tripBasic: Trip | undefined;
-  asyncTrip: () => void;
-  isLoading: boolean;
-  inputRef: React.RefObject<HTMLInputElement | null>;
+  tripBasic?: Trip;
+  asyncTrip?: () => void;
+  isLoading?: boolean;
+  inputRef?: React.RefObject<HTMLInputElement | null>;
+  isSharedUser?: boolean;
   readonly?: boolean;
 };
 
@@ -35,6 +36,7 @@ const NameComponent = ({
   asyncTrip,
   isLoading,
   inputRef,
+  isSharedUser = false,
   readonly = false,
 }: NameComponentProps) => {
   // title
@@ -43,16 +45,24 @@ const NameComponent = ({
   // form
   const [openTagForm, setOpenTagForm] = useState<boolean>(false);
 
+  // renreder title on trip basic title
+  useEffect(() => {
+    setTitle(tripBasic?.title);
+  }, [tripBasic?.title]);
+
   const handleUpdateRegion = async (regionId?: number) => {
     try {
       if (tripBasicRef.current) {
-        const completeRegion = (await tripsService.patchTripRegionTag(
+        const completeRegion = await tripsService.patchTripRegionTag(
           tripBasicRef.current.id,
           regionId
-        )) as RegionComplete;
-        tripBasicRef.current.region =
-          Object.keys(completeRegion).length > 0 ? completeRegion : undefined;
-        asyncTrip();
+        );
+        tripBasicRef.current.region = RegionUtils.getRegionAddress(
+          completeRegion
+        )
+          ? completeRegion
+          : undefined;
+        if (asyncTrip) asyncTrip();
 
         enqueueSnackbar("Region tag updated.", {
           variant: "success",
@@ -68,13 +78,13 @@ const NameComponent = ({
   const handleUpdateBudget = async (budget?: number) => {
     try {
       if (tripBasicRef.current) {
-        const newBudget = (await tripsService.patchTripBudgetTag(
+        const newBudget = await tripsService.patchTripBudgetTag(
           tripBasicRef.current.id,
           budget
-        )) as number;
+        );
 
-        tripBasicRef.current.budget = newBudget;
-        asyncTrip();
+        tripBasicRef.current.budget = newBudget > 0 ? newBudget : undefined;
+        if (asyncTrip) asyncTrip();
 
         enqueueSnackbar("Budget tag updated.", {
           variant: "success",
@@ -120,7 +130,7 @@ const NameComponent = ({
         });
 
         tripBasicRef.current.title = tripPatch.title!;
-        asyncTrip();
+        if (asyncTrip) asyncTrip();
       } catch (e) {
         if (e instanceof Error)
           enqueueSnackbar(e.message, { variant: "error" });
@@ -163,13 +173,13 @@ const NameComponent = ({
                 className="title-button"
                 onClick={() => setIsEditingTitle(true)}
               >
-                <Typography className="title">
+                <Typography className="title" variant="h6">
                   {tripBasicRef.current?.title}
                 </Typography>
               </Button>
             )
           ) : (
-            <Typography className="title-readonly">
+            <Typography className="title-readonly" variant="h6">
               {tripBasicRef.current?.title}
             </Typography>
           )}
@@ -203,6 +213,16 @@ const NameComponent = ({
                 }
               />
             ) : undefined}
+            {/* shareWith tag */}
+            {isSharedUser ? (
+              <Chip
+                color="info"
+                size="small"
+                label={"Shared With"}
+                icon={<GroupIcon />}
+              />
+            ) : undefined}
+
             {/* tag form button */}
             {!readonly ? (
               <ToolTip title="Update Tags" offsetY={-8}>

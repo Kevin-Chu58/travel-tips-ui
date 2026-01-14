@@ -1,24 +1,26 @@
-import { Alert, Box, Checkbox, Divider, Typography } from "@mui/material";
-import crossSvg from "@assets/cross.svg";
-import TTButton from "@components/TTButton";
+import { Alert, Box, Checkbox, Typography } from "@mui/material";
+import UserAgreementBase from "../UserAgreementBase";
 import { BehaviorUtils } from "@utils/BehaviorUtils";
-import { useState } from "react";
+import React, { useState } from "react";
 import clsx from "clsx";
 
 type TermsOfServiceProfileProps = {
   readonly?: boolean;
+  isGuest?: boolean;
   next?: () => void;
   back?: () => void;
 };
 
 const TermsOfServiceProfile = ({
   readonly = false,
+  isGuest = false,
   next,
   back,
 }: TermsOfServiceProfileProps) => {
   // checkbox
   const [checked, setChecked] = useState<boolean>(false);
   const [checkedSection7, setCheckedSection7] = useState<boolean>(false);
+  const [checkedGuest, setCheckedGuest] = useState<boolean>(false);
 
   const handleCheckboxSection7OnClick = () => {
     if (checked) setChecked(false);
@@ -32,23 +34,115 @@ const TermsOfServiceProfile = ({
     BehaviorUtils.scrollToElementById("section-7");
   };
 
-  return (
-    <Box className="user-agreement-profile-container">
-      {/* header */}
-      <Box className="user-agreement-profile-header-container">
-        <Box className="user-agreement-profile-header-content-container">
-          <img src={crossSvg} height={48} />
-          <Box>
-            <Typography variant="h5">User Agreement</Typography>
-            <Typography fontStyle="italic">Terms of Service</Typography>
-          </Box>
-        </Box>
-      </Box>
+  const guestSection = (
+    <Typography component="div" className="content">
+      Guests are individuals who do <b>not</b> create an account.
+      <br />
+      Guests may:
+      <ul>
+        <li>Freely search the app</li>
+        <li>View publicly available travel content (“Trips”)</li>
+        <li>Use attraction lookup features (“Attractions”)</li>
+      </ul>
+      Guests <b>are NOT bound by the User Agreement</b>, except for these
+      general rules:
+      <ul>
+        <li>
+          Do not use the app illegally (e.g. hacking, scraping, attacking
+          servers)
+        </li>
+        <li>Do not copy or illegally redistribute copyrighted material</li>
+        <li>Do not attempt to impersonate Users or gain unauthorized access</li>
+      </ul>
+      Guests do <b>not</b> receive content posting privileges.
+    </Typography>
+  );
 
-      <Box className="user-agreement-profile-content-container">
+  if (isGuest)
+    return (
+      <UserAgreementBase
+        showCross={false}
+        subHeader="Guest Terms of Service"
+        checkingChildren={
+          <Box
+            className="checking-content-container"
+            onClick={() => setCheckedGuest((prev) => !prev)}
+          >
+            <Checkbox
+              className="checkbox"
+              color="default"
+              checked={checkedGuest}
+            />
+            <Typography className="content">
+              By checking the box, you agree to all terms in this guest User
+              Agreement.
+            </Typography>
+          </Box>
+        }
+        readonly={readonly}
+        nextLabel="Complete!"
+        nextDisabled={!checkedGuest}
+        next={next}
+      >
+        {guestSection}
+      </UserAgreementBase>
+    );
+
+  return (
+    <UserAgreementBase
+      subHeader="Terms of Service"
+      checkingChildren={
+        <React.Fragment>
+          <Box
+            className="checking-content-container"
+            onClick={handleCheckboxSection7OnClick}
+          >
+            <Checkbox
+              className="checkbox"
+              color="default"
+              checked={checkedSection7}
+            />
+            <Typography className="content">
+              By checking the box, you agree to how TravelTips manage User
+              Content in{" "}
+              <span className="link" onClick={scrollToSection7}>
+                Section 7
+              </span>
+              .
+            </Typography>
+          </Box>
+          <Box
+            className="checking-content-container"
+            onClick={() =>
+              checkedSection7 ? setChecked((prev) => !prev) : undefined
+            }
+          >
+            <Checkbox
+              className="checkbox"
+              color="default"
+              disabled={!checkedSection7}
+              checked={checked}
+            />
+            <Typography
+              className={clsx("content", !checkedSection7 && "disabled")}
+            >
+              By checking the box, you agree to all terms in this full
+              Agreement.
+            </Typography>
+          </Box>
+        </React.Fragment>
+      }
+      readonly={readonly}
+      backLabel="Back"
+      nextHelperNote="Privacy Policy"
+      nextDisabled={!checked || !checkedSection7}
+      back={back}
+      next={next}
+    >
+      <React.Fragment>
         {/* section 1 */}
         <Typography variant="h6">1. Scope of This Agreement</Typography>
-        <Typography className="user-agreement-profile-content">
+        <Typography className="content">
           This User Agreement (“Agreement”) applies{" "}
           <b>only to individuals who create a TravelTips account</b> (“Users”).{" "}
           <br />
@@ -70,10 +164,7 @@ const TermsOfServiceProfile = ({
         <Typography variant="subtitle1">
           2.1 Registered Users (“Users”)
         </Typography>
-        <Typography
-          component="div"
-          className="user-agreement-profile-content"
-        >
+        <Typography component="div" className="content">
           Users may:
           <ul>
             <li>
@@ -87,39 +178,11 @@ const TermsOfServiceProfile = ({
           </ul>
         </Typography>
         <Typography variant="subtitle1">2.2 Guests</Typography>
-        <Typography
-          component="div"
-          className="user-agreement-profile-content"
-        >
-          Guests are individuals who do <b>not</b> create an account.
-          <br />
-          Guests may:
-          <ul>
-            <li>Freely search the app</li>
-            <li>View publicly available travel content (“Trips”)</li>
-            <li>Use attraction lookup features (“Attractions”)</li>
-          </ul>
-          Guests <b>are NOT bound by the User Agreement</b>, except for these
-          general rules:
-          <ul>
-            <li>
-              Do not use the app illegally (e.g. hacking, scraping, attacking
-              servers)
-            </li>
-            <li>Do not copy or illegally redistribute copyrighted material</li>
-            <li>
-              Do not attempt to impersonate Users or gain unauthorized access
-            </li>
-          </ul>
-          Guests do <b>not</b> receive content posting privileges.
-        </Typography>
+        {guestSection}
         <Typography variant="subtitle1">
           2.3 When a Guest Becomes a User
         </Typography>
-        <Typography
-          component="div"
-          className="user-agreement-profile-content"
-        >
+        <Typography component="div" className="content">
           A guest becomes a User the moment they:
           <ul>
             <li>Create an account, or</li>
@@ -130,7 +193,7 @@ const TermsOfServiceProfile = ({
 
         {/* section 3 */}
         <Typography variant="h6">3. Acceptance of Terms</Typography>
-        <Typography className="user-agreement-profile-content">
+        <Typography className="content">
           By accessing or using the TravelTips app (“the App”), you agree to be
           bound by this User Agreement and all applicable laws. If you do not
           agree, you may not use the App.
@@ -138,7 +201,7 @@ const TermsOfServiceProfile = ({
 
         {/* section 4 */}
         <Typography variant="h6">4. Description of Service</Typography>
-        <Typography className="user-agreement-profile-content">
+        <Typography className="content">
           TravelTips provides travel-related content, including recommendations,
           user-created trip plans, attraction information, and interactive tools
           to assist with travel planning.
@@ -149,7 +212,7 @@ const TermsOfServiceProfile = ({
 
         {/* section 5 */}
         <Typography variant="h6">5. Eligibility</Typography>
-        <Typography className="user-agreement-profile-content">
+        <Typography className="content">
           You must be at least 13 years old to use the App.
           <br />
           If you are under the age of majority in your jurisdiction, you must
@@ -158,10 +221,7 @@ const TermsOfServiceProfile = ({
 
         {/* section 6 */}
         <Typography variant="h6">6. User Accounts</Typography>
-        <Typography
-          component="div"
-          className="user-agreement-profile-content"
-        >
+        <Typography component="div" className="content">
           <ul>
             <li>
               You are responsible for maintaining the confidentiality of your
@@ -182,19 +242,44 @@ const TermsOfServiceProfile = ({
         <Typography id="section-7" variant="h6">
           7. User Content
         </Typography>
-        <Typography
-          component="div"
-          className="user-agreement-profile-content"
-        >
+        <Typography className="content">
           “User Content” includes any text, images, reviews, travel tips, or
           other materials submitted by users.
-          <br />
-          <br />
+        </Typography>
+        <Typography variant="subtitle1">7.1 License Grant</Typography>
+        <Typography className="content">
           By submitting User Content, you grant TravelTips a non-exclusive,
           worldwide, royalty-free license to use, display, modify, distribute,
           and share the content as part of operating the App.
+        </Typography>
+        <Typography variant="subtitle1">
+          7.2 Public vs. Private Content
+        </Typography>
+        <Typography className="content">
+          <b>Public Content</b> refers to User Content that is publicly visible
+          or discoverable within the App. <b>Private Content</b> refers to User
+          Content that is not publicly visible or searchable, including private
+          trips and content shared only with selected users.
           <br />
           <br />
+          TravelTips does{" "}
+          <b>not proactively monitor or moderate Private Content</b>.
+          <br />
+          <br />
+          <b>
+            However, Private Content that is shared with other users may be
+            reviewed and moderated if it is reported by a user, required by law,
+            or reasonably suspected to violate this Agreement or applicable law.
+            <br />
+            <br />
+            User Content that is exported, generated, or distributed in another
+            format (including PDF files) remains subject to this Agreement and
+            may be reviewed and moderated under the same standards, regardless
+            of the format in which it is presented or shared.
+          </b>
+        </Typography>
+        <Typography variant="subtitle1">7.3 Content Standards</Typography>
+        <Typography component="div" className="content">
           Your submitted content must be consistent with the Christian
           foundations and mission of TravelTips. Therefore, you agree that your
           content:
@@ -235,6 +320,10 @@ const TermsOfServiceProfile = ({
               privacy rights.
             </li>
           </ul>
+          For clarity, <b>informational, descriptive, or neutral references</b>{" "}
+          are permitted; the following examples apply only to User Content that{" "}
+          <b>promotes, endorses, encourages, or advocates</b> the listed ideas
+          or practices.
         </Typography>
         <Alert severity="success">
           <b>The following examples do NOT violate this term:</b>
@@ -326,17 +415,17 @@ const TermsOfServiceProfile = ({
         </Alert>
         <Alert severity="info">
           <b>
-            TravelTips reserves all rights to remove any User Content that
-            violates these standards or the spirit of this platform.
+            TravelTips reserves the right, but not the obligation, to remove,
+            restrict, or disable access to any User Content that violates this
+            Agreement, is reported by users, is required to be removed by law,
+            or is determined to be inconsistent with the spirit and mission of
+            the platform.
           </b>
         </Alert>
 
         {/* section 8 */}
         <Typography variant="h6">8. Prohibited Conduct</Typography>
-        <Typography
-          component="div"
-          className="user-agreement-profile-content"
-        >
+        <Typography component="div" className="content">
           Users must not:
           <ul>
             <li>Use the App for illegal or fraudulent activities.</li>
@@ -355,10 +444,7 @@ const TermsOfServiceProfile = ({
 
         {/* section 9 */}
         <Typography variant="h6">9. Third-Party Services</Typography>
-        <Typography
-          component="div"
-          className="user-agreement-profile-content"
-        >
+        <Typography component="div" className="content">
           TravelTips may link to third-party websites, map providers, booking
           services, or external APIs.
           <br />
@@ -375,7 +461,7 @@ const TermsOfServiceProfile = ({
 
         {/* section 10 */}
         <Typography variant="h6">10. Intellectual Property</Typography>
-        <Typography className="user-agreement-profile-content">
+        <Typography className="content">
           All content, trademarks, branding, code and materials in the App
           (excluding User Content) are the property of TravelTips or its
           licensors.
@@ -387,10 +473,7 @@ const TermsOfServiceProfile = ({
 
         {/* section 11 */}
         <Typography variant="h6">11. Disclaimers</Typography>
-        <Typography
-          component="div"
-          className="user-agreement-profile-content"
-        >
+        <Typography component="div" className="content">
           TravelTips provides content <b>“as is” without warranties</b> of any
           kind.
           <br />
@@ -409,10 +492,7 @@ const TermsOfServiceProfile = ({
 
         {/* section 12 */}
         <Typography variant="h6">12. Limitation of Liability</Typography>
-        <Typography
-          component="div"
-          className="user-agreement-profile-content"
-        >
+        <Typography component="div" className="content">
           To the fullest extent permitted by law:
           <ul>
             <li>
@@ -425,16 +505,13 @@ const TermsOfServiceProfile = ({
 
         {/* section 13 */}
         <Typography variant="h6">13. Privacy</Typography>
-        <Typography className="user-agreement-profile-content">
+        <Typography className="content">
           Your use of the App is also governed by our Privacy Policy.
         </Typography>
 
         {/* section 14 */}
         <Typography variant="h6">14. Termination</Typography>
-        <Typography
-          component="div"
-          className="user-agreement-profile-content"
-        >
+        <Typography component="div" className="content">
           We may suspend or terminate your access for:
           <ul>
             <li>Violating these Terms</li>
@@ -446,7 +523,7 @@ const TermsOfServiceProfile = ({
 
         {/* section 15 */}
         <Typography variant="h6">15. Changes to the Terms</Typography>
-        <Typography className="user-agreement-profile-content">
+        <Typography className="content">
           We may update these Terms at any time.
           <br />
           <br />
@@ -457,7 +534,7 @@ const TermsOfServiceProfile = ({
 
         {/* section 16 */}
         <Typography variant="h6">16. Governing Law</Typography>
-        <Typography className="user-agreement-profile-content">
+        <Typography className="content">
           These Terms are governed by the laws of the United States of America
           (where this company is registered).
           <br />
@@ -467,77 +544,11 @@ const TermsOfServiceProfile = ({
 
         {/* section 17 */}
         <Typography variant="h6">17. Contact Us</Typography>
-        <Typography className="user-agreement-profile-content">
+        <Typography className="content">
           If you have questions about these Terms, contact us at: [email]
         </Typography>
-      </Box>
-
-      {!readonly ? <Divider flexItem variant="middle" /> : undefined}
-
-      {/* agreement checking */}
-      {!readonly ? (
-        <Box className="user-agreement-profile-checking-container">
-          <Box
-            className="user-agreement-profile-checking-content-container"
-            onClick={handleCheckboxSection7OnClick}
-          >
-            <Checkbox
-              className="user-agreement-profile-checkbox"
-              color="default"
-              checked={checkedSection7}
-            />
-            <Typography className="user-agreement-profile-content">
-              By checking the box, you agree to how TravelTips manage User
-              Content in{" "}
-              <span
-                className="user-agreement-profile-link"
-                onClick={scrollToSection7}
-              >
-                Section 7
-              </span>
-              .
-            </Typography>
-          </Box>
-          <Box
-            className="user-agreement-profile-checking-content-container"
-            onClick={() => checkedSection7 ? setChecked((prev) => !prev) : undefined}
-          >
-            <Checkbox
-              className="user-agreement-profile-checkbox"
-              color="default"
-              disabled={!checkedSection7}
-              checked={checked}
-            />
-            <Typography
-              className={clsx(
-                "user-agreement-profile-content",
-                !checkedSection7 && "disabled"
-              )}
-            >
-              By checking the box, you agree to all terms in this full
-              Agreement.
-            </Typography>
-          </Box>
-
-          <Box className="user-agreement-profile-checking-content-container">
-            <TTButton circular variant="outlined" onClick={back}>
-              Back
-            </TTButton>
-            <Typography className="user-agreement-profile-checking-helper">
-              Next: Privacy Policy
-            </Typography>
-            <TTButton
-              className="user-agreement-profile-checkbox-button"
-              circular
-              disabled={!checked || !checkedSection7}
-              onClick={next}
-            >
-              Proceed
-            </TTButton>
-          </Box>
-        </Box>
-      ) : undefined}
-    </Box>
+      </React.Fragment>
+    </UserAgreementBase>
   );
 };
 

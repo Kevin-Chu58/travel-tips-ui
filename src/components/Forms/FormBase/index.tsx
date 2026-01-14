@@ -11,8 +11,7 @@ type FormBaseLayoutProps = {
   minWidth?: number; // px
   height?: string; // vh
   maxHeight?: string; // vh
-  panel?: boolean; // panel has circular border, divider between header and content
-  // TODO - and circular action button
+  panel?: boolean; // panel has circular border, divider between header and content, and circular action button
 };
 
 type FormBaseThemeProps = {
@@ -48,7 +47,7 @@ type FormBaseProps = FormBaseLayoutProps &
     onClose: () => void;
     className?: string;
     isLoading?: boolean;
-    children: JSX.Element | JSX.Element[];
+    children: React.ReactNode;
   };
 
 const FormBase = ({
@@ -59,7 +58,7 @@ const FormBase = ({
   children,
   // layout
   width,
-  minWidth = 300,
+  minWidth = 280,
   height,
   maxHeight = "60vh",
   panel = false,
@@ -102,7 +101,6 @@ const FormBase = ({
       const overflowClassName = "content-overflow";
 
       const isOverflow = BehaviorUtils.isVerticallyOverflowing(contentEl);
-
       const isAtBottom = BehaviorUtils.isScrollbarAtBottom(contentEl);
 
       if (isOverflow && !isAtBottom) {
@@ -128,7 +126,9 @@ const FormBase = ({
       open={open}
       onClose={onClose}
       panel={panel}
-      hidePadding
+      hidePadding={panel}
+      disableAutoFocus
+      disableRestoreFocus
     >
       <Box
         className="form-base-container"
@@ -139,9 +139,9 @@ const FormBase = ({
       >
         {/* header */}
         {header ? (
-          <Box className="header">
+          <Box className={clsx("header", panel && "panel")}>
             {title ? (
-              <Typography color={headerTheme} variant="h5">
+              <Typography className="title" color={headerTheme} variant="h5">
                 {title}
               </Typography>
             ) : undefined}

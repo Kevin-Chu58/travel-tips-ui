@@ -1,12 +1,14 @@
 import ToolTip from "@components/ToolTip";
-import { Fab } from "@mui/material";
+import { Badge, Fab } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+import GroupIcon from "@mui/icons-material/Group";
 import AddIcon from "@mui/icons-material/Add";
 import { enqueueSnackbar } from "notistack";
 import { tripsService, type Trip } from "@services/trips";
+import DownloadIcon from "@mui/icons-material/Download";
 import type { Tao } from "@services/taos";
 import React, { useEffect, useState } from "react";
 import clsx from "clsx";
@@ -17,9 +19,12 @@ type FabComponentProps = {
   tripBasic: Trip | undefined;
   tao: Tao | undefined;
   isOverview: boolean;
+  setOpenTripShareForm: (state: boolean) => void;
+  setOpenTripPdfForm: (state: boolean) => void;
   setOpenDeleteDayForm: (state: boolean) => void;
   setOpenEditTaoForm: (state: boolean) => void;
   setOpenDeleteTaoForm: (state: boolean) => void;
+  isRestricted?: boolean;
   readonly?: boolean;
 };
 
@@ -28,13 +33,18 @@ const FabComponent = ({
   tripBasic,
   tao,
   isOverview,
+  setOpenTripShareForm,
+  setOpenTripPdfForm,
   setOpenDeleteDayForm,
   setOpenEditTaoForm,
   setOpenDeleteTaoForm,
+  isRestricted = false,
   readonly = false,
 }: FabComponentProps) => {
   // status
   const [isPublished, setIsPublished] = useState<boolean>(false);
+  // others
+  const sharedUserNum = tripBasicRef?.current?.sharedUsers.length ?? 0;
 
   useEffect(() => {
     if (tripBasic) {
@@ -79,7 +89,7 @@ const FabComponent = ({
           placement="right"
         >
           <Fab
-            color="primary"
+            color="utility"
             className={clsx(
               "trip-profile-fab-comp-tool-fab",
               !Boolean(tao) && "visible"
@@ -88,6 +98,46 @@ const FabComponent = ({
             size="medium"
           >
             {isPublished ? <VisibilityIcon /> : <VisibilityOffIcon />}
+          </Fab>
+        </ToolTip>
+      ) : undefined}
+
+      {/* shared group setting */}
+      {!readonly || isRestricted ? (
+        <ToolTip title="Shared Users" placement="right">
+          <Fab
+            color="utility"
+            className={clsx(
+              "trip-profile-fab-comp-tool-fab",
+              !Boolean(tao) && "visible"
+            )}
+            onClick={() => setOpenTripShareForm(true)}
+            size="medium"
+          >
+            {sharedUserNum ? (
+              <Badge badgeContent={sharedUserNum} color="primary">
+                <GroupIcon />
+              </Badge>
+            ) : (
+              <GroupIcon />
+            )}
+          </Fab>
+        </ToolTip>
+      ) : undefined}
+
+      {/* download as PDF */}
+      {true ? (
+        <ToolTip title="Download as PDF" placement="right">
+          <Fab
+            color="utility"
+            className={clsx(
+              "trip-profile-fab-comp-tool-fab",
+              !Boolean(tao) && "visible"
+            )}
+            onClick={() => setOpenTripPdfForm(true)}
+            size="medium"
+          >
+            <DownloadIcon />
           </Fab>
         </ToolTip>
       ) : undefined}
@@ -133,9 +183,9 @@ const FabComponent = ({
           placement="right"
         >
           <Fab
+            color="error"
             className={clsx(
               "trip-profile-fab-comp-tool-fab",
-              "delete",
               !isOverview && "visible"
             )}
             onClick={

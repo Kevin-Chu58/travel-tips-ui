@@ -2,6 +2,7 @@ import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 
 interface UserState {
   id: number | null;
+  userId: string | null;
   username: string | null;
   userAgreement: boolean | null;
   isLoading: boolean;
@@ -9,6 +10,7 @@ interface UserState {
 
 const initialState: UserState = {
   id: null,
+  userId: null,
   username: null,
   userAgreement: null,
   isLoading: true,
@@ -22,11 +24,13 @@ const userSlice = createSlice({
       state,
       action: PayloadAction<{
         id: number;
+        userId: string;
         username: string;
         userAgreement: boolean;
       }>
     ) {
       state.id = action.payload.id;
+      state.userId = action.payload.userId;
       state.username = action.payload.username;
       state.userAgreement = action.payload.userAgreement;
       state.isLoading = false;
@@ -36,6 +40,7 @@ const userSlice = createSlice({
     },
     clearUser(state) {
       state.id = null;
+      state.userId = null;
       state.username = null;
       state.userAgreement = null;
       state.isLoading = false;

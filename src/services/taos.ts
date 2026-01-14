@@ -21,6 +21,7 @@ export type Tao = TaoBasic & {
   highlight?: Highlight;
   createdBy: number;
   transportMode?: string;
+  isPrivate: boolean;
 };
 
 export type TaoPatch = {
@@ -85,6 +86,15 @@ const patchTaoDetachHighlight = async (taoId: number): Promise<Tao> => {
   );
 };
 
+const patchTaoPrivacy = async (taoId: number, status: boolean): Promise<boolean> => {
+  return await http.patch(
+    http.apiBaseURLs.api,
+    `tripAttractionOrders/${taoId}/privacy/${status}`,
+    undefined,
+    undefined
+  );
+};
+
 const deleteTao = async (taoId: number): Promise<number> => {
   return await http.del(
     http.apiBaseURLs.api,
@@ -100,5 +110,6 @@ export const taosService = {
   postTao,
   patchTao,
   patchTaoDetachHighlight,
+  patchTaoPrivacy,
   deleteTao,
 };

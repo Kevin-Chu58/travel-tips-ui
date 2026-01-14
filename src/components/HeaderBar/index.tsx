@@ -169,7 +169,7 @@ const HeaderBar = () => {
 
                 {/* header menu */}
                 <Menu
-                  className="app-bar-menu"
+                  className="TT-menu"
                   anchorEl={anchorElHeader}
                   open={Boolean(anchorElHeader)}
                   onClose={handleCloseHeaderMenu}
@@ -180,11 +180,7 @@ const HeaderBar = () => {
                         !h.requireAuth || (h.requireAuth && isAuthenticated)
                     )
                     .map((h) => (
-                      <Link
-                        className="app-bar-menu-link"
-                        key={h.name}
-                        href={h.to}
-                      >
+                      <Link className="TT-menu-link" key={h.name} href={h.to}>
                         <MenuItem>{h.name}</MenuItem>
                       </Link>
                     ))}
@@ -245,18 +241,13 @@ const HeaderBar = () => {
           </Box>
 
           <Menu
-            className="app-bar-menu flex"
+            className="TT-menu flex"
             open={Boolean(anchorElUser)}
             anchorEl={anchorElUser}
             onClose={handleCloseUserMenu}
           >
             {userMenuItems.map((item) => (
-              <Link
-                className="app-bar-menu-link"
-                key={item.name}
-                href={item.to}
-                onClick={item.onClick}
-              >
+              <Link key={item.name} href={item.to} onClick={item.onClick}>
                 <MenuItem>{item.name}</MenuItem>
               </Link>
             ))}

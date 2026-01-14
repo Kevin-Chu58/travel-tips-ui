@@ -13,7 +13,7 @@ type ToolTipProps = {
 const ToolTip = ({
   title,
   offsetX = 0,
-  offsetY = 8,
+  offsetY = 4,
   placement,
   children,
 }: ToolTipProps) => {
@@ -35,7 +35,7 @@ const ToolTip = ({
         tooltip: {
           sx: {
             borderRadius: ".5rem",
-            backgroundColor: "#333333ee",
+            backgroundColor: "#121212ee",
             boxShadow: mild_box_shadow,
           },
         },

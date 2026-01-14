@@ -3,6 +3,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import {
   Alert,
   Box,
+  Checkbox,
   Chip,
   Divider,
   MenuItem,
@@ -14,7 +15,7 @@ import { taosService, TransportModes, type Tao } from "@services/taos";
 import MapUtils from "@utils/MapUtils";
 import TimeUtils from "@utils/TimeUtils";
 import React, { useEffect, useState } from "react";
-import { SiGooglemaps } from 'react-icons/si';
+import { SiGooglemaps } from "react-icons/si";
 import HighlightItem from "@components/Item/HighlightItem";
 import { highlightsService, type Highlight } from "@services/highlights";
 import HighlightForm from "@components/Forms/HighlightForm";
@@ -28,6 +29,8 @@ import {
   type HereRoutingResponse,
 } from "@services/hereMap/hereMap";
 import NavButton from "@components/Button/NavButton";
+import LockIcon from "@mui/icons-material/Lock";
+import LockOpenIcon from "@mui/icons-material/LockOpen";
 import "./index.scss";
 
 type TaoComponentProps = {
@@ -56,6 +59,8 @@ const TaoComponent = ({
   // tao
   const [_tao, _setTao] = useState<Tao | undefined>();
   const attraction = _tao?.attraction;
+  // privacy status
+  const [isPrivate, setIsPrivate] = useState<boolean>(false);
   // highlight
   const [highlight, setHighlight] = useState<Highlight | undefined>();
   const [description, setDescription] = useState<string>("");
@@ -79,11 +84,32 @@ const TaoComponent = ({
   useEffect(() => {
     if (tao) {
       _setTao(tao);
+      setIsPrivate(tao.isPrivate);
       setHighlight(tao.highlight);
       setIsCreating(false);
       setTransportMode(tao.transportMode ?? TransportModes[0]);
     }
   }, [tao?.id, tao?.attraction.id, tao?.highlight?.id, tao?.start, tao?.end]);
+
+  const handlePrivacyStatusClick = async () => {
+    if (tao) {
+      try {
+        let newStatus = await taosService.patchTaoPrivacy(tao.id, !isPrivate);
+
+        tao.isPrivate = newStatus;
+        asyncEditDayTaos(tao);
+        setIsPrivate((prev) => !prev);
+
+        enqueueSnackbar("Event privacy status updated.", {
+          variant: "success",
+        });
+      } catch (e) {
+        if (e instanceof Error) {
+          enqueueSnackbar(e.message, { variant: "error" });
+        }
+      }
+    }
+  };
 
   const handlePostHighlight = async () => {
     if (isCreating && tao && description) {
@@ -199,16 +225,13 @@ const TaoComponent = ({
   return (
     <Box className="trip-profile-tao-comp-box">
       {/* header */}
-      <Box className="trip-profile-tao-comp-header-box">
+      <Box className="header-box">
         {/* start - end time */}
         <Typography>
           {TimeUtils.formatTimeHHmmssTohmmA(tao?.start ?? "")} -{" "}
           {TimeUtils.formatTimeHHmmssTohmmA(tao?.end ?? "")}
         </Typography>
-        <TTIconButton
-          className="trip-profile-tao-comp-close-button"
-          onClick={handleClose}
-        >
+        <TTIconButton className="close-button" onClick={handleClose}>
           <CloseIcon />
         </TTIconButton>
       </Box>
@@ -216,40 +239,68 @@ const TaoComponent = ({
       <Divider variant="middle" flexItem />
 
       {/* tao content */}
-      <Box className="trip-profile-tao-comp-content-box">
-        <Box className="trip-profile-tao-comp-section">
+      <Box className="content-box">
+        <Box className="section">
           {/* title & address */}
-          <Typography className="trip-profile-tao-comp-title">
-            Visit{" "}
-            <span className="trip-profile-tao-comp-title-span">
-              {attraction?.title}
-            </span>
+          <Typography className="title">
+            Visit <span className="title-span">{attraction?.title}</span>
           </Typography>
           <Typography>{attraction?.address}</Typography>
 
           {/* attraction category */}
           {attraction?.category ? (
-            <Chip
-              className="day-event-event-category"
-              size="small"
-              label={
-                <Typography variant="caption">{attraction.category}</Typography>
-              }
-            />
+            <Box>
+              <Chip
+                className="event-category"
+                size="small"
+                label={
+                  <Typography variant="caption">
+                    {attraction.category}
+                  </Typography>
+                }
+              />
+            </Box>
           ) : undefined}
+
+          {/* privacy status */}
+          <Box className="privacy-setting">
+            {!readonly ? (
+              <React.Fragment>
+                <Checkbox
+                  color="default"
+                  checked={isPrivate}
+                  icon={<LockOpenIcon />}
+                  checkedIcon={<LockIcon />}
+                  onClick={handlePrivacyStatusClick}
+                />
+                {tao?.isPrivate ? (
+                  <Typography>Only visible to you and shared users</Typography>
+                ) : (
+                  <Typography>Visible to Everyone</Typography>
+                )}
+              </React.Fragment>
+            ) : tao?.isPrivate ? (
+              <React.Fragment>
+                <LockIcon />
+                <Typography color="textSecondary">
+                  Only visible to you and shared users
+                </Typography>
+              </React.Fragment>
+            ) : undefined}
+          </Box>
         </Box>
 
         {/* wiki images */}
         {wikiImages.length > 0 ? (
           <React.Fragment>
-            <Box className="trip-profile-tao-comp-wiki-image-box">
+            <Box className="wiki-image-box">
               {wikiImages.map((image) => {
                 let titleRegex = /(?<=:).*(?=\.)/gm;
                 let imageTitle = image.title.match(titleRegex)?.join() ?? "";
                 return (
                   <img
                     key={image.title}
-                    className="trip-profile-tao-comp-wiki-image"
+                    className="wiki-image"
                     src={image.url}
                     alt={imageTitle}
                     loading="lazy"
@@ -264,10 +315,8 @@ const TaoComponent = ({
         {highlight?.description ? (
           <React.Fragment>
             <Divider flexItem />
-            <Box className="trip-profile-tao-comp-section">
-              <Typography className="trip-profile-tao-comp-large-text">
-                Highlight
-              </Typography>
+            <Box className="section">
+              <Typography className="large-text">Highlight</Typography>
 
               <Box>
                 <HighlightItem
@@ -284,30 +333,28 @@ const TaoComponent = ({
         ) : !readonly ? (
           <React.Fragment>
             <Divider flexItem />
-            <Box className="trip-profile-tao-comp-section">
-              <Typography className="trip-profile-tao-comp-large-text">
-                Highlight
-              </Typography>
+            <Box className="section">
+              <Typography className="large-text">Highlight</Typography>
 
               <Box>
                 {!isCreating ? (
                   <Box>
-                    <Box className="trip-profile-tao-comp-highlight-helper-box">
-                      <Typography className="trip-profile-tao-comp-highlight-helper-text">
+                    <Box className="highlight-helper-box">
+                      <Typography className="highlight-helper-text">
                         Discover amazing highlights {"\n"} — or make your own!
                       </Typography>
                     </Box>
 
-                    <Box className="trip-profile-tao-comp-highlight-button-box">
+                    <Box className="highlight-button-box">
                       <TTButton
-                        className="trip-profile-tao-comp-highlight-button"
+                        className="highlight-button"
                         color="info"
                         onClick={() => setOpenDiscoverHighlights(true)}
                       >
                         discover
                       </TTButton>
                       <TTButton
-                        className="trip-profile-tao-comp-highlight-button"
+                        className="highlight-button"
                         onClick={() => setIsCreating(true)}
                       >
                         create & share
@@ -334,10 +381,8 @@ const TaoComponent = ({
         {routeResponse ? (
           <React.Fragment>
             <Divider flexItem />
-            <Box className="trip-profile-tao-comp-section">
-              <Typography className="trip-profile-tao-comp-large-text">
-                Directions
-              </Typography>
+            <Box className="section">
+              <Typography className="large-text">Directions</Typography>
 
               {/* notice - optional */}
               {routeResponse.notices ? (
@@ -358,7 +403,7 @@ const TaoComponent = ({
                   >
                     {TransportModes.map((mode: string) => (
                       <MenuItem
-                        className="trip-profile-tao-comp-selected-transport-mode"
+                        className="selected-transport-mode"
                         value={mode}
                       >
                         {mode}
@@ -366,7 +411,7 @@ const TaoComponent = ({
                     ))}
                   </Select>
                 ) : (
-                  <Typography className="trip-profile-tao-comp-transport-mode">
+                  <Typography className="transport-mode">
                     {transportMode}
                   </Typography>
                 )}
@@ -390,12 +435,10 @@ const TaoComponent = ({
 
         {/* links to other resources */}
         <Divider flexItem />
-        <Box className="trip-profile-tao-comp-resource-section">
-          <Typography className="trip-profile-tao-comp-large-text">
-            Other Resources
-          </Typography>
+        <Box className="resource-section">
+          <Typography className="large-text">Other Resources</Typography>
 
-          <Box className="trip-profile-tao-comp-link-box">
+          <Box className="link-box">
             {/* links */}
             <Box>
               <NavButton

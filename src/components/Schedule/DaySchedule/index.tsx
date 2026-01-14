@@ -7,6 +7,8 @@ import type { Tao } from "@services/taos";
 import { enqueueSnackbar } from "notistack";
 import { max_tao_per_day } from "@constants/Restrictions";
 import type { GeoCoordinate } from "@constants/Types";
+import LockIcon from "@mui/icons-material/Lock";
+import ToolTip from "@components/ToolTip";
 import clsx from "clsx";
 import "./index.scss";
 
@@ -243,18 +245,25 @@ const DaySchedule = ({
     const endTime = TimeUtils.formatTimeHHmmssTohmmA(tao.end);
 
     return (
-      <Box
-        className="day-schedule-tao-content-box"
-        onClick={(e) => handleClickTao(e, tao)}
-      >
-        <Box height={boxHeight} className="day-schedule-tao-content">
-          <Typography
-            className="day-schedule-tao-title"
-            sx={{ WebkitLineClamp: _interval }}
-          >
-            {tao.attraction.title}
-          </Typography>
-          <Typography className="day-schedule-tao-title">
+      <Box className="tao-content-box" onClick={(e) => handleClickTao(e, tao)}>
+        <Box height={boxHeight} className="tao-content">
+          <Box className="tao-title-box">
+            <Typography
+              className="tao-title"
+              sx={{ WebkitLineClamp: _interval }}
+            >
+              {tao.attraction.title}
+            </Typography>
+            {tao.isPrivate ? (
+              <ToolTip
+                title="Only visible to you and shared users"
+                offsetY={-4}
+              >
+                <LockIcon />
+              </ToolTip>
+            ) : undefined}
+          </Box>
+          <Typography className="tao-title">
             {startTime}-{endTime}
           </Typography>
         </Box>
@@ -289,36 +298,33 @@ const DaySchedule = ({
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeaveDayScheduleBox}
     >
-      {TIMES_WITH_OFFSET.map(
-        (timeEntry, i) =>
-          i < TIMES_WITH_OFFSET.length - 1 && (
-            <Box
-              className={clsx(
-                "day-schedule-time-interval-box",
-                timeEntry.isHourly && "hourly",
-                !occupiedSet.has(i) &&
-                  (isInBetween(i) || (!isSelecting && hoverIndex === i)) &&
-                  "highlight",
-                occupiedSet.has(i) && "unclickable"
-              )}
-              key={i}
-              onClick={() => handleClickTimeEntryBox(i)}
-            >
-              {/* tao content */}
-              {getTaoContent(i)}
+      {TIMES_WITH_OFFSET.map((timeEntry, i) =>
+        i < TIMES_WITH_OFFSET.length - 1 ? (
+          <Box
+            className={clsx(
+              "time-interval-box",
+              timeEntry.isHourly && "hourly",
+              !occupiedSet.has(i) &&
+                (isInBetween(i) || (!isSelecting && hoverIndex === i)) &&
+                "highlight",
+              occupiedSet.has(i) && "unclickable"
+            )}
+            key={i}
+            onClick={() => handleClickTimeEntryBox(i)}
+          >
+            {/* tao content */}
+            {getTaoContent(i)}
 
-              {/* hourly time marker */}
-              {showHourMarkers && timeEntry.isHourly ? (
-                <Box className="day-schedule-time-marker-box">
-                  <Typography className={clsx("day-schedule-time-marker")}>
-                    {formatTime(timeEntry.time)}
-                  </Typography>
-                </Box>
-              ) : (
-                ""
-              )}
-            </Box>
-          )
+            {/* hourly time marker */}
+            {showHourMarkers && timeEntry.isHourly ? (
+              <Box className="time-marker-box">
+                <Typography className={clsx("time-marker")}>
+                  {formatTime(timeEntry.time)}
+                </Typography>
+              </Box>
+            ) : undefined}
+          </Box>
+        ) : undefined
       )}
 
       <TaoForm

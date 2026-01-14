@@ -20,9 +20,9 @@ import TTButton from "@components/TTButton";
 import { highlightsService } from "@services/highlights";
 import { useSnackbar } from "notistack";
 import { type GeoCoordinate } from "@constants/Types";
+import type { HerePlace } from "@services/hereMap/hereMap";
 import clsx from "clsx";
 import "./index.scss";
-import type { HerePlace } from "@services/hereMap/hereMap";
 
 type AttractionFinderProps = {
   open: boolean;
@@ -71,8 +71,6 @@ const AttractionFinder = ({
       if (open) {
         const geoCoords =
           lastGeoCoordinate ?? (await MapUtils.getCurrentLocation());
-
-        console.log(geoCoordinate);
 
         setGeoCoordinate((prev) => {
           return prev ?? geoCoords;
@@ -316,7 +314,7 @@ const AttractionFinder = ({
           <Typography className="attraction-finder-new-highlight-header">
             New Highlight
           </Typography>
-          <DescriptionTextField value={description} setValue={setDescription} />
+          <DescriptionTextField value={description} setValue={setDescription} maxLength={500} />
           <Box className="attraction-finder-new-highlight-button-box">
             <TTButton
               label="create"

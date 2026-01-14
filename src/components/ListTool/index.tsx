@@ -94,6 +94,7 @@ ListToolProps) => {
   // mobile more option dialog
   const [isOpen, setIsOpen] = useState<boolean>(false);
   // others
+  const hasOtherButtons = otherButtons && otherButtons.length > 0;
   // const selectButtonSx = { scale: 0.9, height: 32 };
 
   // const isSelectedEmpty = () => selected.length === 0;
@@ -219,7 +220,9 @@ ListToolProps) => {
             </Box>
           )}
           <Box className="list-tool-button-container">
-            <Divider orientation="vertical" variant="middle" flexItem />
+            {addOnClick || hasOtherButtons ? (
+              <Divider orientation="vertical" variant="middle" flexItem />
+            ) : undefined}
             <Box className="list-tool-button-content-container">
               {addOnClick ? (
                 <ToolTip title={addLabel} offsetY={-4}>

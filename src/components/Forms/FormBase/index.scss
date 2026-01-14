@@ -6,21 +6,31 @@
   flex-direction: column;
   position: relative;
 
-  .header,
-  .content {
-    padding: .5rem 1rem;
-  }
-
   .header {
     display: flex;
     flex-direction: column;
     justify-content: center;
 
+    &.panel {
+      padding: 0.5rem 1rem;
+    }
+
+    .title {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+
+      .MuiSvgIcon-root {
+        width: 1.8rem;
+        height: 1.8rem;
+      }
+    }
+
     .subtitle.MuiTypography-root {
       color: var(--grey-600);
     }
     .divider.MuiDivider-root {
-      margin-top: .5rem;
+      margin-top: 0.5rem;
     }
   }
 
@@ -28,11 +38,13 @@
     overflow-y: auto;
     display: flex;
     flex-direction: column;
+    padding: .5rem 1rem;
   }
 
   .footer {
     margin-top: auto;
     &.content-overflow {
+      z-index: 10;
       box-shadow: $mild_box_shadow_up;
     }
 
@@ -42,7 +54,7 @@
       flex-direction: row;
       gap: 1rem;
       margin-left: auto;
-      padding: .5rem;
+      padding: 0.5rem;
     }
   }
 }

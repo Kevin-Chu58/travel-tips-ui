@@ -1,12 +1,11 @@
 import http from "@services/http";
-import type { UserBasic } from "./users";
+import type { UserBasic, UserSimple } from "./users";
 import type { Image, ImageRelation } from "./images";
 import type { TaoGeo } from "./taos";
 import type { RegionComplete } from "./search/regions";
 
 export type TripPost = {
   title: string;
-  description?: string;
 };
 
 export type TripPatch = {
@@ -16,13 +15,16 @@ export type TripPatch = {
 
 export type Trip = TripPost & {
   id: number;
+  description?: string;
   createdBy: UserBasic;
   createdAt: Date;
   numDays?: number;
   isPublic: boolean;
+  isHidden: boolean;
   region?: RegionComplete;
   budget?: number;
   images?: Image[];
+  sharedUsers: UserSimple[];
 };
 
 const getTripsByTitle = async (title: string): Promise<Trip[]> => {
@@ -32,6 +34,14 @@ const getTripsByTitle = async (title: string): Promise<Trip[]> => {
 
 const getMyTrips = async (): Promise<Trip[]> => {
   return await http.get(http.apiBaseURLs.api, "trips/my", undefined);
+};
+
+const getMyHiddenTrips = async (): Promise<Trip[]> => {
+  return await http.get(http.apiBaseURLs.api, "trips/my/hidden", undefined);
+};
+
+const getSharedTrips = async (): Promise<Trip[]> => {
+  return await http.get(http.apiBaseURLs.api, "trips/my/shared", undefined);
 };
 
 const getTripById = async (id: number): Promise<Trip> => {
@@ -46,13 +56,14 @@ const getImagesByTripId = (id: number): Promise<Image[]> => {
   return http.get(http.apiBaseURLs.api, `trips/${id}/images`, undefined);
 };
 
-const postNewTrip = async (name: string): Promise<Trip> => {
-  return await http.post(
-    http.apiBaseURLs.api,
-    `trips/${name}`,
-    undefined,
-    undefined
-  );
+const postNewTrip = async (title: string): Promise<Trip> => {
+  const tripPost = {
+    title: title,
+  } as TripPost;
+
+  const body = JSON.stringify(tripPost);
+
+  return await http.post(http.apiBaseURLs.api, "trips", body, undefined);
 };
 
 const patchTrip = async (id: number, trip: TripPatch): Promise<TripPatch> => {
@@ -86,9 +97,51 @@ const patchTripIsHidden = async (
   );
 };
 
+// trip shares
+
+const getSharedUsersByTripId = async (id: number): Promise<UserSimple[]> => {
+  return await http.get(http.apiBaseURLs.api, `trips/${id}/share`, undefined);
+};
+
+const shareTripWithUser = async (
+  id: number,
+  userId: string
+): Promise<UserSimple> => {
+  return await http.post(
+    http.apiBaseURLs.api,
+    `trips/${id}/share/${userId}`,
+    undefined,
+    undefined
+  );
+};
+
+const unshareTripWithUser = async (
+  id: number,
+  userId: string
+): Promise<UserSimple> => {
+  return await http.del(
+    http.apiBaseURLs.api,
+    `trips/${id}/unshare/${userId}`,
+    undefined,
+    undefined
+  );
+};
+
+const unshareTripWithAll = async (id: number): Promise<number> => {
+  return await http.del(
+    http.apiBaseURLs.api,
+    `trips/${id}/unshare`,
+    undefined,
+    undefined
+  );
+};
+
 // tags
 
-const patchTripRegionTag = async (id: number, regionId?: number) => {
+const patchTripRegionTag = async (
+  id: number,
+  regionId?: number
+): Promise<RegionComplete> => {
   const body = JSON.stringify(regionId);
 
   return await http.patch(
@@ -99,7 +152,10 @@ const patchTripRegionTag = async (id: number, regionId?: number) => {
   );
 };
 
-const patchTripBudgetTag = async (id: number, budget?: number) => {
+const patchTripBudgetTag = async (
+  id: number,
+  budget?: number
+): Promise<number> => {
   const body = JSON.stringify(budget);
 
   return await http.patch(
@@ -139,6 +195,8 @@ const deleteTripImage = async (
 export const tripsService = {
   getTripsByTitle,
   getMyTrips,
+  getMyHiddenTrips,
+  getSharedTrips, // get trips shared with me
   getTripById,
   getTripTaoGeosById,
   getImagesByTripId,
@@ -146,6 +204,11 @@ export const tripsService = {
   patchTrip,
   patchTripIsPublic,
   patchTripIsHidden,
+  // trip shares
+  getSharedUsersByTripId,
+  shareTripWithUser,
+  unshareTripWithUser,
+  unshareTripWithAll,
   //tags
   patchTripRegionTag,
   patchTripBudgetTag,

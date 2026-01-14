@@ -3,11 +3,10 @@ import {
   Box,
   Chip,
   IconButton,
-  List,
   ListItemIcon,
   ListItemText,
+  Menu,
   MenuItem,
-  Popover,
   Typography,
 } from "@mui/material";
 import { tripsService, type Trip } from "@services/trips";
@@ -22,8 +21,11 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { enqueueSnackbar } from "notistack";
 import { RegionUtils } from "@utils/RegionUtils";
 import ShareIcon from "@mui/icons-material/Share";
-import "./index.scss";
+import ArchiveIcon from "@mui/icons-material/Archive";
+import UnarchiveIcon from "@mui/icons-material/Unarchive";
 import { StringUtils } from "@utils/StringUtils";
+import type { UtilityItem } from "@constants/Types";
+import "./index.scss";
 
 type TripCardProps = {
   trip: Trip;
@@ -49,6 +51,10 @@ const TripCard = ({
   // rerender on trip isPublic
   useEffect(() => {}, [trip.isPublic]);
 
+  const handleClick = () => {
+    if (!trip.isHidden) onClick();
+  };
+
   const handleVisibilityTripClick = async (
     e: React.MouseEvent<HTMLLIElement>
   ) => {
@@ -56,7 +62,7 @@ const TripCard = ({
 
     if (trip) {
       try {
-        tripsService.patchTripIsPublic([trip.id], !trip.isPublic);
+        await tripsService.patchTripIsPublic([trip.id], !trip.isPublic);
         trip.isPublic = !trip.isPublic;
         if (asyncUpdateTrip) asyncUpdateTrip(trip);
 
@@ -74,15 +80,18 @@ const TripCard = ({
     }
   };
 
-  const handleDeleteTripClick = async (e: React.MouseEvent<HTMLLIElement>) => {
+  const handleHiddenTripClick = async (e: React.MouseEvent<HTMLLIElement>) => {
     e.stopPropagation();
 
     if (trip) {
       try {
-        await tripsService.patchTripIsHidden([trip.id], true);
+        await tripsService.patchTripIsHidden([trip.id], !trip.isHidden);
         if (asyncDeleteTrip) asyncDeleteTrip(trip);
 
-        enqueueSnackbar("Successfully deleted trip.", { variant: "success" });
+        enqueueSnackbar(
+          `Successfully ${trip.isHidden ? "unarchived" : "archived"} trip.`,
+          { variant: "success" }
+        );
       } catch (e) {
         if (e instanceof Error) {
           enqueueSnackbar(e.message, { variant: "error" });
@@ -105,10 +114,89 @@ const TripCard = ({
     setPopoverAnchorEl(null);
   };
 
+  // buttons
+
+  // TODO: button - share
+  const shareButton = (
+    <MenuItem key="share">
+      <ListItemIcon>
+        <ShareIcon />
+      </ListItemIcon>
+      <ListItemText primary="Share" />
+    </MenuItem>
+  );
+
+  // button - public/private
+  const visibilityButton = (
+    <MenuItem key="visibility" onClick={(e) => handleVisibilityTripClick(e)}>
+      <ListItemIcon>
+        {trip.isPublic ? <VisibilityOffIcon /> : <VisibilityIcon />}
+      </ListItemIcon>
+      <ListItemText primary={`Set ${trip.isPublic ? "Private" : "Public"}`} />
+    </MenuItem>
+  );
+
+  // button - archive
+  const archiveButton = (
+    <MenuItem
+      key="archive"
+      className="error"
+      onClick={(e) => handleHiddenTripClick(e)}
+    >
+      <ListItemIcon>
+        <ArchiveIcon />
+      </ListItemIcon>
+      <ListItemText primary="Archive" />
+    </MenuItem>
+  );
+
+  // button - unarchive
+  const unarchiveButton = (
+    <MenuItem key="unarchive" onClick={(e) => handleHiddenTripClick(e)}>
+      <ListItemIcon>
+        <UnarchiveIcon />
+      </ListItemIcon>
+      <ListItemText primary="Unarchive" />
+    </MenuItem>
+  );
+
+  // TODO: button - delete
+  const deleteButton = (
+    <MenuItem key="delete" className="error" onClick={() => {}}>
+      <ListItemIcon>
+        <DeleteIcon />
+      </ListItemIcon>
+      <ListItemText primary="Delete" />
+    </MenuItem>
+  );
+
+  const menuButtonList = [
+    {
+      content: shareButton,
+      condition: !trip.isHidden,
+    },
+    {
+      content: visibilityButton,
+      condition: !readonly && !trip.isHidden,
+    },
+    {
+      content: archiveButton,
+      condition: !readonly && !trip.isHidden,
+    },
+    {
+      content: unarchiveButton,
+      condition: !readonly && trip.isHidden,
+    },
+    {
+      content: deleteButton,
+      condition: !readonly && trip.isHidden,
+    },
+  ] as UtilityItem[];
+
   return (
-    <Box className="trip-card-box" onClick={onClick}>
+    <Box className="trip-card-box" onClick={handleClick}>
       {/* image container */}
-      <Box className="trip-card-image-box">
+      <Box className="image-box">
         {/* images */}
         {trip.images && trip.images.length > 0 ? (
           <PreloadCarousel
@@ -120,29 +208,29 @@ const TripCard = ({
             height={200}
           />
         ) : (
-          <img src={TLogo} className="trip-card-image" />
+          <img src={TLogo} className="image" />
         )}
 
         {/* creator info */}
-        <Box className="trip-card-image-creator-info-box">
-          <Avatar className="trip-card-avatar" />
+        <Box className="image-creator-info-box">
+          <Avatar className="avatar" />
 
           <Chip
             label={
-              <Typography className="trip-card-username">
+              <Typography className="username">
                 {trip.createdBy.username}
               </Typography>
             }
             size="small"
-            className="trip-card-username-chip"
+            className="username-chip"
           />
         </Box>
       </Box>
 
-      <Box className="trip-card-info-box">
+      <Box className="info-box">
         {/* title */}
         <Box display="flex">
-          <Typography fontSize="1.2rem" className="trip-card-title">
+          <Typography fontSize="1.2rem" className="title">
             {trip.title}
           </Typography>
 
@@ -153,68 +241,32 @@ const TripCard = ({
           </Box>
         </Box>
 
-        <Popover
+        {/* button menu */}
+        <Menu
+          className="TT-menu flex"
           anchorEl={popoverAnchorEl}
-          anchorOrigin={{
-            vertical: "bottom",
-            horizontal: "left",
-          }}
-          transformOrigin={{
-            vertical: "top",
-            horizontal: "left",
-          }}
           open={Boolean(popoverAnchorEl)}
           onClose={(e) => handleClosePopover(e)}
         >
-          <List>
-            {/* TODO: button - share */}
-            <MenuItem>
-              <ListItemIcon>
-                <ShareIcon />
-              </ListItemIcon>
-              <ListItemText primary="Share" />
-            </MenuItem>
-            {!readonly ? (
-              <React.Fragment>
-                {/* button - public/private */}
-                <MenuItem onClick={(e) => handleVisibilityTripClick(e)}>
-                  <ListItemIcon>
-                    {trip.isPublic ? <VisibilityOffIcon /> : <VisibilityIcon />}
-                  </ListItemIcon>
-                  <ListItemText
-                    primary={`Set ${trip.isPublic ? "Private" : "Public"}`}
-                  />
-                </MenuItem>
-                {/* button - delete */}
-                <MenuItem
-                  className="trip-card-error-menu-item"
-                  onClick={(e) => handleDeleteTripClick(e)}
-                >
-                  <ListItemIcon>
-                    <DeleteIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Delete" />
-                </MenuItem>
-              </React.Fragment>
-            ) : undefined}
-          </List>
-        </Popover>
+          {menuButtonList.map((button) => button.condition && button.content)}
+        </Menu>
 
         {/* number of days */}
-        <Typography className="trip-card-num-days">
+        <Typography className="num-days">
           {TimeUtils.formatDays(trip.numDays ?? 0)}
         </Typography>
       </Box>
 
-      <Box className="trip-card-chip-container">
-        {/* visibility tag */}
-        {!readonly ? (
-          <Chip
-            icon={trip.isPublic ? <VisibilityIcon /> : <VisibilityOffIcon />}
-            label={trip.isPublic ? "public" : "private"}
-            size="small"
-          />
-        ) : undefined}
+      {/* visibility tag */}
+      {!readonly ? (
+        <Chip
+          icon={trip.isPublic ? <VisibilityIcon /> : <VisibilityOffIcon />}
+          label={trip.isPublic ? "public" : "private"}
+          size="small"
+        />
+      ) : undefined}
+
+      <Box className="chip-container">
         {/* region tag */}
         {trip.region ? (
           <Chip

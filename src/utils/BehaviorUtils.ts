@@ -35,9 +35,17 @@ const isScrollbarAtBottom = (element: HTMLElement | null) => {
   );
 };
 
+// css unit conversion
+
+const mmToPx = (mm: number) => {
+  return mm * 3.78; // 96px per inch / 25.4mm per inch
+};
+
 export const BehaviorUtils = {
   sleep,
   scrollToElementById,
   isVerticallyOverflowing,
   isScrollbarAtBottom,
+  // css unit conversion
+  mmToPx,
 };

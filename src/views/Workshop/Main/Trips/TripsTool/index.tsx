@@ -3,15 +3,18 @@ import type { SortType } from "@constants/Types";
 import { type Trip } from "@services/trips";
 import SortUtils from "@utils/SortUtils";
 import { useEffect } from "react";
+import { useLocation } from "react-router";
 
 type TripsToolProps = {
   sortTypes: SortType[];
   sortTypeIndex: number;
   setSortTypeIndex: (state: number) => void;
   selected: number[];
-  addOnClick: () => void;
+  addOnClick?: () => void;
   tripsRef: React.RefObject<Trip[]>;
   getMyTrips: () => void;
+  getSharedTrips: () => void;
+  getMyHiddenTrips: () => void;
   asyncTrips: (state: Trip[]) => void;
 };
 
@@ -23,12 +26,26 @@ const TripsTool = ({
   addOnClick,
   tripsRef,
   getMyTrips,
+  getSharedTrips,
+  getMyHiddenTrips,
   asyncTrips,
 }: TripsToolProps) => {
+  const location = useLocation();
+
   // rerender on access token and isUpdated
   useEffect(() => {
-    getMyTrips();
-  }, []);
+    switch (location.pathname) {
+      case "/workshop":
+        getMyTrips();
+        break;
+      case "/workshop/shared":
+        getSharedTrips();
+        break;
+      case "/workshop/archive":
+        getMyHiddenTrips();
+        break;
+    }
+  }, [location.pathname]);
 
   // rerender on sortTypeIndex to request sorting
   useEffect(() => {

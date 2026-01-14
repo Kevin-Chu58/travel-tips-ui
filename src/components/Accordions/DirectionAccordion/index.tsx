@@ -16,9 +16,14 @@ import "./index.scss";
 type DirectionAccordionProps = {
   section: Section;
   taoId: number | undefined;
+  simple?: boolean;
 };
 
-const DirectionAccordion = ({ section, taoId }: DirectionAccordionProps) => {
+const DirectionAccordion = ({
+  section,
+  taoId,
+  simple = false,
+}: DirectionAccordionProps) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
   let isExpandable = section.actions
@@ -35,23 +40,61 @@ const DirectionAccordion = ({ section, taoId }: DirectionAccordionProps) => {
     setIsOpen(false);
   }, [taoId]);
 
+  if (simple) {
+    return (
+      <Box className="simple-container">
+        {/* transport mode */}
+        <Typography>
+          <ActionSpan
+            className="summary-transport-mode"
+            textColor={section.transport?.textColor}
+            fillColor={section.transport?.color}
+          >
+            {section.transport?.name ?? section.transport?.mode}
+          </ActionSpan>
+        </Typography>
+        {/* agency name */}
+        <Typography
+          component="a"
+          href={section.agency?.website}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {section.agency?.name}
+        </Typography>
+        {/* distance */}
+        <Typography>
+          {DistanceUtils.meterToKmStr(
+            section.summary?.length ?? section.travelSummary?.length!
+          )}
+        </Typography>
+        {/* time */}
+        <Typography>
+          {TimeUtils.secondToTimeStr(
+            section.summary?.duration ?? section.travelSummary?.duration!
+          )}
+        </Typography>
+      </Box>
+    );
+  }
+
   return (
     <Accordion
-      key={`direction-accordion-section-${section.id}`}
+      key={`section-${section.id}`}
       className="direction-accordion"
       expanded={isOpen}
     >
       <AccordionSummary
-        className="direction-accordion-summary"
+        className="summary"
         expandIcon={isExpandable ? <ExpandMoreIcon /> : undefined}
         onClick={expandAccordionOnClick}
       >
-        <Box className="direction-accordion-summary-box">
-          <Box className="direction-accordion-summary-inner-box">
+        <Box className="summary-box">
+          <Box className="summary-inner-box">
             {/* transport mode */}
             <Typography>
               <ActionSpan
-                className="direction-accordion-summary-transport-mode"
+                className="summary-transport-mode"
                 textColor={section.transport?.textColor}
                 fillColor={section.transport?.color}
               >

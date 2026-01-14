@@ -164,15 +164,16 @@ $trip-profile-content-width-mobile: 280px;
   right: -30px;
 }
 
-$trip-profile-tool-button-group-gap: -80px;
-$trip-profile-tool-button-group-gap-mobile: -70px;
+$trip-profile-tool-button-group-gap: -90px;
+$trip-profile-tool-button-group-gap-mobile: -60px;
 
 .trip-profile-tool-fab-group {
   position: absolute;
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  top: 150px;
+  top: 20px;
+  // top: 130px;
   right: $trip-profile-tool-button-group-gap;
 
   &.mobile {

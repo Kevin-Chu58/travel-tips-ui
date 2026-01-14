@@ -11,7 +11,11 @@ export const getDefaultHighlight = (attractionId: number) => {
 
 export type HighlightPost = {
   attractionId: number;
-  description?: string;
+  description: string;
+};
+
+export type HighlightPatch = {
+  description: string;
 };
 
 export type Highlight = HighlightPost & {
@@ -47,7 +51,11 @@ const patchHighlight = async (
   id: number,
   description: string
 ): Promise<Highlight> => {
-  const body = JSON.stringify(description);
+  const highlightPatch = {
+    description: description,
+  } as HighlightPatch;
+
+  const body = JSON.stringify(highlightPatch);
 
   return await http.patch(
     http.apiBaseURLs.api,

@@ -1,0 +1,31 @@
+.pdf-page {
+  position: relative;
+  background-color: white;
+  margin: 0 auto;
+  padding: 16mm;
+  box-sizing: border-box;
+  position: relative;
+  overflow: hidden;
+
+  .header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    padding: 0.5rem 1rem;
+    position: "absolute";
+  }
+
+  .footer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    padding: 0.5rem 1rem;
+    text-align: right;
+  }
+
+  .header-content {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+}

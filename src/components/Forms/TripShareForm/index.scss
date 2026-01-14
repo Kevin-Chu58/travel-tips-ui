@@ -1,0 +1,72 @@
+@use "../../../stylings/color" as *;
+
+.trip-share-form {
+  position: relative;
+
+  // formbase custom styling
+  .content {
+    padding: 0 1rem;
+  }
+
+  .header-box {
+    display: flex;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    gap: .5rem;
+    padding: .2rem 0;
+    background-color: white;
+    z-index: 10;
+
+    &.mobile {
+      flex-direction: column;
+    }
+
+    .input-box {
+      display: flex;
+      flex: 1;
+      width: 100%;
+    }
+
+    .action-button-box {
+      display: flex;
+      gap: .5rem;
+
+      &.mobile {
+        width: 100%;
+      }
+    }
+  }
+
+  .user-box {
+    display: flex;
+    position: relative;
+    border-radius: 0.2rem;
+    align-items: center;
+
+    &:hover {
+      background-color: var(--grey-50);
+    }
+  }
+
+  .user-box:not(:first-child) {
+    border-top: 1px $divider solid;
+  }
+
+  .action-box {
+    margin: 0 .5rem;
+    margin-left: auto;
+
+    &.mobile {
+      position: absolute;
+      top: 0.8rem;
+      right: 1rem;
+    }
+  }
+
+  .no-content-box {
+    display: flex;
+    width: max-content;
+    margin: 2rem auto;
+  }
+}

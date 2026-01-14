@@ -1,15 +1,20 @@
 import DescriptionTextField from "@components/TextField/DescriptionTextField";
 import TTButton from "@components/TTButton";
-import { Box, Button, Skeleton, Typography } from "@mui/material";
+import { Box, Button, IconButton, Skeleton, Typography } from "@mui/material";
 import { tripsService, type Trip, type TripPatch } from "@services/trips";
 import { enqueueSnackbar } from "notistack";
 import MarkdownBox from "@components/MarkdownBox";
 import React, { useEffect, useState } from "react";
+import ZoomOutMapIcon from "@mui/icons-material/ZoomOutMap";
+import ZoomInMapIcon from "@mui/icons-material/ZoomInMap";
+import ToolTip from "@components/ToolTip";
 import "./index.scss";
 
 type DescriptionComponentProps = {
   tripBasicRef: React.RefObject<Trip | undefined>;
   asyncTrip: () => void;
+  hideImages: boolean;
+  setHideImages: React.Dispatch<React.SetStateAction<boolean>>;
   isLoading: boolean;
   readonly?: boolean;
 };
@@ -17,6 +22,8 @@ type DescriptionComponentProps = {
 const DescriptionComponent = ({
   tripBasicRef,
   asyncTrip,
+  hideImages,
+  setHideImages,
   isLoading,
   readonly = false,
 }: DescriptionComponentProps) => {
@@ -66,12 +73,20 @@ const DescriptionComponent = ({
   };
 
   return (
-    <React.Fragment>
+    <Box className="trip-profile-description-comp">
       {!isLoading ? (
         <React.Fragment>
-          <Typography className="trip-profile-description-comp-header">
-            Summary
-          </Typography>
+          <Box className="header-container">
+            <Typography className="header">Summary</Typography>
+            <ToolTip title={hideImages ? "Zoom Out" : "Zoom In"} offsetY={-8}>
+              <IconButton
+                className="zoom-button"
+                onClick={() => setHideImages((prev) => !prev)}
+              >
+                {hideImages ? <ZoomOutMapIcon /> : <ZoomInMapIcon />}
+              </IconButton>
+            </ToolTip>
+          </Box>
 
           {!readonly ? (
             isEditingDescription ? (
@@ -80,17 +95,18 @@ const DescriptionComponent = ({
                   value={description ?? ""}
                   setValue={setDescription}
                   placeholder={helperText}
+                  maxLength={800}
                 />
-                <Box className="trip-profile-description-comp-edit-button-box">
+                <Box className="edit-button-box">
                   <TTButton
-                    className="trip-profile-description-comp-edit-button"
+                    className="edit-button"
                     label="cancel"
                     variant="text"
                     color="primary"
                     onClick={handleDescriptionClose}
                   />
                   <TTButton
-                    className="trip-profile-description-comp-edit-button"
+                    className="edit-button"
                     label="update"
                     color="primary"
                     onClick={handleDescriptionUpdate}
@@ -99,14 +115,17 @@ const DescriptionComponent = ({
               </React.Fragment>
             ) : Boolean(description) ? (
               <Button
-                className="trip-profile-description-comp-button"
+                className="button"
                 onClick={() => setIsEditingDescription(true)}
               >
-                <MarkdownBox text={tripBasicRef.current?.description} disableGap />
+                <MarkdownBox
+                  text={tripBasicRef.current?.description}
+                  disableGap
+                />
               </Button>
             ) : (
               <Button
-                className="trip-profile-description-comp-empty-button"
+                className="empty-button"
                 onClick={() => setIsEditingDescription(true)}
                 fullWidth
               >
@@ -122,9 +141,9 @@ const DescriptionComponent = ({
           )}
         </React.Fragment>
       ) : (
-        <Skeleton className="trip-profile-description-comp-skeleton" />
+        <Skeleton className="skeleton" />
       )}
-    </React.Fragment>
+    </Box>
   );
 };
 

@@ -162,16 +162,20 @@ const AttractionSearch = ({
       </TTIconButton>
 
       {enableSuggestion && suggestion.length > 0 && rect ? (
-        <Box className="attraction-search-suggestion-container" top={rect.top} left={rect.left - rect.width}>
+        <Box
+          className="attraction-search-suggestion-container"
+          top={rect.top}
+          left={rect.left - rect.width}
+        >
           <List disablePadding className="attraction-search-suggestion-list">
-              {suggestion.map((suggestInput) => (
-                <ListItemButton
-                  key={suggestInput}
-                  onClick={() => handleSuggestionClick(suggestInput)}
-                >
-                  <Typography>{suggestInput}</Typography>
-                </ListItemButton>
-              ))}
+            {suggestion.map((suggestInput) => (
+              <ListItemButton
+                key={suggestInput}
+                onClick={() => handleSuggestionClick(suggestInput)}
+              >
+                <Typography>{suggestInput}</Typography>
+              </ListItemButton>
+            ))}
           </List>
         </Box>
       ) : undefined}

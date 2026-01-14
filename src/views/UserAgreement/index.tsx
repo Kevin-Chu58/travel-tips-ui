@@ -11,9 +11,9 @@ import TTStepper from "@components/TTStepper";
 import { usersService } from "@services/users";
 import { enqueueSnackbar } from "notistack";
 import { setUserAgreement } from "@redux/userSlice";
+import { useAuth0 } from "@auth0/auth0-react";
 import clsx from "clsx";
 import "./index.scss";
-import { useAuth0 } from "@auth0/auth0-react";
 
 const UserAgreement = () => {
   // window

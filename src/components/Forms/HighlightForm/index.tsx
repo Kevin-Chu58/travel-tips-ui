@@ -120,6 +120,7 @@ const HighlightForm = ({
       <DescriptionTextField
         value={actualDescription}
         setValue={updateDescription}
+        maxLength={500}
       />
       <Box className="highlight-form-button-box">
         <TTButton
