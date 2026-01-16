@@ -5,7 +5,7 @@
   color: white;
   gap: 0.5rem;
 
-  $highlight-color: var(--grey-300);
+  $highlight-color: var(--utility-300);
   $background-color: black;
 
   .MuiDivider-root {
@@ -58,7 +58,7 @@
     }
 
     &:hover {
-      background-color: var(--grey-800);
+      background-color: var(--utility-800);
 
       .MuiSvgIcon-root {
         fill: white;

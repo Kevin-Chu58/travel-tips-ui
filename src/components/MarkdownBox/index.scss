@@ -29,13 +29,14 @@
     margin-left: .5rem;
   }
   code {
-    background: var(--grey-200);
+    background: var(--utility-200);
     padding: 0.2rem 0.4rem;
     border-radius: .2rem;
     font-family: monospace;
   }
   img {
-    max-width: 100%;
+    // max-width: 100%;
+    max-width: 400px;
     height: auto;
     display: block;
     margin: 0;

@@ -56,14 +56,14 @@
 }
 
 .preload-carousel-scroll-button.MuiIconButton-root {
-  color: var(--grey-200);
-  background-color: var(--grey-900);
+  color: var(--utility-200);
+  background-color: var(--utility-900);
   box-shadow: $mild_box_shadow_lg;
   border: none;
 
   &:hover {
     color: white;
-    background-color: var(--grey-800);
+    background-color: var(--utility-800);
   }
 }
 

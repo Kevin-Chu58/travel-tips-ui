@@ -49,7 +49,7 @@
   cursor: pointer;
 
   &:hover {
-    background-color: var(--grey-300);
+    background-color: var(--utility-300);
   }
 
   &.focus {
@@ -98,6 +98,6 @@
   border-radius: 20rem;
 
   &.Mui-disabled {
-    background-color: var(--grey-400);
+    background-color: var(--utility-400);
   }
 }

@@ -60,7 +60,7 @@ const TripPdfForm = ({
 
       // 1. Capture image
       const dataUrl = await toPng(pageEl, {
-        quality: 2.0,
+        quality: 1.5,
       });
 
       const imgProps = pdf.getImageProperties(dataUrl);
