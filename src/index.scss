@@ -11,17 +11,17 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  --grey-main: #424242; // 700 not 500
-  --grey-50: #f5f5f5;
-  --grey-100: #eeeeee;
-  --grey-200: #e0e0e0;
-  --grey-300: #bdbdbd;
-  --grey-400: #9e9e9e;
-  --grey-500: #757575;
-  --grey-600: #616161;
-  --grey-700: #424242;
-  --grey-800: #212121;
-  --grey-900: #101010;
+  --utility-main: #424242; // 700 not 500
+  --utility-50: #f5f5f5;
+  --utility-100: #eeeeee;
+  --utility-200: #e0e0e0;
+  --utility-300: #bdbdbd;
+  --utility-400: #9e9e9e;
+  --utility-500: #757575;
+  --utility-600: #616161;
+  --utility-700: #424242;
+  --utility-800: #212121;
+  --utility-900: #101010;
 
   --primary-main: #e4572e;
   --primary-100: #faded5;
@@ -129,7 +129,7 @@ body {
     }
     &.MuiTypography-caption {
       font-size: 0.8rem;
-      color: var(--grey-700);
+      color: var(--utility-700);
     }
   }
 }
@@ -141,7 +141,7 @@ body {
   text-decoration: none;
   text-transform: capitalize;
 
-  $theme: var(--grey-800);
+  $theme: var(--utility-800);
 
   .MuiListItemText-root .MuiTypography-root {
     color: $theme;
@@ -161,7 +161,7 @@ body {
 .TT-menu {
   .MuiPaper-root {
     width: 200px;
-    background-color: var(--grey-900);
+    background-color: var(--utility-900);
 
     .MuiTypography-root {
       text-decoration: none;
@@ -181,7 +181,7 @@ body {
       }
 
       &:hover {
-        background-color: var(--grey-800);
+        background-color: var(--utility-800);
       }
 
       // customized menu item themes
@@ -214,7 +214,7 @@ a {
 /* For Firefox */
 * {
   scrollbar-width: thin;
-  scrollbar-color: var(--grey-500) transparent;
+  scrollbar-color: var(--utility-500) transparent;
   scroll-behavior: smooth;
 }
 
@@ -224,7 +224,7 @@ a {
   scrollbar-color: transparent transparent;
 
   &:hover {
-    scrollbar-color: var(--grey-500) transparent;
+    scrollbar-color: var(--utility-500) transparent;
   }
 }
 

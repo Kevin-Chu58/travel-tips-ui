@@ -14,7 +14,7 @@
   border-radius: 1.5rem;
   overflow: hidden;
   color: white;
-  background-color: var(--grey-900);
+  background-color: var(--utility-900);
   cursor: pointer;
 
   &:hover {
@@ -31,7 +31,7 @@
   align-items: center;
   text-transform: uppercase;
 
-  background-color: var(--grey-900);
+  background-color: var(--utility-900);
   transition: all 0.2s ease-in;
 
   &.focus {
@@ -50,7 +50,7 @@
   font-weight: bold;
   text-transform: uppercase;
 
-  background-color: var(--grey-900);
+  background-color: var(--utility-900);
   transition: all 0.2s ease-in;
 
   &.focus {

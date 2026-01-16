@@ -10,7 +10,7 @@ type MapPinProps = {
   label?: string;
 };
 
-export const MapPin = ({ color = "var(--grey-700)", label }: MapPinProps) => {
+export const MapPin = ({ color = "var(--utility-700)", label }: MapPinProps) => {
   return new L.DivIcon({
     html: `
     <svg width="36" height="36" viewBox="0 -10 40 40" xmlns="http://www.w3.org/2000/svg">
