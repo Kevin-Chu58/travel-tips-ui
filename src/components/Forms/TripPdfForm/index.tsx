@@ -49,7 +49,7 @@ const TripPdfForm = ({
   const handleDownloadPdf = async () => {
     setIsDownLoading(true);
     enqueueSnackbar("Generating the PDF may take a few minutes.", {
-      variant: "warning",
+      variant: "info",
     });
 
     const pdf = new jsPDF("p", "mm", "a4");
@@ -60,7 +60,8 @@ const TripPdfForm = ({
 
       // 1. Capture image
       const dataUrl = await toPng(pageEl, {
-        quality: 1.5,
+        quality: 1,
+        pixelRatio: 1,
       });
 
       const imgProps = pdf.getImageProperties(dataUrl);
@@ -87,6 +88,13 @@ const TripPdfForm = ({
       });
 
       if (i < pages.length - 1) pdf.addPage();
+
+      // 3. Yield to browser to avoid freezing
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
+      enqueueSnackbar(`Processed page ${i + 1} of ${pages.length}`, {
+        variant: "info",
+      });
     }
 
     setIsDownLoading(false);
