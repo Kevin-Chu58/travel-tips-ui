@@ -28,8 +28,6 @@ function App() {
   useEffect(() => {
     if (user.isLoading) return;
 
-    console.log(user.id);
-
     if (!user.isLoading && !user.id && guestUserAgreement !== "true") {
       setOpenGuestAgreement(true);
     }
