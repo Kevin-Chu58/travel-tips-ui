@@ -146,7 +146,6 @@ const TaoComponent = ({
       try {
         let updatedTao = { ...tao, highlight: highlight };
         asyncEditDayTaos(updatedTao);
-        console.log(highlight);
         setHighlight(highlight);
       } catch (e) {
         if (e instanceof Error) {
