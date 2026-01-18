@@ -118,7 +118,7 @@ const TripCard = ({
 
   // TODO: button - share
   const shareButton = (
-    <MenuItem key="share">
+    <MenuItem key="share" onClick={(e) => e.stopPropagation()}>
       <ListItemIcon>
         <ShareIcon />
       </ListItemIcon>

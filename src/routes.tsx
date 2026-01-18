@@ -14,7 +14,7 @@ const routes = [{
     element: <Main/>,
 }, {
     name: "Home",
-    path: "/home",
+    path: "/home/*",
     element: <Home/>,
 }, {
     name: "Trip",
