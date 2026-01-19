@@ -117,6 +117,8 @@ const makeRequest = async <TResponse>(
   });
 
   if (!response.ok) {
+    const text = await response.text();
+
     // try to convert the response to a json file
     // this only works if the view model sent through request fail to match
     // the view model's exact requirement defined in API
@@ -130,7 +132,6 @@ const makeRequest = async <TResponse>(
       throw new Error(errorMessage);
     } else {
       // fallback to generic error
-      const text = await response.text();
       throw new Error(text);
     }
   }

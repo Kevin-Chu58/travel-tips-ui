@@ -2,7 +2,7 @@ import {
   Box,
   Chip,
   Container,
-  Grid,
+  Fab,
   TextField,
   Typography,
 } from "@mui/material";
@@ -20,6 +20,10 @@ import TTButton from "@components/TTButton";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import type { SearchResult } from "@services/http";
 import { useIsMobile } from "@hooks/useIsMobile";
+import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
+import TripSearchForm from "@components/Forms/TripSearchForm";
+import { enqueueSnackbar } from "notistack";
+import { StringUtils } from "@utils/StringUtils";
 import clsx from "clsx";
 import "./index.scss";
 
@@ -29,85 +33,144 @@ const Home = () => {
   // trips - search result
   const [trips, setTrips] = useState<Trip[]>([]);
   // search params
-  const [tripParams, setTripParams] = useState<tripSearchParams>({});
-  const [input, setInput] = useState<string>("");
-  // uri
+  const [tripParams, setTripParams] = useState<tripSearchParams>({}); // the only-true params
+  const [tripFilterParams, setTripFilterParams] = useState<tripSearchParams>(
+    {}
+  ); // the temperal params for trip advanced search
+  // param details
+  const { title, budget, countrySlug, stateSlug, createdByAuthId, isDesc } =
+    tripParams;
+  // url
   const [searchParams, setSearchParams] = useSearchParams();
   // infinite scrolling
   const containerRef = useRef<HTMLDivElement | null>(null);
   // behavior
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isInit, setIsInit] = useState<boolean>(true);
+  const [showNavTop, setShowNavTop] = useState<boolean>(false);
+  // form open status
+  const [openTripSearchForm, setOpenTripSearchForm] = useState<boolean>(false);
   // others
   const navigate = useNavigate();
-  const hasParam =
-    Boolean(tripParams.title) ||
-    Boolean(tripParams.budget) ||
-    Boolean(tripParams.countrySlug) ||
-    Boolean(tripParams.createdBy);
+  const hasParamBase =
+    Boolean(budget) ||
+    Boolean(countrySlug) ||
+    Boolean(createdByAuthId);
+  const hasParamSearch = hasParamBase || 
+    Boolean(tripFilterParams.title);
+  const hasParamResult = hasParamBase ||
+    Boolean(title);
 
   // init searchTripParams and other states on searchParams
   useEffect(() => {
     if (searchParams.size === 0 || !isInit) return;
 
-    setTripParams({
+    const _budget = searchParams.get("budget") ?? undefined;
+
+    const newParams = {
       title: searchParams.get("title") ?? "",
+      countrySlug: searchParams.get("countrySlug") ?? undefined,
+      stateSlug: searchParams.get("stateSlug") ?? undefined,
+      budget: _budget ? parseInt(_budget) : undefined,
+      createdByAuthId: searchParams.get("createdBy") ?? undefined,
+      isDesc: !(searchParams.get("isDesc") === "false"),
       cursor: undefined,
-    });
+    } as tripSearchParams;
 
-    setInput(searchParams.get("title") ?? "");
-
-    setTrips([]);
+    setTripParams(newParams);
   }, [searchParams]);
 
+  // render trips on trip params, does not render on cursor change
   useEffect(() => {
-    if (!hasParam || !isInit) return;
+    setTripFilterParams(tripParams);
+    updateSearchParams();
 
     const initTrips = async () => {
-      await getTrips();
+      if (!hasParamResult) {
+        setTrips([]);
+        return;
+      }
+
+      await getTripsByParams();
       setIsInit(false);
     };
     initTrips();
-  }, [tripParams]);
+  }, [title, budget, countrySlug, stateSlug, createdByAuthId, isDesc]);
+
+  // search params on url
 
   const updateSearchParams = () => {
     const params = new URLSearchParams();
 
-    if (input) params.append("title", input);
+    if (title) params.append("title", title);
+    if (countrySlug) params.append("countrySlug", countrySlug);
+    if (stateSlug) params.append("stateSlug", stateSlug);
+    if (budget) params.append("budget", budget.toString());
+    if (createdByAuthId) params.append("createdBy", createdByAuthId);
+    if (isDesc === false) params.append("isDesc", "false");
 
     setSearchParams(params.toString());
   };
 
+  // trip params / trip filter params
+
+  const updateTripFilterParams = (updates: Partial<tripSearchParams>) => {
+    setTripFilterParams((prev) => ({
+      ...prev,
+      ...updates,
+    }));
+  };
+
   // async functions
 
-  const asyncTrips = (tripResults: SearchResult<Trip>, newTitle?: string) => {
-    if (!tripParams.cursor || newTitle) setTrips([...tripResults.results]);
-    else setTrips((prev) => [...prev, ...tripResults.results]);
+  const asyncTripParams = () => {
+    setTripParams({ ...tripFilterParams, cursor: undefined });
+  };
 
-    setTripParams((prev) => ({
-      ...prev,
-      title: newTitle ?? prev.title,
-      cursor: tripResults.cursor,
+  const asyncTripFilterParams = () => {
+    setTripFilterParams((prev) => ({
+      ...tripParams,
+      title: prev.title,
+      cursor: undefined,
     }));
+  };
+
+  const asyncTrips = (
+    tripResults: SearchResult<Trip>,
+    isNewSearch: boolean = false
+  ) => {
+    if (!tripParams.cursor || isNewSearch) setTrips([...tripResults.results]);
+    else setTrips((prev) => [...prev, ...tripResults.results]);
   };
 
   const getTrips = async () => {
     const tripResult = await tripsService.getTripsByParams(tripParams);
     asyncTrips(tripResult);
+
+    setTripParams((prev) => ({ ...prev, cursor: tripResult.cursor }));
   };
 
   const getTripsByParams = async () => {
-    const tripResult = await tripsService.getTripsByParams({
-      ...tripParams,
-      title: input,
-      cursor: undefined,
-    });
-    asyncTrips(tripResult, input);
+    try {
+      const tripResult = await tripsService.getTripsByParams(tripParams);
+      asyncTrips(tripResult, true);
+
+      setTripParams((prev) => ({ ...prev, cursor: tripResult.cursor }));
+    } catch (e) {
+      if (e instanceof Error) {
+        enqueueSnackbar(e.message, { variant: "error" });
+      }
+    }
   };
 
   /// handle events
 
+  // trigger when scroll close to the bottom
   const handleScroll = async () => {
+    // check whether condition met to show/hide button nav to top
+    const isDown = (containerRef.current?.scrollTop ?? 0) >= 100;
+    setShowNavTop((prev) => (prev !== isDown ? isDown : prev));
+
     if (isLoading || !tripParams.cursor) return;
 
     setIsLoading(true);
@@ -125,57 +188,142 @@ const Home = () => {
     setIsLoading(false);
   };
 
+  // trigger when click on the search icon button
   const handleSearch = async () => {
-    await getTripsByParams();
-    updateSearchParams();
+    asyncTripParams();
   };
+
+  // trigger when press enter when focus on search input
+  const handleKeyDownSearch = async (event: React.KeyboardEvent) => {
+    if (event.key === "Enter") {
+      await handleSearch();
+    }
+  };
+
+  // trigger when press Apply on Search Form
+  const handleCloseAdvancedSearch = async () => {
+    asyncTripFilterParams();
+    setOpenTripSearchForm(false);
+  };
+
+  // trigger when press Apply on Search Form
+  const handleApplyAdvancedSearch = async () => {
+    asyncTripParams();
+    setOpenTripSearchForm(false);
+  };
+
+  // trigger when deleting chips
+  const handleDeleteChip = async (key: keyof tripSearchParams) => {
+    const updatedFilter = {
+      ...tripFilterParams,
+      [key]: undefined,
+      cursor: undefined,
+    };
+    setTripParams(updatedFilter);
+  };
+
+  const handleNavTop = () => {
+    containerRef.current?.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
+
+  // components
+
+  const chips = [
+    {
+      condition: title,
+      param: "title",
+      text: title,
+      helpText: "Search",
+    },
+    {
+      condition: countrySlug,
+      param: "countrySlug",
+      text: countrySlug,
+      helpText: "Country",
+    },
+    {
+      condition: stateSlug,
+      param: "stateSlug",
+      text: stateSlug,
+      helpText: "State",
+    },
+    {
+      condition: budget,
+      param: "budget",
+      text: StringUtils.getBudgetStr(budget),
+      helpText: "budget",
+    },
+    {
+      condition: createdByAuthId,
+      param: "createdByAuthId",
+      text: createdByAuthId,
+      helpText: "Created By",
+    },
+  ];
 
   const Recommendation = () => {
     return (
-      <>
-        <Grid size={12} display="flex" justifyContent="center">
-          <Typography>No Result.</Typography>
-        </Grid>
-      </>
+      <Box display="flex" flexDirection="column" alignItems="center">
+        <Typography>TODO - recommendation</Typography>
+      </Box>
+    );
+  };
+
+  const NoSearchResult = () => {
+    return (
+      <Box className="no-result-box">
+        <Typography>No trips found.</Typography>
+        <Typography>
+          Try adjusting your filters or searching a different destination.
+        </Typography>
+      </Box>
     );
   };
 
   const SearchResult = () => {
     return (
       <React.Fragment>
-        <Grid size={12}>
-          <Typography variant="h4" fontFamily="lily script one">
-            Result
+        <Box>
+          <Typography className="result-title" variant="h4">
+            Matching Trips
           </Typography>
-        </Grid>
-        <Grid size={12} mt={-2}>
-          {tripParams.title ? (
-            <Chip
-              label={
-                <Typography variant="body2">
-                  search: <strong>{tripParams.title}</strong>
-                </Typography>
-              }
-              size="small"
-              onDelete={() => navigate("/home")} // nav doesn't work
-            />
-          ) : undefined}
-        </Grid>
-        <Grid
-          size={12}
-          display="flex"
-          flexWrap="wrap"
-          gap={2}
-        >
-          {trips.map((trip) => (
-            <TripCard
-              key={trip.id}
-              trip={trip}
-              onClick={() => navigate(`/trip/${trip.id}`)}
-              readonly
-            />
-          ))}
-        </Grid>
+        </Box>
+        <Box>
+          {chips.map((chip) =>
+            chip.condition ? (
+              <Chip
+                key={chip.param}
+                label={
+                  <Typography variant="body2">
+                    {chip.helpText ? `${chip.helpText}: ` : ""}
+                    <strong>{chip.text}</strong>
+                  </Typography>
+                }
+                size="small"
+                onDelete={() =>
+                  handleDeleteChip(chip.param as keyof tripSearchParams)
+                }
+              />
+            ) : undefined
+          )}
+        </Box>
+        {trips.length > 0 ? (
+          <Box className="trip-cards-box">
+            {trips.map((trip) => (
+              <TripCard
+                key={trip.id}
+                trip={trip}
+                onClick={() => navigate(`/trip/${trip.id}`)}
+                readonly
+              />
+            ))}
+          </Box>
+        ) : (
+          <NoSearchResult />
+        )}
       </React.Fragment>
     );
   };
@@ -190,9 +338,11 @@ const Home = () => {
     >
       <Box className="search-box">
         <Box className="search-content-box">
+          {/* input */}
           <TextField
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
+            value={tripFilterParams.title ?? ""}
+            onChange={(e) => updateTripFilterParams({ title: e.target.value })}
+            onKeyDown={handleKeyDownSearch}
             className="search-input"
             placeholder="Where to go?"
             color="utility"
@@ -200,26 +350,46 @@ const Home = () => {
             autoFocus
             fullWidth
           />
+
+          {/* search button */}
           <Box className="search-button-box">
-            <TTIconButton onClick={handleSearch}>
+            <TTIconButton onClick={handleSearch} disabled={!hasParamSearch}>
               <TravelExploreIcon />
             </TTIconButton>
           </Box>
         </Box>
+
+        {/* filter button */}
         <Box className="search-filter-box">
           <TTButton
             startIcon={<FilterAltIcon />}
-            label="filter"
+            label="Filter & Sort"
             color="utility"
-            onClick={() => {}}
+            onClick={() => setOpenTripSearchForm(true)}
           />
         </Box>
       </Box>
 
       {/* content */}
       <Box className={clsx("content-box", isMobile && "mobile")}>
-        {trips.length > 0 ? <SearchResult /> : <Recommendation />}
+        {hasParamResult ? <SearchResult /> : <Recommendation />}
       </Box>
+
+      {/* fabs */}
+      {showNavTop ? (
+        <Fab className="nav-top-fab" color="utility" onClick={handleNavTop}>
+          <ArrowUpwardIcon />
+        </Fab>
+      ) : undefined}
+
+      {/* forms */}
+      <TripSearchForm
+        open={openTripSearchForm}
+        onClose={handleCloseAdvancedSearch}
+        onAction={handleApplyAdvancedSearch}
+        tripFilterParams={tripFilterParams}
+        updateTripFilterParams={updateTripFilterParams}
+      />
     </Container>
   );
 };

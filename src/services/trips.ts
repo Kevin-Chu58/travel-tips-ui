@@ -29,7 +29,7 @@ export type Trip = TripPost & {
 
 export type tripSearchParams = {
   title?: string;
-  createdBy?: number;
+  createdByAuthId?: string;
   countrySlug?: string;
   stateSlug?: string;
   budget?: number;
@@ -41,10 +41,10 @@ const getTripsByParams = async (
   tripSearchParams: tripSearchParams
 ): Promise<SearchResult<Trip>> => {
   const params = new URLSearchParams();
-  
+
   if (tripSearchParams.title) params.append("title", tripSearchParams.title);
-  if (tripSearchParams.createdBy)
-    params.append("createdBy", tripSearchParams.createdBy.toString());
+  if (tripSearchParams.createdByAuthId)
+    params.append("createdByAuthId", tripSearchParams.createdByAuthId);
   if (tripSearchParams.countrySlug)
     params.append("countrySlug", tripSearchParams.countrySlug);
   if (tripSearchParams.stateSlug)
@@ -52,7 +52,7 @@ const getTripsByParams = async (
   if (tripSearchParams.budget)
     params.append("budget", tripSearchParams.budget.toString());
   if (tripSearchParams.cursor) params.append("cursor", tripSearchParams.cursor);
-  if (tripSearchParams.isDesc)
+  if (tripSearchParams.isDesc !== undefined)
     params.append("isDesc", tripSearchParams.isDesc.toString());
 
   return await http.get(http.apiBaseURLs.api, `trips?${params.toString()}`);
