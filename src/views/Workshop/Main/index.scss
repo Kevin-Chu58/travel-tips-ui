@@ -10,12 +10,6 @@
   height: $screen-height;
   color: black;
 
-  .nav-drawer-container {
-    width: 200px;
-    height: 100%;
-    background-color: var(--secondary-main);
-  }
-
   .content-container {
     display: flex;
     position: relative;
@@ -62,4 +56,10 @@
   .content-title.MuiTypography-root {
     margin-left: 0.25rem;
   }
+}
+
+.workshop-main-nav-drawer-container {
+  width: 200px;
+  height: 100%;
+  background-color: var(--secondary-main);
 }

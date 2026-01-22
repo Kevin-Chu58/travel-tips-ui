@@ -10,7 +10,7 @@ import {
 } from "@mui/material";
 import FormBase from "../FormBase";
 import BudgetForm from "../BudgetForm";
-import type { tripSearchParams } from "@services/trips";
+import type { TripSearchParams } from "@services/trips";
 import RegionForm from "../RegionForm";
 import "./index.scss";
 
@@ -18,8 +18,8 @@ type TripSearchFormProps = {
   open: boolean;
   onClose: () => void;
   onAction: () => void;
-  tripFilterParams: tripSearchParams;
-  updateTripFilterParams: (state: Partial<tripSearchParams>) => void;
+  tripFilterParams: TripSearchParams;
+  updateTripFilterParams: (state: Partial<TripSearchParams>) => void;
 };
 
 const TripSearchForm = ({

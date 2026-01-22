@@ -1,6 +1,7 @@
 import {
   Avatar,
   Box,
+  Chip,
   Divider,
   IconButton,
   Menu,
@@ -15,6 +16,7 @@ import type { RootState } from "@redux/store";
 import HighlightForm from "@components/Forms/HighlightForm";
 import { useIsMobile } from "@hooks/useIsMobile";
 import MarkdownBox from "@components/MarkdownBox";
+import LinearScaleIcon from "@mui/icons-material/LinearScale";
 import clsx from "clsx";
 import "./index.scss";
 
@@ -26,6 +28,7 @@ type HighlightItemProps = {
   onDelete?: (state: number) => void;
   onDetach?: () => void; // detach highlight from tao
   readonly?: boolean;
+  showRef?: boolean;
 };
 
 const HighlightItem = ({
@@ -36,6 +39,7 @@ const HighlightItem = ({
   onDelete,
   onDetach,
   readonly = false,
+  showRef = false,
 }: HighlightItemProps) => {
   // windows
   const isMobile = useIsMobile();
@@ -149,6 +153,20 @@ const HighlightItem = ({
     </IconButton>
   );
 
+  const UsageCountChip =
+    showRef && highlight.usageCount > 0 ? (
+      <Box>
+        <Chip
+          color="info"
+          sx={{ fontWeight: "bold" }}
+          icon={<LinearScaleIcon sx={{ transform: "rotate(180deg)" }} />}
+          label={`${highlight.usageCount} Ref${
+            highlight.usageCount > 1 ? "s" : ""
+          }`}
+        />
+      </Box>
+    ) : undefined;
+
   return (
     <React.Fragment>
       <Box
@@ -168,7 +186,10 @@ const HighlightItem = ({
                 {isEditing ? (
                   <React.Fragment>{highlightForm}</React.Fragment>
                 ) : (
-                  <React.Fragment>{highlightDescription}</React.Fragment>
+                  <React.Fragment>
+                    {highlightDescription}
+                    <Box>{UsageCountChip}</Box>
+                  </React.Fragment>
                 )}
               </Box>
               <Box>{menuIconButton}</Box>
@@ -186,6 +207,7 @@ const HighlightItem = ({
             ) : (
               <React.Fragment>{highlightDescription}</React.Fragment>
             )}
+            {UsageCountChip}
           </React.Fragment>
         )}
       </Box>

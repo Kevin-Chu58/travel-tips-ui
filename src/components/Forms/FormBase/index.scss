@@ -8,12 +8,18 @@
 
   .header {
     display: flex;
-    flex-direction: column;
-    justify-content: center;
+    align-items: center;
+    gap: .5rem;
 
     &.panel {
       padding: 0.5rem 1rem;
     }
+  }
+
+  .header-title-box {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 
     .title {
       display: flex;

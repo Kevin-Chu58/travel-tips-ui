@@ -2,6 +2,7 @@
   position: relative;
   width: 40vw;
   height: 80vh;
+  overflow-y: hidden;
 
   &.mobile {
     width: 80vw;

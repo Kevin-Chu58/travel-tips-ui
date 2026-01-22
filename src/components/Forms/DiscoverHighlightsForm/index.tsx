@@ -2,11 +2,9 @@ import HighlightsFragment from "@components/Profile/AttractionProfile/Highlights
 import TTButton from "@components/TTButton";
 import TTDialog from "@components/TTDialog";
 import { Box, CircularProgress, Divider, Typography } from "@mui/material";
-import { type Highlight, highlightsService } from "@services/highlights";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
 import { taosService, type Tao } from "@services/taos";
-import { useEffect, useState } from "react";
-import { BehaviorUtils } from "@utils/BehaviorUtils";
+import { useRef, useState } from "react";
 import { enqueueSnackbar } from "notistack";
 import { useIsMobile } from "@hooks/useIsMobile";
 import clsx from "clsx";
@@ -29,12 +27,13 @@ const DiscoverHighlightsForm = ({
   const isMobile = useIsMobile();
   // attraction
   const attraction = tao?.attraction;
-  // highlights
-  const [highlights, setHighlights] = useState<Highlight[] | undefined>();
+  // selected highlight
   const [selectedHighlightId, setSelectHighlightId] = useState<
     number | undefined
   >();
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
+  // infinite scrolling
+  const containerRef = useRef<HTMLDivElement | null>(null);
   // condition
   const isValid = selectedHighlightId !== tao?.highlight?.id;
   // action button
@@ -44,21 +43,7 @@ const DiscoverHighlightsForm = ({
     <AttachFileIcon />
   );
 
-  // rerender highlight list on open
-  useEffect(() => {
-    const initHighlights = async () => {
-      if (open && attraction) {
-        let highlights = await highlightsService.getHighlightsByAttractionId(
-          attraction.id
-        );
-        setHighlights(highlights);
-      }
-    };
-
-    initHighlights();
-  }, [open]);
-
-  const handleClickAattach = async () => {
+  const handleClickAttach = async () => {
     if (isValid && tao) {
       try {
         setIsProcessing(true);
@@ -67,7 +52,6 @@ const DiscoverHighlightsForm = ({
 
         let updatedTao = await taosService.patchTao(tao.id, taoPatch);
 
-        await BehaviorUtils.sleep();
         asyncEditDayTaos(updatedTao);
 
         enqueueSnackbar("Successfully attached highlight.", {
@@ -91,6 +75,7 @@ const DiscoverHighlightsForm = ({
   return (
     <TTDialog open={open} onClose={handleClose} hidePadding>
       <Box
+        ref={containerRef}
         className={clsx("discover-highlights-form-box", isMobile && "mobile")}
       >
         <Box className="discover-highlights-form-content-box">
@@ -105,15 +90,14 @@ const DiscoverHighlightsForm = ({
 
           {/* highlight list */}
           <Box className="discover-highlights-form-highlight-list-box">
-            {highlights ? (
-              <HighlightsFragment
-                attractionId={attraction?.id}
-                highlights={highlights}
-                allowChangeHighlight={false}
-                selectHighlightId={selectedHighlightId}
-                setSelectHighlightId={setSelectHighlightId}
-              />
-            ) : undefined}
+            <HighlightsFragment
+              containerRef={containerRef}
+              parentAttractionId={attraction?.id}
+              allowChangeHighlight={false}
+              selectHighlightId={selectedHighlightId}
+              setSelectHighlightId={setSelectHighlightId}
+              hideHeader
+            />
           </Box>
         </Box>
 
@@ -124,7 +108,7 @@ const DiscoverHighlightsForm = ({
             color="info"
             startIcon={actionIcon}
             disabled={!isValid || isProcessing}
-            onClick={handleClickAattach}
+            onClick={handleClickAttach}
           >
             attach highlight
           </TTButton>

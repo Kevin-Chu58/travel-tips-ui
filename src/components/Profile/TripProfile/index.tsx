@@ -389,6 +389,18 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
     }
   };
 
+  const asyncDeleteDay = () => {
+    let newDayId = Number(dayId) - 1;
+    isDefaultDirectingRef.current = false;
+
+    setNavTabValue(newDayId);
+
+    if (newDayId === 0) navigate(`${overViewNavTab.to}`, { replace: true });
+    else navigate(`${overViewNavTab.to}/day/${newDayId}`, { replace: true });
+
+    asyncTrip();
+  };
+
   const asyncDeleteDayTaos = (tao: Tao | undefined) => {
     if (day && tao) {
       let dayTaos = taosMapRef.current.get(day.id);
@@ -417,6 +429,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
   useEffect(() => {
     initTaoGeos();
     initDays();
+    enqueueSnackbar("numDays deleted");
   }, [tripBasic?.numDays]);
 
   // rerender navTabValue on dayId
@@ -739,17 +752,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
         day={days[Number(dayId ?? 0) - 1]}
         dayId={Number(dayId)}
         tripBasicRef={tripBasicRef}
-        asyncDeleteDay={() => {
-          let newDayId = Number(dayId) - 1;
-          isDefaultDirectingRef.current = false;
-
-          setNavTabValue(newDayId);
-
-          if (newDayId === 0)
-            navigate(`${overViewNavTab.to}`, { replace: true });
-          else
-            navigate(`${overViewNavTab.to}/day/${newDayId}`, { replace: true });
-        }}
+        asyncDeleteDay={asyncDeleteDay}
       />
 
       <DeleteTaoForm

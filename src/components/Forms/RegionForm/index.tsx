@@ -14,13 +14,13 @@ import {
   type SelectChangeEvent,
 } from "@mui/material";
 import CheckIcon from "@mui/icons-material/Check";
-import type { tripSearchParams } from "@services/trips";
+import type { TripSearchParams } from "@services/trips";
 
 type RegionFormProps = {
   open: boolean;
   onClose?: () => void;
   onUpdate?: (state?: number) => void;
-  onContentUpdate?: (state: Partial<tripSearchParams>) => void;
+  onContentUpdate?: (state: Partial<TripSearchParams>) => void;
   completeRegion?: RegionComplete;
   countrySlug?: string;
   stateSlug?: string;

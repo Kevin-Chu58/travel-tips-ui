@@ -1,11 +1,15 @@
+@use "../../../stylings/box_shadows" as *;
+
 .highlight-profile-box {
   color: black;
   background-color: white;
-  overflow-y: auto;
   display: flex;
   position: relative;
   justify-content: center;
   margin: 0 auto;
+  padding: 1rem;
+  border-radius: .5rem;
+  box-shadow: $mild-box-shadow;
 }
 
 .highlight-profile-content-box {

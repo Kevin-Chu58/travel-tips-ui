@@ -22,6 +22,7 @@ type FormBaseThemeProps = {
 
 type FormBaseHeaderProps = {
   header?: boolean;
+  headerIcon?: JSX.Element;
   title?: string | JSX.Element;
   subTitle?: string | JSX.Element;
 };
@@ -68,6 +69,7 @@ const FormBase = ({
   actionButtonTheme = "utility",
   //header
   header = true,
+  headerIcon,
   title,
   subTitle,
   // buttons
@@ -140,20 +142,23 @@ const FormBase = ({
         {/* header */}
         {header ? (
           <Box className={clsx("header", panel && "panel")}>
-            {title ? (
-              <Typography className="title" color={headerTheme} variant="h5">
-                {title}
-              </Typography>
-            ) : undefined}
-            {subTitle ? (
-              <Typography
-                className="subtitle"
-                color={headerTheme}
-                variant="subtitle2"
-              >
-                {subTitle}
-              </Typography>
-            ) : undefined}
+            {headerIcon}
+            <Box className="header-title-box">
+              {title ? (
+                <Typography className="title" color={headerTheme} variant="h5">
+                  {title}
+                </Typography>
+              ) : undefined}
+              {subTitle ? (
+                <Typography
+                  className="subtitle"
+                  color={headerTheme}
+                  variant="subtitle2"
+                >
+                  {subTitle}
+                </Typography>
+              ) : undefined}
+            </Box>
           </Box>
         ) : undefined}
 

@@ -5,41 +5,69 @@
   flex-direction: column;
   gap: 0.5rem;
   background-color: white;
-  padding: 1rem;
-  border: 1px solid $divider;
-  border-radius: 1rem;
-}
 
-.highlight-profile-highlights-fragment-header-bar {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-}
-
-.highlight-profile-highlights-fragment-header-title.MuiTypography-root {
-  font-size: 1.2rem;
-}
-
-.highlight-profile-highlights-fragment-header-add-button.MuiIconButton-root {
-  margin-left: auto;
-  border-color: transparent;
-}
-
-.highlight-profile-highlights-fragment-highlight-select-button.MuiButton-root {
-  text-transform: none !important;
-  justify-content: flex-start !important;
-  color: black;
-
-  &.focus {
-    background-color: var(--info-100);
+  .header-bar {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
   }
 
-  p {
-    text-align: start;
+  .header-add-button.MuiIconButton-root {
+    margin-left: auto;
+    border-color: transparent;
+  }
+
+  .tool-box {
+    display: flex;
+    align-items: center;
+    margin-top: -0.5rem;
+
+    &.mobile {
+      flex-direction: column;
+      align-items: start;
+    }
+  }
+
+  .MuiTabs-root {
+    width: fit-content;
+    margin-left: -0.2rem;
+  }
+
+  .TTTabs-tab.MuiTab-root {
+    padding: 0.5rem;
+    min-width: 50px;
+  }
+
+  .order-by-form-control.MuiFormControl-root {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-left: auto;
+    color: grey;
+    gap: 0.5rem;
+
+    &.mobile {
+      margin-left: 0;
+    }
+  }
+
+  .highlight-select-button.MuiButton-root {
+    text-transform: none !important;
+    justify-content: flex-start !important;
+    color: black;
+
+    &.focus {
+      background-color: var(--info-100);
+    }
+
+    p {
+      text-align: start;
+    }
   }
 }
 
-.highlight-profile-highlights-fragment-skeleton.MuiSkeleton-root {
-  width: 100%;
-  height: 200px;
+.nav-top-fab {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
 }

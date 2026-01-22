@@ -27,7 +27,7 @@ export type Trip = TripPost & {
   sharedUsers: UserSimple[];
 };
 
-export type tripSearchParams = {
+export type TripSearchParams = {
   title?: string;
   createdByAuthId?: string;
   countrySlug?: string;
@@ -38,24 +38,21 @@ export type tripSearchParams = {
 };
 
 const getTripsByParams = async (
-  tripSearchParams: tripSearchParams
+  params: TripSearchParams
 ): Promise<SearchResult<Trip>> => {
-  const params = new URLSearchParams();
+  const _params = new URLSearchParams();
 
-  if (tripSearchParams.title) params.append("title", tripSearchParams.title);
-  if (tripSearchParams.createdByAuthId)
-    params.append("createdByAuthId", tripSearchParams.createdByAuthId);
-  if (tripSearchParams.countrySlug)
-    params.append("countrySlug", tripSearchParams.countrySlug);
-  if (tripSearchParams.stateSlug)
-    params.append("stateSlug", tripSearchParams.stateSlug);
-  if (tripSearchParams.budget)
-    params.append("budget", tripSearchParams.budget.toString());
-  if (tripSearchParams.cursor) params.append("cursor", tripSearchParams.cursor);
-  if (tripSearchParams.isDesc !== undefined)
-    params.append("isDesc", tripSearchParams.isDesc.toString());
+  if (params.title) _params.append("title", params.title);
+  if (params.createdByAuthId)
+    _params.append("createdByAuthId", params.createdByAuthId);
+  if (params.countrySlug) _params.append("countrySlug", params.countrySlug);
+  if (params.stateSlug) _params.append("stateSlug", params.stateSlug);
+  if (params.budget) _params.append("budget", params.budget.toString());
+  if (params.cursor) _params.append("cursor", params.cursor);
+  if (params.isDesc !== undefined)
+    _params.append("isDesc", params.isDesc.toString());
 
-  return await http.get(http.apiBaseURLs.api, `trips?${params.toString()}`);
+  return await http.get(http.apiBaseURLs.api, `trips?${_params.toString()}`);
 };
 
 const getMyTrips = async (): Promise<Trip[]> => {

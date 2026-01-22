@@ -8,7 +8,7 @@ import {
 } from "@mui/material";
 import React, { useEffect, useRef, useState } from "react";
 import {
-  type tripSearchParams,
+  type TripSearchParams,
   tripsService,
   type Trip,
 } from "@services/trips";
@@ -33,8 +33,8 @@ const Home = () => {
   // trips - search result
   const [trips, setTrips] = useState<Trip[]>([]);
   // search params
-  const [tripParams, setTripParams] = useState<tripSearchParams>({}); // the only-true params
-  const [tripFilterParams, setTripFilterParams] = useState<tripSearchParams>(
+  const [tripParams, setTripParams] = useState<TripSearchParams>({}); // the only-true params
+  const [tripFilterParams, setTripFilterParams] = useState<TripSearchParams>(
     {}
   ); // the temperal params for trip advanced search
   // param details
@@ -53,13 +53,9 @@ const Home = () => {
   // others
   const navigate = useNavigate();
   const hasParamBase =
-    Boolean(budget) ||
-    Boolean(countrySlug) ||
-    Boolean(createdByAuthId);
-  const hasParamSearch = hasParamBase || 
-    Boolean(tripFilterParams.title);
-  const hasParamResult = hasParamBase ||
-    Boolean(title);
+    Boolean(budget) || Boolean(countrySlug) || Boolean(createdByAuthId);
+  const hasParamSearch = hasParamBase || Boolean(tripFilterParams.title);
+  const hasParamResult = hasParamBase || Boolean(title);
 
   // init searchTripParams and other states on searchParams
   useEffect(() => {
@@ -75,7 +71,7 @@ const Home = () => {
       createdByAuthId: searchParams.get("createdBy") ?? undefined,
       isDesc: !(searchParams.get("isDesc") === "false"),
       cursor: undefined,
-    } as tripSearchParams;
+    } as TripSearchParams;
 
     setTripParams(newParams);
   }, [searchParams]);
@@ -91,7 +87,7 @@ const Home = () => {
         return;
       }
 
-      await getTripsByParams();
+      await getTripsByParams(true);
       setIsInit(false);
     };
     initTrips();
@@ -114,7 +110,7 @@ const Home = () => {
 
   // trip params / trip filter params
 
-  const updateTripFilterParams = (updates: Partial<tripSearchParams>) => {
+  const updateTripFilterParams = (updates: Partial<TripSearchParams>) => {
     setTripFilterParams((prev) => ({
       ...prev,
       ...updates,
@@ -143,17 +139,10 @@ const Home = () => {
     else setTrips((prev) => [...prev, ...tripResults.results]);
   };
 
-  const getTrips = async () => {
-    const tripResult = await tripsService.getTripsByParams(tripParams);
-    asyncTrips(tripResult);
-
-    setTripParams((prev) => ({ ...prev, cursor: tripResult.cursor }));
-  };
-
-  const getTripsByParams = async () => {
+  const getTripsByParams = async (isNewSearch: boolean = false) => {
     try {
       const tripResult = await tripsService.getTripsByParams(tripParams);
-      asyncTrips(tripResult, true);
+      asyncTrips(tripResult, isNewSearch);
 
       setTripParams((prev) => ({ ...prev, cursor: tripResult.cursor }));
     } catch (e) {
@@ -182,7 +171,7 @@ const Home = () => {
 
     // detect near-bottom (within 100px)
     if (scrollTop + clientHeight >= scrollHeight - 100) {
-      await getTrips();
+      await getTripsByParams();
     }
 
     setIsLoading(false);
@@ -213,7 +202,7 @@ const Home = () => {
   };
 
   // trigger when deleting chips
-  const handleDeleteChip = async (key: keyof tripSearchParams) => {
+  const handleDeleteChip = async (key: keyof TripSearchParams) => {
     const updatedFilter = {
       ...tripFilterParams,
       [key]: undefined,
@@ -304,7 +293,7 @@ const Home = () => {
                 }
                 size="small"
                 onDelete={() =>
-                  handleDeleteChip(chip.param as keyof tripSearchParams)
+                  handleDeleteChip(chip.param as keyof TripSearchParams)
                 }
               />
             ) : undefined
