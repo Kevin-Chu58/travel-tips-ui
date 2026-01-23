@@ -391,7 +391,7 @@ const TermsOfServiceProfile = ({
               </b>{" "}
               (e.g. interpretations of the George Floyd incident that deny his
               resistance to lawful custody or assert racial animus by police
-              without verifiable evidence.).
+              without verifiable evidence).
             </li>
             <li>
               <b>Contains profanity or hateful language.</b>

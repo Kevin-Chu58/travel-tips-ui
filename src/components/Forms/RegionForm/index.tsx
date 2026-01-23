@@ -22,6 +22,7 @@ type RegionFormProps = {
   onUpdate?: (state?: number) => void;
   onContentUpdate?: (state: Partial<TripSearchParams>) => void;
   completeRegion?: RegionComplete;
+  setCompleteRegion?: React.Dispatch<React.SetStateAction<RegionComplete>>;
   countrySlug?: string;
   stateSlug?: string;
   content?: boolean;
@@ -33,6 +34,7 @@ const RegionForm = ({
   onUpdate = () => {},
   onContentUpdate = () => {},
   completeRegion,
+  setCompleteRegion,
   countrySlug,
   stateSlug,
   content,
@@ -104,12 +106,30 @@ const RegionForm = ({
         countrySlug: event.target.value,
         stateSlug: undefined,
       });
+
+    if (setCompleteRegion) {
+      const _country = countries.find((c) => c.slug === event.target.value);
+
+      setCompleteRegion({
+        country: _country,
+        state: undefined,
+      });
+    }
   };
 
   const handleStateChange = (event: SelectChangeEvent) => {
     setState(event.target.value);
 
     if (content) onContentUpdate({ stateSlug: event.target.value });
+
+    if (setCompleteRegion) {
+      const _country = countries.find((c) => c.slug === country);
+      const _state = states.find((s) => s.slug === event.target.value);
+      setCompleteRegion({
+        country: _country,
+        state: _state,
+      });
+    }
   };
 
   // components

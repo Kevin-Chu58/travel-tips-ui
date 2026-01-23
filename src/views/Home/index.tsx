@@ -24,8 +24,10 @@ import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import TripSearchForm from "@components/Forms/TripSearchForm";
 import { enqueueSnackbar } from "notistack";
 import { StringUtils } from "@utils/StringUtils";
+import { type RegionComplete } from "@services/search/regions";
 import clsx from "clsx";
 import "./index.scss";
+import { RegionUtils } from "@utils/RegionUtils";
 
 const Home = () => {
   // window
@@ -40,6 +42,7 @@ const Home = () => {
   // param details
   const { title, budget, countrySlug, stateSlug, createdByAuthId, isDesc } =
     tripParams;
+  const [completeRegion, setCompleteRegion] = useState<RegionComplete>({});
   // url
   const [searchParams, setSearchParams] = useSearchParams();
   // infinite scrolling
@@ -206,9 +209,12 @@ const Home = () => {
     const updatedFilter = {
       ...tripFilterParams,
       [key]: undefined,
+      stateSlug: key !== "countrySlug" ? tripFilterParams.stateSlug : undefined,
       cursor: undefined,
     };
     setTripParams(updatedFilter);
+
+    if (key === "countrySlug") setCompleteRegion({});
   };
 
   const handleNavTop = () => {
@@ -228,16 +234,10 @@ const Home = () => {
       helpText: "Search",
     },
     {
-      condition: countrySlug,
+      condition: completeRegion.country,
       param: "countrySlug",
-      text: countrySlug,
-      helpText: "Country",
-    },
-    {
-      condition: stateSlug,
-      param: "stateSlug",
-      text: stateSlug,
-      helpText: "State",
+      text: RegionUtils.getRegionAddress(completeRegion),
+      helpText: "Region",
     },
     {
       condition: budget,
@@ -378,6 +378,7 @@ const Home = () => {
         onAction={handleApplyAdvancedSearch}
         tripFilterParams={tripFilterParams}
         updateTripFilterParams={updateTripFilterParams}
+        setCompleteRegion={setCompleteRegion}
       />
     </Container>
   );

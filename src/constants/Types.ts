@@ -25,7 +25,9 @@ export type SubNavTab = {
 export type NavTab = {
   name: string;
   label: string;
+  description?: string;
   to?: string;
+  element?: JSX.Element;
   subs?: SubNavTab[];
   condition?: boolean | ((args: any[]) => boolean);
   deletable?: boolean;

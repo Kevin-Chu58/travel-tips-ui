@@ -48,8 +48,8 @@ const HeaderBar = () => {
       requireAuth: true,
     },
     {
-      name: "Guide",
-      to: "/guide",
+      name: "Doc",
+      to: "/doc",
       requireAuth: false,
     },
   ];

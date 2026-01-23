@@ -52,17 +52,22 @@ const Guide = () => {
 
   return (
     <Container className="guide-container" maxWidth={false} disableGutters>
-      <Box className="guide-container-box">
-        <Box className="guide-markdown-container">
+      <Box className="container-box">
+        <Box className="markdown-container">
           <MarkdownBox text={guide_purpose} />
-          <Box className="guide-center-container">
+          <Box className="center-container">
             <b>Checkout my demo here! 🔻🔻🔻</b>
           </Box>
-          <Box className="guide-center-container">
-            <TTButton size="large" label="⭐My Demo⭐" color="primary" onClick={navigateToDemo} />
+          <Box className="center-container">
+            <TTButton
+              size="large"
+              label="⭐My Demo⭐"
+              color="primary"
+              onClick={navigateToDemo}
+            />
           </Box>
           <MarkdownBox text={guide_create_new_trip} />
-          <Box className="guide-iframe-container">
+          <Box className="iframe-container">
             <iframe
               src="https://drive.google.com/file/d/1WrV7RRPEhV9w_5a4aFtL7bykyKhkJKzi/preview"
               width="320"
@@ -72,7 +77,7 @@ const Guide = () => {
             />
           </Box>
           <MarkdownBox text={guide_add_events} />
-          <Box className="guide-iframe-container">
+          <Box className="iframe-container">
             <iframe
               src="https://drive.google.com/file/d/1Pm-g-qT7Ez9YF6_AEb6lZMYw6YHOp1-U/preview"
               width="320"

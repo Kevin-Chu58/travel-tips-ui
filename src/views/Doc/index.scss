@@ -1,0 +1,65 @@
+@use "../../stylings/layout" as *;
+
+.doc-container {
+  position: relative;
+  overflow: auto;
+  height: $screen-height;
+  padding: 2rem 0;
+  color: black;
+  overflow-y: auto;
+
+  &.section {
+    background-color: var(--info-50);
+  }
+
+  .container-box {
+    margin: 0 auto;
+    max-width: 1200px;
+
+    &.section {
+      max-width: 900px;
+    }
+  }
+
+  .contents-box {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin: 0 1rem;
+  }
+
+  .section-header.MuiTypography-root {
+    color: var(--info-700);
+  }
+
+  .content-box {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: start;
+    gap: 2rem;
+  }
+
+  .doc-content {
+    display: flex;
+    flex-direction: column;
+    gap: .2rem;
+    max-width: 300px;
+    height: fit-content;
+    padding: 1rem;
+    background-color: var(--info-100);
+    border-radius: .5rem;
+    cursor: pointer;
+
+    &:hover {
+      background-color: var(--info-700);
+
+      .MuiTypography-root {
+        color: white;
+      }
+
+      .MuiDivider-root {
+        border-color: rgba(white, .6);
+      }
+    }
+  }
+}

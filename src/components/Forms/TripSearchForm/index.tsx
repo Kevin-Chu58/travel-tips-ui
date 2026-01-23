@@ -11,6 +11,7 @@ import {
 import FormBase from "../FormBase";
 import BudgetForm from "../BudgetForm";
 import type { TripSearchParams } from "@services/trips";
+import type { RegionComplete } from "@services/search/regions";
 import RegionForm from "../RegionForm";
 import "./index.scss";
 
@@ -20,6 +21,7 @@ type TripSearchFormProps = {
   onAction: () => void;
   tripFilterParams: TripSearchParams;
   updateTripFilterParams: (state: Partial<TripSearchParams>) => void;
+  setCompleteRegion: React.Dispatch<React.SetStateAction<RegionComplete>>;
 };
 
 const TripSearchForm = ({
@@ -28,6 +30,7 @@ const TripSearchForm = ({
   onAction,
   tripFilterParams,
   updateTripFilterParams,
+  setCompleteRegion,
 }: TripSearchFormProps) => {
   return (
     <FormBase
@@ -49,6 +52,7 @@ const TripSearchForm = ({
             countrySlug={tripFilterParams.countrySlug}
             stateSlug={tripFilterParams.stateSlug}
             onContentUpdate={updateTripFilterParams}
+            setCompleteRegion={setCompleteRegion}
             content
           />
         </Grid>

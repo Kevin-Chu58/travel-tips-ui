@@ -303,7 +303,7 @@ const PrivacyPolicyProfile = ({
             target="_blank"
             rel="noopener noreferrer"
           >
-            https://policies.google.com/technologies/partner-sites
+            Google Policies {">"} Parterner Sites
           </a>
         </Typography>
         <Typography variant="subtitle1">11.2 Your Choices</Typography>
@@ -321,7 +321,7 @@ const PrivacyPolicyProfile = ({
             target="_blank"
             rel="noopener noreferrer"
           >
-            https://www.google.com/settings/ads
+            Google Settings {">"} Ads
           </a>
           <br />
           TravelTips will display cookie consent options where required by law.
