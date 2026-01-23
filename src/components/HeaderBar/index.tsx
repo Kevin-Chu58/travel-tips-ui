@@ -64,10 +64,6 @@ const HeaderBar = () => {
       to: "/profile",
     },
     {
-      name: "document",
-      to: "/document",
-    },
-    {
       name: "setting",
       to: "/setting",
     },

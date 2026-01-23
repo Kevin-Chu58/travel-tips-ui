@@ -5,7 +5,6 @@ import Trip from "@views/Trip";
 import Doc from "@views/Doc";
 import AuthCallback from "@views/AuthCallback";
 import UserAgreement from "@views/UserAgreement";
-import Document from "@views/Document";
 import Attraction from "@views/Attraction";
 
 const routes = [{
@@ -40,10 +39,6 @@ const routes = [{
     name: "UserAgreement",
     path: "/user-agreement",
     element: <UserAgreement/>,
-}, {
-    name: "Document",
-    path: "/document",
-    element: <Document/>,
 }];
 
 export default routes;
