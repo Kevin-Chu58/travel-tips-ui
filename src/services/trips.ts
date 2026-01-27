@@ -1,4 +1,4 @@
-import http, { type SearchResult } from "@services/http";
+import http, { type SearchResults } from "@services/http";
 import type { UserBasic, UserSimple } from "./users";
 import type { Image, ImageRelation } from "./images";
 import type { TaoGeo } from "./taos";
@@ -39,7 +39,7 @@ export type TripSearchParams = {
 
 const getTripsByParams = async (
   params: TripSearchParams
-): Promise<SearchResult<Trip>> => {
+): Promise<SearchResults<Trip>> => {
   const _params = new URLSearchParams();
 
   if (params.title) _params.append("title", params.title);

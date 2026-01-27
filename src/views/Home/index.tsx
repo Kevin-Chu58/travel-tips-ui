@@ -18,16 +18,16 @@ import TTIconButton from "@components/TTIconButton";
 import TravelExploreIcon from "@mui/icons-material/TravelExplore";
 import TTButton from "@components/TTButton";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
-import type { SearchResult } from "@services/http";
+import type { SearchResults } from "@services/http";
 import { useIsMobile } from "@hooks/useIsMobile";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import TripSearchForm from "@components/Forms/TripSearchForm";
 import { enqueueSnackbar } from "notistack";
 import { StringUtils } from "@utils/StringUtils";
 import { type RegionComplete } from "@services/search/regions";
+import { RegionUtils } from "@utils/RegionUtils";
 import clsx from "clsx";
 import "./index.scss";
-import { RegionUtils } from "@utils/RegionUtils";
 
 const Home = () => {
   // window
@@ -135,7 +135,7 @@ const Home = () => {
   };
 
   const asyncTrips = (
-    tripResults: SearchResult<Trip>,
+    tripResults: SearchResults<Trip>,
     isNewSearch: boolean = false
   ) => {
     if (!tripParams.cursor || isNewSearch) setTrips([...tripResults.results]);

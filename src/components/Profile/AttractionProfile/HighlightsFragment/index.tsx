@@ -24,7 +24,7 @@ import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import { BehaviorUtils } from "@utils/BehaviorUtils";
 import { enqueueSnackbar } from "notistack";
 import DeleteHighlightForm from "@components/Forms/DeleteHighlightForm";
-import type { SearchResult } from "@services/http";
+import type { SearchResults } from "@services/http";
 import { throttle } from "lodash";
 import ToolTip from "@components/ToolTip";
 import { useSelector } from "react-redux";
@@ -150,7 +150,7 @@ const HighlightsFragment = ({
   // async functions
 
   const asyncHighlights = (
-    tripResults: SearchResult<Highlight>,
+    tripResults: SearchResults<Highlight>,
     isNewSearch: boolean = false
   ) => {
     const params = highlightParamsRef.current;

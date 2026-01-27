@@ -1,8 +1,14 @@
 import { ensureToken } from "./tokens";
 
 export type SearchResult<T> = {
+  result: T;
+  timestamp?: number;
+};
+
+export type SearchResults<T> = {
   cursor?: string;
   results: T[];
+  timestamp?: number;
 };
 
 type HttpRequestBody =

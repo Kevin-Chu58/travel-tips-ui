@@ -5,6 +5,8 @@ interface UserState {
   userId: string | null;
   username: string | null;
   userAgreement: boolean | null;
+  isAdmin: boolean | null;
+  isWriter: boolean | null;
   isLoading: boolean;
 }
 
@@ -13,6 +15,8 @@ const initialState: UserState = {
   userId: null,
   username: null,
   userAgreement: null,
+  isAdmin: null,
+  isWriter: null,
   isLoading: true,
 };
 
@@ -27,12 +31,17 @@ const userSlice = createSlice({
         userId: string;
         username: string;
         userAgreement: boolean;
+        isAdmin?: boolean;
+        isWriter?: boolean;
       }>
     ) {
       state.id = action.payload.id;
       state.userId = action.payload.userId;
       state.username = action.payload.username;
       state.userAgreement = action.payload.userAgreement;
+
+      if (action.payload.isAdmin) state.isAdmin = action.payload.isAdmin;
+      if (action.payload.isWriter) state.isWriter = action.payload.isWriter;
       state.isLoading = false;
     },
     setUserAgreement(state, action: PayloadAction<boolean>) {
@@ -43,6 +52,8 @@ const userSlice = createSlice({
       state.userId = null;
       state.username = null;
       state.userAgreement = null;
+      state.isAdmin = null;
+      state.isWriter = null;
       state.isLoading = false;
     },
     setLoading(state, action: PayloadAction<boolean>) {
@@ -51,5 +62,6 @@ const userSlice = createSlice({
   },
 });
 
-export const { setUser, setUserAgreement, clearUser, setLoading } = userSlice.actions;
+export const { setUser, setUserAgreement, clearUser, setLoading } =
+  userSlice.actions;
 export default userSlice.reducer;

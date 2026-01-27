@@ -429,7 +429,6 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
   useEffect(() => {
     initTaoGeos();
     initDays();
-    enqueueSnackbar("numDays deleted");
   }, [tripBasic?.numDays]);
 
   // rerender navTabValue on dayId

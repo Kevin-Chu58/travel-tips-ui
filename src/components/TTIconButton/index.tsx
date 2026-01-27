@@ -12,6 +12,7 @@ type TTIconButtonProps = {
   disabled?: boolean;
   loading?: boolean;
   onClick: (...state: any[]) => void;
+  noBorder?: boolean;
   children: ReactNode;
   sx?: SxProps;
 } & MuiIconButtonProps;
@@ -20,6 +21,7 @@ const TTIconButton = ({
   className,
   disabled = false,
   loading = false,
+  noBorder = false,
   onClick,
   children,
   sx,
@@ -28,7 +30,7 @@ const TTIconButton = ({
     <IconButton
       disabled={disabled}
       loading={loading}
-      className={clsx("TTIconButton", className)}
+      className={clsx("TTIconButton", noBorder && "no-border", className)}
       onClick={onClick}
       sx={sx}
     >
@@ -38,4 +40,3 @@ const TTIconButton = ({
 };
 
 export default TTIconButton;
- 

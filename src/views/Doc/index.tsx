@@ -5,11 +5,11 @@ import FoundationProfile from "@components/Profile/UserAgreementProfile/Foundati
 import TermsOfServiceProfile from "@components/Profile/UserAgreementProfile/TermsOfServiceProfile";
 import PrivacyPolicyProfile from "@components/Profile/UserAgreementProfile/PrivacyPolicyProfile";
 import { useLocation } from "react-router";
+import TTButton from "@components/TTButton";
 import Guide from "./Guide";
 import React from "react";
 import clsx from "clsx";
 import "./index.scss";
-import TTButton from "@components/TTButton";
 
 const Doc = () => {
   // others

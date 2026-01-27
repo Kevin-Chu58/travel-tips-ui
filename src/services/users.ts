@@ -9,6 +9,8 @@ export type UserSimple = {
 
 export type UserBasic = UserSimple & {
   userAgreement: boolean;
+  isAdmin?: boolean;
+  isWriter?: boolean;
 };
 
 const getUserBasicInfo = async (): Promise<UserBasic> => {

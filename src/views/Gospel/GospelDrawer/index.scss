@@ -1,0 +1,149 @@
+@use "../../../stylings/layout" as *;
+@use "../../../stylings/color" as *;
+
+.gospel-drawer-container {
+  display: flex;
+  flex-direction: column;
+  width: min(400px, 100vw);
+  height: $screen-height;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background-color: var(--secondary-main);
+
+  &.mobile {
+    width: 100vw;
+    position: absolute;
+    left: 0;
+    z-index: 10;
+    transition: left 0.2s linear;
+
+    &.hidden {
+      left: -100vw;
+    }
+  }
+
+  .header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 1rem 0;
+    gap: 0.5rem;
+
+    .title.MuiTypography-root {
+      font-family: saira stencil one;
+      color: var(--secondary-900);
+    }
+
+    .input-form-control.MuiFormControl-root {
+      width: 90%;
+    }
+
+    .outlined-input.MuiInputBase-root {
+      border-radius: 10rem;
+      overflow: hidden;
+      background-color: white;
+
+      fieldset {
+        border-color: transparent;
+      }
+    }
+
+    .start-adornment-box {
+      margin-left: -0.5rem;
+      margin-right: 0.5rem;
+
+      .MuiChip-root {
+        font-size: 1rem;
+      }
+    }
+
+    .search-button {
+      margin-right: -0.5rem;
+
+      &:hover .MuiSvgIcon-root {
+        fill: black;
+      }
+    }
+
+    .chip-box {
+      display: flex;
+      gap: 0.5rem;
+    }
+  }
+
+  .content {
+    display: flex;
+    flex-direction: column;
+
+    .MuiTypography-root {
+      white-space: wrap;
+    }
+
+    .caption {
+      padding-left: 1rem;
+
+      &.MuiTypography-root {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        color: black;
+        font-weight: bold;
+      }
+    }
+
+    .MuiMenuItem-root {
+      .MuiSvgIcon-root {
+        margin: 0 0.5rem 0 auto;
+        fill: var(--utility-800);
+        transition: none;
+      }
+
+      &.category-menu-item {
+        margin: 0 1rem;
+        border-radius: 10rem;
+
+        :not(.default).MuiTypography-root {
+          font-size: 1.2rem;
+        }
+      }
+
+      &.topic-menu-item {
+        margin: 0 1rem;
+        margin-left: 2rem;
+        border-radius: 10rem;
+
+        .MuiTypography-root {
+          font-size: 1rem;
+        }
+      }
+
+      &:hover {
+        background: var(--utility-200);
+      }
+
+      &.hovered {
+        background: $info-gradient-right;
+        .MuiTypography-root {
+          color: white;
+        }
+        .MuiSvgIcon-root {
+          fill: white;
+        }
+      }
+    }
+  }
+
+  .chip.MuiChip-root {
+    &.onClick {
+      cursor: pointer;
+      &:hover {
+        color: white;
+      }
+    }
+
+    &:not(.custom) {
+      &:hover {
+        background-color: var(--utility-500);
+      }
+    }
+  }
+}

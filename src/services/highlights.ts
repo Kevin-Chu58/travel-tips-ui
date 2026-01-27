@@ -1,5 +1,5 @@
 import type { HighlightOrderByEnum } from "@constants/Types";
-import http, { type SearchResult } from "./http";
+import http, { type SearchResults } from "./http";
 import type { UserBasic } from "./users";
 
 export const getDefaultHighlight = (attractionId: number) => {
@@ -35,7 +35,7 @@ export type HighlightSearchParams = {
 
 const getHighlightsByParams = async (
   params: HighlightSearchParams
-): Promise<SearchResult<Highlight>> => {
+): Promise<SearchResults<Highlight>> => {
   const _params = new URLSearchParams();
 
   if (params.attractionId)

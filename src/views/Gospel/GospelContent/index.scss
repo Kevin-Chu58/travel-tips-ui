@@ -1,0 +1,64 @@
+@use "../../../stylings/layout" as *;
+@use "../../../stylings/color" as *;
+
+.gospel-content-container {
+  display: flex;
+  flex-direction: column;
+  height: $screen-height;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 2rem;
+  flex: 1;
+
+  &.mobile {
+    padding: 0;
+  }
+
+  .back-text.MuiTypography-root {
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  
+  .header-box {
+    margin: 1rem;
+
+    .category.MuiTypography-root {
+      background: $info-gradient-right;
+      color: white;
+      margin-right: 4rem;
+      padding: 2rem;
+
+      &.mobile {
+        margin-right: 1rem;
+        font-size: 2rem;
+      }
+    }
+
+    .topic.MuiTypography-root {
+      background: var(--utility-800);
+      color: white;
+      padding: .8rem;
+      padding-left: 2rem;
+      margin: -1rem 0 0 4rem;
+      z-index: 0;
+
+      &.mobile {
+        margin-left: 1rem;
+        font-size: 1.2rem;
+      }
+    }
+  }
+
+  .sermon-box {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    gap: 2rem;
+  }
+
+  .no-sermon-box {
+    margin-top: 1rem;
+    text-align: center;
+  }
+}

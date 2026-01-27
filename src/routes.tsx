@@ -6,6 +6,7 @@ import Doc from "@views/Doc";
 import AuthCallback from "@views/AuthCallback";
 import UserAgreement from "@views/UserAgreement";
 import Attraction from "@views/Attraction";
+import Gospel from "@views/Gospel";
 
 const routes = [{
     name: "Main",
@@ -31,6 +32,10 @@ const routes = [{
     name: "Doc",
     path: "/doc/*",
     element: <Doc/>,
+}, {
+    name: "Gospel",
+    path: "/gospel/*",
+    element: <Gospel/>,
 }, {
     name: "AuthCallback",
     path: "/auth/callback",

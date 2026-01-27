@@ -29,6 +29,8 @@ export const UserBasicInitializer = () => {
             userId: user.userId,
             username: user.username,
             userAgreement: user.userAgreement,
+            isAdmin: user.isAdmin,
+            isWriter: user.isWriter,
           })
         );
       } catch (err) {

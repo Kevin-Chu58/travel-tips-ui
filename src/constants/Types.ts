@@ -36,6 +36,7 @@ export type NavTab = {
 export type UtilityItem = {
   label?: string;
   content: any;
+  description?: string;
   condition?: boolean; // don't do something with content (e.g., showing) when condition is false
   onClick?: () => void;
 };
@@ -119,6 +120,10 @@ export type HighlightOrderByEnum =
   | "oldest"
   | "mostUsed"
   | "leastUsed";
+
+export type GospelSearchType = 
+  | "Sermon"
+  | "Topic";
 
 // labels
 

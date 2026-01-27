@@ -52,6 +52,11 @@ const HeaderBar = () => {
       to: "/doc",
       requireAuth: false,
     },
+    {
+      name: "Gospel",
+      to: "/gospel",
+      requireAuth: false,
+    },
   ];
 
   const currentHeader =
