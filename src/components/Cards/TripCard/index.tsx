@@ -46,7 +46,7 @@ const TripCard = ({
   const [imageIndex, setImageIndex] = useState<number>(0);
   // popover
   const [popoverAnchorEl, setPopoverAnchorEl] =
-    React.useState<HTMLButtonElement | null>(null);
+    useState<HTMLButtonElement | null>(null);
 
   // rerender on trip isPublic
   useEffect(() => {}, [trip.isPublic]);
@@ -56,7 +56,7 @@ const TripCard = ({
   };
 
   const handleVisibilityTripClick = async (
-    e: React.MouseEvent<HTMLLIElement>
+    e: React.MouseEvent<HTMLLIElement>,
   ) => {
     e.stopPropagation();
 
@@ -90,7 +90,7 @@ const TripCard = ({
 
         enqueueSnackbar(
           `Successfully ${trip.isHidden ? "unarchived" : "archived"} trip.`,
-          { variant: "success" }
+          { variant: "success" },
         );
       } catch (e) {
         if (e instanceof Error) {

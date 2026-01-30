@@ -1,6 +1,16 @@
-import { Box, Divider, MenuItem, Typography } from "@mui/material";
-import { useNavigate, useParams } from "react-router";
-import { useEffect, useState } from "react";
+import {
+  Box,
+  Chip,
+  Divider,
+  IconButton,
+  ListItemIcon,
+  ListItemText,
+  Menu,
+  MenuItem,
+  Typography,
+} from "@mui/material";
+import { useNavigate, useParams, useSearchParams } from "react-router";
+import React, { useEffect, useState } from "react";
 import {
   sermonsService,
   type Sermon,
@@ -10,6 +20,17 @@ import { enqueueSnackbar } from "notistack";
 import { useIsMobile } from "@hooks/useIsMobile";
 import MenuIcon from "@mui/icons-material/Menu";
 import TTIconButton from "@components/TTIconButton";
+import { useSelector } from "react-redux";
+import type { RootState } from "@redux/store";
+import SermonForm from "@components/Forms/SermonForm";
+import AddIcon from "@mui/icons-material/Add";
+import TTButton from "@components/TTButton";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import MarkdownBox from "@components/MarkdownBox";
+import DeleteSermonForm from "@components/Forms/DeleteSermonForm";
+import AddSermonLabelForm from "@components/Forms/AddSermonLabelForm";
 import clsx from "clsx";
 import "./index.scss";
 
@@ -22,6 +43,11 @@ const GospelContent = ({ setIsHidden }: GospelContentProps) => {
   const isMobile = useIsMobile();
   // url
   const { labelSlug, orderId } = useParams();
+  // search params
+  const [searchParams] = useSearchParams();
+  const isWriterParams = Boolean(searchParams.has("my"));
+  // user
+  const user = useSelector((state: RootState) => state.user);
   // sermon label
   const [label, setLabel] = useState<SermonLabelComplete | undefined>(
     undefined,
@@ -30,8 +56,17 @@ const GospelContent = ({ setIsHidden }: GospelContentProps) => {
   const [sermons, setSermons] = useState<Sermon[]>([]);
   // sermon
   const [sermon, setSermon] = useState<Sermon | undefined>(undefined);
+  // my sermons
+  const [mySermons, setMySermons] = useState<Sermon[]>([]);
+  // my sermon - in edit
+  const [mySermon, setMySermon] = useState<Sermon | undefined>();
+  // form status
+  const [openAddSermonLabelForm, setOpenAddSermonLabelForm] = useState<boolean>(false);
+  const [openNewSermonForm, setOpenNewSermonForm] = useState<boolean>(false);
+  const [openDeleteSermonForm, setOpenDeleteSermonForm] = useState<boolean>(false);
   // behavior
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   // others
   const navigate = useNavigate();
 
@@ -70,6 +105,37 @@ const GospelContent = ({ setIsHidden }: GospelContentProps) => {
     }
   };
 
+  const initMySermons = async () => {
+    setIsLoading(true);
+    const sermons = await sermonsService.getSermonsByParams({
+      createdByAuthId: user.userId ?? "",
+      isRestricted: true,
+    });
+    setMySermons(sermons);
+    setIsLoading(false);
+  };
+
+  // async functions
+
+  const asyncNewSermon = (sermon: Sermon) => {
+    setMySermons((prev) => [sermon, ...prev]);
+  };
+
+  const asyncUpdateSermon = (sermon: Sermon) => {
+    let sermons = [...mySermons];
+    const i = sermons.findIndex((s) => s.id === sermon.id);
+
+    if (i < 0) return;
+
+    sermons[i] = sermon;
+
+    setMySermons([...sermons]);
+  };
+
+  const asyncDeleteSermon = (sermonId: number) => {
+    setMySermons(prev => prev.filter(s => s.id !== sermonId));
+  };
+
   // use effects
 
   // initiate complete label, sermons, and sermon on label slug and order id
@@ -94,22 +160,197 @@ const GospelContent = ({ setIsHidden }: GospelContentProps) => {
     }
   }, [labelSlug, orderId]);
 
+  // init my sermons on isWriterParams
+  useEffect(() => {
+    if (!isWriterParams) return;
+    initMySermons();
+  }, [isWriterParams]);
+
   // handle functions
+
+  const handleDeleteSermon = async () => {
+    if (!mySermon) return;
+
+    try {
+      const deletedSermonId = await sermonsService.deleteSermon(mySermon.id);
+      asyncDeleteSermon(deletedSermonId);
+
+      enqueueSnackbar("Sermon deleted.", {variant: "success"});
+
+      setOpenDeleteSermonForm(false);
+    } catch (e) {
+      if (e instanceof Error) {
+        enqueueSnackbar(e.message, {variant: "error"});
+      }
+    }
+  };
+
+  const handleOpenSermonForm = () => {
+    setOpenNewSermonForm(true);
+    handleAnchorElClose();
+  };
+
+  const handleCloseSermonForm = () => {
+    setOpenNewSermonForm(false);
+    setMySermon(undefined);
+  };
+
+  const handleOpenDeleteSermonForm = () => {
+    setOpenDeleteSermonForm(true);
+    handleAnchorElClose();
+  };
+
+  const handleMySermonClick = (
+    event: React.MouseEvent<HTMLButtonElement>,
+    sermon: Sermon,
+  ) => {
+    event.stopPropagation();
+    setMySermon(sermon);
+    handleAnchorElClick(event);
+  };
+
+  const handleAnchorElClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleAnchorElClose = () => {
+    setAnchorEl(null);
+  };
 
   const handleBack = () => {
     setSermon(undefined);
     navigate("./..");
   };
 
+  const handleBackHome = () => {
+    setSermon(undefined);
+    navigate("/gospel");
+  };
+
+  // components
+
+  const NavButton = (isSermon: boolean = false) => {
+    return isMobile ? (
+      <TTIconButton onClick={() => setIsHidden(false)} noBorder>
+        <MenuIcon />
+      </TTIconButton>
+    ) : (
+      <Typography
+        className="back-text"
+        onClick={isSermon ? handleBack : handleBackHome}
+      >
+        {isSermon ? `<< Back to Topic` : `<< Back to Home`}
+      </Typography>
+    );
+  };
+
+  const WriterView = () => {
+    return (
+      <Box className={clsx("gospel-content-container", isMobile && "mobile")}>
+        <Box className="header-box">
+          {/* nav button - only in mobile view */}
+          {NavButton()}
+          <Typography
+            className={clsx("category", isMobile && "mobile")}
+            variant="h3"
+          >
+            My Sermons
+          </Typography>
+
+          <Box className="tool-box">
+            {/* label setting */}
+            <TTButton
+              label="New Labels"
+              startIcon={<AddIcon />}
+              color="info"
+              onClick={() => setOpenAddSermonLabelForm(true)}
+            />
+            {/* add sermon */}
+            <TTButton
+              label="New Sermon"
+              startIcon={<AddIcon />}
+              color="utility"
+              onClick={() => setOpenNewSermonForm(true)}
+            />
+          </Box>
+        </Box>
+
+        <Divider />
+
+        {/* content */}
+        <Box>
+          {mySermons.map((sermon) => (
+            <MenuItem
+              key={sermon.id}
+              className="my-sermon-menu-item"
+              disableRipple
+            >
+              <Box className="row">
+                <Box className="column">
+                  <Box className="row">
+                    <Typography variant="h6">{sermon.title}</Typography>
+                    <Typography variant="caption">
+                      {sermon.publishAt}
+                    </Typography>
+                  </Box>
+                  {/* label - category & topic */}
+                  {sermon.label ? (
+                    <Box className="row wrap">
+                      <Chip
+                        label={sermon.label.category?.name}
+                        size="small"
+                        color="info"
+                      />
+                      <Chip
+                        label={sermon.label.topic?.name}
+                        size="small"
+                        color="utility"
+                      />
+                    </Box>
+                  ) : (
+                    <Typography fontStyle="italic">
+                      No topic assigned
+                    </Typography>
+                  )}
+                </Box>
+
+                <Box className="more-option-button">
+                  <IconButton onClick={(e) => handleMySermonClick(e, sermon)}>
+                    <MoreVertIcon />
+                  </IconButton>
+                </Box>
+              </Box>
+            </MenuItem>
+          ))}
+        </Box>
+      </Box>
+    );
+  };
+
   const SermonView = () => {
     return (
-      <Box className="gospel-content-container">
-        <Box>
-          <Typography className="back-text" onClick={handleBack}>
-            {`<< Back to Topic`}
-          </Typography>
+      <Box className={clsx("gospel-content-container", isMobile && "mobile")}>
+        <Box className="header-box">
+          {/* nav button - only in mobile view */}
+          {NavButton(true)}
+          {sermon?.label ? (
+            <React.Fragment>
+              <Typography
+                className={clsx("category", isMobile && "mobile")}
+                variant="h3"
+              >
+                {label?.category?.name}
+              </Typography>
+              <Typography
+                className={clsx("topic", isMobile && "mobile")}
+                variant="h5"
+              >
+                {label?.topic?.name}
+              </Typography>
+            </React.Fragment>
+          ) : undefined}
         </Box>
-        <Typography>{sermon?.content}</Typography>
+        <MarkdownBox text={sermon?.content} isOfficial />
       </Box>
     );
   };
@@ -120,13 +361,7 @@ const GospelContent = ({ setIsHidden }: GospelContentProps) => {
         {/* header */}
         <Box className="header-box">
           {/* nav button - only in mobile view */}
-          {isMobile ? (
-            <TTIconButton onClick={() => setIsHidden(false)} noBorder>
-              <MenuIcon />
-            </TTIconButton>
-          ) : <Typography className="back-text" onClick={handleBack}>
-            {`<< Back to Home`}
-          </Typography>}
+          {NavButton()}
 
           <Typography
             className={clsx("category", isMobile && "mobile")}
@@ -145,7 +380,7 @@ const GospelContent = ({ setIsHidden }: GospelContentProps) => {
         <Divider variant="middle" />
 
         {/* content */}
-        <Box className="content-box">
+        <Box>
           {isLoading ? undefined : sermons.length > 0 ? (
             sermons.map((sermon, i) => (
               <MenuItem
@@ -174,9 +409,65 @@ const GospelContent = ({ setIsHidden }: GospelContentProps) => {
     );
   };
 
-  if (labelSlug && orderId) return <SermonView />;
-  if (labelSlug && !orderId) return <TopicView />;
-  else return <Box>feed</Box>;
+  const Main = () => {
+    if (labelSlug && orderId) return SermonView();
+    if (labelSlug && !orderId) return TopicView();
+    if (isWriterParams) return WriterView();
+    else return <Box>feed</Box>;
+  };
+
+  return (
+    <React.Fragment>
+      {Main()}
+
+      {/* forms */}
+
+      <AddSermonLabelForm
+        open={openAddSermonLabelForm}
+        onClose={() => setOpenAddSermonLabelForm(false)}
+      />
+      <SermonForm
+        sermonId={mySermon?.id}
+        open={openNewSermonForm}
+        onClose={handleCloseSermonForm}
+        onAction={mySermon ? asyncUpdateSermon : asyncNewSermon}
+      />
+      <DeleteSermonForm
+        open={openDeleteSermonForm}
+        onClose={() => setOpenDeleteSermonForm(false)}
+        onAction={handleDeleteSermon}
+      />
+
+      {/* popups */}
+      <Menu
+        className="TT-menu flex"
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleAnchorElClose}
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "right",
+        }}
+        transformOrigin={{
+          vertical: "top",
+          horizontal: "right",
+        }}
+      >
+        <MenuItem onClick={handleOpenSermonForm}>
+          <ListItemIcon>
+            <EditIcon />
+          </ListItemIcon>
+          <ListItemText primary="Edit" />
+        </MenuItem>
+        <MenuItem className="error" onClick={handleOpenDeleteSermonForm}>
+          <ListItemIcon>
+            <DeleteIcon />
+          </ListItemIcon>
+          <ListItemText primary="Delete" />
+        </MenuItem>
+      </Menu>
+    </React.Fragment>
+  );
 };
 
 export default GospelContent;

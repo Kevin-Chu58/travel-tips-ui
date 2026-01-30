@@ -19,14 +19,18 @@ type DescriptionTextFieldProps = {
   value: string;
   setValue: (state: string) => void;
   placeholder?: string;
+  maxHeight?: string;
   maxLength?: number;
+  isOfficial?: boolean;
 };
 
 const DescriptionTextField = ({
   value,
   setValue,
   placeholder,
+  maxHeight,
   maxLength,
+  isOfficial = false,
 }: DescriptionTextFieldProps) => {
   // view
   const [isPreview, setIsPreview] = useState<boolean>(false);
@@ -169,7 +173,7 @@ const DescriptionTextField = ({
       </Box>
 
       {isPreview ? (
-        <MarkdownBox text={value} />
+        <MarkdownBox text={value} isOfficial={isOfficial} />
       ) : (
         <Box className="text-field-box">
           <Box className="text-field-tool-bar">
@@ -189,6 +193,7 @@ const DescriptionTextField = ({
           <TextField
             className="view-input-text-field"
             value={value}
+            sx={{maxHeight: maxHeight}}
             onChange={(e) => setValue(e.target.value)}
             placeholder={placeholder}
             inputRef={textAreaRef}

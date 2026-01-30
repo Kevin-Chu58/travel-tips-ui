@@ -1,5 +1,6 @@
 @use "../../../stylings/layout" as *;
 @use "../../../stylings/color" as *;
+@use "../../../stylings/box_shadows" as *;
 
 .gospel-content-container {
   display: flex;
@@ -15,50 +16,69 @@
   }
 
   .back-text.MuiTypography-root {
+    width: fit-content;
     font-size: 1.2rem;
     font-weight: bold;
     cursor: pointer;
   }
-  
+
   .header-box {
-    margin: 1rem;
+    margin: 1rem 0;
 
-    .category.MuiTypography-root {
-      background: $info-gradient-right;
-      color: white;
-      margin-right: 4rem;
-      padding: 2rem;
-
-      &.mobile {
-        margin-right: 1rem;
-        font-size: 2rem;
-      }
+    .tool-box {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-top: 1rem;
+      padding: 0 0.5rem;
+      gap: 1rem;
     }
+  }
 
-    .topic.MuiTypography-root {
-      background: var(--utility-800);
-      color: white;
-      padding: .8rem;
-      padding-left: 2rem;
-      margin: -1rem 0 0 4rem;
-      z-index: 0;
+  .category.MuiTypography-root {
+    background: $info-gradient-right;
+    box-shadow: $box-shadow;
+    color: white;
+    margin-right: 4rem;
+    padding: 2rem;
 
-      &.mobile {
-        margin-left: 1rem;
-        font-size: 1.2rem;
-      }
+    &.mobile {
+      margin-right: 1rem;
+      font-size: 2rem;
     }
+  }
+
+  .topic.MuiTypography-root {
+    background: var(--utility-800);
+    box-shadow: $box-shadow;
+    color: white;
+    padding: 0.8rem;
+    padding-left: 2rem;
+    margin: -1rem 0 0 4rem;
+    z-index: 0;
+
+    &.mobile {
+      margin-left: 1rem;
+      font-size: 1.2rem;
+    }
+  }
+
+  .MuiMenuItem-root {
+    border-bottom: 1px $divider solid;
   }
 
   .sermon-box {
     display: flex;
     align-items: center;
-    padding: 1rem;
     gap: 2rem;
   }
 
   .no-sermon-box {
     margin-top: 1rem;
     text-align: center;
+  }
+
+  .more-option-button {
+    margin-left: auto;
   }
 }

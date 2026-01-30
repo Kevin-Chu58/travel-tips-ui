@@ -28,16 +28,50 @@
     margin: 0;
     margin-left: .5rem;
   }
+  li {
+    margin-bottom: -2rem;
+    
+    &:has(p + *), &:has( p > a) {
+      p:first-of-type {
+        margin-top: -1.5rem;
+        margin-bottom: -1rem;
+      }
+    }
+  }
   code {
     background: var(--utility-200);
     padding: 0.2rem 0.4rem;
     border-radius: .2rem;
     font-family: monospace;
   }
+  blockquote {
+    position: relative;
+    display: inline-flex;
+    margin: 0rem 1rem;
+    padding: 0 1rem;
+    background-color: var(--info-50);
+    font-size: .9rem;
+
+    &::before {
+      position: absolute;
+      content: "";
+      top: 0;
+      left: 0;
+      width: .5rem;
+      height: 100%;
+      background-color: var(--info-300);
+    }
+  }
   img {
     max-width: min(100%, 400px);
     height: auto;
     display: block;
     margin: 0;
+  }
+
+  span {
+    &.red {
+      color: red;
+    }
   }
 }

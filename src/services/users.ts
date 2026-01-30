@@ -4,10 +4,10 @@ export type UserSimple = {
   id: number;
   userId: string;
   username: string;
-  email: string;
 };
 
 export type UserBasic = UserSimple & {
+  email: string;
   userAgreement: boolean;
   isAdmin?: boolean;
   isWriter?: boolean;

@@ -4,6 +4,7 @@
 .gospel-drawer-container {
   display: flex;
   flex-direction: column;
+  position: relative;
   width: min(400px, 100vw);
   height: $screen-height;
   overflow-x: hidden;
@@ -91,6 +92,7 @@
     }
 
     .MuiMenuItem-root {
+
       .MuiSvgIcon-root {
         margin: 0 0.5rem 0 auto;
         fill: var(--utility-800);
@@ -145,5 +147,11 @@
         background-color: var(--utility-500);
       }
     }
+  }
+
+  .close-button {
+    position: absolute;
+    top: .5rem;
+    right: .5rem;
   }
 }

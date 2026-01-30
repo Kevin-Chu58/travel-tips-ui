@@ -21,14 +21,17 @@ import React, { useEffect, useRef, useState } from "react";
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
-import { useNavigate } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 import { useParams } from "react-router";
 import { useIsMobile } from "@hooks/useIsMobile";
 import { highlightText } from "@components/HighlightText";
+import DefaultHighlight from "@components/HighlightText/DefaultHighlight";
+import CloseIcon from "@mui/icons-material/Close";
+import { enqueueSnackbar } from "notistack";
+import { useSelector } from "react-redux";
+import type { RootState } from "@redux/store";
 import clsx from "clsx";
 import "./index.scss";
-import DefaultHighlight from "@components/HighlightText/DefaultHighlight";
-import { enqueueSnackbar } from "notistack";
 
 type GospelDrawerProps = {
   isHidden: boolean;
@@ -51,6 +54,11 @@ const GospelDrawer = ({ isHidden, setIsHidden }: GospelDrawerProps) => {
   const isMobile = useIsMobile();
   // url
   const { labelSlug, orderId } = useParams();
+  // search params
+  const [searchParams] = useSearchParams();
+  const isWriterParams = Boolean(searchParams.has("my"));
+  // user
+  const isWriter = useSelector((state: RootState) => state.user.isWriter);
   // categories
   const [categories, setCategories] = useState<SermonLabel[]>([]);
   // topics
@@ -160,7 +168,9 @@ const GospelDrawer = ({ isHidden, setIsHidden }: GospelDrawerProps) => {
     category: SermonLabel,
     isSearch: boolean = false,
   ) => {
-    const isOpened = openCategories.includes(category.slug);
+    const isOpened = isSearch
+      ? openSearchCategories.includes(category.slug)
+      : openCategories.includes(category.slug);
 
     if (isOpened) {
       isSearch
@@ -198,7 +208,14 @@ const GospelDrawer = ({ isHidden, setIsHidden }: GospelDrawerProps) => {
   };
 
   const handleHomeClick = () => {
-    navigate("./..");
+    navigate("/gospel");
+    setSlug(undefined);
+
+    if (isMobile) setIsHidden(true);
+  };
+
+  const handleMySermonClick = () => {
+    navigate("/gospel?my");
     setSlug(undefined);
 
     if (isMobile) setIsHidden(true);
@@ -291,7 +308,7 @@ const GospelDrawer = ({ isHidden, setIsHidden }: GospelDrawerProps) => {
             <React.Fragment>
               <Typography className="caption">category</Typography>
               {sermonLabelResult?.categories?.map((category) =>
-                menuItem(category),
+                menuItem(category, true),
               )}
             </React.Fragment>
           ) : undefined}
@@ -338,6 +355,7 @@ const GospelDrawer = ({ isHidden, setIsHidden }: GospelDrawerProps) => {
       )}
     </React.Fragment>
   );
+
   const NavContent = (
     <React.Fragment>
       <Typography className="caption">navigation</Typography>
@@ -345,12 +363,24 @@ const GospelDrawer = ({ isHidden, setIsHidden }: GospelDrawerProps) => {
         key="main"
         className={clsx(
           "category-menu-item",
-          !labelSlug && !orderId && "hovered",
+          !labelSlug && !orderId && !isWriterParams && "hovered",
         )}
         onClick={handleHomeClick}
       >
         <Typography>Home</Typography>
       </MenuItem>
+      {isWriter ? (
+        <MenuItem
+          key="my"
+          className={clsx(
+            "category-menu-item",
+            !labelSlug && !orderId && isWriterParams && "hovered",
+          )}
+          onClick={handleMySermonClick}
+        >
+          <Typography>My Sermons</Typography>
+        </MenuItem>
+      ) : undefined}
       {categories.length > 0 ? (
         <React.Fragment>
           <Typography className="caption">all categories</Typography>
@@ -408,6 +438,15 @@ const GospelDrawer = ({ isHidden, setIsHidden }: GospelDrawerProps) => {
 
       {/* content */}
       <Box className="content">{isSearch ? SearchContent : NavContent}</Box>
+
+      {/* close button - mobile view */}
+      {isMobile ? (
+        <Box className="close-button">
+          <TTIconButton onClick={() => setIsHidden(true)} noBorder>
+            <CloseIcon />
+          </TTIconButton>
+        </Box>
+      ) : undefined}
     </Box>
   );
 };

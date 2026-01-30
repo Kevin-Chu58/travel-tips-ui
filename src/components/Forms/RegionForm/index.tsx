@@ -42,7 +42,7 @@ const RegionForm = ({
   // region data
   const [countries, setCountries] = useState<Region[]>([]);
   const [states, setStates] = useState<Region[]>([]);
-  // region name
+  // region slug
   const [country, setCountry] = useState<string>("");
   const [state, setState] = useState<string>("");
   // actual region

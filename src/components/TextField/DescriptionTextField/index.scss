@@ -51,6 +51,8 @@
   .view-input-text-field.MuiTextField-root {
     display: relative;
     background-color: whitesmoke;
+    overflow-x: hidden;
+    overflow-y: auto;
     & .MuiOutlinedInput-root textarea {
       resize: vertical;
     }

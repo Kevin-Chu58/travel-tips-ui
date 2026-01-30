@@ -119,13 +119,8 @@ const getSermonByLabelOrder = async (
   );
 };
 
-const getSermonOrderById = async (
-  id: number,
-): Promise<number> => {
-  return await http.get(
-    http.apiBaseURLs.api,
-    `sermons/order/${id}`,
-  );
+const getSermonOrderById = async (id: number): Promise<number> => {
+  return await http.get(http.apiBaseURLs.api, `sermons/order/${id}`);
 };
 
 const getLatestSermons = async (): Promise<Sermon[]> => {
@@ -199,11 +194,13 @@ const getSermonLabelCompleteBySlug = async (
 const postNewSermonLabel = async (
   name: string,
   type: SermonLabelType,
+  parentLabelId?: number,
 ): Promise<SermonLabel> => {
   const _params = new URLSearchParams();
 
   _params.append("name", name);
   _params.append("type", type);
+  if (parentLabelId) _params.append("parentLabelId", parentLabelId.toString());
 
   return await http.post(
     http.apiBaseURLs.api,
@@ -216,10 +213,12 @@ const postNewSermonLabel = async (
 const updateSermonLabel = async (
   id: number,
   name: string,
+  parentLabelId?: number,
 ): Promise<SermonLabel> => {
   const _params = new URLSearchParams();
 
   _params.append("name", name);
+  if (parentLabelId) _params.append("parentLabelId", parentLabelId.toString());
 
   return await http.patch(
     http.apiBaseURLs.api,
