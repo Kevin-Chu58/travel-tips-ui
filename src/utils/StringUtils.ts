@@ -12,6 +12,21 @@ const getFirstTwoJoined = (input: string) => {
   return firstTwo.join(", ");
 };
 
+const slugify = (input: string) => {
+  return (
+    input
+      .toLowerCase()
+      .trim()
+      // normalize accented characters (é → e, ü → u)
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      // replace non-alphanumeric with hyphens
+      .replace(/[^a-z0-9]+/g, "-")
+      // remove leading/trailing hyphens
+      .replace(/^-+|-+$/g, "")
+  );
+};
+
 // budget
 
 const getBudgetStr = (budget?: number) => {
@@ -39,6 +54,7 @@ const isStylingMet = (text: string, identifier: string) => {
 export const StringUtils = {
   containsSomeWords,
   getFirstTwoJoined,
+  slugify,
   // budget
   getBudgetStr,
   // markdown identifier
