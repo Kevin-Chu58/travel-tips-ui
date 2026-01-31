@@ -61,6 +61,14 @@ const PreloadCarousel = ({
     setIndex((prev) => (prev + 1) % images.length);
   };
 
+  const handleDelete = (
+    e: React.MouseEvent<HTMLButtonElement>,
+    index: number,
+  ) => {
+    e.stopPropagation();
+    onDelete(index);
+  };
+
   useEffect(() => {
     setIndex(0);
   }, [images.length]);
@@ -114,7 +122,7 @@ const PreloadCarousel = ({
       <Box
         className={clsx(
           "preload-carousel-image-overflow-container",
-          circularBorder && "circular-border"
+          circularBorder && "circular-border",
         )}
       >
         <Box
@@ -145,7 +153,7 @@ const PreloadCarousel = ({
           <Box
             className={clsx(
               "preload-carousel-scroll-left-button-box",
-              innerButtons && "inner"
+              innerButtons && "inner",
             )}
           >
             <TTIconButton
@@ -159,7 +167,7 @@ const PreloadCarousel = ({
           <Box
             className={clsx(
               "preload-carousel-scroll-right-button-box",
-              innerButtons && "inner"
+              innerButtons && "inner",
             )}
           >
             <TTIconButton
@@ -173,7 +181,7 @@ const PreloadCarousel = ({
           {!readonly ? (
             <Box className="preload-carousel-delete-button-box">
               <TTIconButton
-                onClick={() => onDelete(index)}
+                onClick={(e) => handleDelete(e, index)}
                 className="preload-carousel-scroll-button"
               >
                 <DeleteOutlineIcon />

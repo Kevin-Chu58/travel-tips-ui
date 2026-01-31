@@ -2,7 +2,23 @@ $divider: rgba(0, 0, 0, 0.12);
 $light-black: #333333;
 $light-black-sx-transparent: #222222ee;
 // gradients
-$primary-gradient-right: linear-gradient(to right, var(--primary-600), var(--primary-400));
-$info-gradient-right: linear-gradient(to right, var(--info-900), var(--info-500));
-$error-gradient-right: linear-gradient(to right, var(--error-900), var(--error-500));
-$success-gradient-right: linear-gradient(to right, var(--success-900), var(--success-500));
+$primary-gradient-right: linear-gradient(
+  to right,
+  var(--primary-600),
+  var(--primary-400)
+);
+$info-gradient-right: linear-gradient(
+  to right,
+  var(--info-900),
+  var(--info-500)
+);
+$error-gradient-right: linear-gradient(
+  to right,
+  var(--error-900),
+  var(--error-500)
+);
+$success-gradient-right: linear-gradient(
+  to right,
+  var(--success-900),
+  var(--success-500)
+);

@@ -48,8 +48,13 @@ const HeaderBar = () => {
       requireAuth: true,
     },
     {
-      name: "Guide",
-      to: "/guide",
+      name: "Doc",
+      to: "/doc",
+      requireAuth: false,
+    },
+    {
+      name: "Gospel",
+      to: "/gospel",
       requireAuth: false,
     },
   ];
@@ -62,10 +67,6 @@ const HeaderBar = () => {
     {
       name: "profile",
       to: "/profile",
-    },
-    {
-      name: "document",
-      to: "/document",
     },
     {
       name: "setting",

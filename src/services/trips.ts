@@ -1,4 +1,4 @@
-import http from "@services/http";
+import http, { type SearchResults } from "@services/http";
 import type { UserBasic, UserSimple } from "./users";
 import type { Image, ImageRelation } from "./images";
 import type { TaoGeo } from "./taos";
@@ -27,9 +27,32 @@ export type Trip = TripPost & {
   sharedUsers: UserSimple[];
 };
 
-const getTripsByTitle = async (title: string): Promise<Trip[]> => {
-  const params = new URLSearchParams({ title: title });
-  return await http.get(http.apiBaseURLs.api, `trips?${params.toString()}`);
+export type TripSearchParams = {
+  title?: string;
+  createdByAuthId?: string;
+  countrySlug?: string;
+  stateSlug?: string;
+  budget?: number;
+  cursor?: string;
+  isDesc?: boolean;
+};
+
+const getTripsByParams = async (
+  params: TripSearchParams
+): Promise<SearchResults<Trip>> => {
+  const _params = new URLSearchParams();
+
+  if (params.title) _params.append("title", params.title);
+  if (params.createdByAuthId)
+    _params.append("createdByAuthId", params.createdByAuthId);
+  if (params.countrySlug) _params.append("countrySlug", params.countrySlug);
+  if (params.stateSlug) _params.append("stateSlug", params.stateSlug);
+  if (params.budget) _params.append("budget", params.budget.toString());
+  if (params.cursor) _params.append("cursor", params.cursor);
+  if (params.isDesc !== undefined)
+    _params.append("isDesc", params.isDesc.toString());
+
+  return await http.get(http.apiBaseURLs.api, `trips?${_params.toString()}`);
 };
 
 const getMyTrips = async (): Promise<Trip[]> => {
@@ -193,7 +216,7 @@ const deleteTripImage = async (
 };
 
 export const tripsService = {
-  getTripsByTitle,
+  getTripsByParams,
   getMyTrips,
   getMyHiddenTrips,
   getSharedTrips, // get trips shared with me

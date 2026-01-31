@@ -177,6 +177,7 @@ const theme = createTheme({
       "arial",
       "tagesschrift",
       "lily script one",
+      "saira stencil one",
       "fascinate inline",
     ].join(","),
   },

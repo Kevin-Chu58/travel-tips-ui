@@ -1,4 +1,4 @@
-import { Rating, Typography } from "@mui/material";
+import { Box, Rating, Typography } from "@mui/material";
 import FormBase from "../FormBase";
 import CheckIcon from "@mui/icons-material/Check";
 import { useEffect, useState } from "react";
@@ -9,18 +9,20 @@ import { enqueueSnackbar } from "notistack";
 
 type BudgetFormProps = {
   open: boolean;
-  onClose: () => void;
+  onClose?: () => void;
   tripId?: number;
   budget?: number;
   onUpdate: (state?: number) => void;
+  content?: boolean;
 };
 
 const BudgetForm = ({
   open,
-  onClose,
+  onClose = () => {},
   tripId,
   budget = 0,
   onUpdate,
+  content = false,
 }: BudgetFormProps) => {
   // budget
   const [_budget, _setBudget] = useState<number>(budget);
@@ -59,6 +61,28 @@ const BudgetForm = ({
       }
     }
   };
+
+  if (content) {
+    return (
+      <Box>
+        <Typography fontWeight="bold" color="success">
+          {BudgetLabels[hovered > -1 ? hovered : budget]}
+        </Typography>
+        <Rating
+          value={budget}
+          precision={1}
+          icon={<AttachMoneyIcon color="success" />}
+          emptyIcon={<AttachMoneyIcon sx={{ opacity: 0.55 }} />}
+          onChange={(_, newValue) => {
+            onUpdate(newValue ?? undefined);
+          }}
+          onChangeActive={(_, newHover) => {
+            setHovered(newHover);
+          }}
+        />
+      </Box>
+    );
+  }
 
   return (
     <FormBase

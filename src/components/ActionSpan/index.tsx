@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
-import "./index.scss";
 import clsx from "clsx";
+import "./index.scss";
 // import type { SxProps } from "@mui/material";
 
 type ActionSpanProps = {

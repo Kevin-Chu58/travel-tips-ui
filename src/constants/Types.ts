@@ -25,15 +25,18 @@ export type SubNavTab = {
 export type NavTab = {
   name: string;
   label: string;
+  description?: string;
   to?: string;
+  element?: JSX.Element;
   subs?: SubNavTab[];
-  condition?: (args: any[]) => boolean;
+  condition?: boolean | ((args: any[]) => boolean);
   deletable?: boolean;
 };
 
 export type UtilityItem = {
   label?: string;
   content: any;
+  description?: string;
   condition?: boolean; // don't do something with content (e.g., showing) when condition is false
   onClick?: () => void;
 };
@@ -110,6 +113,18 @@ export type GeoCoordinate = {
   lng: number;
 };
 
+// enums
+
+export type HighlightOrderByEnum =
+  | "newest"
+  | "oldest"
+  | "mostUsed"
+  | "leastUsed";
+
+export type GospelSearchType = 
+  | "Sermon"
+  | "Topic";
+
 // labels
 
 export const BudgetLabels: { [index: number]: string } = {
@@ -120,3 +135,11 @@ export const BudgetLabels: { [index: number]: string } = {
   4: "Between $1k and $2k",
   5: "More than $2k",
 };
+
+export const HighlightOrderByEnumLabels: Record<HighlightOrderByEnum, string> =
+  {
+    newest: "Newest",
+    oldest: "Oldest",
+    mostUsed: "Most Referred",
+    leastUsed: "Least Referred",
+  };

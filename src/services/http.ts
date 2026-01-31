@@ -1,5 +1,16 @@
 import { ensureToken } from "./tokens";
 
+export type SearchResult<T> = {
+  result: T;
+  timestamp?: number;
+};
+
+export type SearchResults<T> = {
+  cursor?: string;
+  results: T[];
+  timestamp?: number;
+};
+
 type HttpRequestBody =
   | string
   | FormData
@@ -112,6 +123,8 @@ const makeRequest = async <TResponse>(
   });
 
   if (!response.ok) {
+    const text = await response.text();
+
     // try to convert the response to a json file
     // this only works if the view model sent through request fail to match
     // the view model's exact requirement defined in API
@@ -125,7 +138,6 @@ const makeRequest = async <TResponse>(
       throw new Error(errorMessage);
     } else {
       // fallback to generic error
-      const text = await response.text();
       throw new Error(text);
     }
   }

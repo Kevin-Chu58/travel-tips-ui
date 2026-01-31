@@ -1,4 +1,5 @@
-import http from "./http";
+import type { HighlightOrderByEnum } from "@constants/Types";
+import http, { type SearchResults } from "./http";
 import type { UserBasic } from "./users";
 
 export const getDefaultHighlight = (attractionId: number) => {
@@ -22,19 +23,32 @@ export type Highlight = HighlightPost & {
   id: number;
   isDeprecated: boolean;
   createdBy?: UserBasic;
+  usageCount: number;
 };
 
-const getHighlightsByAttractionId = async (
-  id: number,
-  userId?: number
-): Promise<Highlight[]> => {
-  const params = new URLSearchParams();
+export type HighlightSearchParams = {
+  attractionId?: number;
+  createdByAuthId?: string;
+  cursor?: string;
+  highlightOrderByEnum?: HighlightOrderByEnum;
+};
 
-  if (userId) params.set("userId", userId.toString());
+const getHighlightsByParams = async (
+  params: HighlightSearchParams
+): Promise<SearchResults<Highlight>> => {
+  const _params = new URLSearchParams();
+
+  if (params.attractionId)
+    _params.set("attractionId", params.attractionId.toString());
+  if (params.createdByAuthId)
+    _params.set("createdByAuthId", params.createdByAuthId);
+  if (params.cursor) _params.set("cursor", params.cursor);
+  if (params.highlightOrderByEnum)
+    _params.set("highlightOrderByEnum", params.highlightOrderByEnum);
 
   return await http.get(
     http.apiBaseURLs.api,
-    `highlights/${id}?${params.toString()}`,
+    `highlights?${_params.toString()}`,
     undefined
   );
 };
@@ -75,7 +89,7 @@ const deleteHighlight = async (id: number): Promise<Highlight> => {
 };
 
 export const highlightsService = {
-  getHighlightsByAttractionId,
+  getHighlightsByParams,
   postHighlight,
   patchHighlight,
   deleteHighlight,

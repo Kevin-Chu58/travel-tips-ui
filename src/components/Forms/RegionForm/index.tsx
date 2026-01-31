@@ -6,50 +6,62 @@ import {
   type RegionComplete,
 } from "@services/search/regions";
 import {
-  Box,
   FormControl,
+  Grid,
   InputLabel,
   MenuItem,
   Select,
   type SelectChangeEvent,
 } from "@mui/material";
 import CheckIcon from "@mui/icons-material/Check";
+import type { TripSearchParams } from "@services/trips";
 
 type RegionFormProps = {
   open: boolean;
-  onClose: () => void;
-  onUpdate: (state?: number) => void;
+  onClose?: () => void;
+  onUpdate?: (state?: number) => void;
+  onContentUpdate?: (state: Partial<TripSearchParams>) => void;
   completeRegion?: RegionComplete;
+  setCompleteRegion?: React.Dispatch<React.SetStateAction<RegionComplete>>;
+  countrySlug?: string;
+  stateSlug?: string;
+  content?: boolean;
 };
 
 const RegionForm = ({
   open,
-  onClose,
-  onUpdate,
+  onClose = () => {},
+  onUpdate = () => {},
+  onContentUpdate = () => {},
   completeRegion,
+  setCompleteRegion,
+  countrySlug,
+  stateSlug,
+  content,
 }: RegionFormProps) => {
   // region data
   const [countries, setCountries] = useState<Region[]>([]);
   const [states, setStates] = useState<Region[]>([]);
-  // region name
+  // region slug
   const [country, setCountry] = useState<string>("");
   const [state, setState] = useState<string>("");
   // actual region
-  const _country = countries.find((c) => c.name === country);
-  const _state = states.find((s) => s.name === state);
+  const _country = countries.find((c) => c.slug === country);
+  const _state = states.find((s) => s.slug === state);
   const _regionId = _state?.id ?? _country?.id;
   const regionId = completeRegion?.state?.id ?? completeRegion?.country?.id;
 
   const initSelectRegions = () => {
-    // for now only have country and state, no area yet
-    setCountry(completeRegion?.country?.name ?? "");
-    setState(completeRegion?.state?.name ?? "");
+    let _country = content ? countrySlug : completeRegion?.country?.slug;
+    let _state = content ? stateSlug : completeRegion?.state?.slug;
+    setCountry(_country ?? "");
+    setState(_state ?? "");
   };
 
   // rerender region selects on complete region
   useEffect(() => {
-    if (completeRegion) initSelectRegions();
-  }, [completeRegion]);
+    if (completeRegion || countrySlug || stateSlug) initSelectRegions();
+  }, [completeRegion, countrySlug, stateSlug]);
 
   // render countries on initalization
   useEffect(() => {
@@ -77,17 +89,6 @@ const RegionForm = ({
     initStates();
   }, [_country?.id]);
 
-  // rerender country and state selects on complete region
-  useEffect(() => {
-    if (!completeRegion) return;
-
-    const initSelects = () => {
-      setCountry(completeRegion?.country?.name ?? "");
-      setState(completeRegion?.state?.name ?? "");
-    };
-    initSelects();
-  }, [completeRegion, open]);
-
   // form handle
 
   const handleClose = () => {
@@ -98,25 +99,46 @@ const RegionForm = ({
 
   const handleCountryChange = (event: SelectChangeEvent) => {
     setCountry(event.target.value);
+    setState("");
+
+    if (content)
+      onContentUpdate({
+        countrySlug: event.target.value,
+        stateSlug: undefined,
+      });
+
+    if (setCompleteRegion) {
+      const _country = countries.find((c) => c.slug === event.target.value);
+
+      setCompleteRegion({
+        country: _country,
+        state: undefined,
+      });
+    }
   };
 
   const handleStateChange = (event: SelectChangeEvent) => {
     setState(event.target.value);
+
+    if (content) onContentUpdate({ stateSlug: event.target.value });
+
+    if (setCompleteRegion) {
+      const _country = countries.find((c) => c.slug === country);
+      const _state = states.find((s) => s.slug === event.target.value);
+      setCompleteRegion({
+        country: _country,
+        state: _state,
+      });
+    }
   };
 
-  return (
-    <FormBase
-      open={open}
-      onClose={handleClose}
-      title="Choose Region"
-      actionButtonLabel="Update"
-      actionButtonStartIcon={<CheckIcon />}
-      actionButtonOnClick={() => onUpdate(_regionId)}
-      disableActionButton={regionId === _regionId}
-    >
-      <Box sx={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+  // components
+
+  const regionFormSelects = (
+    <Grid container columns={{ xs: 6, sm: 12 }} spacing={2}>
+      <Grid size={6}>
         {/* country */}
-        <FormControl className="select-form-control">
+        <FormControl className="select-form-control" fullWidth>
           <InputLabel id="select-country-label" color="region">
             Country
           </InputLabel>
@@ -134,15 +156,17 @@ const RegionForm = ({
               <MenuItem
                 key={country.id}
                 className="region"
-                value={country.name}
+                value={country.slug}
               >
                 {country.name}
               </MenuItem>
             ))}
           </Select>
         </FormControl>
+      </Grid>
+      <Grid size={6}>
         {/* state */}
-        <FormControl className="select-form-control">
+        <FormControl className="select-form-control" fullWidth>
           <InputLabel id="select-state-label" color="region">
             State
           </InputLabel>
@@ -157,13 +181,31 @@ const RegionForm = ({
               <em>None</em>
             </MenuItem>
             {states.map((state) => (
-              <MenuItem key={state.id} className="region" value={state.name}>
+              <MenuItem key={state.id} className="region" value={state.slug}>
                 {state.name}
               </MenuItem>
             ))}
           </Select>
         </FormControl>
-      </Box>
+      </Grid>
+    </Grid>
+  );
+
+  if (content) {
+    return regionFormSelects;
+  }
+
+  return (
+    <FormBase
+      open={open}
+      onClose={handleClose}
+      title="Choose Region"
+      actionButtonLabel="Update"
+      actionButtonStartIcon={<CheckIcon />}
+      actionButtonOnClick={() => onUpdate(_regionId)}
+      disableActionButton={regionId === _regionId}
+    >
+      {regionFormSelects}
     </FormBase>
   );
 };

@@ -5,8 +5,8 @@ import {
 } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import type { Dayjs } from "dayjs";
-import "./index.scss";
 import { useIsMobile } from "@hooks/useIsMobile";
+import "./index.scss";
 
 type TTMobileTimePickerProps = {
   value: Dayjs | undefined;

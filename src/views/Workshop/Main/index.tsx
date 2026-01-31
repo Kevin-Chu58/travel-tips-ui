@@ -473,10 +473,10 @@ const Main = () => {
                     onClose={() => setOpenDrawer(false)}
                     onClick={() => setOpenDrawer(false)}
                   >
-                    <Box className="nav-drawer-container">{drawer}</Box>
+                    <Box className="workshop-main-nav-drawer-container">{drawer}</Box>
                   </Drawer>
                 ) : (
-                  <Box className="nav-drawer-container">{drawer}</Box>
+                  <Box className="workshop-main-nav-drawer-container">{drawer}</Box>
                 )}
 
                 {/* content */}
