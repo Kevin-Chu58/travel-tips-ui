@@ -1,6 +1,7 @@
-import { 
-  // StrictMode, 
-  type JSX } from "react";
+import {
+  // StrictMode,
+  type JSX,
+} from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter as Router } from "react-router-dom";
 import { Auth0Provider } from "@auth0/auth0-react";
@@ -8,7 +9,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { SnackbarProvider } from "notistack";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { CacheProvider } from "@emotion/react";
-import emotionCache from "./emotionCache.ts";
+import { createEmotionCache } from "./emotionCache.ts";
 import theme from "./theme.tsx";
 import { Provider } from "react-redux";
 import { store } from "@redux/store";
@@ -20,6 +21,7 @@ let clientId = import.meta.env.VITE_AUTH0_CLIENT_ID;
 let audience = import.meta.env.VITE_AUTH0_AUDIENCE;
 
 const queryClient = new QueryClient();
+const emotionCache = createEmotionCache();
 
 const Auth0Layer = (): JSX.Element => {
   return (
@@ -40,7 +42,7 @@ const Auth0Layer = (): JSX.Element => {
             <SnackbarProvider maxSnack={3}>
               <CacheProvider value={emotionCache}>
                 <ThemeProvider theme={theme}>
-                  <CssBaseline/>
+                  <CssBaseline />
                   <App />
                 </ThemeProvider>
               </CacheProvider>
@@ -54,6 +56,6 @@ const Auth0Layer = (): JSX.Element => {
 
 createRoot(document.getElementById("root")!).render(
   // <StrictMode>
-    <Auth0Layer />
+  <Auth0Layer />,
   // </StrictMode>
 );

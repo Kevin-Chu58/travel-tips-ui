@@ -1,14 +1,17 @@
 // src/emotionCache.ts
 import createCache from "@emotion/cache";
 
-const insertionPoint = document.querySelector<HTMLMetaElement>(
-  'meta[name="emotion-insertion-point"]'
-);
+export function createEmotionCache() {
+  const insertionPoint =
+    typeof document !== "undefined"
+      ? document.querySelector<HTMLMetaElement>(
+          'meta[name="emotion-insertion-point"]'
+        ) ?? undefined
+      : undefined;
 
-const emotionCache = createCache({
-  key: "css",
-  insertionPoint: insertionPoint ?? undefined, // safe fallback
-  prepend: true,
-});
-
-export default emotionCache;
+  return createCache({
+    key: "css",
+    insertionPoint,
+    prepend: true,
+  });
+}
