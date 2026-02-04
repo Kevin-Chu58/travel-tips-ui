@@ -4,6 +4,8 @@ interface UserState {
   id: number | null;
   userId: string | null;
   username: string | null;
+  picture: string | null;
+  email: string | null;
   userAgreement: boolean | null;
   isAdmin: boolean | null;
   isWriter: boolean | null;
@@ -14,6 +16,8 @@ const initialState: UserState = {
   id: null,
   userId: null,
   username: null,
+  picture: null,
+  email: null,
   userAgreement: null,
   isAdmin: null,
   isWriter: null,
@@ -30,6 +34,8 @@ const userSlice = createSlice({
         id: number;
         userId: string;
         username: string;
+        picture?: string;
+        email: string;
         userAgreement: boolean;
         isAdmin?: boolean;
         isWriter?: boolean;
@@ -38,8 +44,10 @@ const userSlice = createSlice({
       state.id = action.payload.id;
       state.userId = action.payload.userId;
       state.username = action.payload.username;
+      state.email = action.payload.email;
       state.userAgreement = action.payload.userAgreement;
 
+      if (action.payload.picture) state.picture = action.payload.picture;
       if (action.payload.isAdmin) state.isAdmin = action.payload.isAdmin;
       if (action.payload.isWriter) state.isWriter = action.payload.isWriter;
       state.isLoading = false;
@@ -51,6 +59,8 @@ const userSlice = createSlice({
       state.id = null;
       state.userId = null;
       state.username = null;
+      state.picture = null;
+      state.email = null;
       state.userAgreement = null;
       state.isAdmin = null;
       state.isWriter = null;

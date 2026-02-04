@@ -23,13 +23,17 @@ import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
 import clsx from "clsx";
 import "./index.scss";
+import { useSelector } from "react-redux";
+import type { RootState } from "@redux/store";
 
 const HeaderBar = () => {
   // window
   const isMobile = useIsMobile();
   // auth0
-  const { isLoading, isAuthenticated, user, loginWithRedirect, logout } =
+  const { isLoading, isAuthenticated, loginWithRedirect, logout } =
     useAuth0();
+  // user
+  const user = useSelector((state: RootState) => state.user);
   // others
   const location = useLocation();
   const [anchorElHeader, setAnchorElHeader] = useState<HTMLElement | null>(); // header menu
@@ -100,7 +104,7 @@ const HeaderBar = () => {
     setAnchorElUser(null);
   };
 
-  const username = user?.name ?? "";
+  const username = user?.username ?? "";
   const userPicture = user?.picture ?? "";
 
   const returnToUrl =

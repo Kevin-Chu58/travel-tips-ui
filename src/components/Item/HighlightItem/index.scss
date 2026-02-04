@@ -1,3 +1,5 @@
+@use "../../../stylings/box_shadows" as *;
+
 .highlight-item-box {
   display: flex;
   flex-direction: row;
@@ -13,6 +15,7 @@
 .highlight-item-avatar {
   width: 40px;
   height: 40px;
+  box-shadow: $mild-box-shadow;
   
   &.mobile {
     width: 32px;

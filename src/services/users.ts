@@ -4,6 +4,7 @@ export type UserSimple = {
   id: number;
   userId: string;
   username: string;
+  picture?: string;
 };
 
 export type UserBasic = UserSimple & {

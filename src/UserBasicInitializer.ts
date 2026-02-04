@@ -28,6 +28,8 @@ export const UserBasicInitializer = () => {
             id: user.id,
             userId: user.userId,
             username: user.username,
+            picture: user.picture,
+            email: user.email,
             userAgreement: user.userAgreement,
             isAdmin: user.isAdmin,
             isWriter: user.isWriter,

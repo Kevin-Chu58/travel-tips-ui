@@ -213,7 +213,11 @@ const TripCard = ({
 
         {/* creator info */}
         <Box className="image-creator-info-box">
-          <Avatar className="avatar" />
+          <Avatar
+            className="avatar"
+            alt={trip.createdBy.username}
+            src={trip.createdBy?.picture}
+          />
 
           <Chip
             label={

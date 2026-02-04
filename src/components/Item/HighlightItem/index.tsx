@@ -132,8 +132,8 @@ const HighlightItem = ({
   const avatar = (
     <Avatar
       className={clsx("highlight-item-avatar", isMobile && "mobile")}
-      alt={_highlight?.createdBy?.toString()}
-      src={""}
+      alt={_highlight?.createdBy?.username}
+      src={_highlight?.createdBy?.picture}
     />
   );
 

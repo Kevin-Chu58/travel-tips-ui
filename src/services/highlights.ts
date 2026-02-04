@@ -79,7 +79,7 @@ const patchHighlight = async (
   );
 };
 
-const deleteHighlight = async (id: number): Promise<Highlight> => {
+const deleteHighlight = async (id: number): Promise<number> => {
   return await http.del(
     http.apiBaseURLs.api,
     `highlights/${id}`,

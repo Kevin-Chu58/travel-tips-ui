@@ -62,7 +62,7 @@ const HighlightsFragment = ({
   // search params
   const highlightParamsRef = useRef<HighlightSearchParams>({});
   const [highlightParams, setHighlightParams] = useState<HighlightSearchParams>(
-    {}
+    {},
   );
   // param details
   const { attractionId, createdByAuthId, highlightOrderByEnum } =
@@ -151,7 +151,7 @@ const HighlightsFragment = ({
 
   const asyncHighlights = (
     tripResults: SearchResults<Highlight>,
-    isNewSearch: boolean = false
+    isNewSearch: boolean = false,
   ) => {
     const params = highlightParamsRef.current;
 
@@ -164,9 +164,8 @@ const HighlightsFragment = ({
   const getHighlightsByParams = async (isNewSearch: boolean = false) => {
     const params = highlightParamsRef.current;
     try {
-      const highlightResult = await highlightsService.getHighlightsByParams(
-        params
-      );
+      const highlightResult =
+        await highlightsService.getHighlightsByParams(params);
 
       asyncHighlights(highlightResult, isNewSearch);
 
@@ -192,7 +191,7 @@ const HighlightsFragment = ({
   const updateHighlight = (highlight?: Highlight) => {
     if (highlight) {
       setHighlights((prev) =>
-        prev.map((h) => (h.id === highlight.id ? highlight : h))
+        prev.map((h) => (h.id === highlight.id ? highlight : h)),
       );
     }
   };
@@ -261,12 +260,14 @@ const HighlightsFragment = ({
 
   const handleDeleteConfirm = async () => {
     if (deleteHighlightId) {
-      const deletedHighlight = await highlightsService.deleteHighlight(
-        deleteHighlightId
-      );
+      await highlightsService.deleteHighlight(deleteHighlightId);
 
       await BehaviorUtils.sleep();
-      deleteHighlight(deletedHighlight);
+
+      const deletedHighlight = highlights.find(
+        (h) => h.id === deleteHighlightId,
+      );
+      deleteHighlight(deletedHighlight!);
 
       enqueueSnackbar("Successfully deleted highlight.", {
         variant: "success",
@@ -315,12 +316,12 @@ const HighlightsFragment = ({
         ))}
       </Select>
     </FormControl>
-  );  
+  );
 
   let getHighlightItem = (
     highlight: Highlight,
     i: number,
-    noDivider: boolean = false
+    noDivider: boolean = false,
   ) => (
     <HighlightItem
       key={highlight.id}
@@ -385,7 +386,7 @@ const HighlightsFragment = ({
                 key={`highlight-button-${highlight.id}`}
                 className={clsx(
                   "highlight-select-button",
-                  selectHighlightId === highlight.id && "focus"
+                  selectHighlightId === highlight.id && "focus",
                 )}
                 color="info"
                 variant="text"
@@ -395,7 +396,7 @@ const HighlightsFragment = ({
               </TTButton>
             ) : (
               getHighlightItem(highlight, i)
-            )
+            ),
           )
         ) : (
           <Typography>No highlights available.</Typography>

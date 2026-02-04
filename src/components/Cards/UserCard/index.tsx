@@ -37,7 +37,7 @@ const UserCard = ({ user }: UserCardProps) => {
     <Box className={clsx("user-card-container", isMobile && "mobile")}>
       <Avatar
         alt={user.username}
-        // src={userPicture}
+        src={user.picture}
       />
       <Box className="section">
         <Typography
