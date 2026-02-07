@@ -150,4 +150,8 @@
     box-shadow: $box-shadow;
     flex-shrink: 0;
   }
+
+  .jump-to-icon.MuiSvgIcon-root {
+      transform: rotate(90deg);
+    }
 }

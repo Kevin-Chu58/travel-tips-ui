@@ -31,23 +31,23 @@ const userSlice = createSlice({
     setUser(
       state,
       action: PayloadAction<{
-        id: number;
-        userId: string;
-        username: string;
+        id?: number;
+        userId?: string;
+        username?: string;
         picture?: string;
-        email: string;
-        userAgreement: boolean;
+        email?: string;
+        userAgreement?: boolean;
         isAdmin?: boolean;
         isWriter?: boolean;
-      }>
+      }>,
     ) {
-      state.id = action.payload.id;
-      state.userId = action.payload.userId;
-      state.username = action.payload.username;
-      state.email = action.payload.email;
-      state.userAgreement = action.payload.userAgreement;
-
+      if (action.payload.id) state.id = action.payload.id;
+      if (action.payload.userId) state.userId = action.payload.userId;
+      if (action.payload.username) state.username = action.payload.username;
       if (action.payload.picture) state.picture = action.payload.picture;
+      if (action.payload.email) state.email = action.payload.email;
+      if (action.payload.userAgreement)
+        state.userAgreement = action.payload.userAgreement;
       if (action.payload.isAdmin) state.isAdmin = action.payload.isAdmin;
       if (action.payload.isWriter) state.isWriter = action.payload.isWriter;
       state.isLoading = false;

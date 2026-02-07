@@ -7,6 +7,8 @@ import AuthCallback from "@views/AuthCallback";
 import UserAgreement from "@views/UserAgreement";
 import Attraction from "@views/Attraction";
 import Gospel from "@views/Gospel";
+import Profile from "@views/Profile";
+import Settings from "@views/Settings";
 
 const routes = [{
     name: "Main",
@@ -36,6 +38,14 @@ const routes = [{
     name: "Gospel",
     path: "/gospel/*",
     element: <Gospel/>,
+}, {
+    name: "Profile",
+    path: "/profile/*",
+    element: <Profile/>,
+}, {
+    name: "Settings",
+    path: "/settings",
+    element: <Settings/>,
 }, {
     name: "AuthCallback",
     path: "/auth/callback",

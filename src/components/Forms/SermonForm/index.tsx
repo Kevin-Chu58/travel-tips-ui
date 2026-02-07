@@ -240,7 +240,7 @@ const SermonForm = ({ sermonId, open, onClose, onAction }: SermonFormProps) => {
             </FormControl>
             <Typography variant="caption">*Only sermons with category and topic are visible to public.</Typography>
             {/* banner */}
-            <Box className="row">
+            <Box className="row full">
               <Typography className="form-title">Appears in Banner?</Typography>
               <Checkbox
                 checked={isBanner}

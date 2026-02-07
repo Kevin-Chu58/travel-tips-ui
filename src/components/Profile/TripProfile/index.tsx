@@ -113,7 +113,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
   const user = useSelector((state: RootState) => state.user);
   const isSharedUser =
     (tripBasic?.sharedUsers.findIndex(
-      (sharedUser) => sharedUser.userId === user.userId
+      (sharedUser) => sharedUser.userId === user.userId,
     ) ?? -1) > -1;
   const isRestricted = tripBasic?.createdBy.id === user.id || isSharedUser;
   // others
@@ -268,7 +268,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
   const initRouteResponses = async (
     refresh: boolean = false,
     dayId?: number,
-    silentUpdate: boolean = false
+    silentUpdate: boolean = false,
   ) => {
     const _dayId = dayId ?? day?.id;
     if (_dayId) {
@@ -292,7 +292,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
 
   const initRoutes = async (
     routeResponses: HereRoutingResponse[],
-    silentUpdate: boolean = false
+    silentUpdate: boolean = false,
   ) => {
     let routes = MapUtils.routingResponses2Routes(routeResponses) as Route[];
 
@@ -313,9 +313,13 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
     setImages([...imagesRef.current]); // ensure new reference
   };
 
-  const asyncAddImage = (image: Image) => {
-    imagesRef.current.push(image);
-    asyncImages();
+  const asyncAddImage = async (imageId: number) => {
+    if (tripId) {
+      const image = await tripsService.postTripImage(parseInt(tripId), imageId);
+
+      imagesRef.current.push(image);
+      asyncImages();
+    }
   };
 
   const asyncDetachImage = (imageId: number) => {
@@ -533,7 +537,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
           className={clsx(
             "trip-profile-content-box",
             isMobile && "mobile",
-            !openUI && "hidden"
+            !openUI && "hidden",
           )}
         >
           {/* header */}
@@ -542,7 +546,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
             <Box
               className={clsx(
                 "trip-profile-image-box",
-                !Boolean(dayId) && !hideImages && "visible"
+                !Boolean(dayId) && !hideImages && "visible",
               )}
             >
               {images.length > 0 ? (
@@ -567,7 +571,6 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
               <Box className="trip-profile-image-selector-box">
                 {!readonly ? (
                   <ImageSelector
-                    tripId={tripBasic?.id}
                     imageIds={images.map((image) => image.id)}
                     disabled={isMaxImageCountReached}
                     asyncAddImage={asyncAddImage}
@@ -691,7 +694,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
           className={clsx(
             "trip-profile-tool-fab-group",
             isMobile && "mobile",
-            !openUI && "hidden"
+            !openUI && "hidden",
           )}
         >
           <FabComponent

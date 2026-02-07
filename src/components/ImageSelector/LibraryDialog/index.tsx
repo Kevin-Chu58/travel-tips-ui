@@ -5,7 +5,6 @@ import AttachFileIcon from "@mui/icons-material/AttachFile";
 import { ImagesService, type Image } from "@services/images";
 import { useEffect, useState } from "react";
 import { BehaviorUtils } from "@utils/BehaviorUtils";
-import { tripsService } from "@services/trips";
 import { enqueueSnackbar } from "notistack";
 import { useIsMobile } from "@hooks/useIsMobile";
 import ImageLibrary from "@components/ImageLibrary";
@@ -16,15 +15,13 @@ type LibraryDialogProps = {
   open: boolean;
   onClose: () => void;
   imageIds: number[];
-  tripId?: number;
-  asyncAddImage: (state: Image) => void;
+  asyncAddImage: (state: number) => void;
 };
 
 const LibraryDialog = ({
   open,
   onClose,
   imageIds,
-  tripId,
   asyncAddImage,
 }: LibraryDialogProps) => {
   // window
@@ -47,7 +44,7 @@ const LibraryDialog = ({
       if (open) {
         let imageViewModels = await ImagesService.getMyImages();
         let unattachedImages = imageViewModels.filter(
-          (image) => !imageIds.includes(image.id)
+          (image) => !imageIds.includes(image.id),
         );
         setImages(unattachedImages);
       }
@@ -56,16 +53,11 @@ const LibraryDialog = ({
   }, [open]);
 
   const handleImageAttach = async () => {
-    if (tripId && selectedImageId) {
+    if (selectedImageId) {
       try {
         setIsLoading(true);
 
-        let newImage = await tripsService.postTripImage(
-          tripId,
-          selectedImageId
-        );
-
-        asyncAddImage(newImage);
+        asyncAddImage(selectedImageId);
 
         enqueueSnackbar("Successfully attached image.", { variant: "success" });
       } catch (e) {

@@ -12,26 +12,23 @@ import { useRef, useState } from "react";
 import { Cropper, type ReactCropperElement } from "react-cropper";
 import { useIsMobile } from "@hooks/useIsMobile";
 import { enqueueSnackbar } from "notistack";
-import { tripsService } from "@services/trips";
-import { ImagesService, type Image } from "@services/images";
+import { ImagesService } from "@services/images";
 import { BehaviorUtils } from "@utils/BehaviorUtils";
+import { ImageUtils } from "@utils/ImageUtils";
 import clsx from "clsx";
 import "./index.scss";
-import { ImageUtils } from "@utils/ImageUtils";
 
 type CropperDialogProps = {
   open: boolean;
   onClose: () => void;
   imageSrc: string | null;
-  tripId?: number;
-  asyncAddImage: (state: Image) => void;
+  asyncAddImage: (state: number) => void;
 };
 
 const CropperDialog = ({
   open,
   onClose,
   imageSrc = null,
-  tripId,
   asyncAddImage,
 }: CropperDialogProps) => {
   // window
@@ -87,15 +84,11 @@ const CropperDialog = ({
 
         const newImage = await ImagesService.uploadImage(compressedBlob, name);
 
-        asyncAddImage(newImage);
+        asyncAddImage(newImage.id);
 
-        if (tripId) {
-          await tripsService.postTripImage(tripId, newImage.id);
-
-          enqueueSnackbar("Successfully uploaded image.", {
-            variant: "success",
-          });
-        }
+        enqueueSnackbar("Successfully uploaded image.", {
+          variant: "success",
+        });
       } catch (err) {
         if (err instanceof Error) {
           enqueueSnackbar(err.message, { variant: "error" });
@@ -110,7 +103,7 @@ const CropperDialog = ({
   };
 
   const handleNameTextFieldChange = (
-    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     setName(event.target.value);
   };
@@ -143,7 +136,7 @@ const CropperDialog = ({
         <Box
           className={clsx(
             "cropper-dialog-image-form-box",
-            isMobile && "mobile"
+            isMobile && "mobile",
           )}
         >
           <Box>

@@ -22,11 +22,25 @@ const acceptUserAgreement = async (): Promise<boolean> => {
   return await http.patch(
     http.apiBaseURLs.api,
     "users/me/user-agreement",
-    undefined
+    undefined,
+    undefined,
+  );
+};
+
+// user picture
+
+const updateUserPicture = async (imageId: number): Promise<string> => {
+  return await http.patch(
+    http.apiBaseURLs.api,
+    `users/me/picture/${imageId}`,
+    undefined,
+    undefined,
   );
 };
 
 export const usersService = {
   getUserBasicInfo,
   acceptUserAgreement,
+  // user picture
+  updateUserPicture,
 };
