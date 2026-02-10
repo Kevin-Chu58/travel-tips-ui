@@ -25,6 +25,10 @@ import ArchiveIcon from "@mui/icons-material/Archive";
 import UnarchiveIcon from "@mui/icons-material/Unarchive";
 import { StringUtils } from "@utils/StringUtils";
 import type { UtilityItem } from "@constants/Types";
+import BookmarkIcon from "@mui/icons-material/Bookmark";
+import BookmarkAddIcon from "@mui/icons-material/BookmarkAdd";
+import BookmarkRemoveIcon from "@mui/icons-material/BookmarkRemove";
+import clsx from "clsx";
 import "./index.scss";
 
 type TripCardProps = {
@@ -60,22 +64,46 @@ const TripCard = ({
   ) => {
     e.stopPropagation();
 
-    if (trip) {
-      try {
-        await tripsService.patchTripIsPublic([trip.id], !trip.isPublic);
-        trip.isPublic = !trip.isPublic;
-        if (asyncUpdateTrip) asyncUpdateTrip(trip);
+    if (!trip) return;
 
-        // triggers direct UI update on chip
-        setPopoverAnchorEl(null);
+    try {
+      await tripsService.patchTripIsPublic([trip.id], !trip.isPublic);
+      trip.isPublic = !trip.isPublic;
+      if (asyncUpdateTrip) asyncUpdateTrip(trip);
 
-        enqueueSnackbar("Successfully set trip visibility.", {
-          variant: "success",
-        });
-      } catch (e) {
-        if (e instanceof Error) {
-          enqueueSnackbar(e.message, { variant: "error" });
-        }
+      // triggers direct UI update on chip
+      setPopoverAnchorEl(null);
+
+      enqueueSnackbar("Successfully set trip visibility.", {
+        variant: "success",
+      });
+    } catch (e) {
+      if (e instanceof Error) {
+        enqueueSnackbar(e.message, { variant: "error" });
+      }
+    }
+  };
+
+  const handleBookmarkClick = async (
+    e: React.MouseEvent<HTMLLIElement | HTMLButtonElement>,
+  ) => {
+    e.stopPropagation();
+
+    if (!trip) return;
+
+    try {
+      trip.isBookmarked
+        ? await tripsService.removeBookmark(trip.id)
+        : await tripsService.addBookmark(trip.id);
+
+      // triggers direct UI update on chip
+      setPopoverAnchorEl(null);
+
+      if (asyncUpdateTrip)
+        asyncUpdateTrip({ ...trip, isBookmarked: !trip.isBookmarked } as Trip);
+    } catch (e) {
+      if (e instanceof Error) {
+        enqueueSnackbar(e.message, { variant: "error" });
       }
     }
   };
@@ -83,19 +111,19 @@ const TripCard = ({
   const handleHiddenTripClick = async (e: React.MouseEvent<HTMLLIElement>) => {
     e.stopPropagation();
 
-    if (trip) {
-      try {
-        await tripsService.patchTripIsHidden([trip.id], !trip.isHidden);
-        if (asyncDeleteTrip) asyncDeleteTrip(trip);
+    if (!trip) return;
 
-        enqueueSnackbar(
-          `Successfully ${trip.isHidden ? "unarchived" : "archived"} trip.`,
-          { variant: "success" },
-        );
-      } catch (e) {
-        if (e instanceof Error) {
-          enqueueSnackbar(e.message, { variant: "error" });
-        }
+    try {
+      await tripsService.patchTripIsHidden([trip.id], !trip.isHidden);
+      if (asyncDeleteTrip) asyncDeleteTrip(trip);
+
+      enqueueSnackbar(
+        `Successfully ${trip.isHidden ? "unarchived" : "archived"} trip.`,
+        { variant: "success" },
+      );
+    } catch (e) {
+      if (e instanceof Error) {
+        enqueueSnackbar(e.message, { variant: "error" });
       }
     }
   };
@@ -136,6 +164,18 @@ const TripCard = ({
     </MenuItem>
   );
 
+  // button - bookmark
+  const bookmarkButton = (
+    <MenuItem key="bookmark" onClick={(e) => handleBookmarkClick(e)}>
+      <ListItemIcon>
+        {trip.isBookmarked ? <BookmarkRemoveIcon /> : <BookmarkAddIcon />}
+      </ListItemIcon>
+      <ListItemText
+        primary={`${trip.isBookmarked ? "Remove Bookmark" : "Add Bookmark"}`}
+      />
+    </MenuItem>
+  );
+
   // button - archive
   const archiveButton = (
     <MenuItem
@@ -173,11 +213,15 @@ const TripCard = ({
   const menuButtonList = [
     {
       content: shareButton,
-      condition: !trip.isHidden,
+      condition: trip.isPublic && !trip.isHidden,
     },
     {
       content: visibilityButton,
       condition: !readonly && !trip.isHidden,
+    },
+    {
+      content: bookmarkButton,
+      condition: trip.isPublic && !trip.isHidden,
     },
     {
       content: archiveButton,
@@ -228,6 +272,14 @@ const TripCard = ({
             size="small"
             className="username-chip"
           />
+        </Box>
+
+        <Box
+          className={clsx("bookmark-box", trip.isBookmarked && "bookmarked")}
+        >
+          <IconButton onClick={(e) => handleBookmarkClick(e)}>
+            <BookmarkIcon />
+          </IconButton>
         </Box>
       </Box>
 

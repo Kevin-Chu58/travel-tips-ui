@@ -115,6 +115,12 @@ export type GeoCoordinate = {
 
 // enums
 
+export type TripOrderByEnum =
+  | "newest"
+  | "oldest"
+  | "mostBookmarked"
+  | "leastBookmarked";
+
 export type HighlightOrderByEnum =
   | "newest"
   | "oldest"

@@ -24,6 +24,7 @@ import SortUtils, {
 } from "@utils/SortUtils";
 import GroupIcon from "@mui/icons-material/Group";
 import ArchiveIcon from "@mui/icons-material/Archive";
+import BookmarkIcon from '@mui/icons-material/Bookmark';
 import type { RootState } from "@redux/store";
 import { useSelector } from "react-redux";
 import { useLocation } from "react-router";
@@ -71,9 +72,11 @@ const Main = () => {
   // rerender to top of the scrollbar when nav tab changes
   useEffect(() => {
     const container = document.querySelector(
-      ".content-container"
+      ".content-container",
     ) as HTMLElement | null;
     if (!container) return;
+
+    asyncTrips([]);
 
     requestAnimationFrame(() => {
       container.style.scrollBehavior = "auto";
@@ -108,14 +111,21 @@ const Main = () => {
   const getMyHiddenTrips = async () => {
     const myHiddenTrips = await tripsService.getMyHiddenTrips();
     asyncTrips(
-      SortUtils.sortList(myHiddenTrips, tripsSortTypes, sortTypeIndex)
+      SortUtils.sortList(myHiddenTrips, tripsSortTypes, sortTypeIndex),
+    );
+  };
+
+  const getMyBookmarkedTrips = async () => {
+    const bookmarkedTrips = await tripsService.getBookmarkedTrips();
+    asyncTrips(
+      SortUtils.sortList(bookmarkedTrips, tripsSortTypes, sortTypeIndex),
     );
   };
 
   const asyncAddTrip = async (trip: Trip) => {
     tripsRef.current.push(trip);
     asyncTrips(
-      SortUtils.sortList(tripsRef.current, tripsSortTypes, sortTypeIndex)
+      SortUtils.sortList(tripsRef.current, tripsSortTypes, sortTypeIndex),
     );
   };
 
@@ -128,10 +138,10 @@ const Main = () => {
 
   const asyncDeleteTrip = async (trip: Trip) => {
     let filteredTrips = tripsRef.current.filter(
-      (_trip) => _trip.id !== trip.id
+      (_trip) => _trip.id !== trip.id,
     );
     asyncTrips(
-      SortUtils.sortList(filteredTrips, tripsSortTypes, sortTypeIndex)
+      SortUtils.sortList(filteredTrips, tripsSortTypes, sortTypeIndex),
     );
   };
 
@@ -150,7 +160,7 @@ const Main = () => {
         ownerId: user.id,
       });
       asyncAttractions(
-        SortUtils.sortList(myAttractions, attractionsSortTypes, sortTypeIndex)
+        SortUtils.sortList(myAttractions, attractionsSortTypes, sortTypeIndex),
       );
     }
   };
@@ -158,7 +168,7 @@ const Main = () => {
   const asyncAddAttraction = async (attraction: Attraction) => {
     let attractions = attractionsRef.current;
     const attractionIndex = attractions.findIndex(
-      (_attraction) => _attraction.id === attraction.id
+      (_attraction) => _attraction.id === attraction.id,
     );
     if (attractionIndex > -1) {
       attractions[attractionIndex].numHighlights! += 1;
@@ -168,7 +178,7 @@ const Main = () => {
     }
 
     asyncAttractions(
-      SortUtils.sortList(attractions, attractionsSortTypes, sortTypeIndex)
+      SortUtils.sortList(attractions, attractionsSortTypes, sortTypeIndex),
     );
   };
 
@@ -186,10 +196,11 @@ const Main = () => {
     asyncImages(SortUtils.sortList(myImages, imagesSortTypes, sortTypeIndex));
   };
 
-  const asyncAddImage = async (image: Image) => {
-    imagesRef.current.push(image);
+  const asyncAddImage = async (_: number) => {
+    const images = await ImagesService.getMyImages();
+    imagesRef.current = images;
     asyncImages(
-      SortUtils.sortList(imagesRef.current, imagesSortTypes, sortTypeIndex)
+      SortUtils.sortList(imagesRef.current, imagesSortTypes, sortTypeIndex),
     );
   };
 
@@ -198,7 +209,7 @@ const Main = () => {
     if (_image) {
       _image.name = image.name;
       asyncImages(
-        SortUtils.sortList(imagesRef.current, imagesSortTypes, sortTypeIndex)
+        SortUtils.sortList(imagesRef.current, imagesSortTypes, sortTypeIndex),
       );
     }
   };
@@ -206,7 +217,7 @@ const Main = () => {
   const asyncDeleteImage = async (id: number) => {
     let filteredImages = imagesRef.current.filter((_image) => _image.id !== id);
     asyncImages(
-      SortUtils.sortList(filteredImages, imagesSortTypes, sortTypeIndex)
+      SortUtils.sortList(filteredImages, imagesSortTypes, sortTypeIndex),
     );
   };
 
@@ -270,6 +281,13 @@ const Main = () => {
       to: "/workshop",
       subs: [
         {
+          name: "Bookmark",
+          label: "Bookmark",
+          icon: <BookmarkIcon />,
+          note: "Bookmarked Trips",
+          to: "/workshop/bookmark",
+        },
+        {
           name: "Shared",
           label: "Shared",
           icon: <GroupIcon />,
@@ -303,7 +321,7 @@ const Main = () => {
 
   const tripsElement = (
     emptyMessage: string = "",
-    readonly: boolean = false
+    readonly: boolean = false,
   ) => (
     <Trips
       trips={trips}
@@ -325,6 +343,7 @@ const Main = () => {
       getMyTrips={getMyTrips}
       getSharedTrips={getSharedTrips}
       getMyHiddenTrips={getMyHiddenTrips}
+      getMyBookmarkedTrips={getMyBookmarkedTrips}
       asyncTrips={asyncTrips}
     />
   );
@@ -347,7 +366,7 @@ const Main = () => {
   const tripsSharedRoute = {
     name: "Trips Shared With Me",
     path: "/shared",
-    element: tripsElement("No trip shared with you.", true),
+    element: tripsElement("No trips shared with you.", true),
     tool: tripsTool(),
   };
 
@@ -355,6 +374,13 @@ const Main = () => {
     name: "Archived Trips",
     path: "/archive",
     element: tripsElement("No trips in Archive."),
+    tool: tripsTool(),
+  };
+
+  const tripsBookmarkedRoute = {
+    name: "Bookmarked Trips",
+    path: "/bookmark",
+    element: tripsElement("No trips bookmarked.", true),
     tool: tripsTool(),
   };
 
@@ -439,6 +465,7 @@ const Main = () => {
     tripsMainRoute,
     tripsSharedRoute,
     tripsArchiveRoute,
+    tripsBookmarkedRoute,
     // highlights
     attractionsMainRoute,
     // images
@@ -473,10 +500,14 @@ const Main = () => {
                     onClose={() => setOpenDrawer(false)}
                     onClick={() => setOpenDrawer(false)}
                   >
-                    <Box className="workshop-main-nav-drawer-container">{drawer}</Box>
+                    <Box className="workshop-main-nav-drawer-container">
+                      {drawer}
+                    </Box>
                   </Drawer>
                 ) : (
-                  <Box className="workshop-main-nav-drawer-container">{drawer}</Box>
+                  <Box className="workshop-main-nav-drawer-container">
+                    {drawer}
+                  </Box>
                 )}
 
                 {/* content */}

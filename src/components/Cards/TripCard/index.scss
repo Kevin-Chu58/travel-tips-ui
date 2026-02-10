@@ -12,7 +12,6 @@
     border-radius: 1rem;
     background-color: var(--primary-main);
     box-shadow: $box-shadow;
-    // overflow: hidden;
     display: flex;
     flex-direction: column;
     position: relative;
@@ -43,14 +42,36 @@
 
   .username.MuiTypography-root {
     font-size: 0.7rem;
+    max-width: 160px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .username-chip.MuiChip-root {
     border-radius: 0.5rem;
     background-color: $light-black-sx-transparent;
     box-shadow: $mild-box-shadow;
-    color: white;
     margin-top: 0.5rem;
+    color: white;
+    cursor: pointer;
+  }
+
+  .bookmark-box {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: var(--utility-800);
+    border-radius: 0 1rem 0 1rem;
+    display: none;
+
+    &.bookmarked {
+      display: flex;
+    }
+
+    .MuiSvgIcon-root {
+      fill: gold;
+    }
   }
 
   .info-box {

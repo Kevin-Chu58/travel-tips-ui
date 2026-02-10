@@ -3,6 +3,7 @@ import type { UserBasic, UserSimple } from "./users";
 import type { Image, ImageRelation } from "./images";
 import type { TaoGeo } from "./taos";
 import type { RegionComplete } from "./search/regions";
+import type { TripOrderByEnum } from "@constants/Types";
 
 export type TripPost = {
   title: string;
@@ -19,8 +20,10 @@ export type Trip = TripPost & {
   createdBy: UserBasic;
   createdAt: Date;
   numDays?: number;
+  bookmarkCount: number;
   isPublic: boolean;
   isHidden: boolean;
+  isBookmarked: boolean;
   region?: RegionComplete;
   budget?: number;
   images?: Image[];
@@ -34,11 +37,11 @@ export type TripSearchParams = {
   stateSlug?: string;
   budget?: number;
   cursor?: string;
-  isDesc?: boolean;
+  tripOrderByEnum?: TripOrderByEnum;
 };
 
 const getTripsByParams = async (
-  params: TripSearchParams
+  params: TripSearchParams,
 ): Promise<SearchResults<Trip>> => {
   const _params = new URLSearchParams();
 
@@ -49,8 +52,8 @@ const getTripsByParams = async (
   if (params.stateSlug) _params.append("stateSlug", params.stateSlug);
   if (params.budget) _params.append("budget", params.budget.toString());
   if (params.cursor) _params.append("cursor", params.cursor);
-  if (params.isDesc !== undefined)
-    _params.append("isDesc", params.isDesc.toString());
+  if (params.tripOrderByEnum)
+    _params.set("tripOrderByEnum", params.tripOrderByEnum);
 
   return await http.get(http.apiBaseURLs.api, `trips?${_params.toString()}`);
 };
@@ -65,6 +68,10 @@ const getMyHiddenTrips = async (): Promise<Trip[]> => {
 
 const getSharedTrips = async (): Promise<Trip[]> => {
   return await http.get(http.apiBaseURLs.api, "trips/my/shared", undefined);
+};
+
+const getBookmarkedTrips = async (): Promise<Trip[]> => {
+  return await http.get(http.apiBaseURLs.api, "trips/my/bookmarked", undefined);
 };
 
 const getTripById = async (id: number): Promise<Trip> => {
@@ -96,27 +103,27 @@ const patchTrip = async (id: number, trip: TripPatch): Promise<TripPatch> => {
 
 const patchTripIsPublic = async (
   ids: number[],
-  isPublic: boolean
+  isPublic: boolean,
 ): Promise<number[]> => {
   const body = JSON.stringify(ids);
   return await http.patch(
     http.apiBaseURLs.api,
     `trips/isPublic/${isPublic}`,
     body,
-    undefined
+    undefined,
   );
 };
 
 const patchTripIsHidden = async (
   ids: number[],
-  isHidden: boolean
+  isHidden: boolean,
 ): Promise<number[]> => {
   const body = JSON.stringify(ids);
   return await http.patch(
     http.apiBaseURLs.api,
     `trips/isHidden/${isHidden}`,
     body,
-    undefined
+    undefined,
   );
 };
 
@@ -128,25 +135,25 @@ const getSharedUsersByTripId = async (id: number): Promise<UserSimple[]> => {
 
 const shareTripWithUser = async (
   id: number,
-  userId: string
+  userId: string,
 ): Promise<UserSimple> => {
   return await http.post(
     http.apiBaseURLs.api,
     `trips/${id}/share/${userId}`,
     undefined,
-    undefined
+    undefined,
   );
 };
 
 const unshareTripWithUser = async (
   id: number,
-  userId: string
+  userId: string,
 ): Promise<UserSimple> => {
   return await http.del(
     http.apiBaseURLs.api,
     `trips/${id}/unshare/${userId}`,
     undefined,
-    undefined
+    undefined,
   );
 };
 
@@ -155,7 +162,7 @@ const unshareTripWithAll = async (id: number): Promise<number> => {
     http.apiBaseURLs.api,
     `trips/${id}/unshare`,
     undefined,
-    undefined
+    undefined,
   );
 };
 
@@ -163,7 +170,7 @@ const unshareTripWithAll = async (id: number): Promise<number> => {
 
 const patchTripRegionTag = async (
   id: number,
-  regionId?: number
+  regionId?: number,
 ): Promise<RegionComplete> => {
   const body = JSON.stringify(regionId);
 
@@ -171,13 +178,13 @@ const patchTripRegionTag = async (
     http.apiBaseURLs.api,
     `trips/${id}/region`,
     body,
-    undefined
+    undefined,
   );
 };
 
 const patchTripBudgetTag = async (
   id: number,
-  budget?: number
+  budget?: number,
 ): Promise<number> => {
   const body = JSON.stringify(budget);
 
@@ -185,7 +192,7 @@ const patchTripBudgetTag = async (
     http.apiBaseURLs.api,
     `trips/${id}/budget`,
     body,
-    undefined
+    undefined,
   );
 };
 
@@ -193,25 +200,45 @@ const patchTripBudgetTag = async (
 
 const postTripImage = async (
   tripId: number,
-  imageId: number
+  imageId: number,
 ): Promise<Image> => {
   return await http.post(
     http.apiBaseURLs.api,
     `trips/${tripId}/image/${imageId}`,
     undefined,
-    undefined
+    undefined,
   );
 };
 
 const deleteTripImage = async (
   tripId: number,
-  imageId: number
+  imageId: number,
 ): Promise<ImageRelation> => {
   return await http.del(
     http.apiBaseURLs.api,
     `trips/${tripId}/image/${imageId}`,
     undefined,
-    undefined
+    undefined,
+  );
+};
+
+// bookmarks
+
+const addBookmark = async (tripId: number): Promise<void> => {
+  return await http.post(
+    http.apiBaseURLs.api,
+    `trips/${tripId}/bookmark`,
+    undefined,
+    undefined,
+  );
+};
+
+const removeBookmark = async (tripId: number): Promise<void> => {
+  return await http.del(
+    http.apiBaseURLs.api,
+    `trips/${tripId}/bookmark`,
+    undefined,
+    undefined,
   );
 };
 
@@ -220,6 +247,7 @@ export const tripsService = {
   getMyTrips,
   getMyHiddenTrips,
   getSharedTrips, // get trips shared with me
+  getBookmarkedTrips,
   getTripById,
   getTripTaoGeosById,
   getImagesByTripId,
@@ -238,4 +266,7 @@ export const tripsService = {
   // image
   postTripImage,
   deleteTripImage,
+  // bookmarks
+  addBookmark,
+  removeBookmark,
 };

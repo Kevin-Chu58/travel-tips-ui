@@ -13,6 +13,7 @@ import BudgetForm from "../BudgetForm";
 import type { TripSearchParams } from "@services/trips";
 import type { RegionComplete } from "@services/search/regions";
 import RegionForm from "../RegionForm";
+import type { TripOrderByEnum } from "@constants/Types";
 import "./index.scss";
 
 type TripSearchFormProps = {
@@ -39,6 +40,7 @@ const TripSearchForm = ({
       onClose={onClose}
       title="Advanced Search"
       width="50vw"
+      maxHeight="80vh"
       actionButtonLabel="Apply"
       actionButtonOnClick={onAction}
       panel
@@ -89,18 +91,34 @@ const TripSearchForm = ({
           <FormControl>
             <RadioGroup
               aria-labelledby="demo-radio-buttons-group-label"
-              defaultValue="Desc"
-              value={tripFilterParams.isDesc === false ? "" : "Desc"}
+              defaultValue="newest"
+              value={tripFilterParams.tripOrderByEnum}
               onChange={(e) =>
-                updateTripFilterParams({ isDesc: Boolean(e.target.value) })
+                updateTripFilterParams({
+                  tripOrderByEnum: e.target.value as TripOrderByEnum,
+                })
               }
             >
               <FormControlLabel
-                value="Desc"
+                value="newest"
                 control={<Radio />}
                 label="Newest"
               />
-              <FormControlLabel value="" control={<Radio />} label="Oldest" />
+              <FormControlLabel
+                value="oldest"
+                control={<Radio />}
+                label="Oldest"
+              />
+              <FormControlLabel
+                value="mostBookmarked"
+                control={<Radio />}
+                label="Most Bookmarked"
+              />
+              <FormControlLabel
+                value="leastBookmarked"
+                control={<Radio />}
+                label="Least Bookmarked"
+              />
             </RadioGroup>
           </FormControl>
         </Grid>

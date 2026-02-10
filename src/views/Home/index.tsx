@@ -40,7 +40,7 @@ const Home = () => {
     {}
   ); // the temperal params for trip advanced search
   // param details
-  const { title, budget, countrySlug, stateSlug, createdByAuthId, isDesc } =
+  const { title, budget, countrySlug, stateSlug, createdByAuthId, tripOrderByEnum } =
     tripParams;
   const [completeRegion, setCompleteRegion] = useState<RegionComplete>({});
   // url
@@ -72,7 +72,7 @@ const Home = () => {
       stateSlug: searchParams.get("stateSlug") ?? undefined,
       budget: _budget ? parseInt(_budget) : undefined,
       createdByAuthId: searchParams.get("createdBy") ?? undefined,
-      isDesc: !(searchParams.get("isDesc") === "false"),
+      tripOrderByEnum: searchParams.get("orderBy") ?? undefined,
       cursor: undefined,
     } as TripSearchParams;
 
@@ -94,7 +94,7 @@ const Home = () => {
       setIsInit(false);
     };
     initTrips();
-  }, [title, budget, countrySlug, stateSlug, createdByAuthId, isDesc]);
+  }, [title, budget, countrySlug, stateSlug, createdByAuthId, tripOrderByEnum]);
 
   // search params on url
 
@@ -106,7 +106,7 @@ const Home = () => {
     if (stateSlug) params.append("stateSlug", stateSlug);
     if (budget) params.append("budget", budget.toString());
     if (createdByAuthId) params.append("createdBy", createdByAuthId);
-    if (isDesc === false) params.append("isDesc", "false");
+    if (tripOrderByEnum) params.append("orderBy", tripOrderByEnum);
 
     setSearchParams(params.toString());
   };
