@@ -32,6 +32,7 @@ import NavButton from "@components/Button/NavButton";
 import LockIcon from "@mui/icons-material/Lock";
 import LockOpenIcon from "@mui/icons-material/LockOpen";
 import ReplyIcon from "@mui/icons-material/Reply";
+import { useNavigate } from "react-router";
 import "./index.scss";
 
 type TaoComponentProps = {
@@ -73,6 +74,8 @@ const TaoComponent = ({
   // open form states
   const [openDiscoverHighlights, setOpenDiscoverHighlights] =
     useState<boolean>(false);
+  // others
+  const navigate = useNavigate();
 
   const taoIndex = taos?.findIndex((t) => t.id === tao?.id);
   const prevTao = taos && taoIndex! > 0 ? taos[taoIndex! - 1] : undefined;
@@ -244,7 +247,13 @@ const TaoComponent = ({
         <Box className="section">
           {/* title & address */}
           <Typography className="title">
-            Visit <span className="title-span">{attraction?.title}</span>
+            Visit{" "}
+            <span
+              className="title-span"
+              onClick={() => navigate(`/attraction/${attraction?.id}`)}
+            >
+              {attraction?.title}
+            </span>
           </Typography>
           <Typography>{attraction?.address}</Typography>
 

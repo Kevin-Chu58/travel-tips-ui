@@ -59,6 +59,11 @@
     -webkit-background-clip: text; /* Safari + Chrome */
     color: transparent; /* hide normal text color */
     -webkit-text-fill-color: transparent;
+    cursor: pointer;
+
+    &:hover {
+      text-decoration: underline;
+    }
   }
 
   .event-category.MuiChip-root {

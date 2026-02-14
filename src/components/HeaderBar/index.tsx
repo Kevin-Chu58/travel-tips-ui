@@ -30,8 +30,7 @@ const HeaderBar = () => {
   // window
   const isMobile = useIsMobile();
   // auth0
-  const { isLoading, isAuthenticated, loginWithRedirect, logout } =
-    useAuth0();
+  const { isLoading, isAuthenticated, loginWithRedirect, logout } = useAuth0();
   // user
   const user = useSelector((state: RootState) => state.user);
   // others
@@ -160,7 +159,7 @@ const HeaderBar = () => {
                 <Box
                   className={clsx(
                     "app-bar-headers-container mobile",
-                    Boolean(anchorElHeader) && "focus"
+                    Boolean(anchorElHeader) && "focus",
                   )}
                   onClick={handleOpenHeaderMenu}
                 >
@@ -182,7 +181,7 @@ const HeaderBar = () => {
                   {headers
                     .filter(
                       (h) =>
-                        !h.requireAuth || (h.requireAuth && isAuthenticated)
+                        !h.requireAuth || (h.requireAuth && isAuthenticated),
                     )
                     .map((h) => (
                       <Link className="TT-menu-link" key={h.name} href={h.to}>
@@ -203,7 +202,7 @@ const HeaderBar = () => {
                         focus={header.name === currentHeader}
                         enableHighlight
                       />
-                    )
+                    ),
                 )}
               </Box>
             )
@@ -218,6 +217,7 @@ const HeaderBar = () => {
                     <Avatar
                       alt={username}
                       src={userPicture}
+                      slotProps={{ img: { loading: "lazy" } }}
                       onClick={handleOpenUserMenu}
                     />
                   ) : (
@@ -229,7 +229,11 @@ const HeaderBar = () => {
                         onClick={handleOpenUserMenu}
                         enableHighlight
                       />
-                      <Avatar alt={username} src={userPicture} />
+                      <Avatar
+                        alt={username}
+                        src={userPicture}
+                        slotProps={{ img: { loading: "lazy" } }}
+                      />
                     </React.Fragment>
                   )
                 ) : (

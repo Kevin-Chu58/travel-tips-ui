@@ -3,6 +3,7 @@
 import type { JSX } from "react";
 import type { Dayjs } from "dayjs";
 import type { SvgIconProps, SxProps } from "@mui/material";
+import type { ClassValue } from "clsx";
 
 // UI
 export type WorkshopRoute = {
@@ -38,6 +39,8 @@ export type UtilityItem = {
   content: any;
   description?: string;
   condition?: boolean; // don't do something with content (e.g., showing) when condition is false
+  styling?: string;
+  stylingCondition?: ClassValue[];
   onClick?: () => void;
 };
 

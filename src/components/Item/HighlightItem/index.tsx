@@ -134,6 +134,7 @@ const HighlightItem = ({
       className={clsx("highlight-item-avatar", isMobile && "mobile")}
       alt={_highlight?.createdBy?.username}
       src={_highlight?.createdBy?.picture}
+      slotProps={{ img: { loading: "lazy" } }}
     />
   );
 

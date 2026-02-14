@@ -51,6 +51,11 @@ const TripCard = ({
   // popover
   const [popoverAnchorEl, setPopoverAnchorEl] =
     useState<HTMLButtonElement | null>(null);
+  // others
+  const _numBookmarks = trip?.bookmarkCount;
+  const _bookmarkText = _numBookmarks > 0 ? ` • ${trip.bookmarkCount} bookmark${
+    _numBookmarks  === 1 ? "" : "s"
+  }` : "";
 
   // rerender on trip isPublic
   useEffect(() => {}, [trip.isPublic]);
@@ -99,8 +104,14 @@ const TripCard = ({
       // triggers direct UI update on chip
       setPopoverAnchorEl(null);
 
-      if (asyncUpdateTrip)
-        asyncUpdateTrip({ ...trip, isBookmarked: !trip.isBookmarked } as Trip);
+      if (asyncUpdateTrip) {
+        const delta = trip.isBookmarked ? -1 : 1;
+        asyncUpdateTrip({
+          ...trip,
+          isBookmarked: !trip.isBookmarked,
+          bookmarkCount: trip.bookmarkCount + delta,
+        } as Trip);
+      }
     } catch (e) {
       if (e instanceof Error) {
         enqueueSnackbar(e.message, { variant: "error" });
@@ -261,6 +272,7 @@ const TripCard = ({
             className="avatar"
             alt={trip.createdBy.username}
             src={trip.createdBy?.picture}
+            slotProps={{ img: { loading: "lazy" } }}
           />
 
           <Chip
@@ -290,7 +302,7 @@ const TripCard = ({
             {trip.title}
           </Typography>
 
-          <Box sx={{ ml: "auto" }}>
+          <Box className="menu-button-box">
             <IconButton size="small" onClick={(e) => handleOpenPopover(e)}>
               <MoreVertIcon />
             </IconButton>
@@ -307,10 +319,11 @@ const TripCard = ({
           {menuButtonList.map((button) => button.condition && button.content)}
         </Menu>
 
-        {/* number of days */}
-        <Typography className="num-days">
-          {TimeUtils.formatDays(trip.numDays ?? 0)}
-        </Typography>
+          {/* number of days & bookmark count */}
+          <Typography className="num-days" variant="body2">
+            {TimeUtils.formatDays(trip.numDays ?? 0)}{" "}
+            {_bookmarkText}
+          </Typography>
       </Box>
 
       {/* visibility tag */}

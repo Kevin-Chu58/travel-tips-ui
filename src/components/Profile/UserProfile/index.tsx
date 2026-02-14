@@ -1,10 +1,11 @@
-import { Avatar, Box, Chip, Typography } from "@mui/material";
-import { usersService, type UserBasic } from "@services/users";
+import { Avatar, Box, Chip, Grid, Typography } from "@mui/material";
+import { usersService, type UserProfileBasic } from "@services/users";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import { enqueueSnackbar } from "notistack";
 import { useIsMobile } from "@hooks/useIsMobile";
 import PersonIcon from "@mui/icons-material/Person";
-import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined";
+import PersonAddAltIcon from "@mui/icons-material/PersonAddAlt";
+import PersonRemoveAlt1Icon from "@mui/icons-material/PersonRemoveAlt1";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import TTButton from "@components/TTButton";
 import { useDispatch, useSelector } from "react-redux";
@@ -13,13 +14,16 @@ import { FaCrown } from "react-icons/fa";
 import ToolTip from "@components/ToolTip";
 import ImageSelector from "@components/ImageSelector";
 import { setUser as setUserSlice } from "@redux/userSlice";
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { tripsService, type Trip } from "@services/trips";
+import TripCard from "@components/Cards/TripCard";
+import { useNavigate } from "react-router";
 import clsx from "clsx";
 import "./index.scss";
 
 type UserProfileProps = {
-  user?: UserBasic;
-  setUser?: React.Dispatch<React.SetStateAction<UserBasic>>;
+  user?: UserProfileBasic;
+  setUser?: React.Dispatch<React.SetStateAction<UserProfileBasic | undefined>>;
 };
 
 const UserProfile = ({ user, setUser }: UserProfileProps) => {
@@ -29,10 +33,56 @@ const UserProfile = ({ user, setUser }: UserProfileProps) => {
   const dispatch = useDispatch();
   // user
   const _user = useSelector((state: RootState) => state.user);
+  // top 5 bookmarked trips
+  const [topTrips, setTopTrips] = useState<Trip[]>([]);
   // others
+  const navigate = useNavigate();
   const hasRole = user?.isWriter || user?.isAdmin;
   const isMe = user?.id !== undefined && user?.id === _user.id;
-  const pictureSrc = isMe ? _user.picture : user?.picture;
+
+  const _followerCount = user?.followerCount ?? 0;
+  const _followingCount = user?.followingCount ?? 0;
+  const followerText = `${_followerCount} ${_followerCount === 1 ? "follower" : "followers"}`;
+  const followingText = `${_followingCount} following`;
+  const followText = `${followerText} • ${followingText}`;
+
+  const _numTrips = user?.numTrips ?? 0;
+  const _numBookmarks = user?.numBookmarks ?? 0;
+
+  useEffect(() => {
+    const initTopTrips = async () => {
+      if (!user) return;
+
+      const topTrips = await tripsService.getTripsByParams({
+        createdByAuthId: user.userId,
+        tripOrderByEnum: "mostBookmarked",
+        limit: 5,
+      });
+
+      setTopTrips(topTrips.results);
+    };
+
+    initTopTrips();
+  }, [user?.id]);
+
+  // async functions
+
+  const asyncUpdateUser = (partialUser: Partial<UserProfileBasic>) => {
+    if (setUser && user) setUser((prev) => ({ ...prev!, ...partialUser }));
+  };
+
+  const asyncUpdateTopTrip = (trip: Trip) => {
+    let _topTrips = [...topTrips];
+    let tripIndex = _topTrips.findIndex((t) => t.id === trip.id);
+    _topTrips[tripIndex] = trip;
+
+    setTopTrips(_topTrips);
+
+    const delta = trip.isBookmarked ? 1 : -1;
+    asyncUpdateUser({ numBookmarks: user!.numBookmarks + delta });
+  };
+
+  // handle functions
 
   const handleUserIdCopy = async (e: React.MouseEvent<HTMLElement>) => {
     if (!user?.userId) return;
@@ -50,8 +100,34 @@ const UserProfile = ({ user, setUser }: UserProfileProps) => {
     const imageUrl = await usersService.updateUserPicture(imageId);
 
     dispatch(setUserSlice({ picture: imageUrl }));
-    if (setUser) setUser((prev) => ({ ...prev, picture: imageUrl }));
+    asyncUpdateUser({ picture: imageUrl });
   };
+
+  const handleFollow = async () => {
+    if (!user) return;
+
+    try {
+      const isFollowing = user?.isFollowing;
+      const delta = isFollowing ? -1 : 1;
+
+      isFollowing
+        ? await usersService.unfollowUser(user.id)
+        : await usersService.followUser(user.id);
+      asyncUpdateUser({
+        isFollowing: !isFollowing,
+        followerCount: user.followerCount + delta,
+      });
+
+      const snackbarMessage = isFollowing
+        ? "Unfollowed the user."
+        : "Now following the user.";
+      enqueueSnackbar(snackbarMessage, { variant: "success" });
+    } catch (e) {
+      if (e instanceof Error) enqueueSnackbar(e.message, { variant: "error" });
+    }
+  };
+
+  if (!user) return;
 
   return (
     <Box className={clsx("column user-profile", isMobile && "mobile")}>
@@ -62,16 +138,19 @@ const UserProfile = ({ user, setUser }: UserProfileProps) => {
           <Avatar
             className={clsx("avatar", isMobile && "mobile")}
             alt={user?.username}
-            src={pictureSrc ?? undefined}
+            src={user?.picture}
+            slotProps={{ img: { loading: "lazy" } }}
           />
 
-          <Box className={clsx("avatar-overlay", isMobile && "mobile")}>
-            <ImageSelector asyncAddImage={updateUserPicture}>
-              <ToolTip title="Edit Picture" offsetY={-8}>
-                <EditOutlinedIcon />
-              </ToolTip>
-            </ImageSelector>
-          </Box>
+          {isMe ? (
+            <Box className={clsx("avatar-overlay", isMobile && "mobile")}>
+              <ImageSelector asyncAddImage={updateUserPicture}>
+                <ToolTip title="Edit Picture" offsetY={-8}>
+                  <EditOutlinedIcon />
+                </ToolTip>
+              </ImageSelector>
+            </Box>
+          ) : undefined}
         </Box>
         <Box className="column">
           <Typography
@@ -101,7 +180,7 @@ const UserProfile = ({ user, setUser }: UserProfileProps) => {
 
       <Box className={clsx("column container", isMobile && "mobile")}>
         {/* actions */}
-        <Box className="row actions">
+        <Box className={clsx("row actions", isMobile && "mobile")}>
           {/* auth id */}
           <TTButton
             size="small"
@@ -114,22 +193,68 @@ const UserProfile = ({ user, setUser }: UserProfileProps) => {
           {/* following */}
           {!isMe ? (
             <TTButton
-              startIcon={<PersonOutlineOutlinedIcon />}
+              startIcon={
+                user.isFollowing ? (
+                  <PersonRemoveAlt1Icon />
+                ) : (
+                  <PersonAddAltIcon />
+                )
+              }
               size="small"
               color="utility"
+              onClick={handleFollow}
             >
-              Follow
+              {user.isFollowing ? "Followed" : "Follow"}
             </TTButton>
           ) : undefined}
         </Box>
 
         {/* auth0 id */}
         <Box className="row">
-          <Chip
-            color="utility"
-            icon={<PersonIcon />}
-            label={`100 followers • 10 following`}
-          />
+          <Chip color="utility" icon={<PersonIcon />} label={followText} />
+        </Box>
+
+        {/* stats */}
+        <Grid className="stats" container columns={{ xs: 12 }} spacing={1}>
+          <Grid size={6}>
+            <Box className="column center">
+              <Typography className="number" variant="h2">
+                {user?.numTrips}
+              </Typography>
+              <Typography variant="h6">
+                {_numTrips === 1 ? "Trip" : "Trips"}
+              </Typography>
+            </Box>
+          </Grid>
+
+          <Grid size={6}>
+            <Box className="column center">
+              <Typography className="number" variant="h2">
+                {user?.numBookmarks}
+              </Typography>
+              <Typography variant="h6">
+                {_numBookmarks === 1 ? "Bookmark" : "Bookmarks"}
+              </Typography>
+            </Box>
+          </Grid>
+        </Grid>
+
+        {/* top 5 trips - order by bookmarkCount */}
+        <Typography className="caption">Top 5 Bookmarked Trips</Typography>
+        <Box className="top-trip-box">
+          {topTrips.length > 0 ? (
+            topTrips.map((trip) => (
+              <TripCard
+                key={trip.id}
+                trip={trip}
+                readonly
+                onClick={() => navigate(`/trip/${trip.id}`)}
+                asyncUpdateTrip={asyncUpdateTopTrip}
+              />
+            ))
+          ) : (
+            <Typography>No trips published.</Typography>
+          )}
         </Box>
       </Box>
     </Box>

@@ -38,6 +38,7 @@ const UserCard = ({ user }: UserCardProps) => {
       <Avatar
         alt={user.username}
         src={user.picture}
+        slotProps={{ img: { loading: "lazy" } }}
       />
       <Box className="section">
         <Typography

@@ -330,6 +330,7 @@ const HighlightsFragment = ({
       isLast={noDivider || i + 1 === highlights.length}
       onUpdate={updateHighlight}
       onDelete={setDeleteHighlightId}
+      readonly={user.id !== highlight?.createdBy?.id}
       showRef
     />
   );
@@ -341,29 +342,31 @@ const HighlightsFragment = ({
         {!hideHeader ? (
           <Box className="header-bar">
             <Typography variant="h6">Highlights</Typography>
-            {/* add icon */}
-            {allowChangeHighlight ? (
-              <TTIconButton
-                onClick={() => setOpenPost(true)}
-                className="header-add-button"
-              >
-                <ToolTip title="Write a new highlight">
-                  <AddIcon />
-                </ToolTip>
-              </TTIconButton>
+            {isUser ? (
+              <TTTabs
+                navTabs={navTabs}
+                navTabValue={navTabValue}
+                setNavTabValue={setNavTabValue}
+                variant="switch"
+              />
             ) : undefined}
           </Box>
         ) : undefined}
 
         {/* tabs */}
-        <Box className={clsx("tool-box", isMobile && "mobile")}>
-          <TTTabs
-            navTabs={navTabs}
-            navTabValue={navTabValue}
-            setNavTabValue={setNavTabValue}
-            variant="switch"
-          />
+        <Box className="tool-box">
           {OrderBySelect}
+          {/* add icon */}
+          {allowChangeHighlight && isUser ? (
+            <TTIconButton
+              onClick={() => setOpenPost(true)}
+              className="header-add-button"
+            >
+              <ToolTip title="Write a new highlight">
+                <AddIcon />
+              </ToolTip>
+            </TTIconButton>
+          ) : undefined}
         </Box>
 
         {/* new highlight form - highlight item in edit */}

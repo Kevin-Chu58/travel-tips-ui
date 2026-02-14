@@ -142,6 +142,14 @@ const Home = () => {
     else setTrips((prev) => [...prev, ...tripResults.results]);
   };
 
+  const asyncUpdateTrip = (trip: Trip) => {
+    let _trips = [...trips];
+    let tripIndex = _trips.findIndex(t => t.id === trip.id);
+    _trips[tripIndex] = trip;
+
+    setTrips([..._trips]);
+  };
+
   const getTripsByParams = async (isNewSearch: boolean = false) => {
     try {
       const tripResult = await tripsService.getTripsByParams(tripParams);
@@ -306,6 +314,7 @@ const Home = () => {
                 key={trip.id}
                 trip={trip}
                 onClick={() => navigate(`/trip/${trip.id}`)}
+                asyncUpdateTrip={asyncUpdateTrip}
                 readonly
               />
             ))}

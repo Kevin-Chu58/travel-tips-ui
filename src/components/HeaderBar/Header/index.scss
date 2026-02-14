@@ -1,6 +1,10 @@
 .app-bar-header {
   font-weight: bold;
   cursor: pointer;
+  max-width: 140px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
 
   &.auth {
     font-family: tagesschrift;
@@ -16,7 +20,9 @@
 
   &.enable-highlight {
     &:after {
-      transition: 0.2s width linear, 0.2s border-color ease-in;
+      transition:
+        0.2s width linear,
+        0.2s border-color ease-in;
       content: "";
       display: flex;
       position: relative;

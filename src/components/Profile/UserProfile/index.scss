@@ -2,12 +2,14 @@
 @use "../../../stylings/color" as *;
 
 .user-profile {
+  $max-width: 900px;
+  $max-username-width: min(50vw, 700px);
+
   margin: 4rem auto;
-  max-width: 900px;
+  max-width: $max-width;
   border-radius: 0 0 0.5rem 0.5rem;
   box-shadow: $mild-box-shadow;
   gap: 1rem;
-
 
   &.mobile {
     margin: 2rem 1rem;
@@ -74,6 +76,10 @@
 
     .username.MuiTypography-root {
       margin-top: 1rem;
+      max-width: $max-username-width;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: hidden;
       color: white;
 
       &.mobile {
@@ -97,12 +103,51 @@
 
     .actions {
       justify-content: end;
+
+      &.mobile {
+        margin-top: 1rem;
+        justify-content: start;
+      }
+    }
+  }
+
+  .stats.MuiGrid-root {
+    margin: 1rem;
+
+    .MuiGrid-root {
+      position: relative;
+      padding: 2rem;
+      border-radius: 1rem;
+
+      &:first-child::after {
+        $top: 20%;
+
+        position: absolute;
+        content: "";
+        top: $top;
+        right: 0;
+        width: 1px;
+        height: calc(100% - 2 * $top);
+        background-color: $divider;
+      }
+
+      .number.MuiTypography-root {
+        font-weight: bold;
+        color: var(--primary-500);
+      }
     }
   }
 
   .caption.MuiTypography-root {
+    font-size: 1.4rem;
     font-weight: bold;
-    font-size: .8rem;
-    text-transform: uppercase;
+  }
+
+  .top-trip-box {
+    display: flex;
+    justify-content: center;
+    align-items: start;
+    flex-wrap: wrap;
+    gap: 1rem;
   }
 }

@@ -38,6 +38,7 @@ export type TripSearchParams = {
   budget?: number;
   cursor?: string;
   tripOrderByEnum?: TripOrderByEnum;
+  limit?: number;
 };
 
 const getTripsByParams = async (
@@ -54,6 +55,7 @@ const getTripsByParams = async (
   if (params.cursor) _params.append("cursor", params.cursor);
   if (params.tripOrderByEnum)
     _params.set("tripOrderByEnum", params.tripOrderByEnum);
+  if (params.limit) _params.set("limit", params.limit.toString());
 
   return await http.get(http.apiBaseURLs.api, `trips?${_params.toString()}`);
 };
