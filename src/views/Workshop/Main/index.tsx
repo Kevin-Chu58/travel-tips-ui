@@ -291,7 +291,7 @@ const Main = () => {
           name: "Shared",
           label: "Shared",
           icon: <GroupIcon />,
-          note: "Others Shared With me",
+          note: "Trips Shared With me",
           to: "/workshop/shared",
         },
         {

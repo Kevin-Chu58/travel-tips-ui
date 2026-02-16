@@ -39,8 +39,12 @@ const acceptUserAgreement = async (): Promise<boolean> => {
 
 // user profile
 
-const getUserProfile = async (id: number): Promise<UserProfileBasic> => {
-  return await http.get(http.apiBaseURLs.api, `users/${id}/profile`, undefined);
+const getUserProfile = async (auth0Id: string): Promise<UserProfileBasic> => {
+  return await http.get(
+    http.apiBaseURLs.api,
+    `users/${auth0Id}/profile`,
+    undefined,
+  );
 };
 
 // user picture

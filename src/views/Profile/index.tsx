@@ -16,32 +16,31 @@ const ProfileView = () => {
     undefined,
   );
   // params
-  const { userId } = useParams();
+  const { auth0Id } = useParams();
   // others
   const navigate = useNavigate();
 
   useEffect(() => {
     const initProfile = async () => {
-      const id = userId ? parseInt(userId) : undefined;
-      if (id === 0) navigate("/profile"); // doesn't work until implement routes
+      if (!auth0Id) navigate("/profile");
 
       var userProfile;
       try {
-        if (id) {
-          userProfile = await usersService.getUserProfile(id);
-        } else if (user.id) {
-          userProfile = await usersService.getUserProfile(user.id);
+        if (auth0Id) {
+          userProfile = await usersService.getUserProfile(auth0Id);
+        } else if (user.userId) {
+          userProfile = await usersService.getUserProfile(user.userId);
         }
       } catch (e) {
         enqueueSnackbar("Profile does not exist.", { variant: "error" });
-        navigate("/profile");
+        navigate("/");
       }
 
       setUserProfile(userProfile);
     };
 
     initProfile();
-  }, [userId, user.id]);
+  }, [auth0Id, user.id]);
 
   return (
     <Container className="profile-view" maxWidth={false} disableGutters>
@@ -54,7 +53,7 @@ const Profile = () => {
   return (
     <Routes>
       <Route path="/" element={<ProfileView />} />
-      <Route path="/:userId" element={<ProfileView />} />
+      <Route path="/:auth0Id" element={<ProfileView />} />
       <Route path="*" element={<Navigate to="/profile" />} />
     </Routes>
   );
