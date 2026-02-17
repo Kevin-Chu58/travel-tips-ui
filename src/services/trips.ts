@@ -1,5 +1,5 @@
 import http, { type SearchResults } from "@services/http";
-import type { UserBasic, UserSimple } from "./users";
+import type { UserSimple } from "./users";
 import type { Image, ImageRelation } from "./images";
 import type { TaoGeo } from "./taos";
 import type { RegionComplete } from "./search/regions";
@@ -17,7 +17,7 @@ export type TripPatch = {
 export type Trip = TripPost & {
   id: number;
   description?: string;
-  createdBy: UserBasic;
+  createdBy: UserSimple;
   createdAt: Date;
   numDays?: number;
   bookmarkCount: number;

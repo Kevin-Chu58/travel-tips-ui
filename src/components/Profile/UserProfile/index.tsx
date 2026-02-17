@@ -3,7 +3,6 @@ import { usersService, type UserProfileBasic } from "@services/users";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import { enqueueSnackbar } from "notistack";
 import { useIsMobile } from "@hooks/useIsMobile";
-import PersonIcon from "@mui/icons-material/Person";
 import PersonAddAltIcon from "@mui/icons-material/PersonAddAlt";
 import PersonRemoveAlt1Icon from "@mui/icons-material/PersonRemoveAlt1";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
@@ -20,6 +19,7 @@ import TripCard from "@components/Cards/TripCard";
 import { useNavigate } from "react-router";
 import clsx from "clsx";
 import "./index.scss";
+import FollowerChip from "./FollowerChip";
 
 type UserProfileProps = {
   user?: UserProfileBasic;
@@ -35,16 +35,11 @@ const UserProfile = ({ user, setUser }: UserProfileProps) => {
   const _user = useSelector((state: RootState) => state.user);
   // top 5 bookmarked trips
   const [topTrips, setTopTrips] = useState<Trip[]>([]);
+
   // others
   const navigate = useNavigate();
   const hasRole = user?.isWriter || user?.isAdmin;
   const isMe = user?.id !== undefined && user?.id === _user.id;
-
-  const _followerCount = user?.followerCount ?? 0;
-  const _followingCount = user?.followingCount ?? 0;
-  const followerText = `${_followerCount} ${_followerCount === 1 ? "follower" : "followers"}`;
-  const followingText = `${_followingCount} following`;
-  const followText = `${followerText} • ${followingText}`;
 
   const _numTrips = user?.numTrips ?? 0;
   const _numBookmarks = user?.numBookmarks ?? 0;
@@ -211,14 +206,14 @@ const UserProfile = ({ user, setUser }: UserProfileProps) => {
 
         {/* auth0 id */}
         <Box className="row">
-          <Chip color="utility" icon={<PersonIcon />} label={followText} />
+          <FollowerChip user={user} />
         </Box>
 
         {/* stats */}
         <Grid className="stats" container columns={{ xs: 12 }} spacing={1}>
           <Grid size={6}>
             <Box className="column center">
-              <Typography className="number" variant="h2">
+              <Typography className="number" variant="h3">
                 {user?.numTrips}
               </Typography>
               <Typography variant="h6">
@@ -229,7 +224,7 @@ const UserProfile = ({ user, setUser }: UserProfileProps) => {
 
           <Grid size={6}>
             <Box className="column center">
-              <Typography className="number" variant="h2">
+              <Typography className="number" variant="h3">
                 {user?.numBookmarks}
               </Typography>
               <Typography variant="h6">

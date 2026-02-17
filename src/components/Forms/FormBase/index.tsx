@@ -40,10 +40,16 @@ type FormBaseButtonProps = {
   disableActionButton?: boolean;
 };
 
+type FormBaseBehaviorProps = {
+  contentRef?: React.RefObject<HTMLDivElement | null>;
+  onScroll?: () => void;
+};
+
 type FormBaseProps = FormBaseLayoutProps &
   FormBaseThemeProps &
   FormBaseHeaderProps &
-  FormBaseButtonProps & {
+  FormBaseButtonProps &
+  FormBaseBehaviorProps & {
     open: boolean;
     onClose: () => void;
     className?: string;
@@ -83,10 +89,13 @@ const FormBase = ({
   actionButtonEndIcon,
   actionButtonOnClick,
   disableActionButton,
+  // behavior
+  contentRef,
+  onScroll,
 }: FormBaseProps) => {
   // ref
   const [contentEl, setContentEl] = useState<HTMLDivElement | null>(null);
-  const contentRef = useCallback((node: HTMLDivElement | null) => {
+  const _contentRef = useCallback((node: HTMLDivElement | null) => {
     if (node) {
       setContentEl(node); // triggers re-render
     }
@@ -110,6 +119,8 @@ const FormBase = ({
       } else {
         footerEl?.classList.remove(overflowClassName);
       }
+
+      if (onScroll) onScroll();
     };
 
     // run once immediately
@@ -167,7 +178,10 @@ const FormBase = ({
         ) : undefined}
 
         {/* content */}
-        <Box ref={contentRef} className="content">
+        <Box
+          ref={BehaviorUtils.mergeRefs(_contentRef, contentRef)}
+          className="content"
+        >
           {children}
         </Box>
 

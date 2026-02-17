@@ -1,4 +1,4 @@
-import http from "./http";
+import http, { type SearchResults } from "./http";
 
 export type UserSimple = {
   id: number;
@@ -22,6 +22,12 @@ export type UserProfileBasic = UserSimple & {
   numTrips: number;
   numBookmarks: number;
   isFollowing?: boolean;
+};
+
+export type UserSearchParams = {
+  userId: number;
+  cursor?: string;
+  limit?: number;
 };
 
 const getUserBasicInfo = async (): Promise<UserBasic> => {
@@ -60,6 +66,38 @@ const updateUserPicture = async (imageId: number): Promise<string> => {
 
 // user follower
 
+const getFollowers = async (
+  params: UserSearchParams,
+): Promise<SearchResults<UserSimple>> => {
+  const _params = new URLSearchParams();
+
+  _params.append("userId", params.userId.toString());
+  if (params.cursor) _params.append("cursor", params.cursor);
+  if (params.limit) _params.append("limit", params.limit.toString());
+
+  return await http.get(
+    http.apiBaseURLs.api,
+    `users/followers?${_params.toString()}`,
+    undefined,
+  );
+};
+
+const getFollowings = async (
+  params: UserSearchParams,
+): Promise<SearchResults<UserSimple>> => {
+  const _params = new URLSearchParams();
+
+  _params.append("userId", params.userId.toString());
+  if (params.cursor) _params.append("cursor", params.cursor);
+  if (params.limit) _params.append("limit", params.limit.toString());
+
+  return await http.get(
+    http.apiBaseURLs.api,
+    `users/followings?${_params.toString()}`,
+    undefined,
+  );
+};
+
 const followUser = async (id: number): Promise<void> => {
   return await http.post(
     http.apiBaseURLs.api,
@@ -86,6 +124,8 @@ export const usersService = {
   // user picture
   updateUserPicture,
   // user follower
+  getFollowers,
+  getFollowings,
   followUser,
   unfollowUser,
 };

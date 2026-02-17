@@ -8,9 +8,10 @@ import "./index.scss";
 
 type UserCardProps = {
   user: UserSimple;
+  hasMobileView?: boolean;
 };
 
-const UserCard = ({ user }: UserCardProps) => {
+const UserCard = ({ user, hasMobileView = true }: UserCardProps) => {
   // window
   const isMobile = useIsMobile();
 
@@ -34,7 +35,7 @@ const UserCard = ({ user }: UserCardProps) => {
   };
 
   return (
-    <Box className={clsx("user-card-container", isMobile && "mobile")}>
+    <Box className={clsx("user-card-container", hasMobileView && isMobile && "mobile")}>
       <Avatar
         alt={user.username}
         src={user.picture}

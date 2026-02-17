@@ -1,10 +1,13 @@
 .app-bar-header {
   font-weight: bold;
   cursor: pointer;
-  max-width: 140px;
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
+
+  &.hasLimit {
+    max-width: 140px;
+  }
 
   &.auth {
     font-family: tagesschrift;

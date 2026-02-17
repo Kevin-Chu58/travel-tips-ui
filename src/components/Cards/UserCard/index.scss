@@ -23,4 +23,13 @@
       color: var(--primary-main);
     }
   }
+
+  .user-id-box {
+    .MuiTypography-root {
+      max-width: 160px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+  }
 }

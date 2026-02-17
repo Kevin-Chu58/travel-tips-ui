@@ -1,7 +1,7 @@
 import Mapper from "@components/Map";
 import type { Route, NavTab, GeoCoordinate } from "@constants/Types";
 import { useIsMobile } from "@hooks/useIsMobile";
-import { Box } from "@mui/material";
+import { Avatar, Box, Chip, Typography } from "@mui/material";
 import { type Trip, tripsService } from "@services/trips";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router";
@@ -143,7 +143,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
       label: taoGeo.title,
       lat: taoGeo.lat,
       lng: taoGeo.lng,
-      zoom: 0,
+      zoom: 12,
     };
   });
 
@@ -531,21 +531,21 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
 
   return (
     <Box className="trip-profile-box">
-      <Box className="trip-profile-ui-box">
+      <Box className="ui-box">
         {/* content */}
         <Box
           className={clsx(
-            "trip-profile-content-box",
+            "content-box",
             isMobile && "mobile",
             !openUI && "hidden",
           )}
         >
           {/* header */}
-          <Box className="trip-profile-header-box">
+          <Box className="header-box">
             {/* profile images  */}
             <Box
               className={clsx(
-                "trip-profile-image-box",
+                "image-box",
                 !Boolean(dayId) && !hideImages && "visible",
               )}
             >
@@ -561,14 +561,34 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
                   innerButtons
                 />
               ) : (
-                <Box className="trip-profile-default-image-box">
+                <Box className="default-image-box">
                   {/* image when no images available */}
                   <img src={TLogo} height={isMobile ? 180 : 200} />
                 </Box>
               )}
 
+              {/* creator avatar and username */}
+              {tripBasicRef.current ? (
+                <Box className="row createdBy-box">
+                  <Avatar
+                    src={tripBasicRef.current.createdBy.picture}
+                    alt={tripBasicRef.current.createdBy.username}
+                    slotProps={{ img: { loading: "lazy" } }}
+                  />
+                  <Chip
+                    label={
+                      <Typography className="username">
+                        {tripBasicRef.current?.createdBy.username}
+                      </Typography>
+                    }
+                    size="small"
+                    className="username-chip"
+                  />
+                </Box>
+              ) : undefined}
+
               {/* image selector */}
-              <Box className="trip-profile-image-selector-box">
+              <Box className="image-selector-box">
                 {!readonly ? (
                   <ImageSelector
                     imageIds={images.map((image) => image.id)}
@@ -605,7 +625,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
             </Box>
 
             {/* name */}
-            <Box className="trip-profile-title-box">
+            <Box className="title-box">
               <NameComponent
                 tripBasicRef={tripBasicRef}
                 tripBasic={tripBasic}
@@ -618,7 +638,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
             </Box>
 
             {/* section - nav bar (nav tabs + add day icon button) */}
-            <Box className="trip-profile-section-box">
+            <Box className="section-box">
               <SectionComponent
                 navTabs={getNavTabs()}
                 navTabValue={navTabValue}
@@ -632,7 +652,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
 
           {/* content - description / day content */}
           {!isOverview ? (
-            <Box className="trip-profile-day-box">
+            <Box className="day-box">
               <DayComponent
                 day={day}
                 taos={taos}
@@ -646,7 +666,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
               />
             </Box>
           ) : (
-            <Box className="trip-profile-description-box">
+            <Box className="description-box">
               <DescriptionComponent
                 tripBasicRef={tripBasicRef}
                 asyncTrip={asyncTrip}
@@ -664,9 +684,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
           )}
 
           {/* tao content */}
-          <Box
-            className={clsx("trip-profile-tao-box", Boolean(tao) && "display")}
-          >
+          <Box className={clsx("tao-box", Boolean(tao) && "display")}>
             <TaoComponent
               taos={taos}
               tao={tao}
@@ -682,7 +700,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
         </Box>
 
         {/* open button */}
-        <Box className={"trip-profile-open-button-box"}>
+        <Box className={"open-button-box"}>
           <UIShowButton
             isOpen={openUI}
             onClick={() => setOpenUI((prev) => !prev)}
@@ -692,7 +710,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
         {/* tool fab group */}
         <Box
           className={clsx(
-            "trip-profile-tool-fab-group",
+            "tool-fab-group",
             isMobile && "mobile",
             !openUI && "hidden",
           )}
@@ -714,7 +732,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
       </Box>
 
       {/* map */}
-      <Box className="trip-profile-map-box">
+      <Box className="map-box">
         <Mapper
           markers={markers}
           mapRoutes={routes}

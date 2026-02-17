@@ -395,7 +395,7 @@ const TaoComponent = ({
               <Box className="row full">
                 <Typography className="large-text">Directions</Typography>
                 {prevTao && tao ? (
-                  <NavButton
+                  <NavButton className="jump-to-button"
                     link={MapUtils.getGoogleRouteLink(
                       prevTao.attraction.address,
                       tao.attraction.address,

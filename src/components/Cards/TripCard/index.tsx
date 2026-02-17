@@ -299,7 +299,7 @@ const TripCard = ({
         {/* title */}
         <Box display="flex">
           <Typography fontSize="1.2rem" className="title">
-            {trip.title}<span>#{trip.id}</span>
+            {trip.title}<span className="helper">#{trip.id}</span>
           </Typography>
 
           <Box className="menu-button-box">

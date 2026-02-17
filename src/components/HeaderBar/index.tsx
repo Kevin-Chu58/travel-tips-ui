@@ -228,6 +228,7 @@ const HeaderBar = () => {
                         toUpperCase={false}
                         onClick={handleOpenUserMenu}
                         enableHighlight
+                        hasLimit
                       />
                       <Avatar
                         alt={username}

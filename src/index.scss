@@ -118,6 +118,12 @@ body {
 
 // custom styled typography - TODO
 
+span.helper {
+  font-size: 1rem;
+  margin: 0 0.2rem;
+  color: var(--utility-400);
+}
+
 .theme-typography {
   &.MuiTypography-root {
     &.MuiTypography-h6 {
