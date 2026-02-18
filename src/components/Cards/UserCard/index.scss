@@ -17,6 +17,7 @@
 
   .username.MuiTypography-root {
     font-weight: bold;
+    text-transform: none; // overwrite parent text styling
     cursor: pointer;
 
     &:hover {

@@ -1,5 +1,6 @@
 import UsersForm from "@components/Forms/UsersForm";
 import ToolTip from "@components/ToolTip";
+import { useCursorScroll } from "@hooks/useCursorScroll";
 import PersonIcon from "@mui/icons-material/Person";
 import { Chip } from "@mui/material";
 import {
@@ -109,25 +110,12 @@ const FollowerChip = ({ user }: FollowerChipProps) => {
     }
   };
 
-  // trigger when scroll close to the bottom
-  const handleFollowerScroll = async () => {
-    console.log(followerCursorRef);
-    if (isFollowerLoadingRef.current || !followerCursorRef.current) return;
-
-    isFollowerLoadingRef.current = true;
-
-    const container = followerContainerRef.current;
-    if (!container) return;
-
-    const { scrollTop, scrollHeight, clientHeight } = container;
-
-    // detect near-bottom (within 100px)
-    if (scrollTop + clientHeight >= scrollHeight - 100) {
-      await getFollowersByParams();
-    }
-
-    isFollowerLoadingRef.current = false;
-  };
+  const handleFollowerScroll = useCursorScroll(
+    followerContainerRef,
+    isFollowerLoadingRef,
+    followerCursorRef.current,
+    getFollowersByParams,
+  );
 
   // followings
 
@@ -149,24 +137,12 @@ const FollowerChip = ({ user }: FollowerChipProps) => {
     }
   };
 
-  // trigger when scroll close to the bottom
-  const handleFollowingScroll = async () => {
-    if (isFollowingLoadingRef.current || !followingCursorRef.current) return;
-
-    isFollowingLoadingRef.current = true;
-
-    const container = followingContainerRef.current;
-    if (!container) return;
-
-    const { scrollTop, scrollHeight, clientHeight } = container;
-
-    // detect near-bottom (within 100px)
-    if (scrollTop + clientHeight >= scrollHeight - 100) {
-      await getFollowingsByParams();
-    }
-
-    isFollowingLoadingRef.current = false;
-  };
+  const handleFollowingScroll = useCursorScroll(
+    followerContainerRef,
+    isFollowingLoadingRef,
+    followerCursorRef.current,
+    getFollowingsByParams,
+  );
 
   return (
     <React.Fragment>

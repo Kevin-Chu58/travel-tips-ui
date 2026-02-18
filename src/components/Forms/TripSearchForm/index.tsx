@@ -23,13 +23,16 @@ import type { TripOrderByEnum, UtilityItem } from "@constants/Types";
 import PersonSearchIcon from "@mui/icons-material/PersonSearch";
 import { usersService, type UserSimple } from "@services/users";
 import React, { useEffect, useRef, useState } from "react";
-import "./index.scss";
 import { enqueueSnackbar } from "notistack";
 import UserCard from "@components/Cards/UserCard";
 import TTChipButton from "@components/TTChipButton";
 import ToolTip from "@components/ToolTip";
 import { useSelector } from "react-redux";
 import type { RootState } from "@redux/store";
+import { useIsMobile } from "@hooks/useIsMobile";
+import { useCursorScroll } from "@hooks/useCursorScroll";
+import clsx from "clsx";
+import "./index.scss";
 
 type TripSearchFormProps = {
   open: boolean;
@@ -48,6 +51,8 @@ const TripSearchForm = ({
   updateTripFilterParams,
   setCompleteRegion,
 }: TripSearchFormProps) => {
+  // window
+  const isMobile = useIsMobile();
   // user
   const user = useSelector((state: RootState) => state.user);
   // user - created by
@@ -74,8 +79,7 @@ const TripSearchForm = ({
     if (tripFilterParams.createdBy && generalOptions.length === 0) {
       setGeneralOptions([tripFilterParams.createdBy]);
       setCreatedBy(tripFilterParams.createdBy);
-    }
-    else if (!tripFilterParams.createdBy) {
+    } else if (!tripFilterParams.createdBy) {
       setCreatedBy(null);
     }
   }, [open]);
@@ -144,6 +148,10 @@ const TripSearchForm = ({
         ? setFollowingOptions([...followingResult.results])
         : setFollowingOptions((prev) => [...prev, ...followingResult.results]);
 
+      if (!hasFollowingInit.current && followingResult.results.length === 0) {
+        enqueueSnackbar("You did not follow anyone.", { variant: "warning" });
+      }
+
       hasFollowingInit.current = true;
       followingCursorRef.current = followingResult.cursor;
     } catch (e) {
@@ -163,43 +171,19 @@ const TripSearchForm = ({
     }
   };
 
-  // trigger when scroll close to the bottom
-  const handleGeneralScroll = async () => {
-    if (optionsIsLoadingRef.current || !generalCursorRef.current) return;
+  const handleGeneralScroll = useCursorScroll(
+    optionsContainerRef,
+    optionsIsLoadingRef,
+    generalCursorRef.current,
+    searchUsers,
+  );
 
-    optionsIsLoadingRef.current = true;
-
-    const container = optionsContainerRef.current;
-    if (!container) return;
-
-    const { scrollTop, scrollHeight, clientHeight } = container;
-
-    // detect near-bottom (within 100px)
-    if (scrollTop + clientHeight >= scrollHeight - 100) {
-      await searchUsers();
-    }
-
-    optionsIsLoadingRef.current = false;
-  };
-
-  // trigger when scroll close to the bottom
-  const handleFollowingScroll = async () => {
-    if (optionsIsLoadingRef.current || !followingCursorRef.current) return;
-
-    optionsIsLoadingRef.current = true;
-
-    const container = optionsContainerRef.current;
-    if (!container) return;
-
-    const { scrollTop, scrollHeight, clientHeight } = container;
-
-    // detect near-bottom (within 100px)
-    if (scrollTop + clientHeight >= scrollHeight - 100) {
-      await searchUsers();
-    }
-
-    optionsIsLoadingRef.current = false;
-  };
+  const handleFollowingScroll = useCursorScroll(
+    optionsContainerRef,
+    optionsIsLoadingRef,
+    followingCursorRef.current,
+    searchUsers,
+  );
 
   return (
     <FormBase
@@ -207,13 +191,13 @@ const TripSearchForm = ({
       open={open}
       onClose={onClose}
       title="Advanced Search"
-      width="50vw"
+      width="70vw"
       maxHeight="80vh"
       actionButtonLabel="Apply"
       actionButtonOnClick={onAction}
       panel
     >
-      <Grid container columns={{ xs: 6, sm: 12 }} spacing={2}>
+      <Grid container columns={{ xs: 6, md: 12 }} spacing={2}>
         {/* region filter */}
         <Grid size={12}>
           <Typography className="form-title">Regions</Typography>
@@ -292,7 +276,9 @@ const TripSearchForm = ({
                   />
                 }
                 label={
-                  <Typography className="too-long">
+                  <Typography
+                    className={clsx("too-long", isMobile && "mobile")}
+                  >
                     {selected.username}
                   </Typography>
                 }

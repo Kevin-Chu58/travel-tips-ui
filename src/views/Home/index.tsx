@@ -27,9 +27,10 @@ import { enqueueSnackbar } from "notistack";
 import { StringUtils } from "@utils/StringUtils";
 import { type RegionComplete } from "@services/search/regions";
 import { RegionUtils } from "@utils/RegionUtils";
+import { usersService } from "@services/users";
+import { useCursorScroll } from "@hooks/useCursorScroll";
 import clsx from "clsx";
 import "./index.scss";
-import { usersService } from "@services/users";
 
 const Home = () => {
   // window
@@ -50,7 +51,7 @@ const Home = () => {
   // infinite scrolling
   const containerRef = useRef<HTMLDivElement | null>(null);
   // behavior
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const isLoadingRef = useRef<boolean>(false);
   const isInit = useRef<boolean>(true);
   const [showNavTop, setShowNavTop] = useState<boolean>(false);
   // form open status
@@ -180,27 +181,20 @@ const Home = () => {
 
   /// handle events
 
+  const onScroll = useCursorScroll(
+    containerRef,
+    isLoadingRef,
+    tripParams.cursor,
+    getTripsByParams,
+  );
+
   // trigger when scroll close to the bottom
   const handleScroll = async () => {
     // check whether condition met to show/hide button nav to top
     const isDown = (containerRef.current?.scrollTop ?? 0) >= 100;
     setShowNavTop((prev) => (prev !== isDown ? isDown : prev));
 
-    if (isLoading || !tripParams.cursor) return;
-
-    setIsLoading(true);
-
-    const container = containerRef.current;
-    if (!container) return;
-
-    const { scrollTop, scrollHeight, clientHeight } = container;
-
-    // detect near-bottom (within 100px)
-    if (scrollTop + clientHeight >= scrollHeight - 100) {
-      await getTripsByParams();
-    }
-
-    setIsLoading(false);
+    await onScroll();
   };
 
   // trigger when click on the search icon button

@@ -11,7 +11,11 @@
   }
 
   .too-long {
-    max-width: 160px;
+    max-width: 100px;
+
+    &.mobile {
+      max-width: 80px;
+    }
   }
 
   .createdBy-search-option-box {

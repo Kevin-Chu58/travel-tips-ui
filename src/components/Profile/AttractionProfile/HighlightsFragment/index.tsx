@@ -25,7 +25,6 @@ import { BehaviorUtils } from "@utils/BehaviorUtils";
 import { enqueueSnackbar } from "notistack";
 import DeleteHighlightForm from "@components/Forms/DeleteHighlightForm";
 import type { SearchResults } from "@services/http";
-import { throttle } from "lodash";
 import ToolTip from "@components/ToolTip";
 import { useSelector } from "react-redux";
 import type { RootState } from "@redux/store";
@@ -36,6 +35,7 @@ import {
 } from "@constants/Types";
 import SortIcon from "@mui/icons-material/Sort";
 import { useIsMobile } from "@hooks/useIsMobile";
+import { useCursorScroll } from "@hooks/useCursorScroll";
 import TTTabs from "@components/TTTabs";
 import clsx from "clsx";
 import "./index.scss";
@@ -153,16 +153,17 @@ const HighlightsFragment = ({
     tripResults: SearchResults<Highlight>,
     isNewSearch: boolean = false,
   ) => {
-    const params = highlightParamsRef.current;
-
-    if (!params.cursor || isNewSearch) setHighlights([...tripResults.results]);
-    else setHighlights((prev) => [...prev, ...tripResults.results]);
+    isNewSearch
+      ? setHighlights([...tripResults.results])
+      : setHighlights((prev) => [...prev, ...tripResults.results]);
   };
 
   // get highlights
 
   const getHighlightsByParams = async (isNewSearch: boolean = false) => {
     const params = highlightParamsRef.current;
+    if (!isNewSearch && !params.cursor) return;
+
     try {
       const highlightResult =
         await highlightsService.getHighlightsByParams(params);
@@ -204,36 +205,20 @@ const HighlightsFragment = ({
 
   /// handle events
 
+  const onScroll = useCursorScroll(
+    containerRef,
+    isLoadingRef,
+    highlightParamsRef.current.cursor,
+    getHighlightsByParams,
+  );
+
   // trigger when scroll close to the bottom
-  const handleScroll = throttle(() => {
+  const handleScroll = async () => {
     // check whether condition met to show/hide button nav to top
     const isDown = (containerRef.current?.scrollTop ?? 0) >= 100;
     setShowNavTop((prev) => (prev !== isDown ? isDown : prev));
 
-    const container = containerRef.current;
-    if (!container) return;
-
-    const { scrollTop, scrollHeight, clientHeight } = container;
-
-    // detect near-bottom (within 100px)
-    if (scrollTop + clientHeight >= scrollHeight - 100) {
-      loadMore();
-    }
-  }, 100);
-
-  const loadMore = async () => {
-    if (isLoadingRef.current) return;
-
-    const params = highlightParamsRef.current;
-    if (!params.cursor) return;
-
-    isLoadingRef.current = true;
-
-    try {
-      await getHighlightsByParams();
-    } finally {
-      isLoadingRef.current = false;
-    }
+    await onScroll();
   };
 
   const handleClickSelectHighlight = (id: number) => {
