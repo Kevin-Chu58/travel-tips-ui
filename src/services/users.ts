@@ -24,10 +24,36 @@ export type UserProfileBasic = UserSimple & {
   isFollowing?: boolean;
 };
 
+export type UsernameSearchParams = {
+  username: string;
+  cursor?: string;
+  limit?: number;
+};
+
 export type UserSearchParams = {
   userId: number;
   cursor?: string;
   limit?: number;
+};
+
+const getUserByUserId = async (userId: string): Promise<UserSimple> => {
+  return await http.get(http.apiBaseURLs.api, `users/${userId}`, undefined);
+};
+
+const getUsersByUsername = async (
+  params: UsernameSearchParams,
+): Promise<SearchResults<UserSimple>> => {
+  const _params = new URLSearchParams();
+
+  _params.append("username", params.username);
+  if (params.cursor) _params.append("cursor", params.cursor);
+  if (params.limit) _params.append("limit", params.limit.toString());
+
+  return await http.get(
+    http.apiBaseURLs.api,
+    `users/username?${_params.toString()}`,
+    undefined,
+  );
 };
 
 const getUserBasicInfo = async (): Promise<UserBasic> => {
@@ -117,6 +143,8 @@ const unfollowUser = async (id: number): Promise<void> => {
 };
 
 export const usersService = {
+  getUserByUserId,
+  getUsersByUsername,
   getUserBasicInfo,
   acceptUserAgreement,
   // user profile

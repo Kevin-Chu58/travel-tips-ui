@@ -49,7 +49,7 @@ const UserProfile = ({ user, setUser }: UserProfileProps) => {
       if (!user) return;
 
       const topTrips = await tripsService.getTripsByParams({
-        createdByAuthId: user.userId,
+        createdBy: user,
         tripOrderByEnum: "mostBookmarked",
         limit: 5,
       });

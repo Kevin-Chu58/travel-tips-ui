@@ -32,7 +32,7 @@ export type Trip = TripPost & {
 
 export type TripSearchParams = {
   title?: string;
-  createdByAuthId?: string;
+  createdBy?: UserSimple;
   countrySlug?: string;
   stateSlug?: string;
   budget?: number;
@@ -47,8 +47,8 @@ const getTripsByParams = async (
   const _params = new URLSearchParams();
 
   if (params.title) _params.append("title", params.title);
-  if (params.createdByAuthId)
-    _params.append("createdByAuthId", params.createdByAuthId);
+  if (params.createdBy)
+    _params.append("createdByAuthId", params.createdBy.userId);
   if (params.countrySlug) _params.append("countrySlug", params.countrySlug);
   if (params.stateSlug) _params.append("stateSlug", params.stateSlug);
   if (params.budget) _params.append("budget", params.budget.toString());

@@ -50,7 +50,7 @@ const UserCard = ({ user, hasMobileView = true }: UserCardProps) => {
           {user.username}
         </Typography>
         <Box className="user-id-box" onClick={handleUserIdCopy}>
-          <Typography variant="caption">{user.userId}</Typography>
+          <Typography className="too-long" variant="caption">{user.userId}</Typography>
           <ContentCopyIcon />
         </Box>
       </Box>
