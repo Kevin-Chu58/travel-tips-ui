@@ -1,6 +1,5 @@
 import {
   AppBar,
-  Avatar,
   Box,
   Container,
   Link,
@@ -25,6 +24,7 @@ import clsx from "clsx";
 import "./index.scss";
 import { useSelector } from "react-redux";
 import type { RootState } from "@redux/store";
+import UserAvatar from "@components/UserAvatar";
 
 const HeaderBar = () => {
   // window
@@ -33,6 +33,12 @@ const HeaderBar = () => {
   const { isLoading, isAuthenticated, loginWithRedirect, logout } = useAuth0();
   // user
   const user = useSelector((state: RootState) => state.user);
+  const userSimple = {
+    id: user.id ?? 0,
+    userId: user.userId ?? "",
+    username: user.username ?? "",
+    picture: user.picture ?? "",
+  };
   // others
   const location = useLocation();
   const [anchorElHeader, setAnchorElHeader] = useState<HTMLElement | null>(); // header menu
@@ -102,9 +108,6 @@ const HeaderBar = () => {
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
   };
-
-  const username = user?.username ?? "";
-  const userPicture = user?.picture ?? "";
 
   const returnToUrl =
     window.location.pathname !== "/auth/callback"
@@ -214,27 +217,21 @@ const HeaderBar = () => {
               <React.Fragment>
                 {isAuthenticated ? (
                   isMobile ? (
-                    <Avatar
-                      alt={username}
-                      src={userPicture}
-                      slotProps={{ img: { loading: "lazy" } }}
+                    <UserAvatar
+                      user={userSimple}
                       onClick={handleOpenUserMenu}
                     />
                   ) : (
                     <React.Fragment>
                       <Header
-                        name={username}
+                        name={user?.username ?? ""}
                         color="primary"
                         toUpperCase={false}
                         onClick={handleOpenUserMenu}
                         enableHighlight
                         hasLimit
                       />
-                      <Avatar
-                        alt={username}
-                        src={userPicture}
-                        slotProps={{ img: { loading: "lazy" } }}
-                      />
+                      <UserAvatar user={userSimple} />
                     </React.Fragment>
                   )
                 ) : (

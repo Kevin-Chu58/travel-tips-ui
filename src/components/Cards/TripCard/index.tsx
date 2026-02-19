@@ -1,5 +1,4 @@
 import {
-  Avatar,
   Box,
   Chip,
   IconButton,
@@ -20,7 +19,7 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { enqueueSnackbar } from "notistack";
 import { RegionUtils } from "@utils/RegionUtils";
-import ShareIcon from "@mui/icons-material/Share";
+// import ShareIcon from "@mui/icons-material/Share";
 import ArchiveIcon from "@mui/icons-material/Archive";
 import UnarchiveIcon from "@mui/icons-material/Unarchive";
 import { StringUtils } from "@utils/StringUtils";
@@ -28,6 +27,8 @@ import type { UtilityItem } from "@constants/Types";
 import BookmarkIcon from "@mui/icons-material/Bookmark";
 import BookmarkAddIcon from "@mui/icons-material/BookmarkAdd";
 import BookmarkRemoveIcon from "@mui/icons-material/BookmarkRemove";
+import UserAvatar from "@components/UserAvatar";
+import { useNavToProfile } from "@hooks/useNavToProfile";
 import clsx from "clsx";
 import "./index.scss";
 
@@ -51,17 +52,25 @@ const TripCard = ({
   // popover
   const [popoverAnchorEl, setPopoverAnchorEl] =
     useState<HTMLButtonElement | null>(null);
+  // nav to profile
+  const navToProfile = useNavToProfile(trip.createdBy);
   // others
   const _numBookmarks = trip?.bookmarkCount;
-  const _bookmarkText = _numBookmarks > 0 ? ` • ${trip.bookmarkCount} bookmark${
-    _numBookmarks  === 1 ? "" : "s"
-  }` : "";
+  const _bookmarkText =
+    _numBookmarks > 0
+      ? ` • ${trip.bookmarkCount} bookmark${_numBookmarks === 1 ? "" : "s"}`
+      : "";
 
   // rerender on trip isPublic
   useEffect(() => {}, [trip.isPublic]);
 
   const handleClick = () => {
     if (!trip.isHidden) onClick();
+  };
+
+  const handleUsernameClick = (e: React.MouseEvent<HTMLLIElement>) => {
+    e.stopPropagation();
+    navToProfile();
   };
 
   const handleVisibilityTripClick = async (
@@ -156,14 +165,14 @@ const TripCard = ({
   // buttons
 
   // TODO: button - share
-  const shareButton = (
-    <MenuItem key="share" onClick={(e) => e.stopPropagation()}>
-      <ListItemIcon>
-        <ShareIcon />
-      </ListItemIcon>
-      <ListItemText primary="Share" />
-    </MenuItem>
-  );
+  // const shareButton = (
+  //   <MenuItem key="share" onClick={(e) => e.stopPropagation()}>
+  //     <ListItemIcon>
+  //       <ShareIcon />
+  //     </ListItemIcon>
+  //     <ListItemText primary="Share" />
+  //   </MenuItem>
+  // );
 
   // button - public/private
   const visibilityButton = (
@@ -222,10 +231,10 @@ const TripCard = ({
   );
 
   const menuButtonList = [
-    {
-      content: shareButton,
-      condition: trip.isPublic && !trip.isHidden,
-    },
+    // {
+    //   content: shareButton,
+    //   condition: trip.isPublic && !trip.isHidden,
+    // },
     {
       content: visibilityButton,
       condition: !readonly && !trip.isHidden,
@@ -268,21 +277,15 @@ const TripCard = ({
 
         {/* creator info */}
         <Box className="image-creator-info-box">
-          <Avatar
-            className="avatar"
-            alt={trip.createdBy.username}
-            src={trip.createdBy?.picture}
-            slotProps={{ img: { loading: "lazy" } }}
-          />
-
+          <UserAvatar user={trip.createdBy} highlight />
           <Chip
+            className="username-chip"
             label={
-              <Typography className="username">
+              <Typography className="username" onClick={handleUsernameClick}>
                 {trip.createdBy.username}
               </Typography>
             }
             size="small"
-            className="username-chip"
           />
         </Box>
 
@@ -299,7 +302,8 @@ const TripCard = ({
         {/* title */}
         <Box display="flex">
           <Typography fontSize="1.2rem" className="title">
-            {trip.title}<span className="helper">#{trip.id}</span>
+            {trip.title}
+            <span className="helper">#{trip.id}</span>
           </Typography>
 
           <Box className="menu-button-box">
@@ -319,11 +323,10 @@ const TripCard = ({
           {menuButtonList.map((button) => button.condition && button.content)}
         </Menu>
 
-          {/* number of days & bookmark count */}
-          <Typography className="num-days" variant="body2">
-            {TimeUtils.formatDays(trip.numDays ?? 0)}{" "}
-            {_bookmarkText}
-          </Typography>
+        {/* number of days & bookmark count */}
+        <Typography className="num-days" variant="body2">
+          {TimeUtils.formatDays(trip.numDays ?? 0)} {_bookmarkText}
+        </Typography>
       </Box>
 
       {/* visibility tag */}

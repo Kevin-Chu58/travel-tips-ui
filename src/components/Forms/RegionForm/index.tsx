@@ -15,6 +15,7 @@ import {
 } from "@mui/material";
 import CheckIcon from "@mui/icons-material/Check";
 import type { TripSearchParams } from "@services/trips";
+import { LS_ALL_COUNTRIES } from "@constants/localStorage";
 
 type RegionFormProps = {
   open: boolean;
@@ -66,10 +67,21 @@ const RegionForm = ({
   // render countries on initalization
   useEffect(() => {
     const initCountries = async () => {
-      const countries = (await regionsService.browse({
+      let allCountriesStr = localStorage.getItem(LS_ALL_COUNTRIES);
+      let allCountries = undefined;
+
+      if (allCountriesStr) {
+        allCountries = JSON.parse(allCountriesStr) as Region[];
+        setCountries(allCountries);
+        return;
+      }
+
+      allCountries = (await regionsService.browse({
         type: "Country",
       })) as Region[];
-      setCountries(countries);
+
+      setCountries(allCountries);
+      localStorage.setItem(LS_ALL_COUNTRIES, JSON.stringify(allCountries));
     };
 
     if (open) initCountries();

@@ -1,4 +1,4 @@
-import { Avatar, Box, Chip, Grid, Typography } from "@mui/material";
+import { Box, Chip, Grid, Typography } from "@mui/material";
 import { usersService, type UserProfileBasic } from "@services/users";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import { enqueueSnackbar } from "notistack";
@@ -18,6 +18,7 @@ import { tripsService, type Trip } from "@services/trips";
 import TripCard from "@components/Cards/TripCard";
 import { useNavigate } from "react-router";
 import FollowerChip from "./FollowerChip";
+import UserAvatar from "@components/UserAvatar";
 import clsx from "clsx";
 import "./index.scss";
 
@@ -44,6 +45,7 @@ const UserProfile = ({ user, setUser }: UserProfileProps) => {
   const _numTrips = user?.numTrips ?? 0;
   const _numBookmarks = user?.numBookmarks ?? 0;
 
+  // rerender top 5 bookmarked trips on user id
   useEffect(() => {
     const initTopTrips = async () => {
       if (!user) return;
@@ -79,13 +81,13 @@ const UserProfile = ({ user, setUser }: UserProfileProps) => {
 
   // handle functions
 
-  const handleUserIdCopy = async (e: React.MouseEvent<HTMLElement>) => {
-    if (!user?.userId) return;
+  const handleUsernameCopy = async (e: React.MouseEvent<HTMLElement>) => {
+    if (!user?.username) return;
     e.stopPropagation();
 
     try {
-      await navigator.clipboard.writeText(user.userId);
-      enqueueSnackbar("Copied user id to clipboard!", { variant: "success" });
+      await navigator.clipboard.writeText(user.username);
+      enqueueSnackbar("Copied username to clipboard!", { variant: "success" });
     } catch (e) {
       if (e instanceof Error) enqueueSnackbar(e.message, { variant: "error" });
     }
@@ -130,11 +132,9 @@ const UserProfile = ({ user, setUser }: UserProfileProps) => {
       <Box className="row start header">
         {/* avatar */}
         <Box className="avatar-box">
-          <Avatar
+          <UserAvatar
             className={clsx("avatar", isMobile && "mobile")}
-            alt={user?.username}
-            src={user?.picture}
-            slotProps={{ img: { loading: "lazy" } }}
+            user={user}
           />
 
           {isMe ? (
@@ -181,9 +181,9 @@ const UserProfile = ({ user, setUser }: UserProfileProps) => {
             size="small"
             color="primary"
             startIcon={<ContentCopyIcon />}
-            onClick={handleUserIdCopy}
+            onClick={handleUsernameCopy}
           >
-            Clip Auth0 ID
+            Clip Username
           </TTButton>
           {/* following */}
           {!isMe ? (

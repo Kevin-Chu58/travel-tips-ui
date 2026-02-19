@@ -1,7 +1,6 @@
 import UserCard from "@components/Cards/UserCard";
 import {
   Autocomplete,
-  Avatar,
   Box,
   Chip,
   IconButton,
@@ -19,6 +18,7 @@ import { enqueueSnackbar } from "notistack";
 import { useCursorScroll } from "@hooks/useCursorScroll";
 import ToolTip from "@components/ToolTip";
 import TTChipButton from "@components/TTChipButton";
+import UserAvatar from "@components/UserAvatar";
 import clsx from "clsx";
 import "./index.scss";
 
@@ -209,11 +209,7 @@ const UserSearchAutoComplete = ({
         renderValue={(selected) => (
           <Chip
             avatar={
-              <Avatar
-                src={selected?.picture}
-                alt={selected?.username}
-                slotProps={{ img: { loading: "lazy" } }}
-              />
+             <UserAvatar user={selected} />
             }
             label={
               <Typography className={clsx("too-long", isMobile && "mobile")}>
@@ -233,7 +229,7 @@ const UserSearchAutoComplete = ({
               disableGutters
               disableRipple
             >
-              <UserCard user={option} />
+              <UserCard user={option} navigate={false} />
             </MenuItem>
           );
         }}

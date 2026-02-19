@@ -90,6 +90,27 @@ const FollowerChip = ({ user }: FollowerChipProps) => {
     initiateFollowings();
   }, [openFollowingUserForm]);
 
+  useEffect(() => {
+    if (!user) return;
+
+    resetToDefault();
+  }, [user?.id]);
+
+  const resetToDefault = () => {
+    setOpenFollowerUserForm(false);
+    setOpenFollowingUserForm(false);
+    setFollowers([]);
+    followerCursorRef.current = undefined;
+    followerContainerRef.current = null;
+    isFollowerLoadingRef.current = false;
+    setFollowings([]);
+    followingCursorRef.current = undefined;
+    followingContainerRef.current = null;
+    isFollowingLoadingRef.current = false;
+    setHasFollowersInit(false);
+    setHasFollowingsInit(false);
+  };
+
   // followers
 
   const getFollowersByParams = async (isNewSearch: boolean = false) => {

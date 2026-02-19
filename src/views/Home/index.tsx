@@ -1,11 +1,4 @@
-import {
-  Avatar,
-  Box,
-  Chip,
-  Container,
-  TextField,
-  Typography,
-} from "@mui/material";
+import { Box, Chip, Container, TextField, Typography } from "@mui/material";
 import React, { useEffect, useRef, useState } from "react";
 import {
   type TripSearchParams,
@@ -28,6 +21,7 @@ import { RegionUtils } from "@utils/RegionUtils";
 import { usersService } from "@services/users";
 import { useCursorScroll } from "@hooks/useCursorScroll";
 import NavTopFab from "@components/Behavioral/NavTopFab";
+import UserAvatar from "@components/UserAvatar";
 import clsx from "clsx";
 import "./index.scss";
 
@@ -292,13 +286,7 @@ const Home = () => {
               chip.avatar ? (
                 <Chip
                   key={chip.param}
-                  avatar={
-                    <Avatar
-                      src={chip.avatar.picture}
-                      alt={chip.avatar.username}
-                      slotProps={{ img: { loading: "lazy" } }}
-                    />
-                  }
+                  avatar={<UserAvatar user={chip.avatar} />}
                   label={chip.avatar.username}
                   onDelete={() =>
                     handleDeleteChip(chip.param as keyof TripSearchParams)

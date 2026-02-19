@@ -38,6 +38,11 @@
 
 .highlight-item-username.MuiTypography-root {
   color: dimgrey;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--primary-main);
+  }
 }
 
 .highlight-item-description.MuiTypography-root {

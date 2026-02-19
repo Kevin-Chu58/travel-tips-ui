@@ -1,7 +1,7 @@
 import Mapper from "@components/Map";
 import type { Route, NavTab, GeoCoordinate } from "@constants/Types";
 import { useIsMobile } from "@hooks/useIsMobile";
-import { Avatar, Box, Chip, Typography } from "@mui/material";
+import { Box, Chip, Typography } from "@mui/material";
 import { type Trip, tripsService } from "@services/trips";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router";
@@ -44,8 +44,10 @@ import TripShareForm from "@components/Forms/TripShareForm";
 import { useSelector } from "react-redux";
 import type { RootState } from "@redux/store";
 import TripPdfForm from "@components/Forms/TripPdfForm";
+import UserAvatar from "@components/UserAvatar";
 import clsx from "clsx";
 import "./index.scss";
+import { useNavToProfile } from "@hooks/useNavToProfile";
 
 type TripProfileProps = {
   uri?: string;
@@ -108,6 +110,8 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
   // behavior
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const isDefaultDirectingRef = useRef<boolean>(true);
+  // nav to profile
+  const navToProfile = useNavToProfile(tripBasic?.createdBy);
 
   // user
   const user = useSelector((state: RootState) => state.user);
@@ -529,6 +533,11 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
     }
   };
 
+  const handleUsernameClick = (e: React.MouseEvent<HTMLLIElement>) => {
+    e.stopPropagation();
+    navToProfile();
+  };
+
   return (
     <Box className="trip-profile-box">
       <Box className="ui-box">
@@ -570,14 +579,13 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
               {/* creator avatar and username */}
               {tripBasicRef.current ? (
                 <Box className="row createdBy-box">
-                  <Avatar
-                    src={tripBasicRef.current.createdBy.picture}
-                    alt={tripBasicRef.current.createdBy.username}
-                    slotProps={{ img: { loading: "lazy" } }}
-                  />
+                  <UserAvatar user={tripBasicRef.current.createdBy} />
                   <Chip
                     label={
-                      <Typography className="username">
+                      <Typography
+                        className="username"
+                        onClick={handleUsernameClick}
+                      >
                         {tripBasicRef.current?.createdBy.username}
                       </Typography>
                     }
