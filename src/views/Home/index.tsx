@@ -3,7 +3,6 @@ import {
   Box,
   Chip,
   Container,
-  Fab,
   TextField,
   Typography,
 } from "@mui/material";
@@ -21,7 +20,6 @@ import TTButton from "@components/TTButton";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import type { SearchResults } from "@services/http";
 import { useIsMobile } from "@hooks/useIsMobile";
-import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import TripSearchForm from "@components/Forms/TripSearchForm";
 import { enqueueSnackbar } from "notistack";
 import { StringUtils } from "@utils/StringUtils";
@@ -29,6 +27,7 @@ import { type RegionComplete } from "@services/search/regions";
 import { RegionUtils } from "@utils/RegionUtils";
 import { usersService } from "@services/users";
 import { useCursorScroll } from "@hooks/useCursorScroll";
+import NavTopFab from "@components/Behavioral/NavTopFab";
 import clsx from "clsx";
 import "./index.scss";
 
@@ -53,7 +52,6 @@ const Home = () => {
   // behavior
   const isLoadingRef = useRef<boolean>(false);
   const isInit = useRef<boolean>(true);
-  const [showNavTop, setShowNavTop] = useState<boolean>(false);
   // form open status
   const [openTripSearchForm, setOpenTripSearchForm] = useState<boolean>(false);
   // others
@@ -181,21 +179,12 @@ const Home = () => {
 
   /// handle events
 
-  const onScroll = useCursorScroll(
+  const handleScroll = useCursorScroll(
     containerRef,
     isLoadingRef,
     tripParams.cursor,
     getTripsByParams,
   );
-
-  // trigger when scroll close to the bottom
-  const handleScroll = async () => {
-    // check whether condition met to show/hide button nav to top
-    const isDown = (containerRef.current?.scrollTop ?? 0) >= 100;
-    setShowNavTop((prev) => (prev !== isDown ? isDown : prev));
-
-    await onScroll();
-  };
 
   // trigger when click on the search icon button
   const handleSearch = async () => {
@@ -232,13 +221,6 @@ const Home = () => {
     setTripParams(updatedFilter);
 
     if (key === "countrySlug") setCompleteRegion({});
-  };
-
-  const handleNavTop = () => {
-    containerRef.current?.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
   };
 
   // components
@@ -408,11 +390,7 @@ const Home = () => {
       </Box>
 
       {/* fabs */}
-      {showNavTop ? (
-        <Fab className="nav-top-fab" color="utility" onClick={handleNavTop}>
-          <ArrowUpwardIcon />
-        </Fab>
-      ) : undefined}
+      <NavTopFab containerRef={containerRef} />
 
       {/* forms */}
       <TripSearchForm

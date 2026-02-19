@@ -2,7 +2,6 @@ import TTIconButton from "@components/TTIconButton";
 import {
   Box,
   Divider,
-  Fab,
   FormControl,
   MenuItem,
   Select,
@@ -20,7 +19,6 @@ import {
   highlightsService,
 } from "@services/highlights";
 import TTButton from "@components/TTButton";
-import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import { BehaviorUtils } from "@utils/BehaviorUtils";
 import { enqueueSnackbar } from "notistack";
 import DeleteHighlightForm from "@components/Forms/DeleteHighlightForm";
@@ -36,6 +34,7 @@ import {
 import SortIcon from "@mui/icons-material/Sort";
 import { useIsMobile } from "@hooks/useIsMobile";
 import { useCursorScroll } from "@hooks/useCursorScroll";
+import NavTopFab from "@components/Behavioral/NavTopFab";
 import TTTabs from "@components/TTTabs";
 import clsx from "clsx";
 import "./index.scss";
@@ -74,7 +73,6 @@ const HighlightsFragment = ({
   // behavior
   const isLoadingRef = useRef<boolean>(false);
   const [isInit, setIsInit] = useState<boolean>(true);
-  const [showNavTop, setShowNavTop] = useState<boolean>(false);
   // nav tabs
   const [navTabValue, setNavTabValue] = useState<number>(0);
   // sort
@@ -205,21 +203,12 @@ const HighlightsFragment = ({
 
   /// handle events
 
-  const onScroll = useCursorScroll(
+  const handleScroll = useCursorScroll(
     containerRef,
     isLoadingRef,
     highlightParamsRef.current.cursor,
     getHighlightsByParams,
   );
-
-  // trigger when scroll close to the bottom
-  const handleScroll = async () => {
-    // check whether condition met to show/hide button nav to top
-    const isDown = (containerRef.current?.scrollTop ?? 0) >= 100;
-    setShowNavTop((prev) => (prev !== isDown ? isDown : prev));
-
-    await onScroll();
-  };
 
   const handleClickSelectHighlight = (id: number) => {
     if (setSelectHighlightId) {
@@ -229,13 +218,6 @@ const HighlightsFragment = ({
         setSelectHighlightId(undefined);
       }
     }
-  };
-
-  const handleNavTop = () => {
-    containerRef.current?.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
   };
 
   // handle form
@@ -392,11 +374,7 @@ const HighlightsFragment = ({
       </Box>
 
       {/* fabs */}
-      {showNavTop ? (
-        <Fab className="nav-top-fab" color="utility" onClick={handleNavTop}>
-          <ArrowUpwardIcon />
-        </Fab>
-      ) : undefined}
+      <NavTopFab containerRef={containerRef} />
 
       {/* form */}
       <DeleteHighlightForm

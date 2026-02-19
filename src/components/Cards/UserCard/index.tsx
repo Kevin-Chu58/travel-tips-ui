@@ -11,7 +11,7 @@ type UserCardProps = {
   hasMobileView?: boolean;
 };
 
-const UserCard = ({ user, hasMobileView = true }: UserCardProps) => {
+const UserCard = ({ user, hasMobileView = false }: UserCardProps) => {
   // window
   const isMobile = useIsMobile();
 

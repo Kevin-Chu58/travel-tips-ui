@@ -17,9 +17,9 @@ import React, { useEffect, useState } from "react";
 import { tripsService, type Trip } from "@services/trips";
 import TripCard from "@components/Cards/TripCard";
 import { useNavigate } from "react-router";
+import FollowerChip from "./FollowerChip";
 import clsx from "clsx";
 import "./index.scss";
-import FollowerChip from "./FollowerChip";
 
 type UserProfileProps = {
   user?: UserProfileBasic;

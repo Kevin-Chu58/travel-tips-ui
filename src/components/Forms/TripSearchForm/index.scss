@@ -2,31 +2,4 @@
   .form-title.MuiTypography-root {
     font-weight: bold;
   }
-
-  .createdBy-input {
-    .MuiInputBase-root.MuiOutlinedInput-root,
-    .MuiInputBase-root.MuiAutocomplete-inputRoot {
-      padding-right: 0.5rem;
-    }
-  }
-
-  .too-long {
-    max-width: 100px;
-
-    &.mobile {
-      max-width: 80px;
-    }
-  }
-
-  .createdBy-search-option-box {
-    margin-top: .5rem;
-    gap: .5rem;
-
-    .option {
-      box-shadow: none;
-      &:hover {
-        background-color: var(--info-700);
-      }
-    }
-  }
 }

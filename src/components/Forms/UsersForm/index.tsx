@@ -36,7 +36,7 @@ const UsersForm = ({
       <Box>
         {users.length > 0 ? (
           users.map((user) => (
-            <UserCard key={user.id} user={user} hasMobileView={false} />
+            <UserCard key={user.id} user={user} />
           ))
         ) : (
           <Typography>No users available.</Typography>

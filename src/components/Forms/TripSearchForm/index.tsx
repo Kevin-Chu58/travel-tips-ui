@@ -1,17 +1,10 @@
 import {
-  Autocomplete,
-  Avatar,
-  Box,
-  Chip,
   Divider,
   FormControl,
   FormControlLabel,
   Grid,
-  IconButton,
-  MenuItem,
   Radio,
   RadioGroup,
-  TextField,
   Typography,
 } from "@mui/material";
 import FormBase from "../FormBase";
@@ -20,18 +13,9 @@ import BudgetForm from "../BudgetForm";
 import type { TripSearchParams } from "@services/trips";
 import type { RegionComplete } from "@services/search/regions";
 import type { TripOrderByEnum, UtilityItem } from "@constants/Types";
-import PersonSearchIcon from "@mui/icons-material/PersonSearch";
-import { usersService, type UserSimple } from "@services/users";
-import React, { useEffect, useRef, useState } from "react";
-import { enqueueSnackbar } from "notistack";
-import UserCard from "@components/Cards/UserCard";
-import TTChipButton from "@components/TTChipButton";
-import ToolTip from "@components/ToolTip";
-import { useSelector } from "react-redux";
-import type { RootState } from "@redux/store";
-import { useIsMobile } from "@hooks/useIsMobile";
-import { useCursorScroll } from "@hooks/useCursorScroll";
-import clsx from "clsx";
+import UserSearchAutoComplete from "@components/Search/UserSearchAutoComplete";
+import type { UserSimple } from "@services/users";
+import React from "react";
 import "./index.scss";
 
 type TripSearchFormProps = {
@@ -51,39 +35,6 @@ const TripSearchForm = ({
   updateTripFilterParams,
   setCompleteRegion,
 }: TripSearchFormProps) => {
-  // window
-  const isMobile = useIsMobile();
-  // user
-  const user = useSelector((state: RootState) => state.user);
-  // user - created by
-  const [createdBy, setCreatedBy] = useState<UserSimple | null>(null);
-  const [input, setInput] = useState<string>("");
-  // user list - options type
-  const [isGeneral, setIsGeneral] = useState<boolean>(true);
-  // user list - general options
-  const [generalOptions, setGeneralOptions] = useState<UserSimple[]>([]);
-  const generalCursorRef = useRef<string | undefined>(undefined);
-  // user list - following options
-  const [followingOptions, setFollowingOptions] = useState<UserSimple[]>([]);
-  const followingCursorRef = useRef<string | undefined>(undefined);
-  const hasFollowingInit = useRef<boolean>(false);
-  // user list - options
-  const options = isGeneral ? generalOptions : followingOptions;
-  const optionsContainerRef = useRef<HTMLDivElement | null>(null); // the popover menu in createdBy autoComplete
-  const optionsIsLoadingRef = useRef<boolean>(false);
-
-  // init general options and createdBy if tripFilterParams.createdBy is not undefined
-  useEffect(() => {
-    if (!open) return;
-
-    if (tripFilterParams.createdBy && generalOptions.length === 0) {
-      setGeneralOptions([tripFilterParams.createdBy]);
-      setCreatedBy(tripFilterParams.createdBy);
-    } else if (!tripFilterParams.createdBy) {
-      setCreatedBy(null);
-    }
-  }, [open]);
-
   const sortBys = [
     {
       label: "Newest",
@@ -103,87 +54,9 @@ const TripSearchForm = ({
     },
   ] as UtilityItem[];
 
-  const updateCreatedBy = (user: UserSimple) => {
-    setCreatedBy(user);
+  const updateTripFilterParamsCreatedBy = (user?: UserSimple | undefined) => {
     updateTripFilterParams({ createdBy: user });
   };
-
-  const removeCreatedBy = () => {
-    setCreatedBy(null);
-    updateTripFilterParams({ createdBy: undefined });
-  };
-
-  const getUsersByUsername = async (isNewSearch: boolean = false) => {
-    if (!input) return;
-    if (!isNewSearch && !generalCursorRef.current) return;
-
-    try {
-      const userResult = await usersService.getUsersByUsername({
-        username: input,
-        cursor: !isNewSearch ? generalCursorRef.current : undefined,
-      });
-
-      isNewSearch
-        ? setGeneralOptions([...userResult.results])
-        : setGeneralOptions((prev) => [...prev, ...userResult.results]);
-      generalCursorRef.current = userResult.cursor;
-    } catch (e) {
-      if (e instanceof Error) {
-        enqueueSnackbar(e.message, { variant: "error" });
-      }
-    }
-  };
-
-  const getFollowings = async () => {
-    if (!user.id) return;
-    if (hasFollowingInit.current && !followingCursorRef.current) return;
-
-    try {
-      const followingResult = await usersService.getFollowers({
-        userId: user.id,
-        cursor: followingCursorRef.current,
-      });
-
-      !hasFollowingInit.current
-        ? setFollowingOptions([...followingResult.results])
-        : setFollowingOptions((prev) => [...prev, ...followingResult.results]);
-
-      if (!hasFollowingInit.current && followingResult.results.length === 0) {
-        enqueueSnackbar("You did not follow anyone.", { variant: "warning" });
-      }
-
-      hasFollowingInit.current = true;
-      followingCursorRef.current = followingResult.cursor;
-    } catch (e) {
-      if (e instanceof Error) {
-        enqueueSnackbar(e.message, { variant: "error" });
-      }
-    }
-  };
-
-  const searchUsers = isGeneral ? getUsersByUsername : getFollowings;
-
-  // trigger when press enter when focus on search input
-  const handleKeyDownUserSearch = async (event: React.KeyboardEvent) => {
-    if (event.key === "Enter") {
-      event.preventDefault();
-      await getUsersByUsername(true);
-    }
-  };
-
-  const handleGeneralScroll = useCursorScroll(
-    optionsContainerRef,
-    optionsIsLoadingRef,
-    generalCursorRef.current,
-    searchUsers,
-  );
-
-  const handleFollowingScroll = useCursorScroll(
-    optionsContainerRef,
-    optionsIsLoadingRef,
-    followingCursorRef.current,
-    searchUsers,
-  );
 
   return (
     <FormBase
@@ -223,104 +96,11 @@ const TripSearchForm = ({
         {/* created by filter */}
         <Grid size={6}>
           <Typography className="form-title">Created By</Typography>
-          <Autocomplete
-            className="createdBy-input"
-            inputValue={input}
-            onInputChange={(_, newInputValue) => {
-              setInput(newInputValue);
-            }}
-            value={createdBy}
-            options={options}
-            getOptionLabel={(option) => option.username}
-            onFocus={
-              !isGeneral && !hasFollowingInit.current
-                ? async () => await getFollowings()
-                : undefined
-            }
-            slotProps={{
-              listbox: {
-                ref: optionsContainerRef,
-                onScroll: isGeneral
-                  ? handleGeneralScroll
-                  : handleFollowingScroll,
-              },
-            }}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="User"
-                placeholder="Enter username"
-                onKeyDown={handleKeyDownUserSearch}
-                slotProps={{
-                  input: {
-                    ...params.InputProps,
-                    startAdornment: params.InputProps.startAdornment,
-                    endAdornment: isGeneral ? (
-                      <IconButton onClick={() => getUsersByUsername(true)}>
-                        <PersonSearchIcon />
-                      </IconButton>
-                    ) : (
-                      params.InputProps.endAdornment
-                    ),
-                  },
-                }}
-              />
-            )}
-            renderValue={(selected) => (
-              <Chip
-                avatar={
-                  <Avatar
-                    src={selected?.picture}
-                    alt={selected?.username}
-                    slotProps={{ img: { loading: "lazy" } }}
-                  />
-                }
-                label={
-                  <Typography
-                    className={clsx("too-long", isMobile && "mobile")}
-                  >
-                    {selected.username}
-                  </Typography>
-                }
-                onDelete={removeCreatedBy}
-              />
-            )}
-            renderOption={(props, option) => {
-              const { key, ...optionProps } = props;
-              return (
-                <MenuItem
-                  key={option.userId}
-                  {...optionProps}
-                  onClick={() => updateCreatedBy(option)}
-                  disableGutters
-                  disableRipple
-                >
-                  <UserCard user={option} hasMobileView={false} />
-                </MenuItem>
-              );
-            }}
-            fullWidth
+          <UserSearchAutoComplete
+            open={open}
+            user={tripFilterParams.createdBy}
+            setUser={updateTripFilterParamsCreatedBy}
           />
-
-          <Box className="row createdBy-search-option-box">
-            <Typography variant="caption">Search Option:</Typography>
-            <ToolTip title="search all users" offsetY={-8}>
-              <TTChipButton
-                className="option"
-                label="General"
-                color={isGeneral ? "info" : "default"}
-                onClick={() => setIsGeneral(true)}
-              />
-            </ToolTip>
-            <ToolTip title="search users you followed" offsetY={-8}>
-              <TTChipButton
-                className="option"
-                label="Following"
-                color={!isGeneral ? "info" : "default"}
-                onClick={() => setIsGeneral(false)}
-              />
-            </ToolTip>
-          </Box>
         </Grid>
 
         <Grid size={12}>
