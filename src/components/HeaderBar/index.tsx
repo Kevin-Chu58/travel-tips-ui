@@ -10,27 +10,27 @@ import {
 } from "@mui/material";
 import Header from "./Header";
 import { useAuth0 } from "@auth0/auth0-react";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useLocation } from "react-router";
 import Pages from "@constants/Pages";
 import TLogo from "@assets/T.svg";
 import TBoard from "@assets/TT_Board.svg";
 import Layouts from "@constants/Layouts";
 import { useIsMobile } from "@hooks/useIsMobile";
-import { markLoggedOut, setReturnToUrl } from "@services/tokens";
+import { login, logout, markLoggedOut } from "@services/tokens";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
-import clsx from "clsx";
-import "./index.scss";
 import { useSelector } from "react-redux";
 import type { RootState } from "@redux/store";
 import UserAvatar from "@components/UserAvatar";
+import clsx from "clsx";
+import "./index.scss";
 
 const HeaderBar = () => {
   // window
   const isMobile = useIsMobile();
   // auth0
-  const { isLoading, isAuthenticated, loginWithRedirect, logout } = useAuth0();
+  const { isLoading, isAuthenticated } = useAuth0();
   // user
   const user = useSelector((state: RootState) => state.user);
   const userSimple = {
@@ -84,9 +84,8 @@ const HeaderBar = () => {
     {
       name: "logout",
       to: "",
-      onClick: () => {
-        logout();
-        markLoggedOut();
+      onClick: async () => {
+        await logout().then(() => markLoggedOut());
       },
     },
   ];
@@ -109,23 +108,8 @@ const HeaderBar = () => {
     setAnchorElUser(null);
   };
 
-  const returnToUrl =
-    window.location.pathname !== "/auth/callback"
-      ? window.location.pathname + window.location.search
-      : "/";
-
-  useEffect(() => {
-    setReturnToUrl(returnToUrl);
-  }, [returnToUrl]);
-
-  const toAuthPortal = () => {
-    loginWithRedirect({
-      authorizationParams: {
-        audience: import.meta.env.VITE_AUTH0_AUDIENCE,
-        redirect_uri: window.location.origin + "/auth/callback",
-      },
-      appState: { returnTo: returnToUrl },
-    });
+  const toAuthPortal = async () => {
+    await login();
   };
 
   return (

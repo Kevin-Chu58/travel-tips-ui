@@ -9,6 +9,7 @@ import Attraction from "@views/Attraction";
 import Gospel from "@views/Gospel";
 import Profile from "@views/Profile";
 import Settings from "@views/Settings";
+import EmailUnverified from "@views/EmailUnverified";
 
 const routes = [{
     name: "Main",
@@ -54,6 +55,10 @@ const routes = [{
     name: "UserAgreement",
     path: "/user-agreement",
     element: <UserAgreement/>,
+}, {
+    name: "EmailUnverified",
+    path: "/email-unverified",
+    element: <EmailUnverified/>,
 }];
 
 export default routes;

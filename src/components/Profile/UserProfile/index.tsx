@@ -6,6 +6,7 @@ import { useIsMobile } from "@hooks/useIsMobile";
 import PersonAddAltIcon from "@mui/icons-material/PersonAddAlt";
 import PersonRemoveAlt1Icon from "@mui/icons-material/PersonRemoveAlt1";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
+import SettingsIcon from "@mui/icons-material/Settings";
 import TTButton from "@components/TTButton";
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "@redux/store";
@@ -19,6 +20,7 @@ import TripCard from "@components/Cards/TripCard";
 import { useNavigate } from "react-router";
 import FollowerChip from "./FollowerChip";
 import UserAvatar from "@components/UserAvatar";
+import { goToLoginPortal } from "@services/tokens";
 import clsx from "clsx";
 import "./index.scss";
 
@@ -124,6 +126,10 @@ const UserProfile = ({ user, setUser }: UserProfileProps) => {
     }
   };
 
+  const handleChangeInfo = async () => {
+    await goToLoginPortal();
+  };
+
   if (!user) return;
 
   return (
@@ -200,6 +206,17 @@ const UserProfile = ({ user, setUser }: UserProfileProps) => {
               onClick={handleFollow}
             >
               {user.isFollowing ? "Followed" : "Follow"}
+            </TTButton>
+          ) : undefined}
+
+          {isMe && user.userId.startsWith("auth0") ? (
+            <TTButton
+              startIcon={<SettingsIcon />}
+              size="small"
+              color="utility"
+              onClick={handleChangeInfo}
+            >
+              Change Password
             </TTButton>
           ) : undefined}
         </Box>

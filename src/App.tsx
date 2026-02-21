@@ -3,12 +3,12 @@ import { AuthInitializer } from "./AuthInitializer";
 import { Box } from "@mui/material";
 import { UserBasicInitializer } from "./UserBasicInitializer";
 import GuestAgreementForm from "@components/Forms/GuestAgreementForm";
+import { LS_GUEST_USER_AGREEMENT } from "@constants/localStorage";
 import { useSelector } from "react-redux";
 import type { RootState } from "@redux/store";
 import { useEffect, useState } from "react";
 import HeaderBar from "./components/HeaderBar";
 import routes from "./routes";
-import { LS_GUEST_USER_AGREEMENT } from "@constants/localStorage";
 
 function App() {
   // user
@@ -21,8 +21,6 @@ function App() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log(user);
-
     // userAgreement and emailVerified are null in default
     if (user.userAgreement === false) navigate("/user-agreement");
     else if (user.emailVerified === false) navigate("/email-unverified");
