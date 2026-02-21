@@ -58,7 +58,7 @@ const DayPdfPage = ({ dayIndex, taos, routingResponses }: DayPdfPageProps) => {
 
               return (
                 <Box key={tao.id}>
-                  <Box className="row">
+                  <Box className="row full">
                     <Typography className="tao-order-number">
                       {i + 1}
                     </Typography>

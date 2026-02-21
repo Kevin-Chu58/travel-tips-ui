@@ -12,6 +12,7 @@ type HeaderProps = {
   auth?: boolean;
   enableHighlight?: boolean;
   focus?: boolean;
+  hasLimit?: boolean;
   onClick?: (e: React.MouseEvent<HTMLElement>) => void;
 };
 
@@ -23,6 +24,7 @@ const Header = ({
   variant = "h6",
   auth = false,
   enableHighlight = false,
+  hasLimit = false,
   focus = false,
   onClick,
 }: HeaderProps) => {
@@ -35,7 +37,8 @@ const Header = ({
         isMobile && "mobile",
         auth && "auth",
         enableHighlight && "enable-highlight",
-        focus && "focus"
+        hasLimit && "hasLimit",
+        focus && "focus",
       )}
       href={to}
       onClick={onClick}

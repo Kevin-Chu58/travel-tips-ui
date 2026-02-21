@@ -4,7 +4,9 @@ let cachedToken: string | undefined;
 let tokenExpiry: number | undefined;
 
 let getTokenSilentlyFn: (() => Promise<string>) | null = null;
-let logoutFn: (() => void) | null = null;
+let goToLoginPortalFn: (() => Promise<void>) | null = null;
+let loginFn: (() => Promise<void>) | null = null;
+let logoutFn: (() => Promise<void>) | null = null;
 
 /** Tracks whether the user is currently logged in */
 let isLoggedIn = false;
@@ -20,7 +22,15 @@ export const setGetTokenSilentlyFn = (fn: () => Promise<string>) => {
   getTokenSilentlyFn = fn;
 };
 
-export const setLogoutFn = (fn: () => void) => {
+export const setGoToLoginPortalFn = (fn: () => Promise<void>) => {
+  goToLoginPortalFn = fn;
+};
+
+export const setLoginFn = (fn: () => Promise<void>) => {
+  loginFn = fn;
+};
+
+export const setLogoutFn = (fn: () => Promise<void>) => {
   logoutFn = fn;
 };
 
@@ -36,6 +46,23 @@ export const markLoggedOut = () => {
   tokenExpiry = undefined;
 };
 
+export const goToLoginPortal = async () => {
+  if (goToLoginPortalFn) await goToLoginPortalFn();
+};
+
+export const login = async () => {
+  if (loginFn) await loginFn();
+};
+
+export const logout = async () => {
+  if (logoutFn) await logoutFn();
+};
+
+export const reauth = async () => {
+  if (logoutFn) await logoutFn();
+  if (loginFn) await loginFn();
+};
+
 export const setReturnToUrl = (returnTo: string) => {
   returnToUrl = returnTo;
 };
@@ -48,31 +75,36 @@ export const getReturnToUrl = () => {
 // Token Logic
 // ============================================================================
 
-export const ensureToken = async (): Promise<string | undefined> => {
-  if (!getTokenSilentlyFn) return undefined;
-
+export const ensureToken = async () => {
   const now = Date.now();
   const buffer = 60 * 1000; // 1 minute before expiry
 
+  // Need fresh token?
+  if (!cachedToken || !tokenExpiry || now + buffer > tokenExpiry) {
+    return await getNewToken();
+  }
+
+  return cachedToken;
+};
+
+export const getNewToken = async (): Promise<string | undefined> => {
+  if (!getTokenSilentlyFn) return undefined;
   try {
-    // Need fresh token?
-    if (!cachedToken || !tokenExpiry || now + buffer > tokenExpiry) {
-      const token = await getTokenSilentlyFn();
-      cachedToken = token;
+    const token = await getTokenSilentlyFn();
+    cachedToken = token;
 
-      // Decode JWT expiry
-      const base64 = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
-      const decoded = JSON.parse(
-        decodeURIComponent(
-          atob(base64)
-            .split("")
-            .map((c) => "%" + c.charCodeAt(0).toString(16).padStart(2, "0"))
-            .join("")
-        )
-      );
+    // Decode JWT expiry
+    const base64 = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+    const decoded = JSON.parse(
+      decodeURIComponent(
+        atob(base64)
+          .split("")
+          .map((c) => "%" + c.charCodeAt(0).toString(16).padStart(2, "0"))
+          .join(""),
+      ),
+    );
 
-      tokenExpiry = decoded.exp * 1000;
-    }
+    tokenExpiry = decoded.exp * 1000;
   } catch (error: any) {
     const msg = error?.error_description?.toLowerCase() ?? "";
 
@@ -98,6 +130,5 @@ export const ensureToken = async (): Promise<string | undefined> => {
     // Unknown error → rethrow
     throw error;
   }
-
   return cachedToken;
 };

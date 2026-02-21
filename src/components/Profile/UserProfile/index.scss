@@ -1,0 +1,163 @@
+@use "../../../stylings/box_shadows" as *;
+@use "../../../stylings/color" as *;
+
+.user-profile {
+  $max-width: 900px;
+  $max-username-width: min(50vw, 700px);
+
+  margin: 4rem auto;
+  max-width: $max-width;
+  border-radius: 0 0 0.5rem 0.5rem;
+  box-shadow: $mild-box-shadow;
+  gap: 1rem;
+
+  &.mobile {
+    margin: 2rem 1rem;
+  }
+
+  .header {
+    padding-top: 1rem;
+    background-color: var(--utility-900);
+    border-radius: 0.5rem;
+    gap: 1rem;
+
+    .avatar-box {
+      margin-left: 2rem;
+      position: relative;
+
+      $size: 8rem;
+
+      .avatar.MuiAvatar-root {
+        width: $size;
+        height: $size;
+        box-shadow: $box-shadow;
+
+        &.mobile {
+          width: calc($size/2);
+          height: calc($size/2);
+        }
+      }
+      
+      .avatar-overlay {
+        position: absolute;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        top: 0;
+        left: 0;
+        width: $size;
+        height: $size;
+        border-radius: 100rem;
+        background-color: color-mix(in srgb, var(--utility-900), transparent);
+        cursor: pointer;
+        opacity: 0;
+
+        .MuiSvgIcon-root {
+          fill: var(--utility-200);
+          width: 4rem;
+          height: 4rem;
+        }
+
+        &:hover {
+          opacity: 1;
+        }
+
+        &.mobile {
+          width: calc($size/2);
+          height: calc($size/2);
+
+          .MuiSvgIcon-root {
+            width: 2rem;
+            height: 2rem;
+          }
+        }
+      }
+    }
+
+    .username.MuiTypography-root {
+      margin-top: 1rem;
+      max-width: $max-username-width;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: hidden;
+      color: white;
+
+      &.mobile {
+        margin-top: -0.5rem;
+      }
+    }
+  }
+
+  .container {
+    margin-top: -4rem;
+    border-radius: 0 0 0.5rem 0.5rem;
+    background-color: white;
+    padding: 1rem;
+    gap: .5rem;
+
+    &.mobile {
+      margin-top: -2rem;
+      padding: 1rem;
+    }
+
+    .actions {
+      justify-content: end;
+
+      &.mobile {
+        margin-top: 1rem;
+        justify-content: start;
+      }
+    }
+
+    .follow-chip.MuiChip-root {
+      cursor: default;
+
+      .follow-span {
+        cursor: pointer;
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    }
+  }
+
+  .stats.MuiGrid-root {
+    margin: 1rem;
+
+    .MuiGrid-root {
+      position: relative;
+      padding: 2rem;
+      border-radius: 1rem;
+
+      &:first-child::after {
+        $top: 20%;
+
+        position: absolute;
+        content: "";
+        top: $top;
+        right: 0;
+        width: 1px;
+        height: calc(100% - 2 * $top);
+        background-color: $divider;
+      }
+
+      .number.MuiTypography-root {
+        font-weight: bold;
+        color: var(--primary-500);
+      }
+    }
+  }
+
+  .caption.MuiTypography-root {
+    font-size: 1.4rem;
+    font-weight: bold;
+  }
+
+  .top-trip-box {
+    display: flex;
+    justify-content: center;
+    align-items: start;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+}

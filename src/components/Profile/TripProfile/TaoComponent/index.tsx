@@ -31,6 +31,8 @@ import {
 import NavButton from "@components/Button/NavButton";
 import LockIcon from "@mui/icons-material/Lock";
 import LockOpenIcon from "@mui/icons-material/LockOpen";
+import ReplyIcon from "@mui/icons-material/Reply";
+import { useNavigate } from "react-router";
 import "./index.scss";
 
 type TaoComponentProps = {
@@ -67,13 +69,16 @@ const TaoComponent = ({
   const [isCreating, setIsCreating] = useState<boolean>(false);
   // transport mode
   const [transportMode, setTransportMode] = useState<string>(
-    tao?.transportMode ?? TransportModes[0]
+    tao?.transportMode ?? TransportModes[0],
   );
   // open form states
   const [openDiscoverHighlights, setOpenDiscoverHighlights] =
     useState<boolean>(false);
+  // others
+  const navigate = useNavigate();
 
   const taoIndex = taos?.findIndex((t) => t.id === tao?.id);
+  const prevTao = taos && taoIndex! > 0 ? taos[taoIndex! - 1] : undefined;
   const routeResponse = taoIndex ? routeResponses?.at(taoIndex - 1) : undefined;
   const formatedSections =
     routeResponse && routeResponse.routes?.at(0)
@@ -194,7 +199,7 @@ const TaoComponent = ({
         asyncEditDayTaos(updatedTao);
 
         let updatedRouteResponse = await hereMapService.getRoutingByTaoId(
-          tao.id
+          tao.id,
         );
         if (!updatedRouteResponse) {
           updatedRouteResponse = { routes: [] };
@@ -242,7 +247,13 @@ const TaoComponent = ({
         <Box className="section">
           {/* title & address */}
           <Typography className="title">
-            Visit <span className="title-span">{attraction?.title}</span>
+            Visit{" "}
+            <span
+              className="title-span"
+              onClick={() => navigate(`/attraction/${attraction?.id}`)}
+            >
+              {attraction?.title}
+            </span>
           </Typography>
           <Typography>{attraction?.address}</Typography>
 
@@ -381,7 +392,19 @@ const TaoComponent = ({
           <React.Fragment>
             <Divider flexItem />
             <Box className="section">
-              <Typography className="large-text">Directions</Typography>
+              <Box className="row full">
+                <Typography className="large-text">Directions</Typography>
+                {prevTao && tao ? (
+                  <NavButton className="jump-to-button"
+                    link={MapUtils.getGoogleRouteLink(
+                      prevTao.attraction.address,
+                      tao.attraction.address,
+                    )}
+                  >
+                    <ReplyIcon className="jump-to-icon" />
+                  </NavButton>
+                ) : undefined}
+              </Box>
 
               {/* notice - optional */}
               {routeResponse.notices ? (

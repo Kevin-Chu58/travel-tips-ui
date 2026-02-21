@@ -1,0 +1,9 @@
+@use "../../stylings/box_shadows" as *;
+
+.user-avatar {
+  box-shadow: $mild-box-shadow;
+
+  .heavy-box-shadow {
+    box-shadow: $heavy-box-shadow;
+  }
+}

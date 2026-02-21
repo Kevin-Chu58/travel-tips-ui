@@ -8,10 +8,10 @@ import TTButton from "@components/TTButton";
 import { tripsService, type Trip } from "@services/trips";
 import { enqueueSnackbar } from "notistack";
 import { useIsMobile } from "@hooks/useIsMobile";
-import TTTextField from "@components/TTTextField";
 import GroupAddIcon from "@mui/icons-material/GroupAdd";
 import GroupRemoveIcon from "@mui/icons-material/GroupRemove";
 import GroupOffIcon from "@mui/icons-material/GroupOff";
+import UserSearchAutoComplete from "@components/Search/UserSearchAutoComplete";
 import clsx from "clsx";
 import "./index.scss";
 
@@ -34,30 +34,33 @@ const TripShareForm = ({
 }: TripShareFormProps) => {
   // window
   const isMobile = useIsMobile();
+  // selected
+  const [selected, setSelected] = useState<UserSimple | undefined>(undefined);
   // input
-  const [value, setValue] = useState<string>("");
+  // const [value, setValue] = useState<string>("");
 
   // handle
 
   const handleClose = () => {
     onClose();
-    setValue("");
+    setSelected(undefined);
   };
 
   const handleShareClick = async () => {
     if (!tripBasicRef?.current) return;
-    if (!Boolean(value)) return;
+    if (!selected) return;
 
     try {
       const newShareWith = await tripsService.shareTripWithUser(
         tripBasicRef.current.id,
-        value
+        selected.userId,
       );
 
       tripBasicRef.current.sharedUsers.push(newShareWith);
       asyncTrip();
 
       enqueueSnackbar("Share trip with the user.", { variant: "success" });
+      setSelected(undefined);
     } catch (e) {
       if (e instanceof Error) enqueueSnackbar(e.message, { variant: "error" });
     }
@@ -71,7 +74,7 @@ const TripShareForm = ({
 
       tripBasicRef.current.sharedUsers =
         tripBasicRef.current.sharedUsers.filter(
-          (user) => user.userId != userId
+          (user) => user.userId != userId,
         );
       asyncTrip();
 
@@ -101,7 +104,7 @@ const TripShareForm = ({
       open={open}
       onClose={handleClose}
       className="trip-share-form"
-      width={!readonly ? "55vw" : undefined}
+      width={!readonly ? "60vw" : undefined}
       height={isMobile ? "80vh" : "40vh"}
       maxHeight={isMobile ? "80vh" : undefined}
       panel
@@ -116,17 +119,13 @@ const TripShareForm = ({
     >
       {/* header bar */}
       {!readonly ? (
-        <Box className={clsx("header-box", isMobile && "mobile")}>
+        <Box className={clsx("header-box", !isMobile ? "row start" : "column")}>
           <Box className="input-box">
-            <TTTextField
-              className="textfield"
-              value={value}
+            <UserSearchAutoComplete
+              open={open}
+              user={selected}
+              setUser={setSelected}
               size="small"
-              color="primary"
-              placeholder="Enter Auth0 Id"
-              onChange={(e) => setValue(e.target.value)}
-              fullWidth
-              autoFocus
             />
           </Box>
           <Box className={clsx("action-button-box", isMobile && "mobile")}>
@@ -158,7 +157,7 @@ const TripShareForm = ({
         {sharedUsers.length > 0 ? (
           sharedUsers.map((user) => (
             <Box key={user.userId} className="user-box">
-              <UserCard user={user} />
+              <UserCard user={user} hasMobileView={!readonly} />
               {!readonly ? (
                 <Box className={clsx("action-box", isMobile && "mobile")}>
                   <TTButton

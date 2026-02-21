@@ -1,0 +1,9 @@
+@use "../../stylings/layout" as *;
+
+.profile-view {
+  color: black;
+  overflow-x: hidden;
+  overflow-y: auto;
+  height: $screen-height;
+  background-color: var(--secondary-main);
+}

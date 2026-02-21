@@ -45,6 +45,14 @@ const AttractionProfile = ({
     getAttraction();
   }, [_attractionId]);
 
+  const goBackSafe = () => {
+    if (window.history.length > 1) {
+      navigate(-1);
+    } else {
+      navigate("/");
+    }
+  };
+
   return (
     <Box className="highlight-profile-box" maxWidth="md">
       <Box className="highlight-profile-content-box">
@@ -55,7 +63,7 @@ const AttractionProfile = ({
               label="back"
               variant="text"
               startIcon={<NavigateBeforeIcon />}
-              onClick={() => navigate(-1)}
+              onClick={goBackSafe}
             />
           </Box>
         ) : undefined}

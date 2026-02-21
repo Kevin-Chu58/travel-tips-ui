@@ -1,5 +1,4 @@
 import {
-  Avatar,
   Box,
   Chip,
   IconButton,
@@ -20,11 +19,17 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { enqueueSnackbar } from "notistack";
 import { RegionUtils } from "@utils/RegionUtils";
-import ShareIcon from "@mui/icons-material/Share";
+// import ShareIcon from "@mui/icons-material/Share";
 import ArchiveIcon from "@mui/icons-material/Archive";
 import UnarchiveIcon from "@mui/icons-material/Unarchive";
 import { StringUtils } from "@utils/StringUtils";
 import type { UtilityItem } from "@constants/Types";
+import BookmarkIcon from "@mui/icons-material/Bookmark";
+import BookmarkAddIcon from "@mui/icons-material/BookmarkAdd";
+import BookmarkRemoveIcon from "@mui/icons-material/BookmarkRemove";
+import UserAvatar from "@components/UserAvatar";
+import { useNavToProfile } from "@hooks/useNavToProfile";
+import clsx from "clsx";
 import "./index.scss";
 
 type TripCardProps = {
@@ -47,6 +52,14 @@ const TripCard = ({
   // popover
   const [popoverAnchorEl, setPopoverAnchorEl] =
     useState<HTMLButtonElement | null>(null);
+  // nav to profile
+  const navToProfile = useNavToProfile(trip.createdBy);
+  // others
+  const _numBookmarks = trip?.bookmarkCount;
+  const _bookmarkText =
+    _numBookmarks > 0
+      ? ` • ${trip.bookmarkCount} bookmark${_numBookmarks === 1 ? "" : "s"}`
+      : "";
 
   // rerender on trip isPublic
   useEffect(() => {}, [trip.isPublic]);
@@ -55,27 +68,62 @@ const TripCard = ({
     if (!trip.isHidden) onClick();
   };
 
+  const handleUsernameClick = (e: React.MouseEvent<HTMLLIElement>) => {
+    e.stopPropagation();
+    navToProfile();
+  };
+
   const handleVisibilityTripClick = async (
     e: React.MouseEvent<HTMLLIElement>,
   ) => {
     e.stopPropagation();
 
-    if (trip) {
-      try {
-        await tripsService.patchTripIsPublic([trip.id], !trip.isPublic);
-        trip.isPublic = !trip.isPublic;
-        if (asyncUpdateTrip) asyncUpdateTrip(trip);
+    if (!trip) return;
 
-        // triggers direct UI update on chip
-        setPopoverAnchorEl(null);
+    try {
+      await tripsService.patchTripIsPublic([trip.id], !trip.isPublic);
+      trip.isPublic = !trip.isPublic;
+      if (asyncUpdateTrip) asyncUpdateTrip(trip);
 
-        enqueueSnackbar("Successfully set trip visibility.", {
-          variant: "success",
-        });
-      } catch (e) {
-        if (e instanceof Error) {
-          enqueueSnackbar(e.message, { variant: "error" });
-        }
+      // triggers direct UI update on chip
+      setPopoverAnchorEl(null);
+
+      enqueueSnackbar("Successfully set trip visibility.", {
+        variant: "success",
+      });
+    } catch (e) {
+      if (e instanceof Error) {
+        enqueueSnackbar(e.message, { variant: "error" });
+      }
+    }
+  };
+
+  const handleBookmarkClick = async (
+    e: React.MouseEvent<HTMLLIElement | HTMLButtonElement>,
+  ) => {
+    e.stopPropagation();
+
+    if (!trip) return;
+
+    try {
+      trip.isBookmarked
+        ? await tripsService.removeBookmark(trip.id)
+        : await tripsService.addBookmark(trip.id);
+
+      // triggers direct UI update on chip
+      setPopoverAnchorEl(null);
+
+      if (asyncUpdateTrip) {
+        const delta = trip.isBookmarked ? -1 : 1;
+        asyncUpdateTrip({
+          ...trip,
+          isBookmarked: !trip.isBookmarked,
+          bookmarkCount: trip.bookmarkCount + delta,
+        } as Trip);
+      }
+    } catch (e) {
+      if (e instanceof Error) {
+        enqueueSnackbar(e.message, { variant: "error" });
       }
     }
   };
@@ -83,19 +131,19 @@ const TripCard = ({
   const handleHiddenTripClick = async (e: React.MouseEvent<HTMLLIElement>) => {
     e.stopPropagation();
 
-    if (trip) {
-      try {
-        await tripsService.patchTripIsHidden([trip.id], !trip.isHidden);
-        if (asyncDeleteTrip) asyncDeleteTrip(trip);
+    if (!trip) return;
 
-        enqueueSnackbar(
-          `Successfully ${trip.isHidden ? "unarchived" : "archived"} trip.`,
-          { variant: "success" },
-        );
-      } catch (e) {
-        if (e instanceof Error) {
-          enqueueSnackbar(e.message, { variant: "error" });
-        }
+    try {
+      await tripsService.patchTripIsHidden([trip.id], !trip.isHidden);
+      if (asyncDeleteTrip) asyncDeleteTrip(trip);
+
+      enqueueSnackbar(
+        `Successfully ${trip.isHidden ? "unarchived" : "archived"} trip.`,
+        { variant: "success" },
+      );
+    } catch (e) {
+      if (e instanceof Error) {
+        enqueueSnackbar(e.message, { variant: "error" });
       }
     }
   };
@@ -117,14 +165,14 @@ const TripCard = ({
   // buttons
 
   // TODO: button - share
-  const shareButton = (
-    <MenuItem key="share" onClick={(e) => e.stopPropagation()}>
-      <ListItemIcon>
-        <ShareIcon />
-      </ListItemIcon>
-      <ListItemText primary="Share" />
-    </MenuItem>
-  );
+  // const shareButton = (
+  //   <MenuItem key="share" onClick={(e) => e.stopPropagation()}>
+  //     <ListItemIcon>
+  //       <ShareIcon />
+  //     </ListItemIcon>
+  //     <ListItemText primary="Share" />
+  //   </MenuItem>
+  // );
 
   // button - public/private
   const visibilityButton = (
@@ -133,6 +181,18 @@ const TripCard = ({
         {trip.isPublic ? <VisibilityOffIcon /> : <VisibilityIcon />}
       </ListItemIcon>
       <ListItemText primary={`Set ${trip.isPublic ? "Private" : "Public"}`} />
+    </MenuItem>
+  );
+
+  // button - bookmark
+  const bookmarkButton = (
+    <MenuItem key="bookmark" onClick={(e) => handleBookmarkClick(e)}>
+      <ListItemIcon>
+        {trip.isBookmarked ? <BookmarkRemoveIcon /> : <BookmarkAddIcon />}
+      </ListItemIcon>
+      <ListItemText
+        primary={`${trip.isBookmarked ? "Remove Bookmark" : "Add Bookmark"}`}
+      />
     </MenuItem>
   );
 
@@ -171,13 +231,17 @@ const TripCard = ({
   );
 
   const menuButtonList = [
-    {
-      content: shareButton,
-      condition: !trip.isHidden,
-    },
+    // {
+    //   content: shareButton,
+    //   condition: trip.isPublic && !trip.isHidden,
+    // },
     {
       content: visibilityButton,
       condition: !readonly && !trip.isHidden,
+    },
+    {
+      content: bookmarkButton,
+      condition: trip.isPublic && !trip.isHidden,
     },
     {
       content: archiveButton,
@@ -213,17 +277,24 @@ const TripCard = ({
 
         {/* creator info */}
         <Box className="image-creator-info-box">
-          <Avatar className="avatar" />
-
+          <UserAvatar user={trip.createdBy} highlight />
           <Chip
+            className="username-chip"
             label={
-              <Typography className="username">
+              <Typography className="username" onClick={handleUsernameClick}>
                 {trip.createdBy.username}
               </Typography>
             }
             size="small"
-            className="username-chip"
           />
+        </Box>
+
+        <Box
+          className={clsx("bookmark-box", trip.isBookmarked && "bookmarked")}
+        >
+          <IconButton onClick={(e) => handleBookmarkClick(e)}>
+            <BookmarkIcon />
+          </IconButton>
         </Box>
       </Box>
 
@@ -232,9 +303,10 @@ const TripCard = ({
         <Box display="flex">
           <Typography fontSize="1.2rem" className="title">
             {trip.title}
+            <span className="helper">#{trip.id}</span>
           </Typography>
 
-          <Box sx={{ ml: "auto" }}>
+          <Box className="menu-button-box">
             <IconButton size="small" onClick={(e) => handleOpenPopover(e)}>
               <MoreVertIcon />
             </IconButton>
@@ -251,9 +323,9 @@ const TripCard = ({
           {menuButtonList.map((button) => button.condition && button.content)}
         </Menu>
 
-        {/* number of days */}
-        <Typography className="num-days">
-          {TimeUtils.formatDays(trip.numDays ?? 0)}
+        {/* number of days & bookmark count */}
+        <Typography className="num-days" variant="body2">
+          {TimeUtils.formatDays(trip.numDays ?? 0)} {_bookmarkText}
         </Typography>
       </Box>
 

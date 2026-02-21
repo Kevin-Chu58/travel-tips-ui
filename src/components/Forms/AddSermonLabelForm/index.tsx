@@ -150,7 +150,7 @@ const AddSermonLabelForm = ({ open, onClose }: AddSermonLabelFormProps) => {
           />
         </FormControl>
 
-        <Box className="row">
+        <Box className="row full">
           <Typography fontWeight="bold">Slug</Typography>
           {value.trim() ? (
             <Chip

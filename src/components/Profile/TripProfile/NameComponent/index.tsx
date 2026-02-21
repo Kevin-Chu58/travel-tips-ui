@@ -55,10 +55,10 @@ const NameComponent = ({
       if (tripBasicRef.current) {
         const completeRegion = await tripsService.patchTripRegionTag(
           tripBasicRef.current.id,
-          regionId
+          regionId,
         );
         tripBasicRef.current.region = RegionUtils.getRegionAddress(
-          completeRegion
+          completeRegion,
         )
           ? completeRegion
           : undefined;
@@ -80,7 +80,7 @@ const NameComponent = ({
       if (tripBasicRef.current) {
         const newBudget = await tripsService.patchTripBudgetTag(
           tripBasicRef.current.id,
-          budget
+          budget,
         );
 
         tripBasicRef.current.budget = newBudget > 0 ? newBudget : undefined;
@@ -122,7 +122,7 @@ const NameComponent = ({
         let tripPatch = { title: trimmedTitle } as TripPatch;
         tripPatch = await tripsService.patchTrip(
           tripBasicRef.current.id,
-          tripPatch
+          tripPatch,
         );
 
         enqueueSnackbar("Successfully updated trip title.", {
@@ -141,7 +141,7 @@ const NameComponent = ({
   };
 
   const handleTitleKeyDown = (
-    event: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>
+    event: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     if (event.key === "Enter") {
       updateTitle();
@@ -180,7 +180,8 @@ const NameComponent = ({
             )
           ) : (
             <Typography className="title-readonly" variant="h6">
-              {tripBasicRef.current?.title}
+              {tripBasicRef.current?.title}{" "}
+              <span className="helper">#{tripBasicRef.current?.id}</span>
             </Typography>
           )}
 
@@ -195,7 +196,7 @@ const NameComponent = ({
                 color="region"
                 size="small"
                 label={RegionUtils.getRegionAddress(
-                  tripBasicRef?.current?.region
+                  tripBasicRef?.current?.region,
                 )}
                 onDelete={
                   !readonly ? () => handleUpdateRegion(undefined) : undefined

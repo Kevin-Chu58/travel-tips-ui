@@ -1,5 +1,4 @@
 import {
-  Avatar,
   Box,
   Chip,
   Divider,
@@ -17,8 +16,10 @@ import HighlightForm from "@components/Forms/HighlightForm";
 import { useIsMobile } from "@hooks/useIsMobile";
 import MarkdownBox from "@components/MarkdownBox";
 import LinearScaleIcon from "@mui/icons-material/LinearScale";
+import UserAvatar from "@components/UserAvatar";
 import clsx from "clsx";
 import "./index.scss";
+import { useNavToProfile } from "@hooks/useNavToProfile";
 
 type HighlightItemProps = {
   highlight: Highlight;
@@ -51,6 +52,8 @@ const HighlightItem = ({
   // edit
   const [description, setDescription] = useState<string>("");
   const [isEditing, setIsEditing] = useState<boolean>(false);
+  // nav to profile
+  const navToProfile = useNavToProfile(highlight.createdBy);
   // others
   const userId = useSelector((state: RootState) => state.user.id);
   const isOwner = userId === _highlight?.createdBy?.id;
@@ -130,15 +133,14 @@ const HighlightItem = ({
   );
 
   const avatar = (
-    <Avatar
+    <UserAvatar
       className={clsx("highlight-item-avatar", isMobile && "mobile")}
-      alt={_highlight?.createdBy?.toString()}
-      src={""}
+      user={_highlight?.createdBy}
     />
   );
 
   const username = (
-    <Typography className="highlight-item-username">
+    <Typography className="highlight-item-username" onClick={navToProfile}>
       {_highlight?.createdBy?.username}
     </Typography>
   );

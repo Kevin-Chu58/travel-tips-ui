@@ -20,8 +20,6 @@ import { enqueueSnackbar } from "notistack";
 import { useIsMobile } from "@hooks/useIsMobile";
 import MenuIcon from "@mui/icons-material/Menu";
 import TTIconButton from "@components/TTIconButton";
-import { useSelector } from "react-redux";
-import type { RootState } from "@redux/store";
 import SermonForm from "@components/Forms/SermonForm";
 import AddIcon from "@mui/icons-material/Add";
 import TTButton from "@components/TTButton";
@@ -46,8 +44,6 @@ const GospelContent = ({ setIsHidden }: GospelContentProps) => {
   // search params
   const [searchParams] = useSearchParams();
   const isWriterParams = Boolean(searchParams.has("my"));
-  // user
-  const user = useSelector((state: RootState) => state.user);
   // sermon label
   const [label, setLabel] = useState<SermonLabelComplete | undefined>(
     undefined,
@@ -107,10 +103,7 @@ const GospelContent = ({ setIsHidden }: GospelContentProps) => {
 
   const initMySermons = async () => {
     setIsLoading(true);
-    const sermons = await sermonsService.getSermonsByParams({
-      createdByAuthId: user.userId ?? "",
-      isRestricted: true,
-    });
+    const sermons = await sermonsService.getMySermons();
     setMySermons(sermons);
     setIsLoading(false);
   };
@@ -285,9 +278,9 @@ const GospelContent = ({ setIsHidden }: GospelContentProps) => {
               className="my-sermon-menu-item"
               disableRipple
             >
-              <Box className="row">
+              <Box className="row full">
                 <Box className="column">
-                  <Box className="row">
+                  <Box className="row full">
                     <Typography variant="h6">{sermon.title}</Typography>
                     <Typography variant="caption">
                       {sermon.publishAt}

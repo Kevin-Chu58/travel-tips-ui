@@ -15,6 +15,7 @@ type TripsToolProps = {
   getMyTrips: () => void;
   getSharedTrips: () => void;
   getMyHiddenTrips: () => void;
+  getMyBookmarkedTrips: () => void;
   asyncTrips: (state: Trip[]) => void;
 };
 
@@ -28,6 +29,7 @@ const TripsTool = ({
   getMyTrips,
   getSharedTrips,
   getMyHiddenTrips,
+  getMyBookmarkedTrips,
   asyncTrips,
 }: TripsToolProps) => {
   const location = useLocation();
@@ -43,6 +45,9 @@ const TripsTool = ({
         break;
       case "/workshop/archive":
         getMyHiddenTrips();
+        break;
+      case "/workshop/bookmark":
+        getMyBookmarkedTrips();
         break;
     }
   }, [location.pathname]);

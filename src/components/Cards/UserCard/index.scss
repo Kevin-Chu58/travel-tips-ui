@@ -17,6 +17,7 @@
 
   .username.MuiTypography-root {
     font-weight: bold;
+    text-transform: none; // overwrite parent text styling
     cursor: pointer;
 
     &:hover {
@@ -25,22 +26,8 @@
   }
 
   .user-id-box {
-    display: flex;
-    align-items: center;
-    width: fit-content;
-    margin-left: -0.4rem;
-    padding: 0.1rem 0.4rem;
-    border-radius: 1rem;
-    cursor: pointer;
-    gap: 0.2rem;
-
-    .MuiSvgIcon-root {
-      width: 0.8rem;
-      height: 0.8rem;
-    }
-
-    &:hover {
-      background-color: var(--utility-200);
+    .MuiTypography-root {
+      max-width: 160px;
     }
   }
 }

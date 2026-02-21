@@ -59,6 +59,11 @@
     -webkit-background-clip: text; /* Safari + Chrome */
     color: transparent; /* hide normal text color */
     -webkit-text-fill-color: transparent;
+    cursor: pointer;
+
+    &:hover {
+      text-decoration: underline;
+    }
   }
 
   .event-category.MuiChip-root {
@@ -149,5 +154,14 @@
     object-fit: cover;
     box-shadow: $box-shadow;
     flex-shrink: 0;
+  }
+
+  .jump-to-button {
+    display: flex;
+    justify-items: center;
+
+    .jump-to-icon.MuiSvgIcon-root {
+      transform: rotate(90deg);
+    }
   }
 }

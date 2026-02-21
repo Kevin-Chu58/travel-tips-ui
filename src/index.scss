@@ -118,6 +118,18 @@ body {
 
 // custom styled typography - TODO
 
+span.helper {
+  font-size: 1rem;
+  margin: 0 0.2rem;
+  color: var(--utility-400);
+}
+
+.too-long.MuiTypography-root {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .theme-typography {
   &.MuiTypography-root {
     &.MuiTypography-h6 {
@@ -133,19 +145,66 @@ body {
   }
 }
 
+// custom box
+
 .column {
   display: flex;
   flex-direction: column;
+
+  &.center {
+    align-items: center;
+  }
+
+  &.full {
+    width: 100%;
+  }
 }
 
 .row {
-  width: 100%;
   display: flex;
   align-items: center;
   gap: 0.5rem;
 
+  &.full {
+    width: 100%;
+  }
+
+  &.start {
+    align-items: start;
+  }
+
   &.wrap {
     flex-wrap: wrap;
+  }
+}
+
+.user-id-box {
+  display: flex;
+  align-items: center;
+  width: fit-content;
+  margin-left: -0.4rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: 1rem;
+  cursor: pointer;
+  gap: 0.2rem;
+
+  .MuiSvgIcon-root {
+    width: 0.8rem;
+    height: 0.8rem;
+  }
+
+  &.hovered,
+  &:hover {
+    background-color: var(--utility-200);
+  }
+
+  &.dark {
+    color: var(--utility-100);
+
+    &.hovered,
+    &:hover {
+      background-color: var(--utility-700);
+    }
   }
 }
 

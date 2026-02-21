@@ -5,14 +5,17 @@ import {
   Grid,
   Radio,
   RadioGroup,
-  TextField,
   Typography,
 } from "@mui/material";
 import FormBase from "../FormBase";
+import RegionForm from "../RegionForm";
 import BudgetForm from "../BudgetForm";
 import type { TripSearchParams } from "@services/trips";
 import type { RegionComplete } from "@services/search/regions";
-import RegionForm from "../RegionForm";
+import type { TripOrderByEnum, UtilityItem } from "@constants/Types";
+import UserSearchAutoComplete from "@components/Search/UserSearchAutoComplete";
+import type { UserSimple } from "@services/users";
+import React from "react";
 import "./index.scss";
 
 type TripSearchFormProps = {
@@ -32,18 +35,42 @@ const TripSearchForm = ({
   updateTripFilterParams,
   setCompleteRegion,
 }: TripSearchFormProps) => {
+  const sortBys = [
+    {
+      label: "Newest",
+      content: "newest",
+    },
+    {
+      label: "Oldest",
+      content: "oldest",
+    },
+    {
+      label: "Most Bookmarked",
+      content: "mostBookmarked",
+    },
+    {
+      label: "Least Bookmarked",
+      content: "leastBookmarked",
+    },
+  ] as UtilityItem[];
+
+  const updateTripFilterParamsCreatedBy = (user?: UserSimple | undefined) => {
+    updateTripFilterParams({ createdBy: user });
+  };
+
   return (
     <FormBase
       className="trip-filter-form"
       open={open}
       onClose={onClose}
       title="Advanced Search"
-      width="50vw"
+      width="70vw"
+      maxHeight="80vh"
       actionButtonLabel="Apply"
       actionButtonOnClick={onAction}
       panel
     >
-      <Grid container columns={{ xs: 6, sm: 12 }} spacing={2}>
+      <Grid container columns={{ xs: 6, md: 12 }} spacing={2}>
         {/* region filter */}
         <Grid size={12}>
           <Typography className="form-title">Regions</Typography>
@@ -69,13 +96,10 @@ const TripSearchForm = ({
         {/* created by filter */}
         <Grid size={6}>
           <Typography className="form-title">Created By</Typography>
-          <TextField
-            value={tripFilterParams.createdByAuthId ?? ""}
-            onChange={(e) =>
-              updateTripFilterParams({ createdByAuthId: e.target.value })
-            }
-            placeholder="Enter User Auth0 Id"
-            fullWidth
+          <UserSearchAutoComplete
+            open={open}
+            user={tripFilterParams.createdBy}
+            setUser={updateTripFilterParamsCreatedBy}
           />
         </Grid>
 
@@ -89,18 +113,22 @@ const TripSearchForm = ({
           <FormControl>
             <RadioGroup
               aria-labelledby="demo-radio-buttons-group-label"
-              defaultValue="Desc"
-              value={tripFilterParams.isDesc === false ? "" : "Desc"}
+              defaultValue="newest"
+              value={tripFilterParams.tripOrderByEnum}
               onChange={(e) =>
-                updateTripFilterParams({ isDesc: Boolean(e.target.value) })
+                updateTripFilterParams({
+                  tripOrderByEnum: e.target.value as TripOrderByEnum,
+                })
               }
             >
-              <FormControlLabel
-                value="Desc"
-                control={<Radio />}
-                label="Newest"
-              />
-              <FormControlLabel value="" control={<Radio />} label="Oldest" />
+              {sortBys.map((sortBy) => (
+                <FormControlLabel
+                  key={sortBy.content as string}
+                  value={sortBy.content as string}
+                  control={<Radio />}
+                  label={sortBy.label}
+                />
+              ))}
             </RadioGroup>
           </FormControl>
         </Grid>

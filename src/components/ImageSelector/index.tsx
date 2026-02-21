@@ -12,21 +12,18 @@ import FileUploadIcon from "@mui/icons-material/FileUpload";
 import { enqueueSnackbar } from "notistack";
 import LibraryDialog from "./LibraryDialog";
 import CropperDialog from "./CropperDialog";
-import type { Image } from "@services/images";
 import "./index.scss";
 
 type ImageSelectorProps = {
-  tripId?: number;
-  imageIds: number[];
+  imageIds?: number[];
   disabled?: boolean;
-  asyncAddImage: (state: Image) => void;
+  asyncAddImage: (state: number) => void;
   readonly?: boolean;
   children: ReactNode;
 };
 
 const ImageSelector = ({
-  tripId,
-  imageIds,
+  imageIds = [],
   disabled = false,
   asyncAddImage,
   readonly = false,
@@ -138,7 +135,6 @@ const ImageSelector = ({
         open={openLibraryDialog}
         onClose={handleCloseLibraryDialog}
         imageIds={imageIds}
-        tripId={tripId}
         asyncAddImage={asyncAddImage}
       />
 
@@ -147,7 +143,6 @@ const ImageSelector = ({
         open={openCropperDialog}
         onClose={handleCloseCropperDialog}
         imageSrc={imageSrc}
-        tripId={tripId}
         asyncAddImage={asyncAddImage}
       />
     </React.Fragment>

@@ -1,5 +1,5 @@
 import ToolTip from "@components/ToolTip";
-import { Badge, Fab } from "@mui/material";
+import { Badge, Fab, type FabOwnProps } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import VisibilityIcon from "@mui/icons-material/Visibility";
@@ -9,8 +9,11 @@ import AddIcon from "@mui/icons-material/Add";
 import { enqueueSnackbar } from "notistack";
 import { tripsService, type Trip } from "@services/trips";
 import DownloadIcon from "@mui/icons-material/Download";
+import BookmarkIcon from "@mui/icons-material/Bookmark";
+import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 import type { Tao } from "@services/taos";
 import React, { useEffect, useState } from "react";
+import type { UtilityItem } from "@constants/Types";
 import clsx from "clsx";
 import "./index.scss";
 
@@ -43,162 +46,170 @@ const FabComponent = ({
 }: FabComponentProps) => {
   // status
   const [isPublished, setIsPublished] = useState<boolean>(false);
+  const [isBookmarked, setIsBookmarked] = useState<boolean>(false);
   // others
   const sharedUserNum = tripBasicRef?.current?.sharedUsers.length ?? 0;
 
   useEffect(() => {
     if (tripBasic) {
       setIsPublished(tripBasic.isPublic);
+      setIsBookmarked(tripBasic.isBookmarked);
     }
   }, [tripBasic]);
 
   const togglePublishStatus = async () => {
-    if (tripBasicRef.current) {
-      try {
-        let newPublishState = !tripBasicRef.current.isPublic;
+    if (!tripBasicRef.current) return;
 
-        await tripsService.patchTripIsPublic(
-          [tripBasicRef.current.id],
-          newPublishState
-        );
+    try {
+      let newPublishState = !tripBasicRef.current.isPublic;
 
-        tripBasicRef.current.isPublic = newPublishState;
-        setIsPublished(newPublishState);
+      await tripsService.patchTripIsPublic(
+        [tripBasicRef.current.id],
+        newPublishState,
+      );
 
-        enqueueSnackbar(
-          `Successfully make the trip ${
-            tripBasicRef.current.isPublic ? "public" : "private"
-          }.`,
-          {
-            variant: "success",
-          }
-        );
-      } catch (e) {
-        if (e instanceof Error)
-          enqueueSnackbar(e.message, { variant: "error" });
-      }
+      tripBasicRef.current.isPublic = newPublishState;
+      setIsPublished(newPublishState);
+
+      enqueueSnackbar(
+        `Successfully make the trip ${
+          tripBasicRef.current.isPublic ? "public" : "private"
+        }.`,
+        {
+          variant: "success",
+        },
+      );
+    } catch (e) {
+      if (e instanceof Error) enqueueSnackbar(e.message, { variant: "error" });
     }
   };
 
+  const toggleIsBookmarked = async () => {
+    if (!tripBasicRef.current) return;
+
+    try {
+      let newIsBookmarked = !tripBasicRef.current.isBookmarked;
+
+      if (newIsBookmarked) {
+        await tripsService.addBookmark(tripBasicRef.current.id);
+      } else {
+        await tripsService.removeBookmark(tripBasicRef.current.id);
+      }
+
+      tripBasicRef.current.isBookmarked = newIsBookmarked;
+      setIsBookmarked(newIsBookmarked);
+
+      enqueueSnackbar(
+        `Successfully ${
+          tripBasicRef.current.isBookmarked ? "bookmarked" : "unbookmarked"
+        } the trip.`,
+        {
+          variant: "success",
+        },
+      );
+    } catch (e) {
+      if (e instanceof Error) enqueueSnackbar(e.message, { variant: "error" });
+    }
+  };
+
+  // fabs
+
+  const fabs = [
+    // bookmark action
+    {
+      label: tripBasicRef.current?.isBookmarked
+        ? "Remove Bookmark"
+        : "Add Bookmark",
+      content: isBookmarked ? <BookmarkIcon /> : <BookmarkBorderIcon />,
+      description: "utility",
+      styling: "bookmark",
+      stylingCondition: [
+        !Boolean(tao) && "visible",
+        isBookmarked && "bookmarked",
+      ],
+      onClick: toggleIsBookmarked,
+    },
+    // visibility action - private/public status
+    {
+      label: tripBasicRef.current?.isPublic ? "Set Private" : "Set Public",
+      condition: !readonly,
+      content: isPublished ? <VisibilityIcon /> : <VisibilityOffIcon />,
+      description: "utility",
+      stylingCondition: [!Boolean(tao) && "visible"],
+      onClick: togglePublishStatus,
+    },
+    // shared group setting
+    {
+      label: "Shared Users",
+      condition: !readonly || isRestricted,
+      content: sharedUserNum ? (
+        <Badge badgeContent={sharedUserNum} color="primary">
+          <GroupIcon />
+        </Badge>
+      ) : (
+        <GroupIcon />
+      ),
+      description: "utility",
+      stylingCondition: [!Boolean(tao) && "visible"],
+      onClick: () => setOpenTripShareForm(true),
+    },
+    // download as PDF
+    {
+      label: "Download as PDF",
+      content: <DownloadIcon />,
+      description: "utility",
+      stylingCondition: [!Boolean(tao) && "visible"],
+      onClick: () => setOpenTripPdfForm(true),
+    },
+    // add action - tao
+    {
+      label: "Add Event",
+      condition: !readonly,
+      content: <AddIcon />,
+      description: "info",
+      stylingCondition: [!Boolean(tao) && !isOverview && "visible"],
+      onClick: () => setOpenEditTaoForm(true),
+    },
+    // edit action - tao
+    {
+      label: "Edit event",
+      condition: !readonly,
+      content: <EditIcon />,
+      description: "info",
+      stylingCondition: [Boolean(tao) && "visible"],
+      onClick: () => setOpenEditTaoForm(true),
+    },
+    // delete action - day, tao
+    {
+      label: Boolean(tao) ? "Delete event" : "Delete day",
+      condition: !readonly,
+      content: <DeleteForeverIcon />,
+      description: "error",
+      stylingCondition: !isOverview && "visible",
+      onClick: Boolean(tao)
+        ? () => setOpenDeleteTaoForm(true)
+        : () => setOpenDeleteDayForm(true),
+    },
+  ] as UtilityItem[];
+
   return (
     <React.Fragment>
-      {/* visibility action - private/public status */}
-      {!readonly ? (
-        <ToolTip
-          title={tripBasicRef.current?.isPublic ? "Private" : "Public"}
-          placement="right"
-        >
-          <Fab
-            color="utility"
-            className={clsx(
-              "trip-profile-fab-comp-tool-fab",
-              !Boolean(tao) && "visible"
-            )}
-            onClick={togglePublishStatus}
-            size="medium"
-          >
-            {isPublished ? <VisibilityIcon /> : <VisibilityOffIcon />}
-          </Fab>
-        </ToolTip>
-      ) : undefined}
-
-      {/* shared group setting */}
-      {!readonly || isRestricted ? (
-        <ToolTip title="Shared Users" placement="right">
-          <Fab
-            color="utility"
-            className={clsx(
-              "trip-profile-fab-comp-tool-fab",
-              !Boolean(tao) && "visible"
-            )}
-            onClick={() => setOpenTripShareForm(true)}
-            size="medium"
-          >
-            {sharedUserNum ? (
-              <Badge badgeContent={sharedUserNum} color="primary">
-                <GroupIcon />
-              </Badge>
-            ) : (
-              <GroupIcon />
-            )}
-          </Fab>
-        </ToolTip>
-      ) : undefined}
-
-      {/* download as PDF */}
-      {true ? (
-        <ToolTip title="Download as PDF" placement="right">
-          <Fab
-            color="utility"
-            className={clsx(
-              "trip-profile-fab-comp-tool-fab",
-              !Boolean(tao) && "visible"
-            )}
-            onClick={() => setOpenTripPdfForm(true)}
-            size="medium"
-          >
-            <DownloadIcon />
-          </Fab>
-        </ToolTip>
-      ) : undefined}
-
-      {/* add action - tao */}
-      {!readonly ? (
-        <ToolTip title="Add Event" placement="right">
-          <Fab
-            color="info"
-            className={clsx(
-              "trip-profile-fab-comp-tool-fab",
-              !Boolean(tao) && !isOverview && "visible"
-            )}
-            onClick={() => setOpenEditTaoForm(true)}
-            size="medium"
-          >
-            <AddIcon />
-          </Fab>
-        </ToolTip>
-      ) : undefined}
-
-      {/* edit action - tao */}
-      {!readonly ? (
-        <ToolTip title="Edit event" placement="right">
-          <Fab
-            color="info"
-            className={clsx(
-              "trip-profile-fab-comp-tool-fab",
-              Boolean(tao) && "visible"
-            )}
-            onClick={() => setOpenEditTaoForm(true)}
-            size="medium"
-          >
-            <EditIcon />
-          </Fab>
-        </ToolTip>
-      ) : undefined}
-
-      {/* delete action - day, tao */}
-      {!readonly ? (
-        <ToolTip
-          title={Boolean(tao) ? "Delete event" : "Delete day"}
-          placement="right"
-        >
-          <Fab
-            color="error"
-            className={clsx(
-              "trip-profile-fab-comp-tool-fab",
-              !isOverview && "visible"
-            )}
-            onClick={
-              Boolean(tao)
-                ? () => setOpenDeleteTaoForm(true)
-                : () => setOpenDeleteDayForm(true)
-            }
-            size="medium"
-          >
-            <DeleteForeverIcon />
-          </Fab>
-        </ToolTip>
-      ) : undefined}
+      {fabs.map((fab, i) => {
+        return fab.condition !== false ? (
+          <ToolTip key={i} title={fab.label} placement="right">
+            <Fab
+              color={fab.description as FabOwnProps["color"]}
+              className={clsx(`trip-profile-fab-comp-tool-fab ${fab.styling}`, [
+                fab.stylingCondition,
+              ])}
+              onClick={fab.onClick}
+              size="medium"
+            >
+              {fab.content}
+            </Fab>
+          </ToolTip>
+        ) : undefined;
+      })}
     </React.Fragment>
   );
 };

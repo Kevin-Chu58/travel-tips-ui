@@ -28,10 +28,13 @@ export const UserBasicInitializer = () => {
             id: user.id,
             userId: user.userId,
             username: user.username,
+            picture: user.picture,
+            email: user.email,
             userAgreement: user.userAgreement,
+            emailVerified: user.emailVerified,
             isAdmin: user.isAdmin,
             isWriter: user.isWriter,
-          })
+          }),
         );
       } catch (err) {
         console.error("Failed to load user basic info", err);

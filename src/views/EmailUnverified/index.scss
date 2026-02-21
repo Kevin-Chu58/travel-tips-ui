@@ -1,0 +1,26 @@
+@use "../../stylings/layout" as *;
+
+.email-unverified-page {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  height: $screen-height;
+  color: black;
+  overflow-y: auto;
+  gap: 2rem;
+
+  .email-icon.MuiSvgIcon-root {
+    $size: 10rem;
+    width: $size;
+    height: $size;
+  }
+
+  .MuiTypography-root {
+    strong {
+      color: var(--primary-main);
+    }
+  }
+}

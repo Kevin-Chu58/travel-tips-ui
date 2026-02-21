@@ -2,7 +2,6 @@ import TTIconButton from "@components/TTIconButton";
 import {
   Box,
   Divider,
-  Fab,
   FormControl,
   MenuItem,
   Select,
@@ -20,12 +19,10 @@ import {
   highlightsService,
 } from "@services/highlights";
 import TTButton from "@components/TTButton";
-import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import { BehaviorUtils } from "@utils/BehaviorUtils";
 import { enqueueSnackbar } from "notistack";
 import DeleteHighlightForm from "@components/Forms/DeleteHighlightForm";
 import type { SearchResults } from "@services/http";
-import { throttle } from "lodash";
 import ToolTip from "@components/ToolTip";
 import { useSelector } from "react-redux";
 import type { RootState } from "@redux/store";
@@ -36,6 +33,8 @@ import {
 } from "@constants/Types";
 import SortIcon from "@mui/icons-material/Sort";
 import { useIsMobile } from "@hooks/useIsMobile";
+import { useCursorScroll } from "@hooks/useCursorScroll";
+import NavTopFab from "@components/Behavioral/NavTopFab";
 import TTTabs from "@components/TTTabs";
 import clsx from "clsx";
 import "./index.scss";
@@ -62,7 +61,7 @@ const HighlightsFragment = ({
   // search params
   const highlightParamsRef = useRef<HighlightSearchParams>({});
   const [highlightParams, setHighlightParams] = useState<HighlightSearchParams>(
-    {}
+    {},
   );
   // param details
   const { attractionId, createdByAuthId, highlightOrderByEnum } =
@@ -74,7 +73,6 @@ const HighlightsFragment = ({
   // behavior
   const isLoadingRef = useRef<boolean>(false);
   const [isInit, setIsInit] = useState<boolean>(true);
-  const [showNavTop, setShowNavTop] = useState<boolean>(false);
   // nav tabs
   const [navTabValue, setNavTabValue] = useState<number>(0);
   // sort
@@ -151,22 +149,22 @@ const HighlightsFragment = ({
 
   const asyncHighlights = (
     tripResults: SearchResults<Highlight>,
-    isNewSearch: boolean = false
+    isNewSearch: boolean = false,
   ) => {
-    const params = highlightParamsRef.current;
-
-    if (!params.cursor || isNewSearch) setHighlights([...tripResults.results]);
-    else setHighlights((prev) => [...prev, ...tripResults.results]);
+    isNewSearch
+      ? setHighlights([...tripResults.results])
+      : setHighlights((prev) => [...prev, ...tripResults.results]);
   };
 
   // get highlights
 
   const getHighlightsByParams = async (isNewSearch: boolean = false) => {
     const params = highlightParamsRef.current;
+    if (!isNewSearch && !params.cursor) return;
+
     try {
-      const highlightResult = await highlightsService.getHighlightsByParams(
-        params
-      );
+      const highlightResult =
+        await highlightsService.getHighlightsByParams(params);
 
       asyncHighlights(highlightResult, isNewSearch);
 
@@ -192,7 +190,7 @@ const HighlightsFragment = ({
   const updateHighlight = (highlight?: Highlight) => {
     if (highlight) {
       setHighlights((prev) =>
-        prev.map((h) => (h.id === highlight.id ? highlight : h))
+        prev.map((h) => (h.id === highlight.id ? highlight : h)),
       );
     }
   };
@@ -205,37 +203,12 @@ const HighlightsFragment = ({
 
   /// handle events
 
-  // trigger when scroll close to the bottom
-  const handleScroll = throttle(() => {
-    // check whether condition met to show/hide button nav to top
-    const isDown = (containerRef.current?.scrollTop ?? 0) >= 100;
-    setShowNavTop((prev) => (prev !== isDown ? isDown : prev));
-
-    const container = containerRef.current;
-    if (!container) return;
-
-    const { scrollTop, scrollHeight, clientHeight } = container;
-
-    // detect near-bottom (within 100px)
-    if (scrollTop + clientHeight >= scrollHeight - 100) {
-      loadMore();
-    }
-  }, 100);
-
-  const loadMore = async () => {
-    if (isLoadingRef.current) return;
-
-    const params = highlightParamsRef.current;
-    if (!params.cursor) return;
-
-    isLoadingRef.current = true;
-
-    try {
-      await getHighlightsByParams();
-    } finally {
-      isLoadingRef.current = false;
-    }
-  };
+  const handleScroll = useCursorScroll(
+    containerRef,
+    isLoadingRef,
+    highlightParamsRef.current.cursor,
+    getHighlightsByParams,
+  );
 
   const handleClickSelectHighlight = (id: number) => {
     if (setSelectHighlightId) {
@@ -247,13 +220,6 @@ const HighlightsFragment = ({
     }
   };
 
-  const handleNavTop = () => {
-    containerRef.current?.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
-  };
-
   // handle form
   const handleDeleteClose = () => {
     setDeleteHighlightId(undefined);
@@ -261,12 +227,14 @@ const HighlightsFragment = ({
 
   const handleDeleteConfirm = async () => {
     if (deleteHighlightId) {
-      const deletedHighlight = await highlightsService.deleteHighlight(
-        deleteHighlightId
-      );
+      await highlightsService.deleteHighlight(deleteHighlightId);
 
       await BehaviorUtils.sleep();
-      deleteHighlight(deletedHighlight);
+
+      const deletedHighlight = highlights.find(
+        (h) => h.id === deleteHighlightId,
+      );
+      deleteHighlight(deletedHighlight!);
 
       enqueueSnackbar("Successfully deleted highlight.", {
         variant: "success",
@@ -315,12 +283,12 @@ const HighlightsFragment = ({
         ))}
       </Select>
     </FormControl>
-  );  
+  );
 
   let getHighlightItem = (
     highlight: Highlight,
     i: number,
-    noDivider: boolean = false
+    noDivider: boolean = false,
   ) => (
     <HighlightItem
       key={highlight.id}
@@ -329,6 +297,7 @@ const HighlightsFragment = ({
       isLast={noDivider || i + 1 === highlights.length}
       onUpdate={updateHighlight}
       onDelete={setDeleteHighlightId}
+      readonly={user.id !== highlight?.createdBy?.id}
       showRef
     />
   );
@@ -340,29 +309,31 @@ const HighlightsFragment = ({
         {!hideHeader ? (
           <Box className="header-bar">
             <Typography variant="h6">Highlights</Typography>
-            {/* add icon */}
-            {allowChangeHighlight ? (
-              <TTIconButton
-                onClick={() => setOpenPost(true)}
-                className="header-add-button"
-              >
-                <ToolTip title="Write a new highlight">
-                  <AddIcon />
-                </ToolTip>
-              </TTIconButton>
+            {isUser ? (
+              <TTTabs
+                navTabs={navTabs}
+                navTabValue={navTabValue}
+                setNavTabValue={setNavTabValue}
+                variant="switch"
+              />
             ) : undefined}
           </Box>
         ) : undefined}
 
         {/* tabs */}
-        <Box className={clsx("tool-box", isMobile && "mobile")}>
-          <TTTabs
-            navTabs={navTabs}
-            navTabValue={navTabValue}
-            setNavTabValue={setNavTabValue}
-            variant="switch"
-          />
+        <Box className="tool-box">
           {OrderBySelect}
+          {/* add icon */}
+          {allowChangeHighlight && isUser ? (
+            <TTIconButton
+              onClick={() => setOpenPost(true)}
+              className="header-add-button"
+            >
+              <ToolTip title="Write a new highlight">
+                <AddIcon />
+              </ToolTip>
+            </TTIconButton>
+          ) : undefined}
         </Box>
 
         {/* new highlight form - highlight item in edit */}
@@ -385,7 +356,7 @@ const HighlightsFragment = ({
                 key={`highlight-button-${highlight.id}`}
                 className={clsx(
                   "highlight-select-button",
-                  selectHighlightId === highlight.id && "focus"
+                  selectHighlightId === highlight.id && "focus",
                 )}
                 color="info"
                 variant="text"
@@ -395,7 +366,7 @@ const HighlightsFragment = ({
               </TTButton>
             ) : (
               getHighlightItem(highlight, i)
-            )
+            ),
           )
         ) : (
           <Typography>No highlights available.</Typography>
@@ -403,11 +374,7 @@ const HighlightsFragment = ({
       </Box>
 
       {/* fabs */}
-      {showNavTop ? (
-        <Fab className="nav-top-fab" color="utility" onClick={handleNavTop}>
-          <ArrowUpwardIcon />
-        </Fab>
-      ) : undefined}
+      <NavTopFab containerRef={containerRef} />
 
       {/* form */}
       <DeleteHighlightForm

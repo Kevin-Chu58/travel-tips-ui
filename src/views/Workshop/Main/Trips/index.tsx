@@ -5,6 +5,7 @@ import { useNavigate } from "react-router";
 import { useIsMobile } from "@hooks/useIsMobile";
 import clsx from "clsx";
 import "./index.scss";
+import { useLocation } from "react-router";
 
 type TripsProps = {
   trips: Trip[];
@@ -21,14 +22,18 @@ const Trips = ({
   emptyMessage = "",
   readonly = false,
 }: TripsProps) => {
+  // window
   const isMobile = useIsMobile();
+  // others
   const navigate = useNavigate();
+  const location = useLocation();
+  const isBookmarkTab = location.pathname === "/workshop/bookmark";
 
   return (
     <Box
       className={clsx(
         "workshop-main-content-trips-container",
-        isMobile && "mobile"
+        isMobile && "mobile",
       )}
     >
       {trips.length > 0 ? (
@@ -38,7 +43,7 @@ const Trips = ({
             trip={trip}
             readonly={readonly}
             onClick={() => navigate(`/workshop/trip/${trip.id}`)}
-            asyncUpdateTrip={asyncUpdateTrip}
+            asyncUpdateTrip={!isBookmarkTab ? asyncUpdateTrip : asyncDeleteTrip}
             asyncDeleteTrip={asyncDeleteTrip}
           />
         ))

@@ -7,6 +7,9 @@ import AuthCallback from "@views/AuthCallback";
 import UserAgreement from "@views/UserAgreement";
 import Attraction from "@views/Attraction";
 import Gospel from "@views/Gospel";
+import Profile from "@views/Profile";
+import Settings from "@views/Settings";
+import EmailUnverified from "@views/EmailUnverified";
 
 const routes = [{
     name: "Main",
@@ -37,6 +40,14 @@ const routes = [{
     path: "/gospel/*",
     element: <Gospel/>,
 }, {
+    name: "Profile",
+    path: "/profile/*",
+    element: <Profile/>,
+}, {
+    name: "Settings",
+    path: "/settings",
+    element: <Settings/>,
+}, {
     name: "AuthCallback",
     path: "/auth/callback",
     element: <AuthCallback/>,
@@ -44,6 +55,10 @@ const routes = [{
     name: "UserAgreement",
     path: "/user-agreement",
     element: <UserAgreement/>,
+}, {
+    name: "EmailUnverified",
+    path: "/email-unverified",
+    element: <EmailUnverified/>,
 }];
 
 export default routes;

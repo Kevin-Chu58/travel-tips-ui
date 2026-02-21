@@ -1,6 +1,15 @@
 const sleep = (ms?: number) =>
   new Promise((resolve) => setTimeout(resolve, ms ?? 600));
 
+const mergeRefs = <T>(...refs: Array<React.Ref<T> | undefined>) => {
+  return (value: T) => {
+    refs.forEach((ref) => {
+      if (typeof ref === "function") ref(value);
+      else if (ref && "current" in ref) ref.current = value;
+    });
+  };
+};
+
 /**
  * Scrolls the element with the given ID into the visible area of the browser window.
  * @param id The ID of the target element.
@@ -43,6 +52,7 @@ const mmToPx = (mm: number) => {
 
 export const BehaviorUtils = {
   sleep,
+  mergeRefs,
   scrollToElementById,
   isVerticallyOverflowing,
   isScrollbarAtBottom,

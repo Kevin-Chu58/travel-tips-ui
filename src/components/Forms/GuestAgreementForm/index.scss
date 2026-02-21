@@ -1,8 +1,13 @@
 @use "../../../stylings/box_shadows" as *;
 
 .guest-agreement-form {
+
   .MuiPaper-root {
     background-color: transparent;
     box-shadow: $box-shadow;
+
+    .content-container {
+      overflow-y: auto;
+    }
   }
 }

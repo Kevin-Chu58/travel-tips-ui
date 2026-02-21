@@ -23,21 +23,21 @@ type HttpRequestBody =
 const get = <TResponse>(
   apiBaseURL: string,
   endpoint: string,
-  headers = new Headers()
+  headers = new Headers(),
 ): Promise<TResponse> =>
   makeRequest(
     apiBaseURL,
     endpoint,
     "get",
     undefined,
-    setContentTypeJSON(headers)
+    setContentTypeJSON(headers),
   );
 
 const put = <TResponse>(
   apiBaseURL: string,
   endpoint: string,
   body: HttpRequestBody = "",
-  headers = new Headers()
+  headers = new Headers(),
 ): Promise<TResponse> =>
   makeRequest(apiBaseURL, endpoint, "put", body, setContentTypeJSON(headers));
 
@@ -54,7 +54,7 @@ const postImage = <TResponse>(
   endpoint: string,
   imageFile: Blob | File,
   name?: string,
-  headers?: Headers
+  headers?: Headers,
 ): Promise<TResponse> => {
   // Ensure we have a File, because FormData likes having a filename
   const file =
@@ -73,7 +73,7 @@ const post = <TResponse>(
   apiBaseURL: string,
   endpoint: string,
   body: HttpRequestBody = "",
-  headers = new Headers()
+  headers = new Headers(),
 ): Promise<TResponse> =>
   makeRequest(apiBaseURL, endpoint, "post", body, setContentTypeJSON(headers));
 
@@ -82,7 +82,7 @@ const patch = <TResponse>(
   apiBaseURL: string,
   endpoint: string,
   body: HttpRequestBody = "",
-  headers = new Headers()
+  headers = new Headers(),
 ): Promise<TResponse> =>
   makeRequest(apiBaseURL, endpoint, "PATCH", body, setContentTypeJSON(headers));
 
@@ -90,14 +90,14 @@ const del = <TResponse>(
   apiBaseURL: string,
   endpoint: string,
   body: HttpRequestBody = "",
-  headers = new Headers()
+  headers = new Headers(),
 ): Promise<TResponse> =>
   makeRequest(
     apiBaseURL,
     endpoint,
     "delete",
     body,
-    setContentTypeJSON(headers)
+    setContentTypeJSON(headers),
   );
 
 /**
@@ -114,7 +114,7 @@ const makeRequest = async <TResponse>(
   endpoint: string,
   method: string,
   body?: HttpRequestBody,
-  headers?: Headers
+  headers?: Headers,
 ): Promise<TResponse> => {
   const response = await fetch(`${apiBaseURL}/${endpoint}`, {
     method,
@@ -152,11 +152,14 @@ const makeRequest = async <TResponse>(
  * @returns Resolves with the response body; Rejects on a non-2xx response code
  */
 export const parseResponse = async <TResponse>(
-  res: Response
+  res: Response,
 ): Promise<TResponse> => {
   try {
     const json = await res.text();
-    const data: TResponse = json.length ? JSON.parse(json) : {};
+    let data: TResponse = json as TResponse;
+    try {
+      data = json.length ? JSON.parse(json) : data;
+    } catch {}
 
     // Throw error when response status code is bad
     if (!res.ok) {
@@ -215,7 +218,7 @@ type QueryStringSerializable =
  * @returns URL query string of the form `'?key1=value1&key2=value2'`, or an empty string if `queryParams` is `undefined`.
  */
 const toQueryString = (
-  queryParams?: Record<string | number | symbol, QueryStringSerializable>
+  queryParams?: Record<string | number | symbol, QueryStringSerializable>,
 ): string => {
   if (!queryParams) return "";
 

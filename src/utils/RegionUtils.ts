@@ -20,6 +20,19 @@ const getRegionAddress = (completeRegion?: RegionComplete) => {
   return address.join(", ");
 };
 
+const getRegionAddressBySlugs = (country?: string, state?: string) => {
+  if (!country) return "None";
+
+  let address = [country];
+
+  if (state) {
+    address.push(state);
+  }
+
+  return address.join(", ");
+};
+
 export const RegionUtils = {
   getRegionAddress,
+  getRegionAddressBySlugs,
 };
