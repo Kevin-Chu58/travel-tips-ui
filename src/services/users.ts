@@ -10,6 +10,7 @@ export type UserSimple = {
 export type UserBasic = UserSimple & {
   email: string;
   userAgreement: boolean;
+  emailVerified: boolean;
   isAdmin?: boolean;
   isWriter?: boolean;
 };

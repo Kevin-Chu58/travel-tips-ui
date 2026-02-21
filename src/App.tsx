@@ -21,9 +21,12 @@ function App() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // userAgreement is null in default
+    console.log(user);
+
+    // userAgreement and emailVerified are null in default
     if (user.userAgreement === false) navigate("/user-agreement");
-  }, [user.userAgreement]);
+    else if (user.emailVerified === false) navigate("/email-unverified");
+  }, [user.userAgreement, user.emailVerified]);
 
   useEffect(() => {
     if (user.isLoading) return;
