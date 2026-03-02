@@ -62,7 +62,7 @@ const DayPdfPage = ({ dayIndex, taos, routingResponses }: DayPdfPageProps) => {
                     <Typography className="tao-order-number">
                       {i + 1}
                     </Typography>
-                    <Typography fontWeight="bold">
+                    <Typography whiteSpace="nowrap" fontWeight="bold">
                       {startTime} - {endTime}
                     </Typography>
                     {tao.attraction.category ? (
