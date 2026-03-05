@@ -1,8 +1,9 @@
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { clearUser, setLoading, setUser } from "@redux/userSlice";
-import { usersService } from "@services/users";
+import { usersService, type UserBasic } from "@services/users";
 import { useAuth0 } from "@auth0/auth0-react";
+import { LS_USER_BASIC } from "@constants/localStorage";
 
 export const UserBasicInitializer = () => {
   const { isAuthenticated, isLoading } = useAuth0();
@@ -21,7 +22,14 @@ export const UserBasicInitializer = () => {
       }
 
       try {
-        const user = await usersService.getUserBasicInfo();
+        let userStr = localStorage.getItem(LS_USER_BASIC);
+        let user;
+        if (userStr) {
+          user = JSON.parse(userStr) as UserBasic;
+        } else {
+          user = await usersService.getUserBasicInfo();
+          localStorage.setItem(LS_USER_BASIC, JSON.stringify(user));
+        }
 
         dispatch(
           setUser({

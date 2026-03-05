@@ -1,0 +1,42 @@
+@use "../../stylings/layout" as *;
+@use "../../stylings/color" as *;
+
+.banner-container {
+  position: relative;
+  height: $screen-height;
+  padding: 2rem;
+  color: black;
+  overflow-y: auto;
+
+  .banner-box {
+    display: flex;
+    flex-direction: column;
+
+    &.mobile {
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+    }
+  }
+
+  .tool-bar {
+    margin-bottom: 1rem;
+  }
+
+  .banner-cards-box {
+    display: column;
+
+    .MuiMenuItem-root {
+      display: flex;
+      justify-content: space-between;
+
+      .no-content.MuiTypography-root {
+        font-style: italic;
+      }
+    }
+
+    .MuiMenuItem-root:not(:first-child) {
+      border-top: 1px $divider solid;
+    }
+  }
+}

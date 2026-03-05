@@ -1,0 +1,18 @@
+.delete-banner-form-header-box {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: .5rem;
+}
+
+
+.delete-banner-form-header.MuiTypography-root {
+  font-size: 1.2rem;
+}
+
+.delete-banner-form-button-box {
+  display: flex;
+  justify-content: right;
+  margin-top: 1rem;
+  gap: .5rem;
+}

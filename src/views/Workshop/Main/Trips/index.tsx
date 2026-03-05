@@ -2,10 +2,8 @@ import TripCard from "@components/Cards/TripCard";
 import { Box, Typography } from "@mui/material";
 import type { Trip } from "@services/trips";
 import { useNavigate } from "react-router";
-import { useIsMobile } from "@hooks/useIsMobile";
-import clsx from "clsx";
-import "./index.scss";
 import { useLocation } from "react-router";
+import "./index.scss";
 
 type TripsProps = {
   trips: Trip[];
@@ -22,20 +20,13 @@ const Trips = ({
   emptyMessage = "",
   readonly = false,
 }: TripsProps) => {
-  // window
-  const isMobile = useIsMobile();
   // others
   const navigate = useNavigate();
   const location = useLocation();
   const isBookmarkTab = location.pathname === "/workshop/bookmark";
 
   return (
-    <Box
-      className={clsx(
-        "workshop-main-content-trips-container",
-        isMobile && "mobile",
-      )}
-    >
+    <Box className="workshop-main-content-trips-container">
       {trips.length > 0 ? (
         trips.map((trip) => (
           <TripCard

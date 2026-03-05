@@ -151,6 +151,10 @@ span.helper {
   display: flex;
   flex-direction: column;
 
+  &.gap {
+    gap: .5rem;
+  }
+
   &.center {
     align-items: center;
   }
@@ -300,6 +304,19 @@ a {
   &:hover {
     scrollbar-color: var(--utility-500) transparent;
   }
+}
+
+.no-scrollbar {
+    /* For Firefox */
+    scrollbar-width: none; 
+
+    /* For Internet Explorer and older Edge */
+    -ms-overflow-style: none; 
+}
+
+/* For Chrome, Safari, and newer Opera */
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
 }
 
 /* @media (prefers-color-scheme: light) {

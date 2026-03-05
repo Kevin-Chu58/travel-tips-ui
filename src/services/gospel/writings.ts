@@ -1,9 +1,9 @@
 import http, { type SearchResult } from "@services/http";
 import type { UserSimple } from "@services/users";
 
-// sermons
+// writings
 
-export type SermonPost = {
+export type WritingPost = {
   title: string;
   content: string;
   labelId?: number;
@@ -11,17 +11,17 @@ export type SermonPost = {
   isBanner?: boolean;
 };
 
-export type Sermon = {
+export type Writing = {
   id: number;
   title: string;
   content?: string;
   createdBy: UserSimple;
-  label?: SermonLabelComplete;
+  label?: WritingLabelComplete;
   publishAt: string;
   isBanner: boolean;
 };
 
-export type SermonPatch = {
+export type WritingPatch = {
   title?: string;
   content?: string;
   labelId?: number;
@@ -29,60 +29,56 @@ export type SermonPatch = {
   isBanner?: boolean;
 };
 
-// sermon labels
+// Writing labels
 
-export type SermonLabelType = "Category" | "Topic";
+export type WritingLabelType = "Category" | "Topic";
 
-export type SermonLabel = {
+export type WritingLabel = {
   id: number;
   name: string;
   slug: string;
   parentLabelId?: number;
-  type: SermonLabelType;
+  type: WritingLabelType;
 };
 
-export type SermonLabelComplete = {
-  category?: SermonLabel;
-  topic?: SermonLabel;
+export type WritingLabelComplete = {
+  category?: WritingLabel;
+  topic?: WritingLabel;
 };
 
-export type SermonLabelSearchResult = {
-  categories?: SermonLabel[];
-  topics?: SermonLabel[];
+export type WritingLabelSearchResult = {
+  categories?: WritingLabel[];
+  topics?: WritingLabel[];
 };
 
 // search params
 
-export type SermonSearchParams = {
+export type WritingSearchParams = {
   createdByAuthId?: string;
   title?: string;
   labelSlug?: string;
-  isBanner?: boolean;
   isRestricted?: boolean;
   isDesc?: boolean;
 };
 
-export type SermonLabelSearchParams = {
+export type WritingLabelSearchParams = {
   name?: string;
   parentLabelId?: number;
-  type?: SermonLabelType;
+  type?: WritingLabelType;
   timestamp?: number;
 };
 
-// requests - sermons
+// requests - writings
 
-const getSermonsByParams = async (
-  params: SermonSearchParams,
-): Promise<Sermon[]> => {
+const getWritingsByParams = async (
+  params: WritingSearchParams,
+): Promise<Writing[]> => {
   const _params = new URLSearchParams();
 
   if (params.createdByAuthId)
     _params.append("createdByAuthId", params.createdByAuthId);
   if (params.title) _params.append("title", params.title);
   if (params.labelSlug) _params.append("labelSlug", params.labelSlug);
-  if (params.isBanner !== undefined) {
-    _params.append("isBanner", params.isBanner.toString());
-  }
   if (params.isRestricted !== undefined) {
     _params.append("isRestricted", params.isRestricted.toString());
   }
@@ -90,13 +86,13 @@ const getSermonsByParams = async (
     _params.append("isDesc", params.isDesc.toString());
   }
 
-  return await http.get(http.apiBaseURLs.api, `sermons?${_params.toString()}`);
+  return await http.get(http.apiBaseURLs.api, `writings?${_params.toString()}`);
 };
 
-const getSermonById = async (
+const getWritingById = async (
   id: number,
   isRestricted: boolean = false,
-): Promise<Sermon> => {
+): Promise<Writing> => {
   const _params = new URLSearchParams();
 
   if (isRestricted !== undefined) {
@@ -105,66 +101,62 @@ const getSermonById = async (
 
   return await http.get(
     http.apiBaseURLs.api,
-    `sermons/${id}?${_params.toString()}`,
+    `writings/${id}?${_params.toString()}`,
   );
 };
 
-const getSermonByLabelOrder = async (
+const getWritingByLabelOrder = async (
   labelSlug: string,
   orderId: number,
-): Promise<Sermon> => {
+): Promise<Writing> => {
   return await http.get(
     http.apiBaseURLs.api,
-    `sermons/${labelSlug}/${orderId}`,
+    `writings/${labelSlug}/${orderId}`,
   );
 };
 
-const getSermonOrderById = async (id: number): Promise<number> => {
-  return await http.get(http.apiBaseURLs.api, `sermons/order/${id}`);
+const getWritingOrderById = async (id: number): Promise<number> => {
+  return await http.get(http.apiBaseURLs.api, `writings/order/${id}`);
 };
 
-const getLatestSermons = async (): Promise<Sermon[]> => {
-  return await http.get(http.apiBaseURLs.api, "sermons/latest");
+const getMyWritings = async (): Promise<Writing[]> => {
+  return await http.get(http.apiBaseURLs.api, "writings/my");
 };
 
-const getMySermons = async (): Promise<Sermon[]> => {
-  return await http.get(http.apiBaseURLs.api, "sermons/my");
+const postNewWriting = async (newWriting: WritingPost): Promise<Writing> => {
+  const body = JSON.stringify(newWriting);
+
+  return await http.post(http.apiBaseURLs.api, "writings", body, undefined);
 };
 
-const postNewSermon = async (newSermon: SermonPost): Promise<Sermon> => {
-  const body = JSON.stringify(newSermon);
-
-  return await http.post(http.apiBaseURLs.api, "sermons", body, undefined);
-};
-
-const patchSermon = async (
+const patchWriting = async (
   id: number,
-  sermon: SermonPatch,
-): Promise<Sermon> => {
-  const body = JSON.stringify(sermon);
+  Writing: WritingPatch,
+): Promise<Writing> => {
+  const body = JSON.stringify(Writing);
 
   return await http.patch(
     http.apiBaseURLs.api,
-    `sermons/${id}`,
+    `writings/${id}`,
     body,
     undefined,
   );
 };
 
-const deleteSermon = async (id: number): Promise<number> => {
+const deleteWriting = async (id: number): Promise<number> => {
   return await http.del(
     http.apiBaseURLs.api,
-    `sermons/${id}`,
+    `writings/${id}`,
     undefined,
     undefined,
   );
 };
 
-// requests - sermon labels
+// requests - Writing labels
 
-const getSermonLabelsByParams = async (
-  params: SermonLabelSearchParams,
-): Promise<SearchResult<SermonLabelSearchResult>> => {
+const getWritingLabelsByParams = async (
+  params: WritingLabelSearchParams,
+): Promise<SearchResult<WritingLabelSearchResult>> => {
   const _params = new URLSearchParams();
 
   if (params.name) _params.append("name", params.name);
@@ -176,26 +168,26 @@ const getSermonLabelsByParams = async (
 
   return await http.get(
     http.apiBaseURLs.api,
-    `sermons/labels?${_params.toString()}`,
+    `writings/labels?${_params.toString()}`,
     undefined,
   );
 };
 
-const getSermonLabelCompleteBySlug = async (
+const getWritingLabelCompleteBySlug = async (
   slug: string,
-): Promise<SermonLabelComplete> => {
+): Promise<WritingLabelComplete> => {
   return await http.get(
     http.apiBaseURLs.api,
-    `sermons/labels/${slug}`,
+    `writings/labels/${slug}`,
     undefined,
   );
 };
 
-const postNewSermonLabel = async (
+const postNewWritingLabel = async (
   name: string,
-  type: SermonLabelType,
+  type: WritingLabelType,
   parentLabelId?: number,
-): Promise<SermonLabel> => {
+): Promise<WritingLabel> => {
   const _params = new URLSearchParams();
 
   _params.append("name", name);
@@ -204,17 +196,17 @@ const postNewSermonLabel = async (
 
   return await http.post(
     http.apiBaseURLs.api,
-    `sermons/labels?${_params.toString()}`,
+    `writings/labels?${_params.toString()}`,
     undefined,
     undefined,
   );
 };
 
-const updateSermonLabel = async (
+const updateWritingLabel = async (
   id: number,
   name: string,
   parentLabelId?: number,
-): Promise<SermonLabel> => {
+): Promise<WritingLabel> => {
   const _params = new URLSearchParams();
 
   _params.append("name", name);
@@ -222,36 +214,35 @@ const updateSermonLabel = async (
 
   return await http.patch(
     http.apiBaseURLs.api,
-    `sermons/labels/${id}?${_params.toString()}`,
+    `writings/labels/${id}?${_params.toString()}`,
     undefined,
     undefined,
   );
 };
 
-const deleteSermonLabel = async (id: number): Promise<number> => {
+const deleteWritingLabel = async (id: number): Promise<number> => {
   return await http.del(
     http.apiBaseURLs.api,
-    `sermons/labels/${id}`,
+    `writings/labels/${id}`,
     undefined,
     undefined,
   );
 };
 
-export const sermonsService = {
-  // sermons
-  getSermonsByParams,
-  getSermonById,
-  getSermonByLabelOrder,
-  getSermonOrderById,
-  getLatestSermons,
-  getMySermons,
-  postNewSermon,
-  patchSermon,
-  deleteSermon,
-  // sermon labels
-  getSermonLabelsByParams,
-  getSermonLabelCompleteBySlug,
-  postNewSermonLabel,
-  updateSermonLabel,
-  deleteSermonLabel,
+export const writingsService = {
+  // writings
+  getWritingsByParams,
+  getWritingById,
+  getWritingByLabelOrder,
+  getWritingOrderById,
+  getMyWritings,
+  postNewWriting,
+  patchWriting,
+  deleteWriting,
+  // Writing labels
+  getWritingLabelsByParams,
+  getWritingLabelCompleteBySlug,
+  postNewWritingLabel,
+  updateWritingLabel,
+  deleteWritingLabel,
 };

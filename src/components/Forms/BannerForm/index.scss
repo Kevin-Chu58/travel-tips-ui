@@ -1,0 +1,58 @@
+@use "../../../stylings/box_shadows" as *;
+
+.banner-form {
+  .form-content {
+    position: relative;
+  }
+
+  .caption.MuiTypography-root {
+    font-size: 0.8rem;
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+
+  .option-box {
+    width: 400px;
+    max-height: inherit;
+    padding: 1rem 0;
+    gap: 1rem;
+    z-index: 0;
+
+    .banner-image {
+      width: 100%;
+      object-fit: cover;
+      box-shadow: $box-shadow;
+    }
+
+    .image-selector-file-select-button.MuiButton-root {
+      color: white;
+      background-color: var(--utility-900);
+      padding: .5rem 1rem;
+      text-transform: capitalize;
+      box-shadow: $box-shadow;
+    }
+
+    .styling-options-close-button {
+      margin-left: auto;
+    }
+
+    .style-mode-chip.MuiChip-root .MuiChip-deleteIcon {
+      color: white;
+    }
+  }
+
+  .preview {
+    position: sticky;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: end;
+    top: 0;
+    width: 100%;
+    max-height: max-content;
+    padding: .3rem;
+    gap: .3rem;
+    background-color: var(--utility-100);
+    overflow: auto;
+  }
+}

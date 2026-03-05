@@ -1,9 +1,13 @@
 import imageCompression from "browser-image-compression";
 
-const compressImage = async (file: File): Promise<File> => {
+const compressImage = async (
+  file: File,
+  sizeMB?: number,
+  widthOrHeight?: number,
+): Promise<File> => {
   const options = {
-    maxSizeMB: 0.2, // Target max size in MB (e.g. 0.2 = 200KB)
-    maxWidthOrHeight: 1500, // Optional: Resize image if needed
+    maxSizeMB: sizeMB ?? 0.2, // Target max size in MB (e.g. 0.2 = 200KB)
+    maxWidthOrHeight: widthOrHeight ?? 1500, // Optional: Resize image if needed
     useWebWorker: true, // Speed boost
   };
 
@@ -11,9 +15,7 @@ const compressImage = async (file: File): Promise<File> => {
     const compressedBlob = await imageCompression(file, options);
     const maxSizeKB = options.maxSizeMB * 1000;
     if (compressedBlob.size > maxSizeKB * 1024) {
-      throw new Error(
-        `Cropped image must be smaller than ${maxSizeKB} KB`
-      );
+      throw new Error(`Cropped image must be smaller than ${maxSizeKB} KB`);
     }
 
     return compressedBlob;

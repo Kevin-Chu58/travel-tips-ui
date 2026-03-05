@@ -2,7 +2,7 @@ import TTButton from "@components/TTButton";
 import TTDialog from "@components/TTDialog";
 import { Box, CircularProgress, Divider, Typography } from "@mui/material";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
-import { ImagesService, type Image } from "@services/images";
+import { imagesService, type Image } from "@services/images";
 import { useEffect, useState } from "react";
 import { BehaviorUtils } from "@utils/BehaviorUtils";
 import { enqueueSnackbar } from "notistack";
@@ -15,7 +15,9 @@ type LibraryDialogProps = {
   open: boolean;
   onClose: () => void;
   imageIds: number[];
-  asyncAddImage: (state: number) => void;
+  asyncAddImage?: (state: number) => void;
+  setImage?: (state: Image) => void;
+  banner?: boolean;
 };
 
 const LibraryDialog = ({
@@ -23,6 +25,8 @@ const LibraryDialog = ({
   onClose,
   imageIds,
   asyncAddImage,
+  setImage,
+  banner = false,
 }: LibraryDialogProps) => {
   // window
   const isMobile = useIsMobile();
@@ -42,7 +46,9 @@ const LibraryDialog = ({
   useEffect(() => {
     const initLibraryImages = async () => {
       if (open) {
-        let imageViewModels = await ImagesService.getMyImages();
+        let imageViewModels = banner
+          ? await imagesService.getBannerImages()
+          : await imagesService.getMyImages();
         let unattachedImages = imageViewModels.filter(
           (image) => !imageIds.includes(image.id),
         );
@@ -57,7 +63,12 @@ const LibraryDialog = ({
       try {
         setIsLoading(true);
 
-        asyncAddImage(selectedImageId);
+        if (asyncAddImage) asyncAddImage(selectedImageId);
+
+        if (setImage) {
+          let image = images.find((i) => i.id === selectedImageId);
+          setImage(image!);
+        }
 
         enqueueSnackbar("Successfully attached image.", { variant: "success" });
       } catch (e) {

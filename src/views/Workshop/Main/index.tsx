@@ -14,7 +14,7 @@ import TTDrawer from "@components/TTDrawer";
 import { Turn as Hamburger } from "hamburger-react";
 import { useIsMobile } from "@hooks/useIsMobile";
 import CropperDialog from "@components/ImageSelector/CropperDialog";
-import { ImagesService, type Image } from "@services/images";
+import { imagesService, type Image } from "@services/images";
 import ImagesTool from "./Images/ImagesTool";
 import Images from "./Images";
 import SortUtils, {
@@ -192,12 +192,12 @@ const Main = () => {
   };
 
   const getMyImages = async () => {
-    const myImages = await ImagesService.getMyImages();
+    const myImages = await imagesService.getMyImages();
     asyncImages(SortUtils.sortList(myImages, imagesSortTypes, sortTypeIndex));
   };
 
   const asyncAddImage = async (_: number) => {
-    const images = await ImagesService.getMyImages();
+    const images = await imagesService.getMyImages();
     imagesRef.current = images;
     asyncImages(
       SortUtils.sortList(imagesRef.current, imagesSortTypes, sortTypeIndex),

@@ -172,7 +172,7 @@ const UserProfile = ({ user, setUser }: UserProfileProps) => {
                 />
               ) : undefined}
               {user?.isWriter ? (
-                <Chip color="success" size="small" label="Sermon Writer" />
+                <Chip color="success" size="small" label="Writing Writer" />
               ) : undefined}
             </Box>
           ) : undefined}

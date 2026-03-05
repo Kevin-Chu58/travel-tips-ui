@@ -1,6 +1,5 @@
 import {
   Box,
-  Checkbox,
   FormControl,
   Grid,
   InputLabel,
@@ -14,25 +13,30 @@ import FormBase from "../FormBase";
 import DescriptionTextField from "@components/TextField/DescriptionTextField";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import {
-  sermonsService,
-  type Sermon,
-  type SermonLabel,
-} from "@services/gospel/sermons";
+  writingsService,
+  type Writing,
+  type WritingLabel,
+} from "@services/gospel/Writings";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { useEffect, useState, type ChangeEvent } from "react";
+import { useEffect, useState } from "react";
 import TimeUtils from "@utils/TimeUtils";
 import { enqueueSnackbar } from "notistack";
 import dayjs, { Dayjs } from "dayjs";
 import "./index.scss";
 
-type SermonFormProps = {
-  sermonId?: number;
+type WritingFormProps = {
+  WritingId?: number;
   open: boolean;
   onClose: () => void;
-  onAction?: (state: Sermon) => void;
+  onAction?: (state: Writing) => void;
 };
 
-const SermonForm = ({ sermonId, open, onClose, onAction }: SermonFormProps) => {
+const WritingForm = ({
+  WritingId,
+  open,
+  onClose,
+  onAction,
+}: WritingFormProps) => {
   // title
   const [title, setTitle] = useState<string | undefined>();
   // publish at
@@ -40,15 +44,13 @@ const SermonForm = ({ sermonId, open, onClose, onAction }: SermonFormProps) => {
   // content
   const [content, setContent] = useState<string | undefined>();
   // label data
-  const [categories, setCategories] = useState<SermonLabel[]>([]);
-  const [topics, setTopics] = useState<SermonLabel[]>([]);
+  const [categories, setCategories] = useState<WritingLabel[]>([]);
+  const [topics, setTopics] = useState<WritingLabel[]>([]);
   // label slug
   const [category, setCategory] = useState<string>("");
   const [topic, setTopic] = useState<string>("");
   const _category = categories.find((c) => c.slug === category);
   const _topic = topics.find((t) => t.slug === topic);
-  // is banner
-  const [isBanner, setIsBanner] = useState<boolean>(false);
   // others
   const isValid =
     Boolean(title) &&
@@ -59,14 +61,14 @@ const SermonForm = ({ sermonId, open, onClose, onAction }: SermonFormProps) => {
   // init functions
 
   const initCategories = async () => {
-    const categories = await sermonsService.getSermonLabelsByParams({
+    const categories = await writingsService.getWritingLabelsByParams({
       type: "Category",
     });
     setCategories(categories.result.categories ?? []);
   };
 
   const initTopics = async () => {
-    const topics = await sermonsService.getSermonLabelsByParams({
+    const topics = await writingsService.getWritingLabelsByParams({
       type: "Topic",
       parentLabelId: _category?.id,
     });
@@ -75,23 +77,22 @@ const SermonForm = ({ sermonId, open, onClose, onAction }: SermonFormProps) => {
 
   // use effect
   useEffect(() => {
-    const loadSermon = async () => {
+    const loadWriting = async () => {
       if (open) {
         initCategories();
 
-        if (sermonId) {
-          const sermon = await sermonsService.getSermonById(sermonId, true);
-          
-          setTitle(sermon.title);
-          setPublishAt(dayjs(sermon.publishAt));
-          setCategory(sermon.label?.category?.slug ?? "");
-          setTopic(sermon.label?.topic?.slug ?? "");
-          setIsBanner(sermon.isBanner);
-          setContent(sermon.content);
+        if (WritingId) {
+          const Writing = await writingsService.getWritingById(WritingId, true);
+
+          setTitle(Writing.title);
+          setPublishAt(dayjs(Writing.publishAt));
+          setCategory(Writing.label?.category?.slug ?? "");
+          setTopic(Writing.label?.topic?.slug ?? "");
+          setContent(Writing.content);
         }
       }
     };
-    loadSermon();
+    loadWriting();
   }, [open]);
 
   useEffect(() => {
@@ -106,16 +107,15 @@ const SermonForm = ({ sermonId, open, onClose, onAction }: SermonFormProps) => {
     if (!isValid) return;
 
     try {
-      const newSermon = await sermonsService.postNewSermon({
+      const newWriting = await writingsService.postNewWriting({
         title: title ?? "",
         content: content ?? "",
         labelId: _topic?.id,
         publishAt: TimeUtils.dayjsToString("YYYY-MM-DD", publishAt),
-        isBanner: isBanner,
       });
 
-      enqueueSnackbar("Sermon created.", { variant: "success" });
-      if (onAction) onAction(newSermon);
+      enqueueSnackbar("Writing created.", { variant: "success" });
+      if (onAction) onAction(newWriting);
 
       handleClose();
     } catch (e) {
@@ -126,19 +126,18 @@ const SermonForm = ({ sermonId, open, onClose, onAction }: SermonFormProps) => {
   };
 
   const handleUpdate = async () => {
-    if (!isValid || !sermonId) return;
+    if (!isValid || !WritingId) return;
 
     try {
-      const updatedSermon = await sermonsService.patchSermon(sermonId, {
+      const updatedWriting = await writingsService.patchWriting(WritingId, {
         title: title,
         content: content,
         labelId: _topic?.id,
         publishAt: TimeUtils.dayjsToString("YYYY-MM-DD", publishAt),
-        isBanner: isBanner,
       });
 
-      enqueueSnackbar("Sermon updated.", { variant: "success" });
-      if (onAction) onAction(updatedSermon);
+      enqueueSnackbar("Writing updated.", { variant: "success" });
+      if (onAction) onAction(updatedWriting);
 
       handleClose();
     } catch (e) {
@@ -154,7 +153,6 @@ const SermonForm = ({ sermonId, open, onClose, onAction }: SermonFormProps) => {
     setContent(undefined);
     setCategory("");
     setTopic("");
-    setIsBanner(false);
     onClose();
   };
 
@@ -167,21 +165,17 @@ const SermonForm = ({ sermonId, open, onClose, onAction }: SermonFormProps) => {
     setTopic(event.target.value);
   };
 
-  const handleIsBannerChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setIsBanner(event.target.checked);
-  };
-
   return (
     <FormBase
-      className="sermon-form"
+      className="Writing-form"
       open={open}
       onClose={handleClose}
       width="60vw"
       height="80vh"
       maxHeight="80vh"
-      title={sermonId ? "Edit Sermon" : "New Sermon"}
-      actionButtonLabel={sermonId ? "Update" : "Create"}
-      actionButtonOnClick={sermonId ? handleUpdate : handleCreate}
+      title={WritingId ? "Edit Writing" : "New Writing"}
+      actionButtonLabel={WritingId ? "Update" : "Create"}
+      actionButtonOnClick={WritingId ? handleUpdate : handleCreate}
       disableActionButton={!isValid}
       panel
     >
@@ -194,7 +188,7 @@ const SermonForm = ({ sermonId, open, onClose, onAction }: SermonFormProps) => {
             <TextField
               value={title ?? ""}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Sermon Title"
+              placeholder="Writing Title"
             />
             {/* publish at */}
             <Typography className="form-title">Publish At*</Typography>
@@ -238,15 +232,9 @@ const SermonForm = ({ sermonId, open, onClose, onAction }: SermonFormProps) => {
                 ))}
               </Select>
             </FormControl>
-            <Typography variant="caption">*Only sermons with category and topic are visible to public.</Typography>
-            {/* banner */}
-            <Box className="row full">
-              <Typography className="form-title">Appears in Banner?</Typography>
-              <Checkbox
-                checked={isBanner}
-                onChange={(e) => handleIsBannerChange(e)}
-              />
-            </Box>
+            <Typography variant="caption">
+              *Only Writings with category and topic are visible to public.
+            </Typography>
           </Grid>
 
           {/* content */}
@@ -255,7 +243,7 @@ const SermonForm = ({ sermonId, open, onClose, onAction }: SermonFormProps) => {
             <DescriptionTextField
               value={content ?? ""}
               setValue={setContent}
-              placeholder="Write sermon here"
+              placeholder="Write Writing here"
               maxHeight="50vh"
               isOfficial
             />
@@ -266,4 +254,4 @@ const SermonForm = ({ sermonId, open, onClose, onAction }: SermonFormProps) => {
   );
 };
 
-export default SermonForm;
+export default WritingForm;

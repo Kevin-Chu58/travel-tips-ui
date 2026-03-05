@@ -32,6 +32,7 @@ export type NavTab = {
   subs?: SubNavTab[];
   condition?: boolean | ((args: any[]) => boolean);
   deletable?: boolean;
+  onClick?: () => void;
 };
 
 export type UtilityItem = {
@@ -131,7 +132,7 @@ export type HighlightOrderByEnum =
   | "leastUsed";
 
 export type GospelSearchType = 
-  | "Sermon"
+  | "Writing"
   | "Topic";
 
 // labels

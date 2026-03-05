@@ -48,15 +48,15 @@ const DescriptionTextField = ({
   // states
   const isBold = StringUtils.isStylingMet(
     selection.text,
-    StringUtils.BOLD_IDENT
+    StringUtils.BOLD_IDENT,
   );
   const isItalic = StringUtils.isStylingMet(
     selection.text,
-    StringUtils.ITALIC_IDENT
+    StringUtils.ITALIC_IDENT,
   );
   const isStrikeThrough = StringUtils.isStylingMet(
     selection.text,
-    StringUtils.STRIKE_THROUGH_IDENT
+    StringUtils.STRIKE_THROUGH_IDENT,
   );
 
   // async functions
@@ -87,7 +87,7 @@ const DescriptionTextField = ({
   const handleStylingClick = (
     isConditionMet: boolean,
     identifier: string,
-    isAddIdent: boolean = false
+    isAddIdent: boolean = false,
   ) => {
     if (!isAddIdent && !selection.text) return;
 
@@ -99,8 +99,8 @@ const DescriptionTextField = ({
     const newText = isConditionMet
       ? selection.text.slice(identLength, selection.text.length - identLength)
       : isAddIdent
-      ? identifier
-      : `${identifier}${selection.text}${identifier}`;
+        ? identifier
+        : `${identifier}${selection.text}${identifier}`;
     const newValue = `${before}${newText}${after}`;
 
     setValue(newValue);
@@ -173,7 +173,9 @@ const DescriptionTextField = ({
       </Box>
 
       {isPreview ? (
-        <MarkdownBox text={value} isOfficial={isOfficial} />
+        <Box className="preview-box">
+          <MarkdownBox text={value} isOfficial={isOfficial} />
+        </Box>
       ) : (
         <Box className="text-field-box">
           <Box className="text-field-tool-bar">
@@ -193,7 +195,7 @@ const DescriptionTextField = ({
           <TextField
             className="view-input-text-field"
             value={value}
-            sx={{maxHeight: maxHeight}}
+            sx={{ maxHeight: maxHeight }}
             onChange={(e) => setValue(e.target.value)}
             placeholder={placeholder}
             inputRef={textAreaRef}

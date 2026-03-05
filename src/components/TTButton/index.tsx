@@ -18,6 +18,7 @@ type TTButtonProps = {
   disableRipple?: boolean;
   circular?: boolean;
   onClick?: React.MouseEventHandler<HTMLButtonElement>;
+  stopPropagation?: boolean;
   sx?: SxProps;
   children?: ReactNode;
 };
@@ -38,6 +39,7 @@ const TTButton = ({
   disableRipple = false,
   circular = false,
   onClick = () => {},
+  stopPropagation = true,
   sx,
   children,
 }: TTButtonProps) => {
@@ -67,7 +69,7 @@ const TTButton = ({
       disableTouchRipple={disableRipple}
       href={to}
       onClick={(e) => {
-        e.stopPropagation();
+        if (stopPropagation) e.stopPropagation();
         to ? navigate(to) : onClick(e);
       }}
       sx={muiButtonRootSx}

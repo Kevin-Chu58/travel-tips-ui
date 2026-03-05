@@ -9,7 +9,7 @@ import {
   OutlinedInput,
   Typography,
 } from "@mui/material";
-import { ImagesService, type Image } from "@services/images";
+import { imagesService, type Image } from "@services/images";
 import { useIsMobile } from "@hooks/useIsMobile";
 import { enqueueSnackbar } from "notistack";
 import EditIcon from "@mui/icons-material/Edit";
@@ -55,7 +55,7 @@ const ImageForm = ({
   const handleDownloadClick = async () => {
     try {
       if (image) {
-        let imageBlob = await ImagesService.downloadImage(image.id);
+        let imageBlob = await imagesService.downloadImage(image.id);
         ImageUtils.downloadImage(imageBlob, image.name ?? image.guid);
       }
     } catch (e) {
@@ -80,7 +80,7 @@ const ImageForm = ({
 
     if (image) {
       try {
-        await ImagesService.updateImageName(image.id, trimmedName);
+        await imagesService.updateImageName(image.id, trimmedName);
 
         enqueueSnackbar("Successfully updated image name.", {
           variant: "success",
@@ -103,7 +103,7 @@ const ImageForm = ({
   const deleteImage = async () => {
     if (image) {
       try {
-        let imageId = await ImagesService.deleteImage(image.id);
+        let imageId = await imagesService.deleteImage(image.id);
 
         enqueueSnackbar("Successfully deleted image.", {
           variant: "success",
