@@ -1,4 +1,17 @@
-import { Box, Chip, Container, MenuItem, Typography } from "@mui/material";
+import {
+  Box,
+  Chip,
+  Container,
+  IconButton,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Typography,
+} from "@mui/material";
 import { useIsMobile } from "@hooks/useIsMobile";
 import React, { useEffect, useRef, useState } from "react";
 import {
@@ -9,11 +22,12 @@ import {
 import TTButton from "@components/TTButton";
 import AddIcon from "@mui/icons-material/Add";
 import BannerForm from "@components/Forms/BannerForm";
-import TTIconButton from "@components/TTIconButton";
+import ImageIcon from "@mui/icons-material/Image";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import DeleteBannerForm from "@components/Forms/DeleteBannerForm";
 import { useCursorScroll } from "@hooks/useCursorScroll";
 import NavTopFab from "@components/Behavioral/NavTopFab";
+import LibraryDialog from "@components/ImageSelector/LibraryDialog";
 import clsx from "clsx";
 import "./index.scss";
 
@@ -34,6 +48,7 @@ const Banner = () => {
   const [deleteBannerFormOpen, setDeleteBannerFormOpen] = useState<
     number | undefined
   >();
+  const [imageDialogOpen, setImageDialogOpen] = useState<boolean>(false);
 
   // use effects
 
@@ -109,44 +124,72 @@ const Banner = () => {
               >
                 New Banner
               </TTButton>
+              <TTButton
+                color="info"
+                startIcon={<ImageIcon />}
+                onClick={() => setImageDialogOpen(true)}
+              >
+                Image Gallery
+              </TTButton>
             </Box>
 
             {/* banners */}
             {banners.length > 0 ? (
-              <Box className="banner-cards-box">
-                {banners.map((banner) => (
-                  <MenuItem
-                    key={banner.id}
-                    onClick={() => handleBannerClick(banner.id)}
-                  >
-                    <Typography fontWeight="bold">{banner.title}</Typography>
-                    <Typography>From: {banner.from}</Typography>
-                    <Typography>To: {banner.to ?? "No end date"}</Typography>
-                    {banner.label ? (
-                      <Chip label={banner.label} size="small" color="utility" />
-                    ) : (
-                      <Typography className="no-content">No Label</Typography>
-                    )}
-                    {banner.subLabel ? (
-                      <Chip
-                        label={banner.subLabel}
-                        size="small"
-                        color="utility"
-                      />
-                    ) : (
-                      <Typography className="no-content">
-                        No Sub-label
-                      </Typography>
-                    )}
-                    <TTIconButton
-                      onClick={(e) => handleDeleteClick(e, banner.id)}
-                      noBorder
-                    >
-                      <DeleteForeverIcon />
-                    </TTIconButton>
-                  </MenuItem>
-                ))}
-              </Box>
+              <TableContainer component={Paper}>
+                <Table className="banner-table" aria-label="banner-table">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Title</TableCell>
+                      <TableCell align="right">From</TableCell>
+                      <TableCell align="right">To</TableCell>
+                      <TableCell align="right">Label</TableCell>
+                      <TableCell align="right">Sub-label</TableCell>
+                      <TableCell align="right"></TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {banners.map((banner) => (
+                      <TableRow key={banner.id} onClick={() => handleBannerClick(banner.id)}>
+                        <TableCell>{banner.title}</TableCell>
+                        <TableCell align="right">{banner.from}</TableCell>
+                        <TableCell align="right">
+                          {banner.to ? banner.to : "-"}
+                        </TableCell>
+                        <TableCell align="right">
+                          {banner.label ? (
+                            <Chip
+                              label={banner.label}
+                              size="small"
+                              color="utility"
+                            />
+                          ) : (
+                            "-"
+                          )}
+                        </TableCell>
+                        <TableCell align="right">
+                          {banner.subLabel ? (
+                            <Chip
+                              label={banner.subLabel}
+                              size="small"
+                              color="utility"
+                            />
+                          ) : (
+                            "-"
+                          )}
+                        </TableCell>
+                        <TableCell align="right">
+                          <IconButton
+                            color="error"
+                            onClick={(e) => handleDeleteClick(e, banner.id)}
+                          >
+                            <DeleteForeverIcon />
+                          </IconButton>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
             ) : (
               <Typography>No banners available.</Typography>
             )}
@@ -155,8 +198,6 @@ const Banner = () => {
           <Typography>Please view this on computer.</Typography>
         )}
       </Box>
-
-      <Box sx={{ height: "200vh" }} />
 
       {/* fabs */}
       <NavTopFab containerRef={containerRef} />
@@ -177,6 +218,13 @@ const Banner = () => {
         open={deleteBannerFormOpen}
         onClose={() => setDeleteBannerFormOpen(undefined)}
         asyncDeleteBanner={asyncDeleteBanner}
+      />
+
+      <LibraryDialog
+        open={imageDialogOpen}
+        onClose={() => setImageDialogOpen(false)}
+        banner
+        hasAction={false}
       />
     </Container>
   );

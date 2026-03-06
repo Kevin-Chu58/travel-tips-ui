@@ -10,29 +10,34 @@ import { useIsMobile } from "@hooks/useIsMobile";
 import ImageLibrary from "@components/ImageLibrary";
 import clsx from "clsx";
 import "./index.scss";
+import ImageForm from "@components/Forms/ImageForm";
 
 type LibraryDialogProps = {
   open: boolean;
   onClose: () => void;
-  imageIds: number[];
+  imageIds?: number[];
   asyncAddImage?: (state: number) => void;
   setImage?: (state: Image) => void;
   banner?: boolean;
+  hasAction?: boolean;
 };
 
 const LibraryDialog = ({
   open,
   onClose,
-  imageIds,
+  imageIds = [],
   asyncAddImage,
   setImage,
   banner = false,
+  hasAction = true,
 }: LibraryDialogProps) => {
   // window
   const isMobile = useIsMobile();
   // images
   const [images, setImages] = useState<Image[]>([]);
   const [selectedImageId, setSelectedImageId] = useState<number | undefined>();
+  // image
+  const [selectedImage, setSelectedImage] = useState<Image | undefined>();
   // behavior
   const [isLoading, setIsLoading] = useState<boolean>(false);
   // button
@@ -41,6 +46,20 @@ const LibraryDialog = ({
   ) : (
     <AttachFileIcon />
   );
+
+  const asyncUpdateImage = async (image: Image) => {
+    let _images = [...images];
+    let index = _images.findIndex((i) => i.id === image.id);
+    if (index < 0) return;
+
+    _images[index] = image;
+    setImages([..._images]);
+  };
+
+  const asyncDeleteImage = async (id: number) => {
+    let _images = images.filter((i) => i.id !== id);
+    setImages([..._images]);
+  };
 
   // rerender library images on openLibraryDialog
   useEffect(() => {
@@ -95,11 +114,13 @@ const LibraryDialog = ({
         {/* header - library dialog */}
         <Box className="library-dialog-header-box">
           <Typography className="library-dialog-primary-text">
-            Your Image Library
+            {banner ? "Banner" : "Your"} Image Library
           </Typography>
-          <Typography className="library-dialog-secondary-text">
-            Choose one to attach to the trip
-          </Typography>
+          {hasAction ? (
+            <Typography className="library-dialog-secondary-text">
+              Chose one to attach to the {banner ? "banner" : "trip"}
+            </Typography>
+          ) : undefined}
         </Box>
 
         <Divider variant="middle" flexItem />
@@ -109,21 +130,35 @@ const LibraryDialog = ({
           images={images}
           selectedImageId={selectedImageId}
           setSelectedImageId={setSelectedImageId}
+          setSelectedImage={setSelectedImage}
         />
 
         {/* attach button */}
-        <Box className="library-dialog-button-box">
-          <TTButton
-            className="library-dialog-attach-button"
-            startIcon={actionButtonIcon}
-            onClick={handleImageAttach}
-            disabled={!Boolean(selectedImageId) || isLoading}
-            color="primary"
-          >
-            Attach
-          </TTButton>
-        </Box>
+        {hasAction ? (
+          <Box className="library-dialog-button-box">
+            <TTButton
+              className="library-dialog-attach-button"
+              startIcon={actionButtonIcon}
+              onClick={handleImageAttach}
+              disabled={!Boolean(selectedImageId) || isLoading}
+              color="primary"
+            >
+              Attach
+            </TTButton>
+          </Box>
+        ) : undefined}
       </Box>
+
+      {/* forms */}
+      {banner && !hasAction ? (
+        <ImageForm
+          image={selectedImage}
+          onClose={() => setSelectedImage(undefined)}
+          asyncUpdateImage={asyncUpdateImage}
+          asyncDeleteImage={asyncDeleteImage}
+          banner={banner}
+        />
+      ) : undefined}
     </TTDialog>
   );
 };

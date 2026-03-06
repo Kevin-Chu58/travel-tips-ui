@@ -6,6 +6,7 @@
   height: $screen-height;
   padding: 2rem;
   color: black;
+  background-color: var(--utility-100);
   overflow-y: auto;
 
   .banner-box {
@@ -23,20 +24,31 @@
     margin-bottom: 1rem;
   }
 
-  .banner-cards-box {
-    display: column;
+  .banner-table {
+    .MuiTableHead-root {
+      background-color: var(--utility-800);
 
-    .MuiMenuItem-root {
-      display: flex;
-      justify-content: space-between;
-
-      .no-content.MuiTypography-root {
-        font-style: italic;
+      .MuiTableCell-root {
+        color: white;
+        font-size: 1.1rem;
+        font-weight: bold;
       }
     }
 
-    .MuiMenuItem-root:not(:first-child) {
-      border-top: 1px $divider solid;
+    .MuiTableBody-root .MuiTableRow-root {
+      cursor: pointer;
+
+      &:hover {
+        background-color: var(--info-50);
+      }
+
+      .MuiTableCell-root {
+        font-size: 1.1rem;
+      }
+
+      .MuiTableCell-root:first-child {
+        font-weight: bold;
+      }
     }
   }
 }

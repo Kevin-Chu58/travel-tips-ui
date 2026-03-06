@@ -48,11 +48,6 @@ const ImageLibrary = ({
                   {image.name}
                 </Typography>
               )}
-
-              {/* guid */}
-              {/* <Typography className="library-dialog-image-guid">
-                {image.guid}
-              </Typography> */}
             </Box>
           ))}
         </Box>

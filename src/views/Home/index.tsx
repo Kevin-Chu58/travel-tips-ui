@@ -50,6 +50,7 @@ const Home = () => {
   // behavior
   const isLoadingRef = useRef<boolean>(false);
   const isInit = useRef<boolean>(true);
+  const isBannerInit = useRef<boolean>(true);
   // form open status
   const [openTripSearchForm, setOpenTripSearchForm] = useState<boolean>(false);
   // others
@@ -109,10 +110,11 @@ const Home = () => {
 
   // init banners on home page with no search params
   useEffect(() => {
-    if (searchParams.size === 0) {
+    if (searchParams.size === 0 && isBannerInit.current) {
       initBanners();
+      isBannerInit.current = false;
     }
-  }, []);
+  }, [searchParams]);
 
   const initBanners = async () => {
     let banners = await bannersService.getPublicBanners();
@@ -271,14 +273,11 @@ const Home = () => {
 
   const Recommendation = () => {
     return (
-      <Box className="column recommendation">
-        <Typography className="category">spiritual travel</Typography>
-        <Box className="banner-box no-scrollbar">
-          <Box className="banner-gallery">
-            {banners.map((banner) => (
-              <BannerCard key={banner.id} banner={banner} mobileView={isMobile} />
-            ))}
-          </Box>
+      <Box className="banner-box no-scrollbar">
+        <Box className="banner-gallery">
+          {banners.map((banner) => (
+            <BannerCard key={banner.id} banner={banner} mobileView={isMobile} />
+          ))}
         </Box>
       </Box>
     );
@@ -303,7 +302,7 @@ const Home = () => {
             Matching Trips
           </Typography>
         </Box>
-        <Box>
+        <Box className="chip-box">
           {chips.map((chip) =>
             chip.condition ? (
               chip.avatar ? (
@@ -361,6 +360,8 @@ const Home = () => {
       maxWidth={false}
       disableGutters
     >
+      {!hasParamResult ? <Recommendation /> : undefined}
+
       <Box className="search-box">
         <Box className="search-content-box">
           {/* input */}
@@ -397,7 +398,7 @@ const Home = () => {
 
       {/* content */}
       <Box className={clsx("content-box", isMobile && "mobile")}>
-        {hasParamResult ? <SearchResult /> : <Recommendation />}
+        {hasParamResult ? <SearchResult /> : undefined}
       </Box>
 
       {/* fabs */}
