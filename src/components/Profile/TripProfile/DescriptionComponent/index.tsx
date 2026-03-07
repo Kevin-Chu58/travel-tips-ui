@@ -38,6 +38,10 @@ const DescriptionComponent = ({
     setDescription(tripBasicRef.current?.description);
   }, [tripBasicRef.current?.description]);
 
+  useEffect(() => {
+    if (isEditingDescription) setDescription(tripBasicRef.current?.description);
+  }, [isEditingDescription]);
+
   const handleDescriptionClose = () => {
     setIsEditingDescription(false);
   };
@@ -55,7 +59,7 @@ const DescriptionComponent = ({
         let tripPatch = { description: trimmedDescription } as TripPatch;
         tripPatch = await tripsService.patchTrip(
           tripBasicRef.current.id,
-          tripPatch
+          tripPatch,
         );
 
         enqueueSnackbar("Successfully updated trip summary.", {

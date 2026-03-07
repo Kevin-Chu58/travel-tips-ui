@@ -105,7 +105,7 @@ const TripShareForm = ({
       onClose={handleClose}
       className="trip-share-form"
       width={!readonly ? "60vw" : undefined}
-      height={isMobile ? "80vh" : "40vh"}
+      height={isMobile ? "80vh" : "60vh"}
       maxHeight={isMobile ? "80vh" : undefined}
       panel
       title={

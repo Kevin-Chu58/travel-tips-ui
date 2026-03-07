@@ -4,12 +4,17 @@ import MarkdownBox from "@components/MarkdownBox";
 import ToolTip from "@components/ToolTip";
 import { useRef, useState } from "react";
 import {
-  FaBold,
-  FaItalic,
-  FaStrikethrough,
-  FaLink,
-  FaImage,
-} from "react-icons/fa";
+  LuBold,
+  LuItalic,
+  LuStrikethrough,
+  LuList,
+  LuListOrdered,
+  LuLink,
+  LuImage,
+  LuHeading1,
+  LuHeading2,
+  LuHeading3,
+} from "react-icons/lu";
 import type { UtilityItem } from "@constants/Types";
 import { StringUtils } from "@utils/StringUtils";
 import clsx from "clsx";
@@ -58,6 +63,31 @@ const DescriptionTextField = ({
     selection.text,
     StringUtils.STRIKE_THROUGH_IDENT,
   );
+  const isHeader1 = StringUtils.isStylingMet(
+    selection.text,
+    StringUtils.HEADER1_IDENT,
+    true,
+  );
+  const isHeader2 = StringUtils.isStylingMet(
+    selection.text,
+    StringUtils.HEADER2_IDENT,
+    true,
+  );
+  const isHeader3 = StringUtils.isStylingMet(
+    selection.text,
+    StringUtils.HEADER3_IDENT,
+    true,
+  );
+  const isList = StringUtils.isStylingMet(
+    selection.text,
+    StringUtils.LIST_IDENT,
+    true,
+  );
+  const isOrderedList = StringUtils.isStylingMet(
+    selection.text,
+    StringUtils.LIST_ORDERED_IDENT,
+    true,
+  );
 
   // async functions
 
@@ -88,19 +118,25 @@ const DescriptionTextField = ({
     isConditionMet: boolean,
     identifier: string,
     isAddIdent: boolean = false,
+    prefix?: boolean,
+    suffix?: boolean,
   ) => {
-    if (!isAddIdent && !selection.text) return;
-
     const identLength = identifier.length;
 
     const before = value.slice(0, selection.start);
     const after = value.slice(selection.end);
 
     const newText = isConditionMet
-      ? selection.text.slice(identLength, selection.text.length - identLength)
+      ? selection.text.slice(
+          prefix !== false ? identLength : 0,
+          suffix !== false
+            ? selection.text.length - identLength
+            : selection.text.length,
+        )
       : isAddIdent
         ? identifier
-        : `${identifier}${selection.text}${identifier}`;
+        : `${prefix !== false ? identifier : ""}${selection.text}${suffix !== false ? identifier : ""}`;
+
     const newValue = `${before}${newText}${after}`;
 
     setValue(newValue);
@@ -111,9 +147,13 @@ const DescriptionTextField = ({
       if (!el) return;
 
       const modifier = isConditionMet ? -identLength : identLength;
+      const modScale = isAddIdent || prefix || suffix ? 1 : 2;
 
       el.focus();
-      el.setSelectionRange(selection.start, selection.end + modifier * 2);
+      el.setSelectionRange(
+        selection.start,
+        selection.end + modifier * modScale,
+      );
 
       asyncSelection();
     });
@@ -122,32 +162,91 @@ const DescriptionTextField = ({
   const toolButtons = [
     {
       label: "Bold",
-      content: <FaBold />,
+      content: <LuBold />,
       condition: isBold,
       onClick: () => handleStylingClick(isBold, StringUtils.BOLD_IDENT),
     },
     {
       label: "Italic",
-      content: <FaItalic />,
+      content: <LuItalic />,
       condition: isItalic,
       onClick: () => handleStylingClick(isItalic, StringUtils.ITALIC_IDENT),
     },
     {
       label: "Strike-through",
-      content: <FaStrikethrough />,
+      content: <LuStrikethrough />,
       condition: isStrikeThrough,
       onClick: () =>
         handleStylingClick(isStrikeThrough, StringUtils.STRIKE_THROUGH_IDENT),
     },
     {
+      label: "Header 1",
+      content: <LuHeading1 />,
+      condition: isHeader1,
+      onClick: () =>
+        handleStylingClick(
+          isHeader1,
+          StringUtils.HEADER1_IDENT,
+          false,
+          true,
+          false,
+        ),
+    },
+    {
+      label: "Header 2",
+      content: <LuHeading2 />,
+      condition: isHeader2,
+      onClick: () =>
+        handleStylingClick(
+          isHeader2,
+          StringUtils.HEADER2_IDENT,
+          false,
+          true,
+          false,
+        ),
+    },
+    {
+      label: "Header 3",
+      content: <LuHeading3 />,
+      condition: isHeader3,
+      onClick: () =>
+        handleStylingClick(
+          isHeader3,
+          StringUtils.HEADER3_IDENT,
+          false,
+          true,
+          false,
+        ),
+    },
+    {
+      label: "Unordered List",
+      content: <LuList />,
+      condition: isList,
+      onClick: () =>
+        handleStylingClick(isList, StringUtils.LIST_IDENT, false, true, false),
+    },
+    {
+      label: "Ordered List",
+      content: <LuListOrdered />,
+      condition: isOrderedList,
+      onClick: () =>
+        handleStylingClick(
+          isOrderedList,
+          StringUtils.LIST_ORDERED_IDENT,
+          false,
+          true,
+          false,
+        ),
+    },
+    {
       label: "Add Link",
-      content: <FaLink />,
+      content: <LuLink />,
       condition: false,
       onClick: () => handleStylingClick(false, StringUtils.LINK_IDENT, true),
     },
     {
       label: "Add Image",
-      content: <FaImage />,
+      content: <LuImage />,
       condition: false,
       onClick: () => handleStylingClick(false, StringUtils.IMAGE_IDENT, true),
     },
