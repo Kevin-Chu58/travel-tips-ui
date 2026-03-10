@@ -39,11 +39,24 @@ const getBudgetStr = (budget?: number) => {
 const BOLD_IDENT = "**";
 const ITALIC_IDENT = "_";
 const STRIKE_THROUGH_IDENT = "~";
+const HEADER1_IDENT = "# ";
+const HEADER2_IDENT = "## ";
+const HEADER3_IDENT = "### ";
+const LIST_IDENT = "- ";
+const LIST_ORDERED_IDENT = "1. ";
 const LINK_IDENT = "[text](url)";
 const IMAGE_IDENT = "![text](url)";
 
 // markdown utils
-const isStylingMet = (text: string, identifier: string) => {
+const isStylingMet = (
+  text: string,
+  identifier: string,
+  prefix: boolean = false,
+) => {
+  if (prefix) {
+    return text.length >= identifier.length && text.startsWith(identifier);
+  }
+
   return (
     text.length >= identifier.length * 2 &&
     text.startsWith(identifier) &&
@@ -61,6 +74,11 @@ export const StringUtils = {
   BOLD_IDENT,
   ITALIC_IDENT,
   STRIKE_THROUGH_IDENT,
+  HEADER1_IDENT,
+  HEADER2_IDENT,
+  HEADER3_IDENT,
+  LIST_IDENT,
+  LIST_ORDERED_IDENT,
   LINK_IDENT,
   IMAGE_IDENT,
   // markdown utils

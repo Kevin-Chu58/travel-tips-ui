@@ -1,0 +1,54 @@
+@use "../../stylings/layout" as *;
+@use "../../stylings/color" as *;
+
+.banner-container {
+  position: relative;
+  height: $screen-height;
+  padding: 2rem;
+  color: black;
+  background-color: var(--utility-100);
+  overflow-y: auto;
+
+  .banner-box {
+    display: flex;
+    flex-direction: column;
+
+    &.mobile {
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+    }
+  }
+
+  .tool-bar {
+    margin-bottom: 1rem;
+  }
+
+  .banner-table {
+    .MuiTableHead-root {
+      background-color: var(--utility-800);
+
+      .MuiTableCell-root {
+        color: white;
+        font-size: 1.1rem;
+        font-weight: bold;
+      }
+    }
+
+    .MuiTableBody-root .MuiTableRow-root {
+      cursor: pointer;
+
+      &:hover {
+        background-color: var(--info-50);
+      }
+
+      .MuiTableCell-root {
+        font-size: 1.1rem;
+      }
+
+      .MuiTableCell-root:first-child {
+        font-weight: bold;
+      }
+    }
+  }
+}

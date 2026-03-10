@@ -3,6 +3,7 @@ import {
   Box,
   Container,
   Link,
+  ListItemIcon,
   Menu,
   MenuItem,
   Toolbar,
@@ -23,6 +24,11 @@ import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
 import { useSelector } from "react-redux";
 import type { RootState } from "@redux/store";
 import UserAvatar from "@components/UserAvatar";
+import type { NavTab } from "@constants/Types";
+import AccountBoxIcon from "@mui/icons-material/AccountBox";
+import ViewCarouselIcon from "@mui/icons-material/ViewCarousel";
+// import SettingsIcon from "@mui/icons-material/Settings";
+import LogoutIcon from "@mui/icons-material/Logout";
 import clsx from "clsx";
 import "./index.scss";
 
@@ -72,23 +78,36 @@ const HeaderBar = () => {
     headers.find((h) => location.pathname.startsWith(h.to))?.name ??
     (onPage ? "Main" : "");
 
+  const handleLogout = async () => {
+    await logout().then(() => {
+      markLoggedOut();
+    });
+  };
+
   const userMenuItems = [
     {
       name: "profile",
       to: "/profile",
+      element: <AccountBoxIcon fontSize="small" />,
     },
     {
-      name: "setting",
-      to: "/setting",
+      name: "banner",
+      to: "/banners",
+      element: <ViewCarouselIcon fontSize="small" />,
+      condition: user.isAdmin,
     },
+    // {
+    //   name: "setting",
+    //   to: "/settings",
+    //   element: <SettingsIcon fontSize="small" />,
+    // },
     {
       name: "logout",
       to: "",
-      onClick: async () => {
-        await logout().then(() => markLoggedOut());
-      },
+      element: <LogoutIcon fontSize="small" />,
+      onClick: handleLogout,
     },
-  ];
+  ] as NavTab[];
 
   // anchoring menu
 
@@ -237,11 +256,16 @@ const HeaderBar = () => {
             anchorEl={anchorElUser}
             onClose={handleCloseUserMenu}
           >
-            {userMenuItems.map((item) => (
-              <Link key={item.name} href={item.to} onClick={item.onClick}>
-                <MenuItem>{item.name}</MenuItem>
-              </Link>
-            ))}
+            {userMenuItems.map((item) =>
+              item.condition !== false ? (
+                <Link key={item.name} href={item.to} onClick={item.onClick}>
+                  <MenuItem>
+                    <ListItemIcon>{item.element}</ListItemIcon>
+                    {item.name}
+                  </MenuItem>
+                </Link>
+              ) : undefined,
+            )}
           </Menu>
         </Toolbar>
       </Container>

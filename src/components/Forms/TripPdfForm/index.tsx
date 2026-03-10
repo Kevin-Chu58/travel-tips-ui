@@ -22,7 +22,7 @@ type TripPdfFormProps = {
   taosMap: Map<number, Tao[]> | undefined;
   routeResponsesMap: Map<number, HereRoutingResponse[]> | undefined;
   geoMarkers: Marker[] | undefined;
-  fetchAllDays: () => void;
+  fetchAllDays: () => Promise<void>;
 };
 
 const A4_WIDTH = 210;
@@ -47,7 +47,7 @@ const TripPdfForm = ({
   }, [open]);
 
   // enfore rerender on taosMap, since taosMap does not trigger UI update because it's a map
-  useEffect(() => {}, [taosMap?.keys.length]);
+  useEffect(() => {}, [taosMap]);
 
   const handleDownloadPdf = async () => {
     setIsDownLoading(true);
@@ -63,8 +63,8 @@ const TripPdfForm = ({
 
       // 1. Capture image
       const dataUrl = await toPng(pageEl, {
-        quality: 1.5,
-        pixelRatio: 1,
+        quality: 1,
+        pixelRatio: 2,
       });
 
       const imgProps = pdf.getImageProperties(dataUrl);

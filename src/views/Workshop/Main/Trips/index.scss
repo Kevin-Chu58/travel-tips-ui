@@ -1,10 +1,7 @@
 .workshop-main-content-trips-container {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 15rem);
+  justify-content: center;
   margin-top: 1rem;
   gap: 1rem;
-
-  &.mobile {
-    justify-content: center;
-  }
 }

@@ -12,11 +12,11 @@ import {
   type ChipOwnProps,
 } from "@mui/material";
 import {
-  type SermonLabelSearchResult,
-  sermonsService,
-  type SermonLabel,
-  type Sermon,
-} from "@services/gospel/sermons";
+  type WritingLabelSearchResult,
+  writingsService,
+  type WritingLabel,
+  type Writing,
+} from "@services/gospel/writings";
 import React, { useEffect, useRef, useState } from "react";
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
@@ -41,7 +41,7 @@ type GospelDrawerProps = {
 const GospelDrawer = ({ isHidden, setIsHidden }: GospelDrawerProps) => {
   const searchTypes = [
     {
-      label: "Sermon",
+      label: "Writing",
       color: "success",
     },
     {
@@ -60,20 +60,20 @@ const GospelDrawer = ({ isHidden, setIsHidden }: GospelDrawerProps) => {
   // user
   const isWriter = useSelector((state: RootState) => state.user.isWriter);
   // categories
-  const [categories, setCategories] = useState<SermonLabel[]>([]);
+  const [categories, setCategories] = useState<WritingLabel[]>([]);
   // topics
-  const topicsMapRef = useRef<Map<number, SermonLabel[]>>(new Map());
-  const [topicsMap, setTopicsMap] = useState<Map<number, SermonLabel[]>>(
+  const topicsMapRef = useRef<Map<number, WritingLabel[]>>(new Map());
+  const [topicsMap, setTopicsMap] = useState<Map<number, WritingLabel[]>>(
     new Map(),
   );
   // search
   const valueRef = useRef<string>("");
   const [value, setValue] = useState<string>(""); // search input
-  const [searchType, setSearchType] = useState<GospelSearchType>("Sermon");
+  const [searchType, setSearchType] = useState<GospelSearchType>("Writing");
   // search results
-  const [sermonResult, setSermonResult] = useState<Sermon[] | undefined>();
-  const [sermonLabelResult, setSermonLabelResult] = useState<
-    SermonLabelSearchResult | undefined
+  const [WritingResult, setWritingResult] = useState<Writing[] | undefined>();
+  const [WritingLabelResult, setWritingLabelResult] = useState<
+    WritingLabelSearchResult | undefined
   >();
   const [openSearchCategories, setOpenSearchCategories] = useState<string[]>(
     [],
@@ -84,21 +84,21 @@ const GospelDrawer = ({ isHidden, setIsHidden }: GospelDrawerProps) => {
   const [openCategories, setOpenCategories] = useState<string[]>([]); // category.slug[]
   const [isSearch, setIsSearch] = useState<boolean>(false); // whether hide or show search result
   // others
-  const _categoryCount = sermonLabelResult?.categories?.length ?? 0;
-  const _topicCount = sermonLabelResult?.topics?.length ?? 0;
+  const _categoryCount = WritingLabelResult?.categories?.length ?? 0;
+  const _topicCount = WritingLabelResult?.topics?.length ?? 0;
   const navigate = useNavigate();
 
   // init functions
 
   const initCategories = async () => {
-    const labelResult = await sermonsService.getSermonLabelsByParams({
+    const labelResult = await writingsService.getWritingLabelsByParams({
       type: "Category",
     });
     setCategories(labelResult.result.categories ?? []);
   };
 
   const initTopics = async (id: number) => {
-    const labelResult = await sermonsService.getSermonLabelsByParams({
+    const labelResult = await writingsService.getWritingLabelsByParams({
       type: "Topic",
       parentLabelId: id,
     });
@@ -131,17 +131,17 @@ const GospelDrawer = ({ isHidden, setIsHidden }: GospelDrawerProps) => {
     if (!value) return;
 
     if (searchType === "Topic") {
-      const searchResult = await sermonsService.getSermonLabelsByParams({
+      const searchResult = await writingsService.getWritingLabelsByParams({
         name: value,
       });
-      setSermonLabelResult(searchResult.result);
+      setWritingLabelResult(searchResult.result);
     }
 
-    if (searchType === "Sermon") {
-      const sermonResult = await sermonsService.getSermonsByParams({
+    if (searchType === "Writing") {
+      const WritingResult = await writingsService.getWritingsByParams({
         title: value,
       });
-      setSermonResult(sermonResult);
+      setWritingResult(WritingResult);
     }
 
     setIsSearch(true);
@@ -156,8 +156,8 @@ const GospelDrawer = ({ isHidden, setIsHidden }: GospelDrawerProps) => {
   };
 
   const handleCloseSearch = () => {
-    setSermonResult(undefined);
-    setSermonLabelResult(undefined);
+    setWritingResult(undefined);
+    setWritingLabelResult(undefined);
     setOpenSearchCategories([]);
     valueRef.current = "";
 
@@ -165,7 +165,7 @@ const GospelDrawer = ({ isHidden, setIsHidden }: GospelDrawerProps) => {
   };
 
   const handleCategoryClick = async (
-    category: SermonLabel,
+    category: WritingLabel,
     isSearch: boolean = false,
   ) => {
     const isOpened = isSearch
@@ -195,12 +195,14 @@ const GospelDrawer = ({ isHidden, setIsHidden }: GospelDrawerProps) => {
     if (isMobile) setIsHidden(true);
   };
 
-  const handleSermonClick = async (sermon: Sermon) => {
+  const handleWritingClick = async (Writing: Writing) => {
     try {
-      const sermonOrder = await sermonsService.getSermonOrderById(sermon.id);
+      const WritingOrder = await writingsService.getWritingOrderById(
+        Writing.id,
+      );
 
-      if (sermonOrder > 0) {
-        navigate(`/gospel/${sermon.label?.topic?.slug}/${sermonOrder}`);
+      if (WritingOrder > 0) {
+        navigate(`/gospel/${Writing.label?.topic?.slug}/${WritingOrder}`);
       }
     } catch (e) {
       if (e instanceof Error) enqueueSnackbar(e.message, { variant: "error" });
@@ -214,7 +216,7 @@ const GospelDrawer = ({ isHidden, setIsHidden }: GospelDrawerProps) => {
     if (isMobile) setIsHidden(true);
   };
 
-  const handleMySermonClick = () => {
+  const handleMyWritingClick = () => {
     navigate("/gospel?my");
     setSlug(undefined);
 
@@ -250,7 +252,7 @@ const GospelDrawer = ({ isHidden, setIsHidden }: GospelDrawerProps) => {
     );
   };
 
-  const menuItem = (label: SermonLabel, isSearch: boolean = false) => {
+  const menuItem = (label: WritingLabel, isSearch: boolean = false) => {
     const isOpened = isSearch
       ? openSearchCategories.includes(label.slug)
       : openCategories.includes(label.slug);
@@ -307,7 +309,7 @@ const GospelDrawer = ({ isHidden, setIsHidden }: GospelDrawerProps) => {
           {_categoryCount > 0 ? (
             <React.Fragment>
               <Typography className="caption">category</Typography>
-              {sermonLabelResult?.categories?.map((category) =>
+              {WritingLabelResult?.categories?.map((category) =>
                 menuItem(category, true),
               )}
             </React.Fragment>
@@ -315,18 +317,18 @@ const GospelDrawer = ({ isHidden, setIsHidden }: GospelDrawerProps) => {
           {_topicCount > 0 ? (
             <React.Fragment>
               <Typography className="caption">topic</Typography>
-              {sermonLabelResult?.topics?.map((topic) => menuItem(topic))}
+              {WritingLabelResult?.topics?.map((topic) => menuItem(topic))}
             </React.Fragment>
           ) : undefined}
         </React.Fragment>
       ) : (
         <React.Fragment>
-          <Typography className="caption">sermon</Typography>
-          {sermonResult?.map((sermon) => (
+          <Typography className="caption">Writing</Typography>
+          {WritingResult?.map((Writing) => (
             <MenuItem
-              key={sermon.id}
+              key={Writing.id}
               className="category-menu-item"
-              onClick={() => handleSermonClick(sermon)}
+              onClick={() => handleWritingClick(Writing)}
             >
               <Box display="flex" flexDirection="column">
                 {/* label - category & topic */}
@@ -336,14 +338,14 @@ const GospelDrawer = ({ isHidden, setIsHidden }: GospelDrawerProps) => {
                   fontWeight="bold"
                 >
                   <span style={{ color: "var(--info-900)" }}>
-                    {sermon.label?.category?.name}
+                    {Writing.label?.category?.name}
                   </span>
-                  {` > ${sermon.label?.topic?.name}`}
+                  {` > ${Writing.label?.topic?.name}`}
                 </Typography>
-                {/* sermon title with highlight */}
+                {/* Writing title with highlight */}
                 <Typography>
                   {highlightText(
-                    sermon.title,
+                    Writing.title,
                     valueRef.current,
                     DefaultHighlight,
                   )}
@@ -376,9 +378,9 @@ const GospelDrawer = ({ isHidden, setIsHidden }: GospelDrawerProps) => {
             "category-menu-item",
             !labelSlug && !orderId && isWriterParams && "hovered",
           )}
-          onClick={handleMySermonClick}
+          onClick={handleMyWritingClick}
         >
-          <Typography>My Sermons</Typography>
+          <Typography>My Writings</Typography>
         </MenuItem>
       ) : undefined}
       {categories.length > 0 ? (
@@ -405,7 +407,7 @@ const GospelDrawer = ({ isHidden, setIsHidden }: GospelDrawerProps) => {
         <FormControl className="input-form-control">
           <OutlinedInput
             className="outlined-input"
-            placeholder="Find topics or sermons..."
+            placeholder="Find topics or Writings..."
             size="small"
             value={value}
             onChange={(e) => setValue(e.target.value)}

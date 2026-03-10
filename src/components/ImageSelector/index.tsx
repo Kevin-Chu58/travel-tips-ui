@@ -12,13 +12,16 @@ import FileUploadIcon from "@mui/icons-material/FileUpload";
 import { enqueueSnackbar } from "notistack";
 import LibraryDialog from "./LibraryDialog";
 import CropperDialog from "./CropperDialog";
+import type { Image } from "@services/images";
 import "./index.scss";
 
 type ImageSelectorProps = {
   imageIds?: number[];
   disabled?: boolean;
-  asyncAddImage: (state: number) => void;
+  asyncAddImage?: (state: number) => void; // do something with the image id
+  setImage?: (state: Image) => void; // do something with the image view model
   readonly?: boolean;
+  banner?: boolean;
   children: ReactNode;
 };
 
@@ -26,7 +29,9 @@ const ImageSelector = ({
   imageIds = [],
   disabled = false,
   asyncAddImage,
+  setImage,
   readonly = false,
+  banner = false,
   children,
 }: ImageSelectorProps) => {
   // popover
@@ -136,6 +141,8 @@ const ImageSelector = ({
         onClose={handleCloseLibraryDialog}
         imageIds={imageIds}
         asyncAddImage={asyncAddImage}
+        setImage={setImage}
+        banner={banner}
       />
 
       {/* dialog - cropper */}
@@ -144,6 +151,8 @@ const ImageSelector = ({
         onClose={handleCloseCropperDialog}
         imageSrc={imageSrc}
         asyncAddImage={asyncAddImage}
+        setImage={setImage}
+        banner={banner}
       />
     </React.Fragment>
   );

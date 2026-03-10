@@ -1,8 +1,7 @@
-import { useIsMobile } from "@hooks/useIsMobile";
 import { Box, Typography } from "@mui/material";
 import { type Image } from "@services/images";
-import clsx from "clsx";
 import React from "react";
+import clsx from "clsx";
 
 type ImageLibraryProps = {
   images: Image[];
@@ -17,8 +16,6 @@ const ImageLibrary = ({
   setSelectedImageId,
   setSelectedImage,
 }: ImageLibraryProps) => {
-  const isMobile = useIsMobile();
-
   const handleImageClick = async (image: Image) => {
     if (setSelectedImageId) setSelectedImageId(image.id);
     if (setSelectedImage) setSelectedImage(image);
@@ -27,15 +24,13 @@ const ImageLibrary = ({
   return (
     <React.Fragment>
       {images.length > 0 ? (
-        <Box
-          className={clsx("library-dialog-image-library", isMobile && "mobile")}
-        >
+        <Box className="library-dialog-image-library">
           {images.map((image) => (
             <Box
               key={image.id}
               className={clsx(
                 "library-dialog-image-container",
-                image.id === selectedImageId && "focus"
+                image.id === selectedImageId && "focus",
               )}
               onClick={() => handleImageClick(image)}
             >
@@ -53,11 +48,6 @@ const ImageLibrary = ({
                   {image.name}
                 </Typography>
               )}
-
-              {/* guid */}
-              {/* <Typography className="library-dialog-image-guid">
-                {image.guid}
-              </Typography> */}
             </Box>
           ))}
         </Box>

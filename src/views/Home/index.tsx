@@ -22,12 +22,16 @@ import { usersService } from "@services/users";
 import { useCursorScroll } from "@hooks/useCursorScroll";
 import NavTopFab from "@components/Behavioral/NavTopFab";
 import UserAvatar from "@components/UserAvatar";
+import { bannersService, type Banner } from "@services/feed/banners";
+import BannerCard from "@components/Cards/BannerCard";
 import clsx from "clsx";
 import "./index.scss";
 
 const Home = () => {
   // window
   const isMobile = useIsMobile();
+  // recommendations
+  const [banners, setBanners] = useState<Banner[]>([]);
   // trips - search result
   const [trips, setTrips] = useState<Trip[]>([]);
   // search params
@@ -46,6 +50,7 @@ const Home = () => {
   // behavior
   const isLoadingRef = useRef<boolean>(false);
   const isInit = useRef<boolean>(true);
+  const isBannerInit = useRef<boolean>(true);
   // form open status
   const [openTripSearchForm, setOpenTripSearchForm] = useState<boolean>(false);
   // others
@@ -102,6 +107,19 @@ const Home = () => {
     };
     initTrips();
   }, [title, budget, countrySlug, stateSlug, createdBy?.id, tripOrderByEnum]);
+
+  // init banners on home page with no search params
+  useEffect(() => {
+    if (searchParams.size === 0 && isBannerInit.current) {
+      initBanners();
+      isBannerInit.current = false;
+    }
+  }, [searchParams]);
+
+  const initBanners = async () => {
+    let banners = await bannersService.getPublicBanners();
+    setBanners(banners);
+  };
 
   // search params on url
 
@@ -255,8 +273,12 @@ const Home = () => {
 
   const Recommendation = () => {
     return (
-      <Box display="flex" flexDirection="column" alignItems="center">
-        <Typography>TODO - recommendation</Typography>
+      <Box className="banner-box no-scrollbar">
+        <Box className="banner-gallery">
+          {banners.map((banner) => (
+            <BannerCard key={banner.id} banner={banner} mobileView={isMobile} />
+          ))}
+        </Box>
       </Box>
     );
   };
@@ -280,7 +302,7 @@ const Home = () => {
             Matching Trips
           </Typography>
         </Box>
-        <Box>
+        <Box className="chip-box">
           {chips.map((chip) =>
             chip.condition ? (
               chip.avatar ? (
@@ -338,6 +360,8 @@ const Home = () => {
       maxWidth={false}
       disableGutters
     >
+      {!hasParamResult ? <Recommendation /> : undefined}
+
       <Box className="search-box">
         <Box className="search-content-box">
           {/* input */}
@@ -374,7 +398,7 @@ const Home = () => {
 
       {/* content */}
       <Box className={clsx("content-box", isMobile && "mobile")}>
-        {hasParamResult ? <SearchResult /> : <Recommendation />}
+        {hasParamResult ? <SearchResult /> : undefined}
       </Box>
 
       {/* fabs */}

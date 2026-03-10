@@ -10,55 +10,74 @@ import Gospel from "@views/Gospel";
 import Profile from "@views/Profile";
 import Settings from "@views/Settings";
 import EmailUnverified from "@views/EmailUnverified";
+import Banner from "@views/Banner";
 
-const routes = [{
+const routes = [
+  {
     name: "Main",
     path: "/",
-    element: <Main/>,
-}, {
+    element: <Main />,
+  },
+  {
     name: "Home",
     path: "/home/*",
-    element: <Home/>,
-}, {
+    element: <Home />,
+  },
+  {
     name: "Trip",
     path: "/trip/*",
-    element: <Trip/>,
-}, {
+    element: <Trip />,
+  },
+  {
     name: "Attraction",
     path: "/attraction/:attractionId",
-    element: <Attraction/>,
-}, {
+    element: <Attraction />,
+  },
+  {
     name: "Workshop",
     path: "/workshop/*",
-    element: <Workshop/>,
-}, {
+    element: <Workshop />,
+  },
+  {
     name: "Doc",
     path: "/doc/*",
-    element: <Doc/>,
-}, {
+    element: <Doc />,
+  },
+  {
     name: "Gospel",
     path: "/gospel/*",
-    element: <Gospel/>,
-}, {
+    element: <Gospel />,
+  },
+  {
     name: "Profile",
     path: "/profile/*",
-    element: <Profile/>,
-}, {
+    element: <Profile />,
+  },
+  {
+    name: "Banner",
+    path: "/banners",
+    element: <Banner />,
+  },
+  {
     name: "Settings",
     path: "/settings",
-    element: <Settings/>,
-}, {
+    element: <Settings />,
+  },
+  {
     name: "AuthCallback",
     path: "/auth/callback",
-    element: <AuthCallback/>,
-}, {
+    element: <AuthCallback />,
+  },
+  {
     name: "UserAgreement",
     path: "/user-agreement",
-    element: <UserAgreement/>,
-}, {
+    element: <UserAgreement />,
+  },
+  {
     name: "EmailUnverified",
     path: "/email-unverified",
-    element: <EmailUnverified/>,
-}];
+    element: <EmailUnverified />,
+  },
+];
 
 export default routes;

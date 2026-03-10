@@ -3,17 +3,17 @@ import FormBase from "../FormBase";
 import WarningIcon from "@mui/icons-material/Warning";
 import DeleteIcon from "@mui/icons-material/Delete";
 
-type DeleteSermonFormProps = {
+type DeleteWritingFormProps = {
   open: boolean;
   onClose: () => void;
   onAction: () => void;
 };
 
-const DeleteSermonForm = ({
+const DeleteWritingForm = ({
   open,
   onClose,
   onAction,
-}: DeleteSermonFormProps) => {
+}: DeleteWritingFormProps) => {
   return (
     <FormBase
       open={open}
@@ -26,9 +26,9 @@ const DeleteSermonForm = ({
       actionButtonStartIcon={<DeleteIcon />}
       actionButtonOnClick={onAction}
     >
-      <Typography>Are you sure you want to delete this sermon?</Typography>
+      <Typography>Are you sure you want to delete this Writing?</Typography>
     </FormBase>
   );
 };
 
-export default DeleteSermonForm;
+export default DeleteWritingForm;

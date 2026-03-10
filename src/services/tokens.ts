@@ -1,5 +1,7 @@
 // ChatGPT wrote this
 
+import { LS_USER_BASIC } from "@constants/localStorage";
+
 let cachedToken: string | undefined;
 let tokenExpiry: number | undefined;
 
@@ -44,6 +46,8 @@ export const markLoggedOut = () => {
   isLoggedIn = false;
   cachedToken = undefined;
   tokenExpiry = undefined;
+
+  localStorage.removeItem(LS_USER_BASIC);
 };
 
 export const goToLoginPortal = async () => {

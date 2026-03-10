@@ -1,0 +1,43 @@
+@use "../../../stylings/box_shadows" as *;
+
+.banner-card {
+  position: relative;
+  cursor: pointer;
+  --width: 860px;
+  --height: 400px;
+
+  &.mobile {
+    --width: 300px;
+    --height: 180px;
+  }
+
+  width: var(--width);
+  height: var(--height);
+  background-color: white;
+  box-shadow: $box-shadow;
+
+  .banner-card-image {
+    position: absolute;
+    width: var(--width);
+    height: var(--height);
+    object-fit: cover;
+    z-index: 0;
+  }
+
+  .banner-content-box {
+    position: absolute;
+    width: var(--width);
+    height: var(--height);
+    overflow: hidden;
+    z-index: 10;
+
+    .content {
+      display: flex;
+      width: var(--width);
+      height: var(--height);
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+    }
+  }
+}

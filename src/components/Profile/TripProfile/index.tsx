@@ -477,8 +477,8 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
       await initRouteResponses(false, day.id, true);
     }
 
-    setTaosMap(taosMapRef.current);
-    setRouteResponsesMap(routeResponsesMapRef.current);
+    setTaosMap(new Map(taosMapRef.current));
+    setRouteResponsesMap(new Map(routeResponsesMapRef.current));
   };
 
   const overViewNavTab = {

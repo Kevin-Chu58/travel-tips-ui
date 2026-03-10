@@ -259,73 +259,9 @@ const PrivacyPolicyProfile = ({
         {/* section 11 */}
         <Typography variant="h6">11. Advertising and Cookies</Typography>
         <Typography component="div" className="content">
-          The App may use third-party advertising services, including Google Ads
-          and Google AdSense, which may use cookies, web beacons, or similar
-          tracking technologies to display personalized advertisements based on
-          your interests.
-          <br />
-          <br />
-          These advertising partners may collect information including:
-          <ul>
-            <li>IP address</li>
-            <li>Device identifiers</li>
-            <li>Browsing behavior</li>
-            <li>App usage statistics</li>
-            <li>General (non-precise) location</li>
-          </ul>
-          This information is used to:
-          <ul>
-            <li>Measure ad performance</li>
-            <li>Prevent fraud</li>
-            <li>Personalize ads (if allowed by law)</li>
-          </ul>
-        </Typography>
-        <Typography variant="subtitle1">
-          11.1 Google Advertising Cookies
-        </Typography>
-        <Typography component="div" className="content">
-          Google may use the following cookies and technologies:
-          <ul>
-            <li>Google Ads cookies</li>
-            <li>DoubleClick (IDE) cookie</li>
-            <li>Google Analytics advertising features</li>
-          </ul>
-          Google's use of advertising cookies enables:
-          <ul>
-            <li>Interest-based ads</li>
-            <li>Frequency capping</li>
-            <li>Conversion tracking</li>
-            <li>Remarketing</li>
-          </ul>
-          Users may learn more about Google's data use at:{" "}
-          <a
-            href="https://policies.google.com/technologies/partner-sites"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Google Policies {">"} Parterner Sites
-          </a>
-        </Typography>
-        <Typography variant="subtitle1">11.2 Your Choices</Typography>
-        <Typography component="div" className="content">
-          Depending on your location, you may:
-          <ul>
-            <li>Opt out of personalized ads</li>
-            <li>Reject advertising cookies</li>
-            <li>Use browser settings to block third-party cookies</li>
-            <li>Use Google's Ad settings to manage ad preferences</li>
-          </ul>
-          To opt out of personalized ads from Google, visit:{" "}
-          <a
-            href="https://www.google.com/settings/ads"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Google Settings {">"} Ads
-          </a>
-          <br />
-          TravelTips will display cookie consent options where required by law.
-          (not yet implemented)
+          The App may use first-party advertising services, which do not use
+          cookies, web beacons, or similar tracking technologies to display
+          personalized advertisements based on your interests.
         </Typography>
 
         {/* section 12 */}

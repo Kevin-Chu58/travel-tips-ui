@@ -1,8 +1,6 @@
 import AttractionCard from "@components/Cards/AttractionCard";
-import { Box } from "@mui/material";
 import { type Attraction } from "@services/attractions";
-import { useIsMobile } from "@hooks/useIsMobile";
-import clsx from "clsx";
+import { Box } from "@mui/material";
 import "./index.scss";
 
 type HighlightsProps = {
@@ -11,15 +9,8 @@ type HighlightsProps = {
 };
 
 const Highlights = ({ attractions, showHovers }: HighlightsProps) => {
-  const isMobile = useIsMobile();
-
   return (
-    <Box
-      className={clsx(
-        "workshop-main-content-highlights-container",
-        isMobile && "mobile"
-      )}
-    >
+    <Box className="workshop-main-content-highlights-container">
       {attractions.map((a) => (
         <AttractionCard
           key={`attraction-${a.id}`}

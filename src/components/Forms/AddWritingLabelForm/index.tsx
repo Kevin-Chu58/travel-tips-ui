@@ -15,26 +15,26 @@ import {
 import FormBase from "../FormBase";
 import { useEffect, useState } from "react";
 import {
-  sermonsService,
-  type SermonLabel,
-  type SermonLabelType,
-} from "@services/gospel/sermons";
+  writingsService,
+  type WritingLabel,
+  type WritingLabelType,
+} from "@services/gospel/Writings";
 import { StringUtils } from "@utils/StringUtils";
 import "./index.scss";
 import { enqueueSnackbar } from "notistack";
 
-type AddSermonLabelFormProps = {
+type AddWritingLabelFormProps = {
   open: boolean;
   onClose: () => void;
 };
 
-const AddSermonLabelForm = ({ open, onClose }: AddSermonLabelFormProps) => {
+const AddWritingLabelForm = ({ open, onClose }: AddWritingLabelFormProps) => {
   // label type
-  const [type, setType] = useState<SermonLabelType>("Category");
+  const [type, setType] = useState<WritingLabelType>("Category");
   // label value
   const [value, setValue] = useState<string>("");
   // categories
-  const [categories, setCategories] = useState<SermonLabel[]>([]);
+  const [categories, setCategories] = useState<WritingLabel[]>([]);
   // category - when label type is Topic
   const [category, setCategory] = useState<string>(""); // slug
   // others
@@ -50,7 +50,7 @@ const AddSermonLabelForm = ({ open, onClose }: AddSermonLabelFormProps) => {
   // init functions
 
   const initCategories = async () => {
-    const categories = await sermonsService.getSermonLabelsByParams({
+    const categories = await writingsService.getWritingLabelsByParams({
       type: "Category",
     });
     setCategories(categories.result.categories ?? []);
@@ -69,9 +69,9 @@ const AddSermonLabelForm = ({ open, onClose }: AddSermonLabelFormProps) => {
     if (!isValid) return;
 
     try {
-      await sermonsService.postNewSermonLabel(value, type, _category?.id);
+      await writingsService.postNewWritingLabel(value, type, _category?.id);
 
-      enqueueSnackbar("Sermon label created.", { variant: "success" });
+      enqueueSnackbar("Writing label created.", { variant: "success" });
 
       handleClose();
     } catch (e) {
@@ -85,9 +85,9 @@ const AddSermonLabelForm = ({ open, onClose }: AddSermonLabelFormProps) => {
     <FormBase
       open={open}
       onClose={handleClose}
-      className="add-sermon-label-form"
+      className="add-Writing-label-form"
       width="20vw"
-      title="New Sermon Label"
+      title="New Writing Label"
       actionButtonLabel="Create"
       actionButtonOnClick={handleCreate}
       panel
@@ -99,7 +99,7 @@ const AddSermonLabelForm = ({ open, onClose }: AddSermonLabelFormProps) => {
           <RadioGroup
             row
             value={type}
-            onChange={(e) => setType(e.target.value as SermonLabelType)}
+            onChange={(e) => setType(e.target.value as WritingLabelType)}
           >
             <FormControlLabel
               value="Category"
@@ -124,12 +124,12 @@ const AddSermonLabelForm = ({ open, onClose }: AddSermonLabelFormProps) => {
               color="info"
               onChange={(e) => setCategory(e.target.value)}
             >
-              <MenuItem className="add-sermon-label-form-menu-item" value="">
+              <MenuItem className="add-Writing-label-form-menu-item" value="">
                 <em>None</em>
               </MenuItem>
               {categories.map((category) => (
                 <MenuItem
-                  className="add-sermon-label-form-menu-item"
+                  className="add-Writing-label-form-menu-item"
                   key={category.id}
                   value={category.slug}
                 >
@@ -170,4 +170,4 @@ const AddSermonLabelForm = ({ open, onClose }: AddSermonLabelFormProps) => {
   );
 };
 
-export default AddSermonLabelForm;
+export default AddWritingLabelForm;

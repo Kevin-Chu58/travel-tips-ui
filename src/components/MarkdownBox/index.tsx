@@ -10,12 +10,14 @@ import "./index.scss";
 
 type MarkdownBoxProps = {
   text?: string;
+  className?: string;
   disableGap?: boolean;
   isOfficial?: boolean;
 };
 
 const MarkdownBox = ({
   text,
+  className,
   disableGap = false,
   isOfficial = false,
 }: MarkdownBoxProps) => {
@@ -32,6 +34,7 @@ const MarkdownBox = ({
       className={clsx(
         "description-text-field-view-preview",
         disableGap && "disableGap",
+        className,
       )}
     >
       <ReactMarkdown

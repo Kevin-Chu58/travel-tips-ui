@@ -12,7 +12,7 @@ import { useRef, useState } from "react";
 import { Cropper, type ReactCropperElement } from "react-cropper";
 import { useIsMobile } from "@hooks/useIsMobile";
 import { enqueueSnackbar } from "notistack";
-import { ImagesService } from "@services/images";
+import { imagesService, type Image } from "@services/images";
 import { BehaviorUtils } from "@utils/BehaviorUtils";
 import { ImageUtils } from "@utils/ImageUtils";
 import clsx from "clsx";
@@ -22,7 +22,9 @@ type CropperDialogProps = {
   open: boolean;
   onClose: () => void;
   imageSrc: string | null;
-  asyncAddImage: (state: number) => void;
+  asyncAddImage?: (state: number) => void;
+  setImage?: (state: Image) => void;
+  banner?: boolean;
 };
 
 const CropperDialog = ({
@@ -30,6 +32,8 @@ const CropperDialog = ({
   onClose,
   imageSrc = null,
   asyncAddImage,
+  setImage,
+  banner = false,
 }: CropperDialogProps) => {
   // window
   const isMobile = useIsMobile();
@@ -79,12 +83,17 @@ const CropperDialog = ({
 
       try {
         // Compress image
-        const compressedBlob = await ImageUtils.compressImage(fileFromBlob);
+        const compressedBlob = banner
+          ? await ImageUtils.compressImage(fileFromBlob, 1)
+          : await ImageUtils.compressImage(fileFromBlob);
         setIsLoading(true);
 
-        const newImage = await ImagesService.uploadImage(compressedBlob, name);
+        const newImage = banner
+          ? await imagesService.uploadBannerImage(compressedBlob, name)
+          : await imagesService.uploadImage(compressedBlob, name);
 
-        asyncAddImage(newImage.id);
+        if (asyncAddImage) asyncAddImage(newImage.id);
+        if (setImage) setImage(newImage);
 
         enqueueSnackbar("Successfully uploaded image.", {
           variant: "success",

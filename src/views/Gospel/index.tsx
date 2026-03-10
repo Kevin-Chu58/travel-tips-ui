@@ -10,7 +10,7 @@ const Gospel = () => {
   // url
   const { orderId } = useParams();
   // behavior
-  const [isHidden, setIsHidden] = useState<boolean>(false); // hide drawer
+  const [isHidden, setIsHidden] = useState<boolean>(true); // hide drawer
 
   if (orderId && !/^\d+$/.test(orderId)) {
     return <Navigate to="." replace />;
@@ -31,7 +31,7 @@ const GospelView = () => {
     <Routes>
       <Route key="main" index element={<Gospel />} />
       <Route key="topic" path=":labelSlug" element={<Gospel />} />
-      <Route key="sermon" path=":labelSlug/:orderId" element={<Gospel />} />
+      <Route key="Writing" path=":labelSlug/:orderId" element={<Gospel />} />
       <Route path="*" element={<Navigate to="/gospel" replace />} />
     </Routes>
   );

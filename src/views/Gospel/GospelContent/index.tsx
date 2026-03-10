@@ -12,23 +12,23 @@ import {
 import { useNavigate, useParams, useSearchParams } from "react-router";
 import React, { useEffect, useState } from "react";
 import {
-  sermonsService,
-  type Sermon,
-  type SermonLabelComplete,
-} from "@services/gospel/sermons";
+  writingsService,
+  type Writing,
+  type WritingLabelComplete,
+} from "@services/gospel/writings";
 import { enqueueSnackbar } from "notistack";
 import { useIsMobile } from "@hooks/useIsMobile";
 import MenuIcon from "@mui/icons-material/Menu";
 import TTIconButton from "@components/TTIconButton";
-import SermonForm from "@components/Forms/SermonForm";
+import WritingForm from "@components/Forms/WritingForm";
 import AddIcon from "@mui/icons-material/Add";
 import TTButton from "@components/TTButton";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import MarkdownBox from "@components/MarkdownBox";
-import DeleteSermonForm from "@components/Forms/DeleteSermonForm";
-import AddSermonLabelForm from "@components/Forms/AddSermonLabelForm";
+import DeleteWritingForm from "@components/Forms/DeleteWritingForm";
+import AddWritingLabelForm from "@components/Forms/AddWritingLabelForm";
 import clsx from "clsx";
 import "./index.scss";
 
@@ -44,22 +44,24 @@ const GospelContent = ({ setIsHidden }: GospelContentProps) => {
   // search params
   const [searchParams] = useSearchParams();
   const isWriterParams = Boolean(searchParams.has("my"));
-  // sermon label
-  const [label, setLabel] = useState<SermonLabelComplete | undefined>(
+  // Writing label
+  const [label, setLabel] = useState<WritingLabelComplete | undefined>(
     undefined,
   );
-  // sermons
-  const [sermons, setSermons] = useState<Sermon[]>([]);
-  // sermon
-  const [sermon, setSermon] = useState<Sermon | undefined>(undefined);
-  // my sermons
-  const [mySermons, setMySermons] = useState<Sermon[]>([]);
-  // my sermon - in edit
-  const [mySermon, setMySermon] = useState<Sermon | undefined>();
+  // Writings
+  const [Writings, setWritings] = useState<Writing[]>([]);
+  // Writing
+  const [Writing, setWriting] = useState<Writing | undefined>(undefined);
+  // my Writings
+  const [myWritings, setMyWritings] = useState<Writing[]>([]);
+  // my Writing - in edit
+  const [myWriting, setMyWriting] = useState<Writing | undefined>();
   // form status
-  const [openAddSermonLabelForm, setOpenAddSermonLabelForm] = useState<boolean>(false);
-  const [openNewSermonForm, setOpenNewSermonForm] = useState<boolean>(false);
-  const [openDeleteSermonForm, setOpenDeleteSermonForm] = useState<boolean>(false);
+  const [openAddWritingLabelForm, setOpenAddWritingLabelForm] =
+    useState<boolean>(false);
+  const [openNewWritingForm, setOpenNewWritingForm] = useState<boolean>(false);
+  const [openDeleteWritingForm, setOpenDeleteWritingForm] =
+    useState<boolean>(false);
   // behavior
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
@@ -71,7 +73,7 @@ const GospelContent = ({ setIsHidden }: GospelContentProps) => {
   const initLabel = async (labelSlug: string) => {
     try {
       const label =
-        await sermonsService.getSermonLabelCompleteBySlug(labelSlug);
+        await writingsService.getWritingLabelCompleteBySlug(labelSlug);
       setLabel(label);
     } catch (_) {
       navigate("/gospel");
@@ -79,63 +81,63 @@ const GospelContent = ({ setIsHidden }: GospelContentProps) => {
     }
   };
 
-  const initSermons = async (labelSlug: string) => {
+  const initWritings = async (labelSlug: string) => {
     setIsLoading(true);
-    const sermons = await sermonsService.getSermonsByParams({
+    const Writings = await writingsService.getWritingsByParams({
       labelSlug: labelSlug,
       isDesc: false,
     });
-    setSermons(sermons);
+    setWritings(Writings);
     setIsLoading(false);
   };
 
-  const initSermon = async (labelSlug: string, orderId: number) => {
+  const initWriting = async (labelSlug: string, orderId: number) => {
     try {
-      const sermon = await sermonsService.getSermonByLabelOrder(
+      const Writing = await writingsService.getWritingByLabelOrder(
         labelSlug,
         orderId,
       );
-      setSermon(sermon);
+      setWriting(Writing);
     } catch (e) {
       if (e instanceof Error) enqueueSnackbar(e.message, { variant: "error" });
     }
   };
 
-  const initMySermons = async () => {
+  const initMyWritings = async () => {
     setIsLoading(true);
-    const sermons = await sermonsService.getMySermons();
-    setMySermons(sermons);
+    const Writings = await writingsService.getMyWritings();
+    setMyWritings(Writings);
     setIsLoading(false);
   };
 
   // async functions
 
-  const asyncNewSermon = (sermon: Sermon) => {
-    setMySermons((prev) => [sermon, ...prev]);
+  const asyncNewWriting = (Writing: Writing) => {
+    setMyWritings((prev) => [Writing, ...prev]);
   };
 
-  const asyncUpdateSermon = (sermon: Sermon) => {
-    let sermons = [...mySermons];
-    const i = sermons.findIndex((s) => s.id === sermon.id);
+  const asyncUpdateWriting = (Writing: Writing) => {
+    let Writings = [...myWritings];
+    const i = Writings.findIndex((s) => s.id === Writing.id);
 
     if (i < 0) return;
 
-    sermons[i] = sermon;
+    Writings[i] = Writing;
 
-    setMySermons([...sermons]);
+    setMyWritings([...Writings]);
   };
 
-  const asyncDeleteSermon = (sermonId: number) => {
-    setMySermons(prev => prev.filter(s => s.id !== sermonId));
+  const asyncDeleteWriting = (WritingId: number) => {
+    setMyWritings((prev) => prev.filter((s) => s.id !== WritingId));
   };
 
   // use effects
 
-  // initiate complete label, sermons, and sermon on label slug and order id
+  // initiate complete label, Writings, and Writing on label slug and order id
   useEffect(() => {
     if (!labelSlug) {
-      setSermons([]);
-      setSermon(undefined);
+      setWritings([]);
+      setWriting(undefined);
       return;
     }
 
@@ -144,61 +146,63 @@ const GospelContent = ({ setIsHidden }: GospelContentProps) => {
     const _orderId = orderId ? parseInt(orderId) : undefined;
 
     if (_orderId === undefined) {
-      initSermons(labelSlug);
+      initWritings(labelSlug);
     } else if (_orderId > 0) {
-      initSermon(labelSlug, _orderId);
+      initWriting(labelSlug, _orderId);
     } else {
       navigate("/gospel");
-      enqueueSnackbar("Sermon not found.", { variant: "error" });
+      enqueueSnackbar("Writing not found.", { variant: "error" });
     }
   }, [labelSlug, orderId]);
 
-  // init my sermons on isWriterParams
+  // init my Writings on isWriterParams
   useEffect(() => {
     if (!isWriterParams) return;
-    initMySermons();
+    initMyWritings();
   }, [isWriterParams]);
 
   // handle functions
 
-  const handleDeleteSermon = async () => {
-    if (!mySermon) return;
+  const handleDeleteWriting = async () => {
+    if (!myWriting) return;
 
     try {
-      const deletedSermonId = await sermonsService.deleteSermon(mySermon.id);
-      asyncDeleteSermon(deletedSermonId);
+      const deletedWritingId = await writingsService.deleteWriting(
+        myWriting.id,
+      );
+      asyncDeleteWriting(deletedWritingId);
 
-      enqueueSnackbar("Sermon deleted.", {variant: "success"});
+      enqueueSnackbar("Writing deleted.", { variant: "success" });
 
-      setOpenDeleteSermonForm(false);
+      setOpenDeleteWritingForm(false);
     } catch (e) {
       if (e instanceof Error) {
-        enqueueSnackbar(e.message, {variant: "error"});
+        enqueueSnackbar(e.message, { variant: "error" });
       }
     }
   };
 
-  const handleOpenSermonForm = () => {
-    setOpenNewSermonForm(true);
+  const handleOpenWritingForm = () => {
+    setOpenNewWritingForm(true);
     handleAnchorElClose();
   };
 
-  const handleCloseSermonForm = () => {
-    setOpenNewSermonForm(false);
-    setMySermon(undefined);
+  const handleCloseWritingForm = () => {
+    setOpenNewWritingForm(false);
+    setMyWriting(undefined);
   };
 
-  const handleOpenDeleteSermonForm = () => {
-    setOpenDeleteSermonForm(true);
+  const handleOpenDeleteWritingForm = () => {
+    setOpenDeleteWritingForm(true);
     handleAnchorElClose();
   };
 
-  const handleMySermonClick = (
+  const handleMyWritingClick = (
     event: React.MouseEvent<HTMLButtonElement>,
-    sermon: Sermon,
+    Writing: Writing,
   ) => {
     event.stopPropagation();
-    setMySermon(sermon);
+    setMyWriting(Writing);
     handleAnchorElClick(event);
   };
 
@@ -211,30 +215,30 @@ const GospelContent = ({ setIsHidden }: GospelContentProps) => {
   };
 
   const handleBack = () => {
-    setSermon(undefined);
+    setWriting(undefined);
     navigate("./..");
   };
 
   const handleBackHome = () => {
-    setSermon(undefined);
+    setWriting(undefined);
     navigate("/gospel");
   };
 
   // components
 
-  const NavButton = (isSermon: boolean = false) => {
+  const NavButton = (isWriting: boolean = false, showInPc: boolean = true) => {
     return isMobile ? (
       <TTIconButton onClick={() => setIsHidden(false)} noBorder>
         <MenuIcon />
       </TTIconButton>
-    ) : (
+    ) : showInPc ? (
       <Typography
         className="back-text"
-        onClick={isSermon ? handleBack : handleBackHome}
+        onClick={isWriting ? handleBack : handleBackHome}
       >
-        {isSermon ? `<< Back to Topic` : `<< Back to Home`}
+        {isWriting ? `<< Back to Topic` : `<< Back to Home`}
       </Typography>
-    );
+    ) : undefined;
   };
 
   const WriterView = () => {
@@ -247,7 +251,7 @@ const GospelContent = ({ setIsHidden }: GospelContentProps) => {
             className={clsx("category", isMobile && "mobile")}
             variant="h3"
           >
-            My Sermons
+            My Writings
           </Typography>
 
           <Box className="tool-box">
@@ -256,14 +260,14 @@ const GospelContent = ({ setIsHidden }: GospelContentProps) => {
               label="New Labels"
               startIcon={<AddIcon />}
               color="info"
-              onClick={() => setOpenAddSermonLabelForm(true)}
+              onClick={() => setOpenAddWritingLabelForm(true)}
             />
-            {/* add sermon */}
+            {/* add Writing */}
             <TTButton
-              label="New Sermon"
+              label="New Writing"
               startIcon={<AddIcon />}
               color="utility"
-              onClick={() => setOpenNewSermonForm(true)}
+              onClick={() => setOpenNewWritingForm(true)}
             />
           </Box>
         </Box>
@@ -272,30 +276,30 @@ const GospelContent = ({ setIsHidden }: GospelContentProps) => {
 
         {/* content */}
         <Box>
-          {mySermons.map((sermon) => (
+          {myWritings.map((Writing) => (
             <MenuItem
-              key={sermon.id}
-              className="my-sermon-menu-item"
+              key={Writing.id}
+              className="my-Writing-menu-item"
               disableRipple
             >
               <Box className="row full">
                 <Box className="column">
                   <Box className="row full">
-                    <Typography variant="h6">{sermon.title}</Typography>
+                    <Typography variant="h6">{Writing.title}</Typography>
                     <Typography variant="caption">
-                      {sermon.publishAt}
+                      {Writing.publishAt}
                     </Typography>
                   </Box>
                   {/* label - category & topic */}
-                  {sermon.label ? (
+                  {Writing.label ? (
                     <Box className="row wrap">
                       <Chip
-                        label={sermon.label.category?.name}
+                        label={Writing.label.category?.name}
                         size="small"
                         color="info"
                       />
                       <Chip
-                        label={sermon.label.topic?.name}
+                        label={Writing.label.topic?.name}
                         size="small"
                         color="utility"
                       />
@@ -308,7 +312,7 @@ const GospelContent = ({ setIsHidden }: GospelContentProps) => {
                 </Box>
 
                 <Box className="more-option-button">
-                  <IconButton onClick={(e) => handleMySermonClick(e, sermon)}>
+                  <IconButton onClick={(e) => handleMyWritingClick(e, Writing)}>
                     <MoreVertIcon />
                   </IconButton>
                 </Box>
@@ -320,13 +324,13 @@ const GospelContent = ({ setIsHidden }: GospelContentProps) => {
     );
   };
 
-  const SermonView = () => {
+  const WritingView = () => {
     return (
       <Box className={clsx("gospel-content-container", isMobile && "mobile")}>
         <Box className="header-box">
           {/* nav button - only in mobile view */}
           {NavButton(true)}
-          {sermon?.label ? (
+          {Writing?.label ? (
             <React.Fragment>
               <Typography
                 className={clsx("category", isMobile && "mobile")}
@@ -343,7 +347,7 @@ const GospelContent = ({ setIsHidden }: GospelContentProps) => {
             </React.Fragment>
           ) : undefined}
         </Box>
-        <MarkdownBox text={sermon?.content} isOfficial />
+        <MarkdownBox text={Writing?.content} isOfficial />
       </Box>
     );
   };
@@ -374,27 +378,27 @@ const GospelContent = ({ setIsHidden }: GospelContentProps) => {
 
         {/* content */}
         <Box>
-          {isLoading ? undefined : sermons.length > 0 ? (
-            sermons.map((sermon, i) => (
+          {isLoading ? undefined : Writings.length > 0 ? (
+            Writings.map((Writing, i) => (
               <MenuItem
-                key={sermon.id}
+                key={Writing.id}
                 onClick={() => navigate(`./${i + 1}`)}
                 disableRipple
               >
-                <Box className="sermon-box">
+                <Box className="Writing-box">
                   {/* order number */}
                   <Typography variant="h6">{i + 1}.</Typography>
                   {/* details */}
                   <Box>
-                    <Typography variant="h5">{sermon.title}</Typography>
-                    <Typography>{sermon.publishAt}</Typography>
+                    <Typography variant="h5">{Writing.title}</Typography>
+                    <Typography>{Writing.publishAt}</Typography>
                   </Box>
                 </Box>
               </MenuItem>
             ))
           ) : (
-            <Box className="no-sermon-box">
-              <Typography>No sermons published yet.</Typography>
+            <Box className="no-Writing-box">
+              <Typography>No Writings published yet.</Typography>
             </Box>
           )}
         </Box>
@@ -402,11 +406,21 @@ const GospelContent = ({ setIsHidden }: GospelContentProps) => {
     );
   };
 
+  const FeedView = () => (
+    <Box className={clsx("gospel-content-container", isMobile && "mobile")}>
+      {/* header */}
+      <Box className="header-box">
+        {/* nav button - only in mobile view */}
+        {NavButton(false, false)}
+      </Box>
+    </Box>
+  );
+
   const Main = () => {
-    if (labelSlug && orderId) return SermonView();
+    if (labelSlug && orderId) return WritingView();
     if (labelSlug && !orderId) return TopicView();
     if (isWriterParams) return WriterView();
-    else return <Box>feed</Box>;
+    else return FeedView();
   };
 
   return (
@@ -415,20 +429,20 @@ const GospelContent = ({ setIsHidden }: GospelContentProps) => {
 
       {/* forms */}
 
-      <AddSermonLabelForm
-        open={openAddSermonLabelForm}
-        onClose={() => setOpenAddSermonLabelForm(false)}
+      <AddWritingLabelForm
+        open={openAddWritingLabelForm}
+        onClose={() => setOpenAddWritingLabelForm(false)}
       />
-      <SermonForm
-        sermonId={mySermon?.id}
-        open={openNewSermonForm}
-        onClose={handleCloseSermonForm}
-        onAction={mySermon ? asyncUpdateSermon : asyncNewSermon}
+      <WritingForm
+        WritingId={myWriting?.id}
+        open={openNewWritingForm}
+        onClose={handleCloseWritingForm}
+        onAction={myWriting ? asyncUpdateWriting : asyncNewWriting}
       />
-      <DeleteSermonForm
-        open={openDeleteSermonForm}
-        onClose={() => setOpenDeleteSermonForm(false)}
-        onAction={handleDeleteSermon}
+      <DeleteWritingForm
+        open={openDeleteWritingForm}
+        onClose={() => setOpenDeleteWritingForm(false)}
+        onAction={handleDeleteWriting}
       />
 
       {/* popups */}
@@ -446,13 +460,13 @@ const GospelContent = ({ setIsHidden }: GospelContentProps) => {
           horizontal: "right",
         }}
       >
-        <MenuItem onClick={handleOpenSermonForm}>
+        <MenuItem onClick={handleOpenWritingForm}>
           <ListItemIcon>
             <EditIcon />
           </ListItemIcon>
           <ListItemText primary="Edit" />
         </MenuItem>
-        <MenuItem className="error" onClick={handleOpenDeleteSermonForm}>
+        <MenuItem className="error" onClick={handleOpenDeleteWritingForm}>
           <ListItemIcon>
             <DeleteIcon />
           </ListItemIcon>
