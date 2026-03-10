@@ -18,7 +18,7 @@ import {
   writingsService,
   type WritingLabel,
   type WritingLabelType,
-} from "@services/gospel/Writings";
+} from "@services/gospel/writings";
 import { StringUtils } from "@utils/StringUtils";
 import "./index.scss";
 import { enqueueSnackbar } from "notistack";

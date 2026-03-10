@@ -31,7 +31,8 @@ import LibraryDialog from "@components/ImageSelector/LibraryDialog";
 import clsx from "clsx";
 import "./index.scss";
 
-const Banner = () => {
+// name "Banner" has already taken by "Banner" type
+const BannerView = () => {
   // window
   const isMobile = useIsMobile();
   // behavior
@@ -230,4 +231,4 @@ const Banner = () => {
   );
 };
 
-export default Banner;
+export default BannerView;
