@@ -16,7 +16,7 @@ import {
   writingsService,
   type Writing,
   type WritingLabel,
-} from "@services/gospel/Writings";
+} from "@services/gospel/writings";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { useEffect, useState } from "react";
 import TimeUtils from "@utils/TimeUtils";
