@@ -13,11 +13,13 @@ export type UserBasic = UserSimple & {
   emailVerified: boolean;
   isAdmin?: boolean;
   isWriter?: boolean;
+  isBannerMan?: boolean;
 };
 
 export type UserProfileBasic = UserSimple & {
   isAdmin?: boolean;
   isWriter?: boolean;
+  isBannerMan?: boolean;
   followerCount: number;
   followingCount: number;
   numTrips: number;

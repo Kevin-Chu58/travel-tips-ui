@@ -8,7 +8,7 @@ import {
 import { useNavigate, useSearchParams } from "react-router";
 import TripCard from "@components/Cards/TripCard";
 import TTIconButton from "@components/TTIconButton";
-import TravelExploreIcon from "@mui/icons-material/TravelExplore";
+import SearchIcon from '@mui/icons-material/Search';
 import TTButton from "@components/TTButton";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import type { SearchResults } from "@services/http";
@@ -26,6 +26,7 @@ import { bannersService, type Banner } from "@services/feed/banners";
 import BannerCard from "@components/Cards/BannerCard";
 import clsx from "clsx";
 import "./index.scss";
+import Slide from "@components/Profile/Slide";
 
 const Home = () => {
   // window
@@ -205,6 +206,9 @@ const Home = () => {
 
   // trigger when press enter when focus on search input
   const handleKeyDownSearch = async (event: React.KeyboardEvent) => {
+    if (!hasParamSearch)
+      return;
+    
     if (event.key === "Enter") {
       await handleSearch();
     }
@@ -272,13 +276,15 @@ const Home = () => {
   ];
 
   const Recommendation = () => {
+    const bannerEles = banners.map((banner) => (
+            <BannerCard key={banner.id} banner={banner} mobileView={isMobile} />
+          ));
+
     return (
       <Box className="banner-box no-scrollbar">
-        <Box className="banner-gallery">
-          {banners.map((banner) => (
-            <BannerCard key={banner.id} banner={banner} mobileView={isMobile} />
-          ))}
-        </Box>
+        {isMobile ? <Box className="banner-gallery">
+          {bannerEles}
+        </Box> : <Slide elements={bannerEles} />}
       </Box>
     );
   };
@@ -360,8 +366,6 @@ const Home = () => {
       maxWidth={false}
       disableGutters
     >
-      {!hasParamResult ? <Recommendation /> : undefined}
-
       <Box className="search-box">
         <Box className="search-content-box">
           {/* input */}
@@ -379,8 +383,8 @@ const Home = () => {
 
           {/* search button */}
           <Box className="search-button-box">
-            <TTIconButton onClick={handleSearch} disabled={!hasParamSearch}>
-              <TravelExploreIcon />
+            <TTIconButton onClick={handleSearch}>
+              <SearchIcon/>
             </TTIconButton>
           </Box>
         </Box>
@@ -398,7 +402,7 @@ const Home = () => {
 
       {/* content */}
       <Box className={clsx("content-box", isMobile && "mobile")}>
-        {hasParamResult ? <SearchResult /> : undefined}
+        {hasParamResult ? <SearchResult /> : <Recommendation />}
       </Box>
 
       {/* fabs */}

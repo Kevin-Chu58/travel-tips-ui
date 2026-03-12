@@ -155,6 +155,10 @@ span.helper {
     gap: .5rem;
   }
 
+  &.gap-large {
+    gap: 1rem;
+  }
+
   &.center {
     align-items: center;
   }

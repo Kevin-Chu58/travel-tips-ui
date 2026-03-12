@@ -1,0 +1,49 @@
+.slide-container {
+  .slide-box {
+    position: relative;
+  }
+
+  .MuiButton-root.left-nav-button,
+  .MuiButton-root.right-nav-button {
+    position: absolute;
+    top: 0%;
+    height: 100%;
+    background-color: transparent;
+    transition-duration: 0ms;
+    border-radius: 0;
+    z-index: 20;
+
+    &:hover {
+      color: white;
+      background-color: var(--utility-900);
+      opacity: 0.9;
+    }
+  }
+
+  .MuiButton-root.left-nav-button {
+    left: 0%;
+    border-radius: 1rem 0 0 1rem;
+  }
+
+  .MuiButton-root.right-nav-button {
+    right: 0%;
+    border-radius: 0 1rem 1rem 0;
+  }
+
+  .indicator {
+    width: 4rem;
+    height: 0.8rem;
+    background-color: var(--utility-400);
+    border-radius: 0.2rem;
+    transition: 0.2s linear all;
+    cursor: pointer;
+
+    &:hover {
+      background-color: var(--utility-600);
+    }
+
+    &.focus {
+      background-color: var(--utility-800);
+    }
+  }
+}
