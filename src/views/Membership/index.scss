@@ -1,0 +1,229 @@
+@use "../../stylings/layout" as *;
+@use "../../stylings/color" as *;
+@use "../../stylings/box_shadows" as *;
+
+.membership-view {
+  color: black;
+  overflow-x: hidden;
+  overflow-y: auto;
+  height: $screen-height;
+  background-color: var(--secondary-main);
+
+  .sec-header.MuiTypography-root {
+    font-size: 3rem;
+    font-weight: bold;
+    font-family: noto serif;
+    text-align: center;
+    margin: 2rem;
+    margin-bottom: 4rem;
+  }
+
+  .section {
+    position: relative;
+    width: 100dvw;
+    min-height: $screen-height;
+  }
+
+  .section,
+  .sec-1-overlay {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: white;
+  }
+
+  .sec-1 {
+    background-image: url("../../assets/gemini_travel_sea_shore.png");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+  }
+
+  .sec-1-overlay {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: color-mix(in srgb, var(--utility-900), transparent 40%);
+
+    .sec-1-content {
+      padding: 2rem;
+    }
+
+    .sec-1-content::before {
+      position: absolute;
+      content: "";
+      padding: 3rem 8rem;
+      border: solid white;
+      border-width: 0.4rem 0.4rem 0 0;
+      margin-left: 2rem;
+      margin-top: -1rem;
+    }
+
+    .sec-1-content::after {
+      position: absolute;
+      content: "";
+      padding: 3rem 8rem;
+      border: solid white;
+      border-width: 0 0 0.4rem 0.4rem;
+      margin-left: -1.8rem;
+      margin-top: -5.3rem;
+    }
+
+    .sec-1-content.mobile {
+      &::before {
+        padding: 2rem 5rem;
+        margin-left: 5rem;
+        margin-top: -1.2rem;
+      }
+
+      &::after {
+        padding: 2rem 5rem;
+        margin-left: -1.5rem;
+        margin-top: -3.2rem;
+      }
+    }
+
+    .sec-1-text.MuiTypography-root {
+      text-align: center;
+      font-size: 2.4rem;
+      color: white;
+      font-weight: bold;
+      font-family: noto serif;
+      text-transform: capitalize;
+      transform: scaleY(0.9);
+
+      &.mobile {
+        font-size: 2rem;
+      }
+    }
+
+    .sec-1-footer {
+      position: absolute;
+      bottom: 1rem;
+      gap: 0.5rem;
+
+      .scroll-button {
+        width: 120%;
+        color: black;
+        background-color: white;
+        transition: 0.2s linear all;
+      }
+
+      .sec-1-footer-arrow-down {
+        width: 1.5rem;
+        height: 1.5rem;
+      }
+    }
+
+    .subscribe-link {
+      color: white;
+      text-decoration-color: white;
+      cursor: pointer;
+    }
+  }
+
+  .sec-2 {
+    padding-bottom: 4rem;
+    background-color: var(--utility-900);
+    justify-content: center;
+
+    .sec-2-content {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, 20rem);
+      justify-content: space-evenly;
+      gap: 2rem;
+
+      .sec-2-icon {
+        width: 8rem;
+        height: 8rem;
+      }
+
+      .MuiTypography-root {
+        font-size: 1.2rem;
+        text-align: center;
+      }
+    }
+  }
+
+  .sec-3 {
+    color: var(--utility-900);
+    background: linear-gradient(
+      to bottom right,
+      var(--secondary-main) 12%,
+      var(--primary-main) 12%,
+      var(--primary-main) 16%,
+      var(--secondary-main) 16%,
+      var(--secondary-main) 90%,
+      var(--primary-main) 90%,
+      var(--primary-main) 94%,
+      var(--secondary-main) 94%
+    );
+    gap: 2rem;
+
+    .sec-3-text.MuiTypography-root {
+      font-size: 1.2rem;
+      align-items: center;
+      margin: 1rem;
+    }
+  }
+
+  .sec-4-content {
+    h2.MuiTypography-root {
+      font-weight: bold;
+    }
+
+    .focus.MuiTypography-root {
+      color: var(--primary-main);
+    }
+  }
+
+  .sec-4-arrow-icon {
+    width: 4rem;
+    height: 4rem;
+  }
+
+  .MuiGrid-root.overview-table {
+    width: max(340px, 40vw);
+    border-radius: 0.5rem;
+    overflow: hidden;
+    box-shadow: $mild-box-shadow;
+    margin-bottom: 4rem;
+
+    .MuiGrid-root.head {
+      color: white;
+      font-weight: bold;
+      background-color: var(--utility-800);
+    }
+
+    .MuiGrid-root.grid-row {
+      font-weight: bold;
+      background-color: white;
+    }
+
+    & .MuiGrid-root.MuiGrid-container {
+      border-bottom: 1px solid $divider;
+    }
+
+    & .MuiGrid-root {
+      display: flex;
+      justify-content: center;
+    }
+
+    & .MuiGrid-root:first-child {
+      justify-content: left;
+    }
+
+    .MuiGrid-root:not(head) {
+      padding: 0.4rem;
+    }
+
+    .MuiGrid-root.true {
+      color: var(--success-main);
+    }
+
+    .MuiGrid-root.false {
+      color: var(--error-main);
+    }
+  }
+}

@@ -1,6 +1,8 @@
+import { LS_USER_BASIC } from "@constants/localStorage";
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 
-interface UserState {
+// 1. Define the base data type to avoid repeating keys
+interface UserData {
   id: number | null;
   userId: string | null;
   username: string | null;
@@ -10,6 +12,12 @@ interface UserState {
   emailVerified: boolean | null;
   isAdmin: boolean | null;
   isWriter: boolean | null;
+  isBannerMan: boolean | null;
+  renewSubscription: boolean | null;
+  stripeCustomerId: string | null;
+}
+
+interface UserState extends UserData {
   isLoading: boolean;
 }
 
@@ -23,6 +31,9 @@ const initialState: UserState = {
   emailVerified: null,
   isAdmin: null,
   isWriter: null,
+  isBannerMan: null,
+  renewSubscription: null,
+  stripeCustomerId: null,
   isLoading: true,
 };
 
@@ -30,48 +41,23 @@ const userSlice = createSlice({
   name: "user",
   initialState,
   reducers: {
-    setUser(
-      state,
-      action: PayloadAction<{
-        id?: number;
-        userId?: string;
-        username?: string;
-        picture?: string;
-        email?: string;
-        userAgreement?: boolean;
-        emailVerified?: boolean;
-        isAdmin?: boolean;
-        isWriter?: boolean;
-      }>,
-    ) {
-      if (action.payload.id) state.id = action.payload.id;
-      if (action.payload.userId) state.userId = action.payload.userId;
-      if (action.payload.username) state.username = action.payload.username;
-      if (action.payload.picture) state.picture = action.payload.picture;
-      if (action.payload.email) state.email = action.payload.email;
-      if (action.payload.userAgreement !== undefined)
-        state.userAgreement = action.payload.userAgreement;
-      if (action.payload.emailVerified !== undefined)
-        state.emailVerified = action.payload.emailVerified;
-      if (action.payload.isAdmin) state.isAdmin = action.payload.isAdmin;
-      if (action.payload.isWriter) state.isWriter = action.payload.isWriter;
+    // 2. Use Partial<UserData> to allow updating any number of fields at once
+    setUser(state, action: PayloadAction<Partial<UserData>>) {
+      Object.assign(state, action.payload);
       state.isLoading = false;
+
+      const userStr = localStorage.getItem(LS_USER_BASIC);
+
+      const user = userStr ? JSON.parse(userStr) : {};
+      const storageData = { ...user, ...action.payload, updatedAt: Date.now() };
+      localStorage.setItem(LS_USER_BASIC, JSON.stringify(storageData));
     },
     setUserAgreement(state, action: PayloadAction<boolean>) {
       state.userAgreement = action.payload;
     },
-    clearUser(state) {
-      state.id = null;
-      state.userId = null;
-      state.username = null;
-      state.picture = null;
-      state.email = null;
-      state.userAgreement = null;
-      state.emailVerified = null;
-      state.isAdmin = null;
-      state.isWriter = null;
-      state.isLoading = false;
-    },
+    // 3. To clear, simply return the initial state (but keep isLoading false)
+    clearUser: () => ({ ...initialState, isLoading: false }),
+
     setLoading(state, action: PayloadAction<boolean>) {
       state.isLoading = action.payload;
     },

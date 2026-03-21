@@ -21,12 +21,16 @@ import { useIsMobile } from "@hooks/useIsMobile";
 import { login, logout, markLoggedOut } from "@services/tokens";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
+import LocalActivityIcon from '@mui/icons-material/LocalActivity';
 import { useSelector } from "react-redux";
 import type { RootState } from "@redux/store";
 import UserAvatar from "@components/UserAvatar";
-import type { NavTab } from "@constants/Types";
+import type { HeaderTab, NavTab } from "@constants/Types";
 import AccountBoxIcon from "@mui/icons-material/AccountBox";
 import ViewCarouselIcon from "@mui/icons-material/ViewCarousel";
+// import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
+// import ArticleIcon from '@mui/icons-material/Article';
+// import TokenIcon from '@mui/icons-material/Token';
 // import SettingsIcon from "@mui/icons-material/Settings";
 import LogoutIcon from "@mui/icons-material/Logout";
 import clsx from "clsx";
@@ -45,10 +49,12 @@ const HeaderBar = () => {
     username: user.username ?? "",
     picture: user.picture ?? "",
   };
-  // others
-  const location = useLocation();
+  // anchors
   const [anchorElHeader, setAnchorElHeader] = useState<HTMLElement | null>(); // header menu
   const [anchorElUser, setAnchorElUser] = useState<HTMLElement | null>(); // user menu
+  // const [anchorElMore, setAnchorElMore] = useState<HTMLElement | null>();
+  // others
+  const location = useLocation();
   const onPage = location.pathname === "/" ? Pages.Main : Pages.Undefined;
 
   const headers = [
@@ -63,16 +69,21 @@ const HeaderBar = () => {
       requireAuth: true,
     },
     {
-      name: "Doc",
-      to: "/doc",
-      requireAuth: false,
-    },
-    {
       name: "Gospel",
       to: "/gospel",
       requireAuth: false,
     },
-  ];
+    {
+      name: "doc",
+      to: "/doc",
+      // element: <ArticleIcon fontSize="small" />,
+    },
+    {
+      name: "membership",
+      to: "/membership",
+      // element: <TokenIcon fontSize="small" />,
+    },
+  ] as HeaderTab[];
 
   const currentHeader =
     headers.find((h) => location.pathname.startsWith(h.to))?.name ??
@@ -84,11 +95,29 @@ const HeaderBar = () => {
     });
   };
 
+  // const moreMenuItems = [
+  //   {
+  //     name: "membership",
+  //     to: "/membership",
+  //     // element: <TokenIcon fontSize="small" />,
+  //   },
+  //   {
+  //     name: "documentation",
+  //     to: "/doc",
+  //     // element: <ArticleIcon fontSize="small" />,
+  //   },
+  // ] as HeaderTab[];
+
   const userMenuItems = [
     {
       name: "profile",
       to: "/profile",
       element: <AccountBoxIcon fontSize="small" />,
+    },
+    {
+      name: "subscription",
+      to: "/subscription",
+      element: <LocalActivityIcon fontSize="small" />,
     },
     {
       name: "banner",
@@ -126,6 +155,14 @@ const HeaderBar = () => {
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
   };
+
+  // const handleOpenMoreMenu = (e: React.MouseEvent<HTMLElement>) => {
+  //   setAnchorElMore(e.currentTarget);
+  // };
+
+  // const handleCloseMoreMenu = () => {
+  //   setAnchorElMore(null);
+  // };
 
   const toAuthPortal = async () => {
     await login();
@@ -185,6 +222,7 @@ const HeaderBar = () => {
                   onClose={handleCloseHeaderMenu}
                 >
                   {headers
+                    // .concat(moreMenuItems)
                     .filter(
                       (h) =>
                         !h.requireAuth || (h.requireAuth && isAuthenticated),
@@ -197,7 +235,9 @@ const HeaderBar = () => {
                 </Menu>
               </Box>
             ) : (
-              <Box className="app-bar-headers-container">
+              <Box
+                className={clsx("app-bar-headers-container", onPage === Pages.Main && "main")}
+              >
                 {headers.map(
                   (header, i) =>
                     (isAuthenticated || !header.requireAuth) && (
@@ -210,6 +250,30 @@ const HeaderBar = () => {
                       />
                     ),
                 )}
+
+                {/* more button - trigger on hover */}
+                {/* <Box>
+                  <IconButton
+                    className="app-bar-more-button"
+                    onClick={(e) => handleOpenMoreMenu(e)}
+                    disableRipple
+                  >
+                    <MoreHorizIcon />
+                  </IconButton>
+                </Box> */}
+
+                {/* <Menu
+                  className="TT-menu flex"
+                  open={Boolean(anchorElMore)}
+                  anchorEl={anchorElMore}
+                  onClose={handleCloseMoreMenu}
+                >
+                  {moreMenuItems.map((item) => (
+                    <Link key={item.name} href={item.to}>
+                      <MenuItem>{item.name}</MenuItem>
+                    </Link>
+                  ))}
+                </Menu> */}
               </Box>
             )
           ) : undefined}

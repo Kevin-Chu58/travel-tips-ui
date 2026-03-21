@@ -163,6 +163,10 @@ span.helper {
     align-items: center;
   }
 
+  &.end {
+    align-items: end;
+  }
+
   &.full {
     width: 100%;
   }
@@ -172,6 +176,10 @@ span.helper {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+
+  &.center {
+    justify-content: center;
+  }
 
   &.full {
     width: 100%;

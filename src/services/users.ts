@@ -14,6 +14,8 @@ export type UserBasic = UserSimple & {
   isAdmin?: boolean;
   isWriter?: boolean;
   isBannerMan?: boolean;
+  renewSubscription: boolean;
+  stripCustomerId?: string;
 };
 
 export type UserProfileBasic = UserSimple & {
@@ -145,6 +147,23 @@ const unfollowUser = async (id: number): Promise<void> => {
   );
 };
 
+// subscription
+
+const updateRenewSubscription = async (
+  renewSubscription: boolean,
+): Promise<void> => {
+  const params = new URLSearchParams();
+
+  params.append("renewSubscription", renewSubscription.toString());
+
+  return await http.patch(
+    http.apiBaseURLs.api,
+    `users/renewSubscription?${params.toString()}`,
+    undefined,
+    undefined,
+  );
+};
+
 export const usersService = {
   getUserByUserId,
   getUsersByUsername,
@@ -159,4 +178,6 @@ export const usersService = {
   getFollowings,
   followUser,
   unfollowUser,
+  // subscription
+  updateRenewSubscription,
 };

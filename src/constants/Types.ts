@@ -6,6 +6,12 @@ import type { SvgIconProps, SxProps } from "@mui/material";
 import type { ClassValue } from "clsx";
 
 // UI
+export type HeaderTab = {
+  name: string;
+  to: string;
+  requireAuth?: boolean;
+};
+
 export type WorkshopRoute = {
   name: string;
   path: string;

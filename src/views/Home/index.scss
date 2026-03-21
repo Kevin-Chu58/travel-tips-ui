@@ -100,8 +100,9 @@
   }
 
   .banner-gallery {
-    display: flex;
-    width: fit-content;
+    display: -webkit-box;
+    width: 100vw;
+    overflow-x: auto;
     padding: 0 1rem;
     gap: 1rem;
   }

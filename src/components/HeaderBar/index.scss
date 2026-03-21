@@ -34,7 +34,9 @@
   }
 
   .app-bar-board-container {
-    margin: 10rem -10rem 0 -2.5rem;
+    position: absolute;
+    top: 3.5rem;
+    left: -2rem;
   }
 
   .app-bar-board {
@@ -87,7 +89,10 @@
     display: flex;
     flex-direction: row;
     align-items: center;
-    margin-left: 6rem;
+    
+    &.main {
+      margin-left: 2rem;
+    }
 
     &.mobile {
       margin-left: 1rem;
@@ -101,6 +106,18 @@
   .app-bar-header,
   .app-bar-login {
     cursor: pointer;
+  }
+
+  .app-bar-more-button.MuiIconButton-root {
+    height: 2rem;
+    color: white;
+    border-radius: 0.5rem;
+    border: 2px transparent solid;
+    margin: 0 1rem;
+
+    &:hover {
+      background-color: rgba(white, 0.1);
+    }
   }
 
   .app-bar-auth-container {

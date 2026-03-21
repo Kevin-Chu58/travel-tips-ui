@@ -1,55 +1,70 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useDispatch } from "react-redux";
 import { clearUser, setLoading, setUser } from "@redux/userSlice";
-import { usersService, type UserBasic } from "@services/users";
+import { usersService } from "@services/users";
 import { useAuth0 } from "@auth0/auth0-react";
 import { LS_USER_BASIC } from "@constants/localStorage";
+
+const TEN_MINUTES = 10 * 60 * 1000;
 
 export const UserBasicInitializer = () => {
   const { isAuthenticated, isLoading } = useAuth0();
   const dispatch = useDispatch();
+  const isFetching = useRef<boolean>(false);
 
   useEffect(() => {
-    const initUserBasic = async () => {
-      if (isLoading) {
-        dispatch(setLoading(true));
-        return;
-      }
-
-      if (!isAuthenticated) {
-        dispatch(clearUser());
-        return;
-      }
+    // Helper to fetch and sync data
+    const refreshUser = async () => {
+      if (isFetching.current) return; // Skip if already fetching
+      isFetching.current = true;
 
       try {
-        let userStr = localStorage.getItem(LS_USER_BASIC);
-        let user;
-        if (userStr) {
-          user = JSON.parse(userStr) as UserBasic;
-        } else {
-          user = await usersService.getUserBasicInfo();
-          localStorage.setItem(LS_USER_BASIC, JSON.stringify(user));
-        }
-
-        dispatch(
-          setUser({
-            id: user.id,
-            userId: user.userId,
-            username: user.username,
-            picture: user.picture,
-            email: user.email,
-            userAgreement: user.userAgreement,
-            emailVerified: user.emailVerified,
-            isAdmin: user.isAdmin,
-            isWriter: user.isWriter,
-          }),
-        );
+        const user = await usersService.getUserBasicInfo();
+        const storageData = { ...user, updatedAt: Date.now() };
+        localStorage.setItem(LS_USER_BASIC, JSON.stringify(storageData));
+        dispatch(setUser(user));
       } catch (err) {
-        console.error("Failed to load user basic info", err);
+        console.error("Failed to refresh user info", err);
+      } finally {
+        isFetching.current = false;
+      }
+    };
+
+    const initUserBasic = async () => {
+      if (isLoading) return dispatch(setLoading(true));
+      if (!isAuthenticated) return dispatch(clearUser());
+
+      try {
+        const userStr = localStorage.getItem(LS_USER_BASIC);
+
+        if (userStr) {
+          const cached = JSON.parse(userStr);
+          const isStale = Date.now() - (cached.updatedAt || 0) > TEN_MINUTES;
+
+          // Dispatch cached data immediately for instant UI
+          dispatch(setUser(cached));
+
+          // If it's old, refresh it in the background
+          if (isStale) refreshUser();
+        } else {
+          // No cache exists, fetch for the first time
+          await refreshUser();
+        }
+      } catch (err) {
         dispatch(clearUser());
       }
     };
+
     initUserBasic();
+
+    // BACKGROUND POLLING: Refresh every 5 minutes
+    const intervalId = setInterval(() => {
+      if (isAuthenticated && !isLoading) {
+        refreshUser();
+      }
+    }, TEN_MINUTES);
+
+    return () => clearInterval(intervalId); // Cleanup on unmount
   }, [isAuthenticated, isLoading, dispatch]);
 
   return null;

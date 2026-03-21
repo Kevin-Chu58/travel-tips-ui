@@ -34,6 +34,7 @@ const NavButton = ({
       label={label}
       icon={icon}
       deleteIcon={deleteIcon}
+      onDelete={deleteIcon ? () => {} : undefined}
     />
   );
 
