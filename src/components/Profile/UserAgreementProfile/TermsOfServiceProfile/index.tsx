@@ -280,7 +280,7 @@ const TermsOfServiceProfile = ({
         </Typography>
         <Typography variant="subtitle1">7.3 Content Standards</Typography>
         <Typography component="div" className="content">
-          Your submitted content must be consistent with the Christian
+          All your submitted content must be consistent with the Christian
           foundations and mission of TravelTips. Therefore, you agree that your
           content:
           <ul>
@@ -385,9 +385,10 @@ const TermsOfServiceProfile = ({
             </li>
             <li>
               <b>
-                Promoting demonstrably false, misleading, or factually
-                unverified claims is prohibited. This includes narratives we
-                determine to be factually unsupported.
+                Promoting demonstrably false, misleading, or inconsistent with
+                the platform's editorial standards for truth and civil discourse
+                claims is prohibited. This includes narratives we determine to
+                be factually unsupported.
               </b>{" "}
               (e.g. interpretations of the George Floyd incident that deny his
               resistance to lawful custody or assert racial animus by police
@@ -414,14 +415,50 @@ const TermsOfServiceProfile = ({
           </ul>
         </Alert>
         <Alert severity="info">
-          <b>
-            TravelTips reserves the right, but not the obligation, to remove,
-            restrict, or disable access to any User Content that violates this
-            Agreement, is reported by users, is required to be removed by law,
-            or is determined to be inconsistent with the spirit and mission of
-            the platform.
-          </b>
+          TravelTips reserves the right, but not the obligation, to remove,
+          restrict, or disable access to any User Content that violates this
+          Agreement, is reported by users, or is required to be removed by law.
+          Furthermore, TravelTips may, in its <b>sole discretion</b>, moderate
+          or remove any content determined to be inconsistent with the
+          <b>Christian spirit and mission</b> of the platform, or that it deems
+          to be <b>socially disruptive or factually deceptive</b> in a manner
+          that undermines the peaceful and truth-seeking environment of the
+          community. TravelTips moderates content as a “Good Samaritan” under 47
+          U.S.C. § 203(c)(2) to restrict material that it finds religiously or
+          morally objectionable.
         </Alert>
+
+        <Typography variant="subtitle1">
+          7.4 Moral Integrity & User Accountability
+        </Typography>
+        <Typography component="div" className="content">
+          TravelTips is a community built on the Lordship of Christ and Biblical
+          holiness. While we do not police the private lives of all users, we
+          reserve the right to suspend or terminate the account of any user
+          whose public conduct, known reputation, or external advocacy is found
+          to be flagrantly inconsistent with the Biblical moral standards of
+          this platform. This includes, but is not limited to:
+          <ul>
+            <li>
+              <b>Public Advocacy:</b> Publicly promoting or leading
+              organizations that advance "woke" ideologies, abortion access, or
+              LGBTQ+ agendas.
+            </li>
+            <li>
+              <b>Scandalous Conduct:</b> Engaging in public behavior that is
+              demonstrably sinful, illegal, or morally deceptive as understood
+              by the Christian community operating this platform.
+            </li>
+            <li>
+              <b>Platform Integrity:</b> We believe that the presence of certain
+              public figures or activists may undermine the spiritual
+              environment we seek to provide. Therefore, TravelTips reserves the{" "}
+              <b>sole and absolute discretion</b> to deny service to individuals
+              whose public identity serves as an endorsement of values contrary
+              to the Word of God.
+            </li>
+          </ul>
+        </Typography>
 
         {/* section 8 */}
         <Typography variant="h6">8. Prohibited Conduct</Typography>
@@ -506,7 +543,7 @@ const TermsOfServiceProfile = ({
         {/* section 13 */}
         <Typography variant="h6">13. Privacy</Typography>
         <Typography className="content">
-          Your use of the App is also governed by our Privacy Policy.
+          Your use of the App is also governed by our <b>Privacy Policy</b>.
         </Typography>
 
         {/* section 14 */}
@@ -533,17 +570,53 @@ const TermsOfServiceProfile = ({
         </Typography>
 
         {/* section 16 */}
-        <Typography variant="h6">16. Governing Law</Typography>
+        <Typography variant="h6">16. Governing Law and Jurisdiction</Typography>
         <Typography className="content">
-          These Terms are governed by the laws of the United States of America
-          (where this company is registered).
-          <br />
-          <br />
-          Any disputes must be resolved in the courts of that jurisdiction.
+          These Terms and your use of TravelTips shall be governed by and
+          construed in accordance with the laws of the{" "}
+          <b>State of Washington</b>, without regard to its conflict of law
+          principles. You agree that the{" "}
+          <b>
+            United States District Court for the Western District of Washington
+          </b>
+          (Tacoma Division) or the state courts located in{" "}
+          <b>Lewis County, Washington</b> shall have exclusive jurisdiction over
+          any case not subject to arbitration as defined in Section 16.1.
+        </Typography>
+        <Typography variant="subtitle1">16.1 Mandatory Arbitration</Typography>
+        <Typography className="content">
+          Any dispute arising from this Agreement shall be settled by binding
+          arbitration administered by the{" "}
+          <b>American Arbitration Association</b> in accordance with its
+          Consumer Arbitration Rules. The arbitration shall take place in{" "}
+          <b>Lewis County, Washington</b>.
+        </Typography>
+        <Typography variant="subtitle1">
+          16.2 Waiver of Jury Trial and Class Action
+        </Typography>
+        <Typography className="content">
+          By agreeing to these Terms, you and TravelTips both{" "}
+          <b>waive the right to a trial by jury</b> or to participate in a class
+          action lawsuit. You agree that any dispute resolution proceedings will
+          be conducted only on an individual basis and not in a class
+          consolidated or representative action.
         </Typography>
 
         {/* section 17 */}
-        <Typography variant="h6">17. Contact Us</Typography>
+        <Typography variant="h6">17. Severability</Typography>
+        <Typography className="content">
+          If any provision of these Terms is held by a court or arbitrator of
+          competent jurisdiction to be invalid, illegal, or unenforceable for
+          any reason, such provision shall be eliminated or limited to the
+          minimum extent necessary so that the remaining provisions of the Terms
+          will continue in full force and effect. It is the express intent of
+          the parties that the remaining provisions shall be construed and
+          enforced to the greatest extent permitted by law, preserving the
+          original religious mission and moral standards of TravelTips.
+        </Typography>
+
+        {/* section 18 */}
+        <Typography variant="h6">18. Contact Us</Typography>
         <Typography className="content">
           If you have questions about these Terms, contact us at: [email]
         </Typography>

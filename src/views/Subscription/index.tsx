@@ -1,13 +1,13 @@
 import {
   Box,
+  Checkbox,
   Chip,
   Container,
-  Fade,
   Grid,
   Switch,
   Typography,
 } from "@mui/material";
-import React, { use, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   subscriptionsService,
   type Subscription,
@@ -15,31 +15,34 @@ import {
 import { stripesService } from "@services/stripe/stripe";
 import { SubscriptionType } from "@constants/Enums";
 import TTButton from "@components/TTButton";
-import { useIsMobile } from "@hooks/useIsMobile";
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "@redux/store";
 import { usersService } from "@services/users";
 import { enqueueSnackbar } from "notistack";
 import { setUser } from "@redux/userSlice";
+import TimeUtils from "@utils/TimeUtils";
 import clsx from "clsx";
 import "./index.scss";
-import TimeUtils from "@utils/TimeUtils";
 
 const Subscription = () => {
-  // window
-  const isMobile = useIsMobile();
   // user
   const { renewSubscription } = useSelector((state: RootState) => state.user);
   const dispatch = useDispatch();
   // subscriptions
   const [activeSub, setActiveSub] = useState<Subscription | undefined>();
-  const [subHistory, setSubHistory] = useState<Subscription[]>([]);
+  // const [subHistory, setSubHistory] = useState<Subscription[]>([]);
   // subscription
   const [planId, setPlanId] = useState<SubscriptionType | undefined>();
   // behavior
   const [step, setStep] = useState<number>(0);
   const [isCreatingSession, setIsCreatingSession] = useState<boolean>(false);
   const [isInit, setIsInit] = useState<boolean>(false);
+  // disclaimer agreement
+  const [checked, setChecked] = React.useState(false);
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setChecked(event.target.checked);
+  };
 
   const nextStep = (currentStep: number) => {
     if (currentStep === step) {
@@ -143,8 +146,6 @@ const Subscription = () => {
   // components
 
   const renewSection = (
-    onChange: (event: React.ChangeEvent<HTMLInputElement>) => Promise<void>,
-  ) => (
     <React.Fragment>
       <Typography>Renewing?</Typography>
       <Box className="row">
@@ -152,7 +153,7 @@ const Subscription = () => {
         <Switch
           className="renewing-switch"
           checked={renewSubscription === true}
-          onChange={onChange}
+          onChange={handleUpdateRenewSubscription}
         />
         <Typography>Yes</Typography>
       </Box>
@@ -193,13 +194,22 @@ const Subscription = () => {
 
   const renewPlan = (
     <Box className="column center gap">
-      {renewSection(handleUpdateRenewSubscription)}
+      {renewSection}
+      <Box className="row cetner disclaimer-box">
+        <Checkbox checked={checked} onChange={handleChange} />
+        <Typography>
+          By subscribing, you agree to our Terms of Service and acknowledge that
+          if your content is deleted or your account is terminated for violating
+          our Christian Content Standards, no refunds will be issued.
+        </Typography>
+      </Box>
       <TTButton
         className="primary-button proceed focus"
         variant="outlined"
         color="inherit"
         onClick={handleCreateSession}
         loading={isCreatingSession}
+        disabled={!checked}
       >
         Proceed
       </TTButton>
@@ -238,26 +248,29 @@ const Subscription = () => {
                         {activeSub.status}
                       </Typography>
                     </Box>
-                    <Box className="row">
-                      <Typography>
-                        {TimeUtils.toFullDateNumericDisplay(activeSub.start)} -{" "}
-                        {TimeUtils.toFullDateNumericDisplay(activeSub.end)}
-                      </Typography>
+                    <Box className="row start">
+                      <Box className="column start">
+                        <Typography>
+                          <strong>Start</strong>{" "}
+                          {TimeUtils.toFullDateNumericDisplay(activeSub.start)}
+                        </Typography>
+                        <Typography>
+                          <strong>End</strong>{" "}
+                          {TimeUtils.toFullDateNumericDisplay(activeSub.end)}
+                        </Typography>
+                      </Box>
                       <Chip label="UTC" color="utility" size="small" />
                     </Box>
                   </Box>
 
-                  {/** TODO - use cancel subscription instead of just update user renew status */}
-                  {renewSection(handleUpdateRenewSubscription)}
+                  {renewSection}
                 </Box>
               ) : (
                 <Box className="column gap-large">
                   {/* steps */}
-                  {steps.map((_step, i) => (
-                    <Fade key={i} in={step >= i}>
-                      {_step}
-                    </Fade>
-                  ))}
+                  {steps.map((_step, i) =>
+                    step >= i ? <Box key={i}>{_step}</Box> : undefined,
+                  )}
                 </Box>
               )}
             </Box>

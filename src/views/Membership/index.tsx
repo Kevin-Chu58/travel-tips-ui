@@ -131,6 +131,14 @@ const Membership = () => {
 
       <Box className="section sec-3" ref={overviewRef}>
         <Typography className="sec-header">Membership Overview</Typography>
+        <TTButton
+          className="subscribe-button"
+          color="primary"
+          onClick={() => navigate("/subscription")}
+        >
+          Subscribe Now
+        </TTButton>
+
         <Grid container className="overview-table">
           <Grid container size={12} className="head">
             <Grid size={6}></Grid>

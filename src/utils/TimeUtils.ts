@@ -302,6 +302,19 @@ const formatTimehmmAToHHmmss = (time: string) => {
 
 // Date
 
+const toFullDateTimeNumericDisplay = (date: Date) => {
+  const fullDisplay = new Date(date).toLocaleString("en-US", {
+    year: "numeric",
+    month: "numeric",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+
+  return fullDisplay;
+};
+
 const toFullDateNumericDisplay = (date: Date) => {
   const fullDisplay = new Date(date).toLocaleString("en-US", {
     year: "numeric",
@@ -342,6 +355,7 @@ const TimeUtils = {
   formatTimeHHmmTohA,
   formatTimehmmAToHHmmss,
   // Date
+  toFullDateTimeNumericDisplay,
   toFullDateNumericDisplay,
 };
 
