@@ -198,13 +198,14 @@ const Subscription = () => {
       <Box className="row cetner disclaimer-box">
         <Checkbox checked={checked} onChange={handleChange} />
         <Typography>
-          By subscribing, you agree to our Terms of Service and acknowledge that
-          if your content is deleted or your account is terminated for violating
-          our Christian Content Standards, no refunds will be issued.
+          By subscribing, you agree to our <u>Terms of Service</u> and{" "}
+          <u>irrevocably waive any right to a refund</u> if your content is
+          deleted or your account is terminated for violating our{" "}
+          <u>User Content standards (Section 7)</u>.
         </Typography>
       </Box>
       <TTButton
-        className="primary-button proceed focus"
+        className="primary-button proceed"
         variant="outlined"
         color="inherit"
         onClick={handleCreateSession}
