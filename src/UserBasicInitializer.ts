@@ -5,7 +5,7 @@ import { usersService } from "@services/users";
 import { useAuth0 } from "@auth0/auth0-react";
 import { LS_USER_BASIC } from "@constants/localStorage";
 
-const TEN_MINUTES = 10 * 60 * 1000;
+const THIRTY_MINUTES = 30 * 60 * 1000;
 
 export const UserBasicInitializer = () => {
   const { isAuthenticated, isLoading } = useAuth0();
@@ -20,8 +20,8 @@ export const UserBasicInitializer = () => {
 
       try {
         const user = await usersService.getUserBasicInfo();
-        const storageData = { ...user, updatedAt: Date.now() };
-        localStorage.setItem(LS_USER_BASIC, JSON.stringify(storageData));
+        // const storageData = { ...user, updatedAt: Date.now() };
+        // localStorage.setItem(LS_USER_BASIC, JSON.stringify(storageData));
         dispatch(setUser(user));
       } catch (err) {
         console.error("Failed to refresh user info", err);
@@ -39,7 +39,7 @@ export const UserBasicInitializer = () => {
 
         if (userStr) {
           const cached = JSON.parse(userStr);
-          const isStale = Date.now() - (cached.updatedAt || 0) > TEN_MINUTES;
+          const isStale = Date.now() - (cached.updatedAt || 0) > THIRTY_MINUTES;
 
           // Dispatch cached data immediately for instant UI
           dispatch(setUser(cached));
@@ -62,7 +62,7 @@ export const UserBasicInitializer = () => {
       if (isAuthenticated && !isLoading) {
         refreshUser();
       }
-    }, TEN_MINUTES);
+    }, THIRTY_MINUTES);
 
     return () => clearInterval(intervalId); // Cleanup on unmount
   }, [isAuthenticated, isLoading, dispatch]);

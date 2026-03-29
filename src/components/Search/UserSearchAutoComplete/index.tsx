@@ -112,7 +112,7 @@ const UserSearchAutoComplete = ({
     if (hasFollowingInit.current && !followingCursorRef.current) return;
 
     try {
-      const followingResult = await usersService.getFollowers({
+      const followingResult = await usersService.getFollowings({
         userId: _user.id,
         cursor: followingCursorRef.current,
       });

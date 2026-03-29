@@ -147,6 +147,13 @@ span.helper {
 
 // custom box
 
+.column,
+.row {
+  &.primary {
+    color: var(--primary-main);
+  }
+}
+
 .column {
   display: flex;
   flex-direction: column;

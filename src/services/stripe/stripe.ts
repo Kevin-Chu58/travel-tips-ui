@@ -3,7 +3,6 @@ import http from "@services/http";
 
 export type StripeSessionRequest = {
   subscription: SubscriptionType;
-  // isSubscription: boolean;
 };
 
 const createCheckoutSession = async (

@@ -192,7 +192,7 @@ const Membership = () => {
               ✘
             </Grid>
             <Grid size={3} className="true">
-              ✔
+              15 PDF/month
             </Grid>
           </Grid>
         </Grid>

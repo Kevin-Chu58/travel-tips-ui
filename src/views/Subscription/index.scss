@@ -162,30 +162,6 @@
     }
   }
 
-  .subscription-card {
-    margin: 1rem;
-    padding: 1rem;
-    color: black;
-    background-color: white;
-    border: 2px white solid;
-    border-radius: .5rem;
-    box-shadow: $heavy-box-shadow;
-
-    .title.MuiTypography-root,
-    .status.MuiTypography-root {
-      font-family: lily script one;
-      font-size: 1.4rem;
-    }
-
-    .title.MuiTypography-root {
-      margin-right: auto;
-    }
-
-    .status.MuiTypography-root {
-      color: var(--success-main);
-    }
-  }
-
   .renewing-switch {
     .MuiSwitch-track {
       opacity: 0.9;

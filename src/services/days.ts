@@ -5,9 +5,9 @@ type DayPost = {
   tripId: number;
 };
 
-type DayPatch = {
-  description?: string;
-};
+// type DayPatch = {
+//   description?: string;
+// };
 
 export type Day = DayPost & {
   id: number;
@@ -26,10 +26,10 @@ const postNewDay = async (tripId: number): Promise<void> => {
   );
 };
 
-const patchDay = async (id: number, day: DayPatch): Promise<Day> => {
-  const body = JSON.stringify(day);
-  return await http.patch(http.apiBaseURLs.api, `days/${id}`, body, undefined);
-};
+// const patchDay = async (id: number, day: DayPatch): Promise<Day> => {
+//   const body = JSON.stringify(day);
+//   return await http.patch(http.apiBaseURLs.api, `days/${id}`, body, undefined);
+// };
 
 const deleteDay = async (id: number): Promise<void> => {
   return await http.del(
@@ -43,6 +43,6 @@ const deleteDay = async (id: number): Promise<void> => {
 export const daysService = {
   getDaysByTripId,
   postNewDay,
-  patchDay,
+  // patchDay,
   deleteDay,
 };

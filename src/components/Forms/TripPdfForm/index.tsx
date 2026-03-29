@@ -9,10 +9,12 @@ import type { Marker } from "@constants/Types";
 import type { Day } from "@services/days";
 import type { Tao } from "@services/taos";
 import type { HereRoutingResponse } from "@services/hereMap/hereMap";
+import LocalActivityIcon from "@mui/icons-material/LocalActivity";
 import DownloadIcon from "@mui/icons-material/Download";
 import { useEffect, useState } from "react";
 import { enqueueSnackbar } from "notistack";
 import "./index.scss";
+import { usersService } from "@services/users";
 
 type TripPdfFormProps = {
   open: boolean;
@@ -51,6 +53,18 @@ const TripPdfForm = ({
 
   const handleDownloadPdf = async () => {
     setIsDownLoading(true);
+
+    // verify user membership first
+    try {
+      await usersService.isUserMember();
+    } catch (e) {
+      if (e instanceof Error) {
+        enqueueSnackbar(e.message, { variant: "error" });
+      }
+      setIsDownLoading(false);
+      return;
+    }
+
     enqueueSnackbar("Generating the PDF may take a few minutes.", {
       variant: "info",
     });
@@ -114,6 +128,11 @@ const TripPdfForm = ({
       height="80vh"
       maxHeight="80vh"
       title="Preview PDF"
+      subTitle={
+        <Box className="row primary">
+          <LocalActivityIcon fontSize="small" /> Member Only
+        </Box>
+      }
       actionButtonLabel="download PDF"
       actionButtonStartIcon={<DownloadIcon />}
       actionButtonOnClick={handleDownloadPdf}

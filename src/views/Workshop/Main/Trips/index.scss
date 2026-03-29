@@ -1,7 +1,11 @@
-.workshop-main-content-trips-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, 15rem);
-  justify-content: center;
-  margin-top: 1rem;
-  gap: 1rem;
+@use "../../../../stylings/box_shadows" as *;
+
+.workshop-trips-box {
+  .trips-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, 15rem);
+    justify-content: center;
+    margin-top: 1rem;
+    gap: 1rem;
+  }
 }

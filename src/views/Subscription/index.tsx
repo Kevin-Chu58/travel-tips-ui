@@ -1,7 +1,6 @@
 import {
   Box,
   Checkbox,
-  Chip,
   Container,
   Grid,
   Switch,
@@ -13,24 +12,25 @@ import {
   type Subscription,
 } from "@services/plan/subscriptions";
 import { stripesService } from "@services/stripe/stripe";
+import SubscriptionHistoryForm from "@components/Forms/SubscriptionHistoryForm";
+import SubscriptionCard from "@components/Cards/SubscriptionCard";
 import { SubscriptionType } from "@constants/Enums";
 import TTButton from "@components/TTButton";
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "@redux/store";
 import { usersService } from "@services/users";
 import { enqueueSnackbar } from "notistack";
-import { setUser } from "@redux/userSlice";
-import TimeUtils from "@utils/TimeUtils";
+import { clearUser, setUser } from "@redux/userSlice";
 import clsx from "clsx";
 import "./index.scss";
 
 const Subscription = () => {
   // user
   const { renewSubscription } = useSelector((state: RootState) => state.user);
+  // redux
   const dispatch = useDispatch();
   // subscriptions
   const [activeSub, setActiveSub] = useState<Subscription | undefined>();
-  // const [subHistory, setSubHistory] = useState<Subscription[]>([]);
   // subscription
   const [planId, setPlanId] = useState<SubscriptionType | undefined>();
   // behavior
@@ -38,7 +38,9 @@ const Subscription = () => {
   const [isCreatingSession, setIsCreatingSession] = useState<boolean>(false);
   const [isInit, setIsInit] = useState<boolean>(false);
   // disclaimer agreement
-  const [checked, setChecked] = React.useState(false);
+  const [checked, setChecked] = useState<boolean>(false);
+  // open form status
+  const [openSubHistory, setOpenSubHistory] = useState<boolean>(false);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setChecked(event.target.checked);
@@ -61,14 +63,6 @@ const Subscription = () => {
 
     setIsInit(true);
   };
-
-  // const initSubHistory = async () => {
-  //   const subHistory = await subscriptionsService.getMySubscriptionHistory(
-  //     undefined,
-  //     3,
-  //   );
-  //   setSubHistory(subHistory.results);
-  // };
 
   const tableRows = [
     {
@@ -110,6 +104,8 @@ const Subscription = () => {
       window.location.href = url;
 
       setIsCreatingSession(false);
+
+      dispatch(clearUser());
     } catch (e) {
       if (e instanceof Error) {
         enqueueSnackbar(e.message, { variant: "error" });
@@ -232,7 +228,7 @@ const Subscription = () => {
                   className="primary-button"
                   variant="outlined"
                   color="inherit"
-                  // onClick={handleScrollToOverview}
+                  onClick={() => setOpenSubHistory(true)}
                 >
                   View History
                 </TTButton>
@@ -240,29 +236,7 @@ const Subscription = () => {
 
               {activeSub ? (
                 <Box className="column center gap-large">
-                  <Box className="column gap subscription-card">
-                    <Box className="row">
-                      <Typography className="title">
-                        {activeSub.plan}
-                      </Typography>
-                      <Typography className="status">
-                        {activeSub.status}
-                      </Typography>
-                    </Box>
-                    <Box className="row start">
-                      <Box className="column start">
-                        <Typography>
-                          <strong>Start</strong>{" "}
-                          {TimeUtils.toFullDateNumericDisplay(activeSub.start)}
-                        </Typography>
-                        <Typography>
-                          <strong>End</strong>{" "}
-                          {TimeUtils.toFullDateNumericDisplay(activeSub.end)}
-                        </Typography>
-                      </Box>
-                      <Chip label="UTC" color="utility" size="small" />
-                    </Box>
-                  </Box>
+                  <SubscriptionCard subscription={activeSub} />
 
                   {renewSection}
                 </Box>
@@ -278,6 +252,12 @@ const Subscription = () => {
           ) : undefined}
         </Box>
       </Box>
+
+      {/* forms */}
+      <SubscriptionHistoryForm
+        open={openSubHistory}
+        onClose={() => setOpenSubHistory(false)}
+      />
     </Container>
   );
 };

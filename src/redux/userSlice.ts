@@ -1,5 +1,6 @@
 import { LS_USER_BASIC } from "@constants/localStorage";
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
+import type { UserSubExtend } from "@services/users";
 
 // 1. Define the base data type to avoid repeating keys
 interface UserData {
@@ -15,6 +16,7 @@ interface UserData {
   isBannerMan: boolean | null;
   renewSubscription: boolean | null;
   stripeCustomerId: string | null;
+  userSubExtend: UserSubExtend | null;
 }
 
 interface UserState extends UserData {
@@ -34,6 +36,7 @@ const initialState: UserState = {
   isBannerMan: null,
   renewSubscription: null,
   stripeCustomerId: null,
+  userSubExtend: null,
   isLoading: true,
 };
 
@@ -56,7 +59,10 @@ const userSlice = createSlice({
       state.userAgreement = action.payload;
     },
     // 3. To clear, simply return the initial state (but keep isLoading false)
-    clearUser: () => ({ ...initialState, isLoading: false }),
+    clearUser: () => {
+      localStorage.removeItem(LS_USER_BASIC);
+      return { ...initialState, isLoading: false };
+    },
 
     setLoading(state, action: PayloadAction<boolean>) {
       state.isLoading = action.payload;

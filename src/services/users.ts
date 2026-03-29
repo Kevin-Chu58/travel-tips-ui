@@ -16,6 +16,7 @@ export type UserBasic = UserSimple & {
   isBannerMan?: boolean;
   renewSubscription: boolean;
   stripCustomerId?: string;
+  userSubExtend?: UserSubExtend;
 };
 
 export type UserProfileBasic = UserSimple & {
@@ -39,6 +40,18 @@ export type UserSearchParams = {
   userId: number;
   cursor?: string;
   limit?: number;
+};
+
+// extensions
+
+export type UserSubExtend = {
+  userId: number;
+  cycleStart?: Date;
+  monthIndex?: number;
+  PdfDownloadCount: number;
+  tripCount: number;
+  maxPdfDownloadCount: number;
+  maxTripCount: number;
 };
 
 const getUserByUserId = async (userId: string): Promise<UserSimple> => {
@@ -149,6 +162,10 @@ const unfollowUser = async (id: number): Promise<void> => {
 
 // subscription
 
+const isUserMember = async (): Promise<void> => {
+  return await http.get(http.apiBaseURLs.api, `users/me/member`, undefined);
+};
+
 const updateRenewSubscription = async (
   renewSubscription: boolean,
 ): Promise<void> => {
@@ -179,5 +196,6 @@ export const usersService = {
   followUser,
   unfollowUser,
   // subscription
+  isUserMember,
   updateRenewSubscription,
 };
