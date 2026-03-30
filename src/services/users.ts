@@ -162,10 +162,14 @@ const unfollowUser = async (id: number): Promise<void> => {
 
 // subscription
 
+const isMember = async (): Promise<void> => {
+  return await http.get(http.apiBaseURLs.api, "users/me/member", undefined);
+};
+
 const generatePdf = async (): Promise<void> => {
   return await http.post(
     http.apiBaseURLs.api,
-    `users/generate-pdf`,
+    "users/generate-pdf",
     undefined,
     undefined,
   );
@@ -201,6 +205,7 @@ export const usersService = {
   followUser,
   unfollowUser,
   // subscription
+  isMember,
   generatePdf,
   updateRenewSubscription,
 };

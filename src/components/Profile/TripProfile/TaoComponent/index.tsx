@@ -32,6 +32,7 @@ import NavButton from "@components/Button/NavButton";
 import LockIcon from "@mui/icons-material/Lock";
 import LockOpenIcon from "@mui/icons-material/LockOpen";
 import ReplyIcon from "@mui/icons-material/Reply";
+import LocalActivityIcon from "@mui/icons-material/LocalActivity";
 import { useNavigate } from "react-router";
 import "./index.scss";
 
@@ -297,6 +298,9 @@ const TaoComponent = ({
                 </Typography>
               </React.Fragment>
             ) : undefined}
+          </Box>
+          <Box className="row primary">
+            <LocalActivityIcon fontSize="small" /> Member Only
           </Box>
         </Box>
 

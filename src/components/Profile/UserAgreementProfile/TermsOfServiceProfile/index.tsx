@@ -20,11 +20,20 @@ const TermsOfServiceProfile = ({
   // checkbox
   const [checked, setChecked] = useState<boolean>(false);
   const [checkedSection7, setCheckedSection7] = useState<boolean>(false);
+  const [checkedSection16_17, setCheckedSection16_17] =
+    useState<boolean>(false);
   const [checkedGuest, setCheckedGuest] = useState<boolean>(false);
+  // behavior
+  const isAllSubChecked = checkedSection7 && checkedSection16_17;
 
   const handleCheckboxSection7OnClick = () => {
     if (checked) setChecked(false);
     setCheckedSection7((prev) => !prev);
+  };
+
+  const handleCheckboxSection16_17OnClick = () => {
+    if (checked) setChecked(false);
+    setCheckedSection16_17((prev) => !prev);
   };
 
   // scrolling
@@ -32,6 +41,11 @@ const TermsOfServiceProfile = ({
   const scrollToSection7 = (e: React.MouseEvent<HTMLElement>) => {
     e.stopPropagation();
     BehaviorUtils.scrollToElementById("section-7");
+  };
+
+  const scrollToSection16_17 = (e: React.MouseEvent<HTMLElement>) => {
+    e.stopPropagation();
+    BehaviorUtils.scrollToElementById("section-16");
   };
 
   const guestSection = (
@@ -44,8 +58,10 @@ const TermsOfServiceProfile = ({
         <li>View publicly available travel content (“Trips”)</li>
         <li>Use attraction lookup features (“Attractions”)</li>
       </ul>
-      Guests <b>are NOT bound by the User Agreement</b>, except for these
-      general rules:
+      Guests{" "}
+      <b>
+        are NOT bound by the User Agreement, except for these general rules:
+      </b>
       <ul>
         <li>
           Do not use the app illegally (e.g. hacking, scraping, attacking
@@ -103,8 +119,7 @@ const TermsOfServiceProfile = ({
               checked={checkedSection7}
             />
             <Typography className="content">
-              By checking the box, you agree to how TravelTips manage User
-              Content in{" "}
+              I have read and <b>agree</b> to the User Content terms
               <span className="link" onClick={scrollToSection7}>
                 Section 7
               </span>
@@ -113,21 +128,39 @@ const TermsOfServiceProfile = ({
           </Box>
           <Box
             className="checking-content-container"
+            onClick={handleCheckboxSection16_17OnClick}
+          >
+            <Checkbox
+              className="checkbox"
+              color="default"
+              checked={checkedSection16_17}
+            />
+            <Typography className="content">
+              I <b>agree to be bound by</b> the Governing Law & Jurisdiction and
+              Severability provisions in{" "}
+              <span className="link" onClick={scrollToSection16_17}>
+                Section 16 and 17
+              </span>
+              .
+            </Typography>
+          </Box>
+          <Box
+            className="checking-content-container"
             onClick={() =>
-              checkedSection7 ? setChecked((prev) => !prev) : undefined
+              isAllSubChecked ? setChecked((prev) => !prev) : undefined
             }
           >
             <Checkbox
               className="checkbox"
               color="default"
-              disabled={!checkedSection7}
+              disabled={!isAllSubChecked}
               checked={checked}
             />
             <Typography
-              className={clsx("content", !checkedSection7 && "disabled")}
+              className={clsx("content", !isAllSubChecked && "disabled")}
             >
-              By checking the box, you agree to all terms in this full
-              Agreement.
+              By checking the box,{" "}
+              <b>I agree to all terms in this full Agreement.</b>
             </Typography>
           </Box>
         </React.Fragment>
@@ -419,7 +452,7 @@ const TermsOfServiceProfile = ({
           restrict, or disable access to any User Content that violates this
           Agreement, is reported by users, or is required to be removed by law.
           Furthermore, TravelTips may, in its <b>sole discretion</b>, moderate
-          or remove any content determined to be inconsistent with the
+          or remove any content determined to be inconsistent with the{" "}
           <b>Christian spirit and mission</b> of the platform, or that it deems
           to be <b>socially disruptive or factually deceptive</b> in a manner
           that undermines the peaceful and truth-seeking environment of the
@@ -570,7 +603,9 @@ const TermsOfServiceProfile = ({
         </Typography>
 
         {/* section 16 */}
-        <Typography variant="h6">16. Governing Law and Jurisdiction</Typography>
+        <Typography id="section-16" variant="h6">
+          16. Governing Law and Jurisdiction
+        </Typography>
         <Typography className="content">
           These Terms and your use of TravelTips shall be governed by and
           construed in accordance with the laws of the{" "}

@@ -225,27 +225,22 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
   };
 
   const initTaos = async (dayId?: number, silentUpdate: boolean = false) => {
-    const _dayId = day?.id ?? dayId;
-    if (_dayId) {
-      // set taos & tao
-      let taos: Tao[] | undefined;
-      let isSameDay = prevDayId.current === _dayId;
-      // try to get taos of a day from cache if day is switched
-      if (!isSameDay) taos = taosMapRef.current.get(_dayId);
-      // if taos does not exist in taosMapRef, request it from API
-      if (isSameDay || !taos) {
-        taos = await taosService.getTaosByDayId(_dayId);
-        taosMapRef.current.set(_dayId, taos);
-      }
-      if (!silentUpdate) setTaos(taos);
+    const _dayId = dayId ?? day?.id; // Prioritize the passed ID
+    if (!_dayId) return;
 
-      // optional - also updates tao component if it is opened
-      if (tao) {
-        initTao(tao);
-      }
-    } else {
-      setTaos(undefined);
-      prevDayId.current = undefined;
+    // Check if we already have it in the Ref Map
+    let taos = taosMapRef.current.get(_dayId);
+
+    // If we don't have it (or it's a forced refresh), fetch it
+    if (!taos) {
+      taos = await taosService.getTaosByDayId(_dayId);
+      taosMapRef.current.set(_dayId, taos);
+    }
+
+    // Only update global "active day" state if NOT silent
+    if (!silentUpdate) {
+      setTaos(taos);
+      prevDayId.current = _dayId; // Only update the "current day" pointer here
     }
   };
 
@@ -435,8 +430,10 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
 
   // rerender taoGeos and days on numDays
   useEffect(() => {
-    initTaoGeos();
-    initDays();
+    if (tripBasic?.numDays !== undefined) {
+      initTaoGeos();
+      initDays();
+    }
   }, [tripBasic?.numDays]);
 
   // rerender navTabValue on dayId
@@ -471,12 +468,17 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
   }, [day?.id]);
 
   const fetchAllDays = async () => {
-    // make taosMap and routeResponsesMap up to date
-    for (const day of days) {
+    // 1. Create an array of promises
+    const promises = days.map(async (day) => {
       await initTaos(day.id, true);
       await initRouteResponses(false, day.id, true);
-    }
+    });
 
+    // 2. Wait for all of them to resolve
+    await Promise.all(promises);
+
+    // 3. Update state once everything is done
+    console.log(new Map(taosMapRef.current));
     setTaosMap(new Map(taosMapRef.current));
     setRouteResponsesMap(new Map(routeResponsesMapRef.current));
   };

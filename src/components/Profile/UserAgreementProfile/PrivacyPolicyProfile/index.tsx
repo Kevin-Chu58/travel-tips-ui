@@ -26,8 +26,7 @@ const PrivacyPolicyProfile = ({
         >
           <Checkbox className="checkbox" color="default" checked={checked} />
           <Typography className="content">
-            By checking the box, you agree to all terms in this full Privacy
-            Policy.
+            I <b>agree to all terms</b> in this full Privacy Policy.
           </Typography>
         </Box>
       }
