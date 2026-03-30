@@ -28,7 +28,7 @@ const Trips = ({
   );
   // trip count
   const current = userSubExtend?.tripCount ?? 0;
-  const max = userSubExtend?.maxTripCount ?? 100;
+  const max = userSubExtend?.maxTripCount ?? 0;
   // others
   const navigate = useNavigate();
   const location = useLocation();
@@ -36,7 +36,9 @@ const Trips = ({
 
   return (
     <Box className="workshop-trips-box">
-      <ProgressBar current={current} max={max} object="Trips" />
+      <Box className="progress-bar-box">
+        <ProgressBar current={current} max={max} object="Trips" />
+      </Box>
       <Box className="trips-container">
         {trips.length > 0 ? (
           trips.map((trip) => (

@@ -1,5 +1,9 @@
 .subscription-history-form {
   .content {
+    padding: 0;
+  }
+
+  .sub-history-content {
     max-height: 50vh;
     overflow-y: auto;
   }

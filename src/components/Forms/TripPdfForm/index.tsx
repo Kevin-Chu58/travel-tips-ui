@@ -13,8 +13,12 @@ import LocalActivityIcon from "@mui/icons-material/LocalActivity";
 import DownloadIcon from "@mui/icons-material/Download";
 import { useEffect, useState } from "react";
 import { enqueueSnackbar } from "notistack";
-import "./index.scss";
 import { usersService } from "@services/users";
+import { useDispatch, useSelector } from "react-redux";
+import type { RootState } from "@redux/store";
+import ProgressBar from "@components/ProgressBar";
+import "./index.scss";
+import { setUser } from "@redux/userSlice";
 
 type TripPdfFormProps = {
   open: boolean;
@@ -40,6 +44,15 @@ const TripPdfForm = ({
   geoMarkers,
   fetchAllDays,
 }: TripPdfFormProps) => {
+  // user
+  const userSubExtend = useSelector(
+    (state: RootState) => state.user.userSubExtend,
+  );
+  // redux
+  const dispatch = useDispatch();
+  // trip count
+  const current = userSubExtend?.pdfDownloadCount ?? 0;
+  const max = userSubExtend?.maxPdfDownloadCount ?? 0;
   // behavior
   const [isDownloading, setIsDownLoading] = useState<boolean>(false);
 
@@ -56,7 +69,7 @@ const TripPdfForm = ({
 
     // verify user membership first
     try {
-      await usersService.isUserMember();
+      await usersService.generatePdf();
     } catch (e) {
       if (e instanceof Error) {
         enqueueSnackbar(e.message, { variant: "error" });
@@ -117,6 +130,16 @@ const TripPdfForm = ({
     setIsDownLoading(false);
 
     pdf.save(`${tripRef.current?.title ?? "trip"}.pdf`);
+
+    if (userSubExtend)
+      dispatch(
+        setUser({
+          userSubExtend: {
+            ...userSubExtend,
+            pdfDownloadCount: userSubExtend.pdfDownloadCount + 1,
+          },
+        }),
+      );
   };
 
   return (
@@ -139,16 +162,19 @@ const TripPdfForm = ({
       isLoading={isDownloading}
       panel
     >
-      <Box className="pdf-pages-box">
-        <OverviewPdfPage tripRef={tripRef} markers={geoMarkers} />
-        {days.map((day, i) => (
-          <DayPdfPage
-            key={`day-pdf-${day.id}`}
-            dayIndex={i}
-            taos={taosMap?.get(day.id)}
-            routingResponses={routeResponsesMap?.get(day.id)}
-          />
-        ))}
+      <Box className="column">
+        <ProgressBar current={current} max={max} object="PDFs" />
+        <Box className="pdf-pages-box">
+          <OverviewPdfPage tripRef={tripRef} markers={geoMarkers} />
+          {days.map((day, i) => (
+            <DayPdfPage
+              key={`day-pdf-${day.id}`}
+              dayIndex={i}
+              taos={taosMap?.get(day.id)}
+              routingResponses={routeResponsesMap?.get(day.id)}
+            />
+          ))}
+        </Box>
       </Box>
     </FormBase>
   );

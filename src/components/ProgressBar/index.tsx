@@ -15,7 +15,7 @@ const ProgressBar = ({ current, max, object }: ProgressBarProps) => {
       <Box className="row count-box">
         <Box
           className={clsx("current-value", current >= max && "max")}
-          flex={current}
+          flex={max === 0 ? 1 : current} // if max is 0, set current to 1 to display max bar
         />
         <Box className="max-value" flex={max - current} />
       </Box>

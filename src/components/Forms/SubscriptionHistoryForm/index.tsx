@@ -68,7 +68,7 @@ const SubscriptionHistoryForm = ({
       closeButtonLabel="close"
       panel
     >
-      <Box className="content" ref={containerRef} onScroll={handleScroll}>
+      <Box className="sub-history-content" ref={containerRef} onScroll={handleScroll}>
         {subHistory.map((sub) => (
           <SubscriptionCard key={sub.id} subscription={sub} />
         ))}

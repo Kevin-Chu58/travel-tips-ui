@@ -48,7 +48,7 @@ export type UserSubExtend = {
   userId: number;
   cycleStart?: Date;
   monthIndex?: number;
-  PdfDownloadCount: number;
+  pdfDownloadCount: number;
   tripCount: number;
   maxPdfDownloadCount: number;
   maxTripCount: number;
@@ -162,8 +162,13 @@ const unfollowUser = async (id: number): Promise<void> => {
 
 // subscription
 
-const isUserMember = async (): Promise<void> => {
-  return await http.get(http.apiBaseURLs.api, `users/me/member`, undefined);
+const generatePdf = async (): Promise<void> => {
+  return await http.post(
+    http.apiBaseURLs.api,
+    `users/generate-pdf`,
+    undefined,
+    undefined,
+  );
 };
 
 const updateRenewSubscription = async (
@@ -196,6 +201,6 @@ export const usersService = {
   followUser,
   unfollowUser,
   // subscription
-  isUserMember,
+  generatePdf,
   updateRenewSubscription,
 };

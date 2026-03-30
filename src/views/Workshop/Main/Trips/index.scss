@@ -1,6 +1,10 @@
 @use "../../../../stylings/box_shadows" as *;
 
 .workshop-trips-box {
+  .progress-bar-box {
+    margin-top: 1rem;
+  }
+
   .trips-container {
     display: grid;
     grid-template-columns: repeat(auto-fill, 15rem);
