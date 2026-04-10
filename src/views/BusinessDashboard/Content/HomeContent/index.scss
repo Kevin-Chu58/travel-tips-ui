@@ -1,0 +1,29 @@
+.business-dashboard-home-content {
+  .business-grid.MuiGrid-root {
+    margin-top: 2rem;
+  }
+
+  .params.MuiTypography-root {
+    font-weight: bold;
+  }
+
+  .MuiTypography-root:not(.params) {
+    display: flex;
+    flex-wrap: wrap;
+    min-width: 0;
+    white-space: normal;
+    word-break: break-word;
+  }
+
+  .active-status-text.MuiTypography-root {
+    color: var(--info-main);
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  .business-icon.MuiAvatar-root {
+    $size: 4rem;
+    width: $size;
+    height: $size;
+  }
+}

@@ -21,6 +21,27 @@ const sanitizeStyles = (obj: any): any => {
   return newObj;
 };
 
+// for special cases
+
+const getColorThemeByAdStatus = (status?: string) => {
+  switch (status) {
+    case "active":
+      return "success";
+    case "inactive":
+      return "utility";
+    case "pending":
+      return "info";
+    case "request change":
+      return "warning";
+    case "denied":
+      return "error";
+    default:
+      return "default";
+  }
+};
+
 export const StyleUtils = {
   sanitizeStyles,
+  // for special cases
+  getColorThemeByAdStatus,
 };

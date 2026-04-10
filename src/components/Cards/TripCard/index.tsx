@@ -228,7 +228,6 @@ const TripCard = ({
     </MenuItem>
   );
 
-  // TODO: button - delete
   const deleteButton = (
     <MenuItem
       key="delete"
@@ -281,7 +280,6 @@ const TripCard = ({
             setIndex={setImageIndex}
             readonly
             circularBorder
-            height={200}
           />
         ) : (
           <img src={TLogo} className="image" />

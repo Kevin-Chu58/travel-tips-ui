@@ -13,6 +13,8 @@ import EmailUnverified from "@views/EmailUnverified";
 import Banner from "@views/Banner";
 import Membership from "@views/Membership";
 import Subscription from "@views/Subscription";
+import Partnership from "@views/Partnership";
+import BusinessDashboard from "@views/BusinessDashboard";
 
 const routes = [
   {
@@ -69,6 +71,16 @@ const routes = [
     name: "Banner",
     path: "/banners",
     element: <Banner />,
+  },
+  {
+    name: "Partnership",
+    path: "/partnership",
+    element: <Partnership />,
+  },
+  {
+    name: "BusinessDashboard",
+    path: "/business/*",
+    element: <BusinessDashboard />,
   },
   {
     name: "Settings",

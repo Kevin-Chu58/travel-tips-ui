@@ -1,5 +1,5 @@
 import { Box } from "@mui/material";
-import FormBase from "../FormBase";
+import FormBase from "../FormBases/FormBase";
 import type { Trip } from "@services/trips";
 import { jsPDF } from "jspdf";
 import { toPng } from "html-to-image";

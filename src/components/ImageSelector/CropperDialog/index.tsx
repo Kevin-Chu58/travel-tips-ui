@@ -12,9 +12,10 @@ import { useRef, useState } from "react";
 import { Cropper, type ReactCropperElement } from "react-cropper";
 import { useIsMobile } from "@hooks/useIsMobile";
 import { enqueueSnackbar } from "notistack";
-import { imagesService, type Image } from "@services/images";
+import { type Image } from "@services/images";
 import { BehaviorUtils } from "@utils/BehaviorUtils";
 import { ImageUtils } from "@utils/ImageUtils";
+import { ImageType } from "@constants/Enums";
 import clsx from "clsx";
 import "./index.scss";
 
@@ -22,18 +23,24 @@ type CropperDialogProps = {
   open: boolean;
   onClose: () => void;
   imageSrc: string | null;
+  onCrop?: (blob: Blob, dataUrl: string) => void;
   asyncAddImage?: (state: number) => void;
   setImage?: (state: Image) => void;
-  banner?: boolean;
+  imageType?: ImageType;
+  identifier?: number;
+  notify?: boolean;
 };
 
 const CropperDialog = ({
   open,
   onClose,
   imageSrc = null,
+  onCrop,
   asyncAddImage,
   setImage,
-  banner = false,
+  imageType,
+  identifier,
+  notify = true,
 }: CropperDialogProps) => {
   // window
   const isMobile = useIsMobile();
@@ -78,31 +85,25 @@ const CropperDialog = ({
     canvas.toBlob(async (blob) => {
       if (!blob) return;
 
-      // Convert Blob to File
-      const fileFromBlob = new File([blob], "cropped.jpg", { type: blob.type });
+      // Optional: if on crop is provided, return the cropped image instead
+      if (onCrop) {
+        const dataUrl = canvas.toDataURL("image/jpeg");
+        onCrop(blob, dataUrl);
 
-      try {
-        // Compress image
-        const compressedBlob = banner
-          ? await ImageUtils.compressImage(fileFromBlob, 1)
-          : await ImageUtils.compressImage(fileFromBlob);
-        setIsLoading(true);
-
-        const newImage = banner
-          ? await imagesService.uploadBannerImage(compressedBlob, name)
-          : await imagesService.uploadImage(compressedBlob, name);
-
-        if (asyncAddImage) asyncAddImage(newImage.id);
-        if (setImage) setImage(newImage);
-
-        enqueueSnackbar("Successfully uploaded image.", {
-          variant: "success",
-        });
-      } catch (err) {
-        if (err instanceof Error) {
-          enqueueSnackbar(err.message, { variant: "error" });
-        }
+        handleClose();
+        return;
       }
+
+      await ImageUtils.uploadImage(
+        name,
+        blob,
+        setIsLoading,
+        asyncAddImage,
+        setImage,
+        imageType,
+        identifier,
+        notify,
+      );
       BehaviorUtils.sleep();
 
       // close the dialog

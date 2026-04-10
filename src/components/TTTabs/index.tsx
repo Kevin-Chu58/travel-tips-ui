@@ -1,8 +1,8 @@
 import type { NavTab } from "@constants/Types";
 import { Tab, Tabs } from "@mui/material";
 import { useNavigate } from "react-router";
-import "./index.scss";
 import clsx from "clsx";
+import "./index.scss";
 
 type TTTabsProps = {
   navTabValue: any;

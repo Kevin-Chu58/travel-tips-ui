@@ -21,12 +21,15 @@ import type { RootState } from "@redux/store";
 import { usersService } from "@services/users";
 import { enqueueSnackbar } from "notistack";
 import { clearUser, setUser } from "@redux/userSlice";
+import { useNavigate } from "react-router";
 import clsx from "clsx";
 import "./index.scss";
 
-const Subscription = () => {
+const SubscriptionView = () => {
   // user
-  const { renewSubscription } = useSelector((state: RootState) => state.user);
+  const { userId, renewSubscription, isLoading } = useSelector(
+    (state: RootState) => state.user,
+  );
   // redux
   const dispatch = useDispatch();
   // subscriptions
@@ -41,6 +44,8 @@ const Subscription = () => {
   const [checked, setChecked] = useState<boolean>(false);
   // open form status
   const [openSubHistory, setOpenSubHistory] = useState<boolean>(false);
+  // others
+  const navigate = useNavigate();
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setChecked(event.target.checked);
@@ -53,9 +58,14 @@ const Subscription = () => {
   };
 
   useEffect(() => {
-    initActiveSub();
-    // initSubHistory();
-  }, []);
+    if (isLoading) return;
+
+    if (userId) {
+      initActiveSub();
+    } else {
+      navigate("/");
+    }
+  }, [userId, isLoading]);
 
   const initActiveSub = async () => {
     const subscription = await subscriptionsService.getMyActiveSubscription();
@@ -262,4 +272,4 @@ const Subscription = () => {
   );
 };
 
-export default Subscription;
+export default SubscriptionView;

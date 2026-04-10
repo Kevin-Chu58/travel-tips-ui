@@ -1,7 +1,9 @@
+@use "../../../../stylings/layout" as *;
+
 .workshop-main-content-highlights-container {
   display: grid;
-  grid-template-columns: repeat(auto-fill, 15rem);
-  justify-content: center;
-  gap: 1rem;
+  width: 100%;
+  grid-template-columns: $default-grid-template-columns;
   margin-top: 1rem;
+  gap: 1rem;
 }

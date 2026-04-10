@@ -1,0 +1,126 @@
+@use "../../../stylings/layout" as *;
+@use "../../../stylings/box_shadows" as *;
+
+.business-dashboard-menu {
+  overflow-x: hidden;
+  overflow-y: auto;
+  width: 300px;
+  height: $screen-height;
+  border-right: 1px var(--utility-100) solid;
+
+  .header {
+    margin-top: 1rem;
+
+    .indicator {
+      width: 1.8rem;
+      height: 1.8rem;
+      border-radius: 0.2rem;
+      background-color: var(--utility-200);
+    }
+
+    .MuiTypography-root:first-child {
+      font-weight: bold;
+    }
+  }
+
+  .menu {
+    margin: 1rem;
+    gap: -1rem;
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .MuiListItemButton-root {
+      display: flex;
+      align-items: center;
+      margin: 0 0.2rem;
+      padding: 0.2rem 1rem;
+      border-radius: 0.5rem;
+      transition: 0.15s ease-in background-color;
+
+      svg {
+        color: var(--utility-400);
+      }
+      span {
+        color: var(--utility-600);
+      }
+
+      &:hover {
+        background-color: var(--utility-50);
+      }
+
+      &.focus {
+        svg,
+        span {
+          color: var(--success-600);
+        }
+      }
+    }
+
+    .MuiListItemIcon-root {
+      min-width: 2.5rem;
+
+      svg {
+        width: 1.4rem;
+        height: 1.4rem;
+      }
+    }
+
+    .MuiListItemText-root {
+      span {
+        font-size: 1rem;
+      }
+    }
+  }
+}
+
+.business-dashboard-menu,
+.business-dashboard-menu-popover {
+  .MuiList-root {
+    padding: 0.5rem;
+  }
+  .header-list-button.MuiListItemButton-root {
+    margin: 0 1rem;
+    border-radius: 0.5rem;
+    position: relative;
+
+    .indicator {
+      width: 1.8rem;
+      height: 1.8rem;
+      border-radius: 0.2rem;
+      background-color: var(--utility-200);
+    }
+
+    .business-name.MuiTypography-root {
+      max-width: 160px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .start-icon.MuiListItemIcon-root {
+      min-width: 3rem;
+    }
+
+    .end-icon.MuiListItemIcon-root {
+      position: absolute;
+      right: -2rem;
+    }
+
+    &.focus {
+      .MuiListItemText-root {
+        color: var(--success-600);
+      }
+    }
+  }
+}
+
+.business-dashboard-menu-popover {
+  .MuiPaper-root {
+    width: 300px;
+    box-shadow: $mild-box-shadow;
+    border-radius: 0.5rem;
+    border: 1px var(--utility-200) solid;
+  }
+}

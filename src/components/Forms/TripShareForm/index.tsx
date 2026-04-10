@@ -1,6 +1,6 @@
 import type { UserSimple } from "@services/users";
 import GroupIcon from "@mui/icons-material/Group";
-import FormBase from "../FormBase";
+import FormBase from "../FormBases/FormBase";
 import { Box, Typography } from "@mui/material";
 import React, { useState } from "react";
 import UserCard from "@components/Cards/UserCard";

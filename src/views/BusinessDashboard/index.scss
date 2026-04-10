@@ -1,0 +1,71 @@
+@use "../../stylings/layout" as *;
+@use "../../stylings/box_shadows" as *;
+
+.business-dashboard {
+  position: relative;
+  height: $screen-height;
+  color: black;
+  background-color: white;
+  overflow-y: auto;
+
+  .business-dashboard-content-box {
+    width: 100%;
+    height: $screen-height;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  .content-page {
+    padding: 2rem;
+    color: var(--utility-800);
+    gap: 4rem;
+  }
+
+  .content-header {
+    font-weight: bold;
+    font-family: sora;
+  }
+
+  .overview-container {
+    margin: 1rem 0;
+  }
+
+  .overview-box {
+    width: fit-content;
+    min-width: 300px;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    background-color: var(--utility-50);
+
+    &.mobile {
+      width: auto;
+    }
+
+    .overview-title {
+      font-weight: bold;
+    }
+
+    a {
+      color: var(--success-main);
+      cursor: pointer;
+    }
+  }
+
+  .MuiButton-root {
+    text-transform: capitalize;
+    font-weight: bold;
+    box-shadow: none;
+    padding: 0.2rem 1.5rem;
+    border-radius: 0.4rem;
+    min-width: 10rem;
+  }
+}
+
+.business-dashboard-button.MuiButton-root {
+  text-transform: capitalize;
+  font-weight: bold;
+  box-shadow: none;
+  padding: 0.2rem 1.5rem;
+  border-radius: 0.4rem;
+  min-width: 10rem;
+}

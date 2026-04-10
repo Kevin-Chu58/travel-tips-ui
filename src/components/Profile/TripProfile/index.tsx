@@ -570,6 +570,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
                   readonly={readonly}
                   onClick={() => setOpenImageForm(imageIndex)}
                   innerButtons
+                  aspectRatioType="trip-profile"
                 />
               ) : (
                 <Box className="default-image-box">

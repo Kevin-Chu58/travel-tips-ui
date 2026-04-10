@@ -1,4 +1,5 @@
 @use "../../../../stylings/box_shadows" as *;
+@use "../../../../stylings/layout" as *;
 
 .workshop-trips-box {
   .progress-bar-box {
@@ -7,8 +8,9 @@
 
   .trips-container {
     display: grid;
-    grid-template-columns: repeat(auto-fill, 15rem);
-    justify-content: center;
+    width: 100%;
+    grid-template-columns: $default-grid-template-columns;
+    // justify-content: center;
     margin-top: 1rem;
     gap: 1rem;
   }

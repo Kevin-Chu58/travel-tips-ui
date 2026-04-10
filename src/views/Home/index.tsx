@@ -24,9 +24,9 @@ import NavTopFab from "@components/Behavioral/NavTopFab";
 import UserAvatar from "@components/UserAvatar";
 import { bannersService, type Banner } from "@services/feed/banners";
 import BannerCard from "@components/Cards/BannerCard";
+import Slide from "@components/Profile/Slide";
 import clsx from "clsx";
 import "./index.scss";
-import Slide from "@components/Profile/Slide";
 
 const Home = () => {
   // window

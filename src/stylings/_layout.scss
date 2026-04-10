@@ -1,2 +1,10 @@
 $header: 4rem;
 $screen-height: calc(100dvh - $header);
+
+// aspect ratio
+@use "sass:list";
+$default-aspect-ratio: list.slash(6, 5);
+$trip-profile-aspect-ratio: list.slash(2, 1);
+
+// grid template column
+$default-grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));

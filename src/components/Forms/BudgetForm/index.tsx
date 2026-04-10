@@ -1,5 +1,5 @@
 import { Box, Rating, Typography } from "@mui/material";
-import FormBase from "../FormBase";
+import FormBase from "../FormBases/FormBase";
 import CheckIcon from "@mui/icons-material/Check";
 import { useEffect, useState } from "react";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";

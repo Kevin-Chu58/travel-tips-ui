@@ -1,0 +1,139 @@
+@use "../../stylings/layout" as *;
+@use "../../stylings/box_shadows" as *;
+
+.partnership-view {
+  color: black;
+  overflow: hidden;
+  height: $screen-height;
+  background-color: var(--secondary-main);
+
+  .image-section {
+    width: 100vw;
+    min-height: $screen-height;
+    position: relative;
+    background-image: url("../../assets/partnership.jpg");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+  }
+
+  .overlay-section {
+    width: 100vw;
+    flex-shrink: 0;
+    min-height: $screen-height;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    transition: .5s ease-in-out all;
+
+    &.open-form {
+      margin-left: -100vw;
+    }
+  }
+
+  .slogan-box {
+    margin: 0 2rem;
+    padding: 2rem;
+    background-color: white;
+    border-radius: 0.5rem;
+    text-align: center;
+    box-shadow:
+      8px 8px var(--success-main),
+      16px 16px var(--utility-700);
+  }
+
+  .icon-box {
+    margin: 0 auto;
+    width: 5rem;
+    height: 5rem;
+    border-radius: 50%;
+    background-color: var(--utility-800);
+    padding: 1rem;
+
+    .MuiSvgIcon-root {
+      width: 4rem;
+      height: 4rem;
+      color: white;
+    }
+  }
+
+  .step-box {
+    margin: 1rem;
+    gap: 0.5rem;
+    text-align: start;
+
+    .MuiTypography-root {
+      font-size: 1.2rem;
+    }
+
+    .MuiTypography-root:last-child {
+      color: var(--success-main);
+      font-size: 1.4rem;
+      font-weight: bold;
+    }
+  }
+
+  .new-button.MuiButton-root {
+    color: white;
+  }
+
+  .new-business-form {
+    gap: 1rem;
+    margin: 2rem 0;
+    max-width: 400px;
+    text-align: start;
+  }
+
+  .business-section {
+    $top-margin: 2rem;
+    position: relative;
+    width: 90vw;
+    height: calc($screen-height - 2 * $top-margin);
+    margin: 0 auto;
+    padding: 2rem;
+    border-radius: 2rem;
+    background-color: white;
+    box-shadow: $box-shadow;
+    z-index: 10;
+    transition: 0.3s ease-in-out margin-top;
+
+    &.open {
+      margin-top: calc(-1 * $screen-height + $top-margin);
+    }
+
+    .close-button {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-left: auto;
+      width: 4rem;
+      height: 4rem;
+      border-radius: 50%;
+      color: black;
+      background-color: transparent;
+
+      &:hover {
+        background-color: var(--utility-200);
+      }
+
+      .MuiSvgIcon-root {
+        width: 3rem;
+        height: 3rem;
+      }
+    }
+  }
+
+  .business-card {
+    padding: 1rem;
+    border-radius: .5rem;
+    margin: 0 1rem 0 0;
+    cursor: pointer;
+    transition: .2s ease-in-out all;
+
+    &:hover {
+      background-color: var(--utility-200);
+      margin: 0 0 0 1rem;
+    }
+  }
+}

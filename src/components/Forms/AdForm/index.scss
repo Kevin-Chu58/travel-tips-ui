@@ -1,0 +1,48 @@
+@use "../../../stylings/box_shadows" as *;
+
+.ad-form {
+  .template-container {
+    .template-box {
+      $size: 3rem;
+
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: $size;
+      height: $size;
+      color: var(--utility-500);
+      background-color: var(--utility-200);
+      border-radius: 1rem;
+      transition: .2s ease-in-out all;
+      cursor: pointer;
+
+      &:hover {
+        box-shadow: $box-shadow-inset;
+      }
+
+      &.focus {
+        color: white;
+        background-color: var(--success-main);
+      }
+    }
+  }
+
+  .ad-form-grid.MuiGrid-root {
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+  }
+
+  .MuiInputLabel-root:not(.Mui-disabled) {
+      color: var(--info-main);
+    }
+
+  .MuiOutlinedInput-root:not(.Mui-disabled) {
+
+    
+
+    .MuiOutlinedInput-notchedOutline {
+      border-color: var(--info-main);
+    }
+  }
+}

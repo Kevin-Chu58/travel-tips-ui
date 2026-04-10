@@ -2,7 +2,7 @@ import {
   subscriptionsService,
   type Subscription,
 } from "@services/plan/subscriptions";
-import FormBase from "../FormBase";
+import FormBase from "../FormBases/FormBase";
 import { useEffect, useRef, useState } from "react";
 import { enqueueSnackbar } from "notistack";
 import SubscriptionCard from "@components/Cards/SubscriptionCard";

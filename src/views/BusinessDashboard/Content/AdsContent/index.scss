@@ -1,0 +1,56 @@
+@use "../../../../stylings/color" as *;
+
+.business-dashboard-ads-content {
+  .button-box {
+    margin-bottom: 1rem;
+    margin-left: auto;
+
+    .create-button.MuiButton-root {
+      color: white;
+    }
+  }
+
+  table {
+    th, td {
+      padding: 0.5rem 1rem;
+    }
+
+    th {
+      font-weight: bold;
+      border-right: 1px $divider solid;
+    }
+
+    th:first-child {
+      border-left: 1px $divider solid;
+      width: 5%;
+    }
+
+    th:nth-child(2) {
+      width: 30%;
+    }
+
+    th:nth-child(3) {
+      width: 10%;
+    }
+
+    th:nth-child(4) {
+      width: 55%;
+    }
+
+    tbody tr {
+      cursor: pointer;
+
+      .indicator {
+        width: 1.6rem;
+        height: 1.6rem;
+        border-radius: 0.2rem;
+        color: var(--utility-500);
+        background-color: var(--utility-200);
+      }
+
+      &:hover {
+        background-color: var(--utility-50);
+      }
+    }
+  }
+}

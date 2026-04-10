@@ -28,6 +28,7 @@ import UserAvatar from "@components/UserAvatar";
 import type { HeaderTab, NavTab } from "@constants/Types";
 import AccountBoxIcon from "@mui/icons-material/AccountBox";
 import ViewCarouselIcon from "@mui/icons-material/ViewCarousel";
+import HandshakeIcon from '@mui/icons-material/Handshake';
 // import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 // import ArticleIcon from '@mui/icons-material/Article';
 // import TokenIcon from '@mui/icons-material/Token';
@@ -124,6 +125,11 @@ const HeaderBar = () => {
       to: "/banners",
       element: <ViewCarouselIcon fontSize="small" />,
       condition: user.isAdmin,
+    },
+    {
+      name: "partnership",
+      to: "/partnership",
+      element: <HandshakeIcon fontSize="small" />,
     },
     // {
     //   name: "setting",
