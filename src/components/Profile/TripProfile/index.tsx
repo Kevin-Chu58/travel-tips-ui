@@ -45,9 +45,9 @@ import { useSelector } from "react-redux";
 import type { RootState } from "@redux/store";
 import TripPdfForm from "@components/Forms/TripPdfForm";
 import UserAvatar from "@components/UserAvatar";
+import { useNavToProfile } from "@hooks/useNavToProfile";
 import clsx from "clsx";
 import "./index.scss";
-import { useNavToProfile } from "@hooks/useNavToProfile";
 
 type TripProfileProps = {
   uri?: string;
@@ -151,12 +151,14 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
     };
   });
 
-  const markers = taoMarkers ?? geoMarkers ?? [];
+  const isOverview = !Boolean(dayId);
+
+  const markers = isOverview ? geoMarkers : taoMarkers; // ?? geoMarkers ?? [];
+  // console.log(markers);
+  // console.log(dayOverviewFocus);
 
   const maxImageCount = 4;
   const isMaxImageCountReached = images.length === maxImageCount;
-
-  const isOverview = !Boolean(dayId);
 
   const initTrip = async () => {
     try {
@@ -747,10 +749,10 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
         <Mapper
           markers={markers}
           mapRoutes={routes}
-          focusId={taos ? String(tao?.id) : String(dayOverviewFocus)}
+          focusId={isOverview ? String(dayOverviewFocus) : String(tao?.id)}
           openUI={openUI}
           focusRoute
-          focusOnGroup={Boolean(!taos)}
+          focusOnGroup={Boolean(isOverview)}
           openPopUp
         />
       </Box>

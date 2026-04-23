@@ -162,21 +162,4 @@
       }
     }
   }
-
-  .renewing-switch {
-    .MuiSwitch-track {
-      opacity: 0.9;
-    }
-
-    .Mui-checked {
-      &.MuiSwitch-switchBase {
-        color: white;
-      }
-
-      & + .MuiSwitch-track {
-        background-color: var(--success-main);
-        opacity: 1;
-      }
-    }
-  }
 }

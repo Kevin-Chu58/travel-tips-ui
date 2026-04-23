@@ -276,20 +276,27 @@ const TaoComponent = ({
           {/* privacy status */}
           <Box className="privacy-setting">
             {!readonly ? (
-              <React.Fragment>
-                <Checkbox
-                  color="default"
-                  checked={isPrivate}
-                  icon={<LockOpenIcon />}
-                  checkedIcon={<LockIcon />}
-                  onClick={handlePrivacyStatusClick}
-                />
-                {tao?.isPrivate ? (
-                  <Typography>Only visible to you and shared users</Typography>
-                ) : (
-                  <Typography>Visible to Everyone</Typography>
-                )}
-              </React.Fragment>
+              <Box className="column">
+                <Box className="row">
+                  <Checkbox
+                    color="default"
+                    checked={isPrivate}
+                    icon={<LockOpenIcon />}
+                    checkedIcon={<LockIcon />}
+                    onClick={handlePrivacyStatusClick}
+                  />
+                  {tao?.isPrivate ? (
+                    <Typography>
+                      Only visible to you and shared users
+                    </Typography>
+                  ) : (
+                    <Typography>Visible to Everyone</Typography>
+                  )}
+                </Box>
+                <Box className="row primary">
+                  <LocalActivityIcon fontSize="small" /> Member Only
+                </Box>
+              </Box>
             ) : tao?.isPrivate ? (
               <React.Fragment>
                 <LockIcon />
@@ -298,9 +305,6 @@ const TaoComponent = ({
                 </Typography>
               </React.Fragment>
             ) : undefined}
-          </Box>
-          <Box className="row primary">
-            <LocalActivityIcon fontSize="small" /> Member Only
           </Box>
         </Box>
 
@@ -399,7 +403,8 @@ const TaoComponent = ({
               <Box className="row full">
                 <Typography className="large-text">Directions</Typography>
                 {prevTao && tao ? (
-                  <NavButton className="jump-to-button"
+                  <NavButton
+                    className="jump-to-button"
                     link={MapUtils.getGoogleRouteLink(
                       prevTao.attraction.address,
                       tao.attraction.address,

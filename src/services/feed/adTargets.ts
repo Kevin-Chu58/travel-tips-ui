@@ -1,53 +1,54 @@
 import http from "@services/http";
 
+export const AdTargetTypes = ["region", "budget", "createdBy", "keyword"];
+
 export type AdTargetPost = {
   targetType: string;
   targetValue: string;
-  stripeItemId: string;
   weight: number;
 };
 
 export type AdTarget = AdTargetPost & {
   id: number;
   adId: number;
-  futureWeight?: number;
   isPrimary: boolean;
 };
 
-const getAdTargetsByAdId = async (id: number): Promise<AdTarget> => {
+export type AdTargetAnalytics = {
+  id: number;
+  rank: string;
+  percent: number;
+};
+
+const getAdTargetsByAdId = async (id: number): Promise<AdTarget[]> => {
   return await http.get(http.apiBaseURLs.api, `adTargets/${id}`, undefined);
 };
 
-const decreaseAdTargetWeight = async (
+const getAdTargetAnalytics = async (
   id: number,
   targetId: number,
-  decrement: number,
-): Promise<void> => {
-  let body = JSON.stringify(decrement);
-  return await http.patch(
+): Promise<AdTargetAnalytics> => {
+  return await http.get(
     http.apiBaseURLs.api,
-    `adTargets/${id}/ad-target/${targetId}`,
-    body,
+    `adTargets/${id}/ad-target/${targetId}/analytics`,
     undefined,
   );
 };
 
-const cancelAdTarget = async (
+const setAtTargetAsPrimary = async (
   id: number,
   targetId: number,
-  cancel: boolean,
 ): Promise<void> => {
-  let body = JSON.stringify(cancel);
   return await http.patch(
     http.apiBaseURLs.api,
-    `adTargets/${id}/ad-target/${targetId}/cancel`,
-    body,
+    `adTargets/${id}/ad-target/${targetId}/primary`,
+    undefined,
     undefined,
   );
 };
 
 export const adTargetsService = {
   getAdTargetsByAdId,
-  decreaseAdTargetWeight,
-  cancelAdTarget,
+  getAdTargetAnalytics,
+  setAtTargetAsPrimary,
 };

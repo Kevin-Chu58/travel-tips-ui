@@ -1,0 +1,21 @@
+.check-box-container {
+  padding: 0.5rem;
+  padding-bottom: 0;
+  border-radius: .5rem;
+  cursor: pointer;
+
+  &:hover {
+    background-color: var(--utility-50);
+  }
+
+  .MuiCheckbox-root {
+    margin-top: -.5rem;
+
+    &.Mui-checked {
+      color: black;
+    }
+    &.Mui-disabled {
+      opacity: 0.5;
+    }
+  }
+}

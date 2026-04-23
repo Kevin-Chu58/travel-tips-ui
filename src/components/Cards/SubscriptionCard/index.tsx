@@ -21,11 +21,11 @@ const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
         <Box className="column start">
           <Typography>
             <strong>Start</strong>{" "}
-            {TimeUtils.toFullDateNumericDisplay(subscription.start)}
+            {TimeUtils.toFullDateTimeNumericDisplay(subscription.start)}
           </Typography>
           <Typography>
             <strong>End</strong>{" "}
-            {TimeUtils.toFullDateNumericDisplay(subscription.end)}
+            {TimeUtils.toFullDateTimeNumericDisplay(subscription.end)}
           </Typography>
         </Box>
         <Chip label="UTC" color="utility" size="small" />

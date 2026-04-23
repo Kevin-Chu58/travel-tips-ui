@@ -1,4 +1,5 @@
-import http from "@services/http";
+import http, { type SearchResults } from "@services/http";
+import type { TripSearchParams } from "@services/trips";
 
 export type AdPost = {
   title: string;
@@ -16,8 +17,10 @@ export type Ad = AdPost &
     businessId: number;
     picture?: string;
     stripeSubscriptionId?: string;
+    stripeItemId?: string;
     subStatus?: string;
     status: string;
+    renewSub: boolean;
   };
 
 export type AdPatch = {
@@ -72,6 +75,23 @@ const getAdsByParams = async (
 
 const getAdById = async (id: number): Promise<Ad> => {
   return await http.get(http.apiBaseURLs.api, `ads/${id}`, undefined);
+};
+
+const getAdFeed = async (params: TripSearchParams): Promise<Ad | void> => {
+  const _params = new URLSearchParams();
+
+  if (params.title) _params.append("title", params.title);
+  if (params.createdBy)
+    _params.append("createdBy", params.createdBy.id.toString());
+  if (params.countrySlug) _params.append("countrySlug", params.countrySlug);
+  if (params.stateSlug) _params.append("stateSlug", params.stateSlug);
+  if (params.budget) _params.append("budget", params.budget.toString());
+
+  return await http.get(
+    http.apiBaseURLs.api,
+    `ads/feed?${_params.toString()}`,
+    undefined,
+  );
 };
 
 const postNewAd = async (id: number, newAd: AdPost): Promise<Ad> => {
@@ -144,20 +164,51 @@ const updateAdStatus = async (
   );
 };
 
+const updateRenewSubscription = async (
+  id: number,
+  renewSubscription: boolean,
+): Promise<void> => {
+  const params = new URLSearchParams();
+
+  params.append("renewSubscription", renewSubscription.toString());
+
+  return await http.patch(
+    http.apiBaseURLs.api,
+    `ads/${id}/renewSubscription?${params.toString()}`,
+    undefined,
+    undefined,
+  );
+};
+
 // ad sub logs
 
-const getAdSubLogs = async (id: number): Promise<AdSubLog[]> => {
-  return await http.get(http.apiBaseURLs.api, `ads/${id}/logs`, undefined);
+const getAdSubLogs = async (
+  id: number,
+  cursor?: string,
+  limit?: number,
+): Promise<SearchResults<AdSubLog>> => {
+  const params = new URLSearchParams();
+
+  if (cursor) params.append("cursor", cursor);
+  if (limit) params.append("limit", limit.toString());
+
+  return await http.get(
+    http.apiBaseURLs.api,
+    `ads/${id}/logs?${params.toString()}`,
+    undefined,
+  );
 };
 
 export const adsService = {
   getMyAdByBusinessId,
   getAdsByParams,
   getAdById,
+  getAdFeed,
   postNewAd,
   updateAd,
   updateAdActiveStatus,
   updateAdStatus,
+  updateRenewSubscription,
   // ad sub logs
   getAdSubLogs,
 };

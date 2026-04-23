@@ -18,7 +18,7 @@ import TLogo from "@assets/T.svg";
 import TBoard from "@assets/TT_Board.svg";
 import Layouts from "@constants/Layouts";
 import { useIsMobile } from "@hooks/useIsMobile";
-import { login, logout, markLoggedOut } from "@services/tokens";
+import { login, logout } from "@services/tokens";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
 import LocalActivityIcon from '@mui/icons-material/LocalActivity';
@@ -91,9 +91,7 @@ const HeaderBar = () => {
     (onPage ? "Main" : "");
 
   const handleLogout = async () => {
-    await logout().then(() => {
-      markLoggedOut();
-    });
+    await logout();
   };
 
   // const moreMenuItems = [

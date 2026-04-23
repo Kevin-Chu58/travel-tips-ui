@@ -57,7 +57,7 @@ export const UserBasicInitializer = () => {
 
     initUserBasic();
 
-    // BACKGROUND POLLING: Refresh every 5 minutes
+    // BACKGROUND POLLING: Refresh every 30 minutes
     const intervalId = setInterval(() => {
       if (isAuthenticated && !isLoading) {
         refreshUser();

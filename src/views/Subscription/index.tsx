@@ -1,11 +1,4 @@
-import {
-  Box,
-  Checkbox,
-  Container,
-  Grid,
-  Switch,
-  Typography,
-} from "@mui/material";
+import { Box, Checkbox, Container, Grid, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import {
   subscriptionsService,
@@ -22,6 +15,7 @@ import { usersService } from "@services/users";
 import { enqueueSnackbar } from "notistack";
 import { clearUser, setUser } from "@redux/userSlice";
 import { useNavigate } from "react-router";
+import TTSWitch from "@components/TTSwitch";
 import clsx from "clsx";
 import "./index.scss";
 
@@ -156,8 +150,7 @@ const SubscriptionView = () => {
       <Typography>Renewing?</Typography>
       <Box className="row">
         <Typography>No</Typography>
-        <Switch
-          className="renewing-switch"
+        <TTSWitch
           checked={renewSubscription === true}
           onChange={handleUpdateRenewSubscription}
         />

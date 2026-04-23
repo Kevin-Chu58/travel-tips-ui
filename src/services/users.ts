@@ -54,8 +54,26 @@ export type UserSubExtend = {
   maxTripCount: number;
 };
 
+const getUserById = async (
+  id: number,
+  showPicture: boolean = true,
+): Promise<UserSimple> => {
+  const params = new URLSearchParams();
+  if (showPicture !== undefined) params.append("showPicture", `${showPicture}`);
+
+  return await http.get(
+    http.apiBaseURLs.api,
+    `users/${id}?${params.toString()}`,
+    undefined,
+  );
+};
+
 const getUserByUserId = async (userId: string): Promise<UserSimple> => {
-  return await http.get(http.apiBaseURLs.api, `users/${userId}`, undefined);
+  return await http.get(
+    http.apiBaseURLs.api,
+    `users/userId/${userId}`,
+    undefined,
+  );
 };
 
 const getUsersByUsername = async (
@@ -191,6 +209,7 @@ const updateRenewSubscription = async (
 };
 
 export const usersService = {
+  getUserById,
   getUserByUserId,
   getUsersByUsername,
   getUserBasicInfo,

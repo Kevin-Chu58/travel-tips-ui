@@ -1,0 +1,44 @@
+.ad-target-form {
+  .TTDialog-box {
+    padding: 0;
+  }
+
+  .content {
+    padding: 0;
+    overflow-x: hidden;
+  }
+
+  .page-container {
+    transition: 0.2s ease-in-out all;
+
+    &.page-1 {
+      transform: translateX(0);
+    }
+
+    &.page-2 {
+      transform: translateX(-100%);
+    }
+
+    &.page-3 {
+      transform: translateX(-200%);
+    }
+  }
+
+  .page {
+    width: 100%; // don't know why it's 99%
+    flex-shrink: 0;
+    padding: 1rem;
+  }
+
+  .price-box {
+    margin-top: auto;
+  }
+
+  .price-text.MuiTypography-root {
+    min-width: 80px;
+  }
+}
+
+.selected-ad-target-type.MuiMenuItem-root.Mui-selected {
+  background-color: var(--info-50);
+}

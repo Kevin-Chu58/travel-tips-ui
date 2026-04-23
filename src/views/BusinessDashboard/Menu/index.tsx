@@ -53,6 +53,11 @@ const Menu = ({
     setPopoverAnchorEl(null);
   };
 
+  const handleBusinessClick = (businessId: number) => {
+    navigate(`/business/${businessId}`);
+    setPopoverAnchorEl(null);
+  };
+
   // components
 
   const headerListButton = (bs: Business) => {
@@ -63,7 +68,7 @@ const Menu = ({
           "header-list-button",
           bs.id === business?.id && "focus",
         )}
-        onClick={() => navigate(`/business/${bs.id}`)}
+        onClick={() => handleBusinessClick(bs.id)}
         disableRipple
       >
         <ListItemIcon className="start-icon">

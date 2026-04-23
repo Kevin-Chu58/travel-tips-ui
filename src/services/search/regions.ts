@@ -23,7 +23,7 @@ interface RegionSearchParams {
   parentRegionId?: number;
 }
 
-const browse = async (params: RegionSearchParams) => {
+const browse = async (params: RegionSearchParams): Promise<Region[]> => {
   const searchParams = new URLSearchParams();
 
   if (params.type) searchParams.set("type", params.type);
@@ -34,10 +34,15 @@ const browse = async (params: RegionSearchParams) => {
   return await http.get(
     http.apiBaseURLs.api,
     `regions/browse?${searchParams.toString()}`,
-    undefined
+    undefined,
   );
+};
+
+const getRegionCompleteById = async (id: number): Promise<RegionComplete> => {
+  return await http.get(http.apiBaseURLs.api, `regions/${id}`, undefined);
 };
 
 export const regionsService = {
   browse,
+  getRegionCompleteById,
 };

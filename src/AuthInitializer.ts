@@ -2,13 +2,15 @@ import { useAuth0 } from "@auth0/auth0-react";
 import {
   setGetTokenSilentlyFn,
   setGoToLoginPortalFn,
+  setIsAuthenticatedFn,
   setLoginFn,
   setLogoutFn,
 } from "@services/tokens";
 import { useEffect } from "react";
 
 export const AuthInitializer = () => {
-  const { getAccessTokenSilently, loginWithRedirect, logout } = useAuth0();
+  const { isAuthenticated, getAccessTokenSilently, loginWithRedirect, logout } =
+    useAuth0();
 
   useEffect(() => {
     setGetTokenSilentlyFn(getAccessTokenSilently);
@@ -40,7 +42,8 @@ export const AuthInitializer = () => {
 
     setLoginFn(loginFn);
     setLogoutFn(logout);
-  }, [getAccessTokenSilently]);
+    setIsAuthenticatedFn(async () => isAuthenticated);
+  }, [getAccessTokenSilently, isAuthenticated]);
 
   return null;
 };

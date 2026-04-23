@@ -1,0 +1,16 @@
+.TT-switch {
+    .MuiSwitch-track {
+      opacity: 0.7;
+    }
+
+    .Mui-checked {
+      &.MuiSwitch-switchBase {
+        color: white;
+      }
+
+      & + .MuiSwitch-track {
+        background-color: var(--success-main);
+        opacity: 1;
+      }
+    }
+  }

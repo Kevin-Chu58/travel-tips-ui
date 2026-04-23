@@ -1,4 +1,5 @@
 @use "../../../../stylings/layout" as *;
+@use "../../../../stylings/box_shadows" as *;
 
 .business-dashboard-ad-content {
   // .tabs.MuiTabs-root {
@@ -24,7 +25,7 @@
   //   }
   // }
 
-  .ad-detail-button-box {
+  .ad-content-button-box {
     margin: 1rem 0;
   }
 

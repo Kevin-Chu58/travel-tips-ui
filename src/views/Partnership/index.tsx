@@ -164,8 +164,8 @@ const Partnership = () => {
             <Typography variant="h4">Partner with us!</Typography>
             <Box className="column step-box">
               <Typography>1. Register your business</Typography>
-              <Typography>2. Create your Ad banner</Typography>
-              <Typography>3. Purchase keywords</Typography>
+              <Typography>2. Create your Ad blocks</Typography>
+              <Typography>3. Purchase Ad Targets</Typography>
               <ShakyText text="Improve exposure!" />
             </Box>
             <TTButton

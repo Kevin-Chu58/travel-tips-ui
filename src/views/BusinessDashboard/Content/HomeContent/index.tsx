@@ -121,7 +121,7 @@ const HomeContent = ({ business, setBusiness, ads }: HomeContentProps) => {
                 className="active-status-text"
                 onClick={() => handleSetActiveStatus(false)}
               >
-                set to inactive
+                set to inactive (also inactives all active ads)
               </Typography>
             ) : undefined}
             {business.status === "inactive" ? (
