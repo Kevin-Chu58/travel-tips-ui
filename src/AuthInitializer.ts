@@ -2,7 +2,6 @@ import { useAuth0 } from "@auth0/auth0-react";
 import {
   setGetTokenSilentlyFn,
   setGoToLoginPortalFn,
-  setIsAuthenticatedFn,
   setLoginFn,
   setLogoutFn,
 } from "@services/tokens";
@@ -42,7 +41,6 @@ export const AuthInitializer = () => {
 
     setLoginFn(loginFn);
     setLogoutFn(logout);
-    setIsAuthenticatedFn(async () => isAuthenticated);
   }, [getAccessTokenSilently, isAuthenticated]);
 
   return null;
