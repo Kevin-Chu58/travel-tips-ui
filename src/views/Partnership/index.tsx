@@ -13,7 +13,7 @@ import {
   Typography,
 } from "@mui/material";
 import NavButton from "@components/Button/NavButton";
-import ShakyText from "src/stylings/text/ShakeText";
+import ShakyText from "@stylings/text/ShakeText";
 import TTButton from "@components/TTButton";
 import TTIconButton from "@components/TTIconButton";
 import HandshakeIcon from "@mui/icons-material/Handshake";
