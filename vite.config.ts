@@ -60,4 +60,5 @@ export default defineConfig({
       projects: ["./tsconfig.app.json"], // explicitly tell it to use this
     }),
   ],
+  publicDir: "public",
 });
