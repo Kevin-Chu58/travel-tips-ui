@@ -14,6 +14,7 @@ interface UserData {
   isAdmin: boolean | null;
   isWriter: boolean | null;
   isBannerMan: boolean | null;
+  isReviewer: boolean | null;
   renewSubscription: boolean | null;
   stripeCustomerId: string | null;
   userSubExtend: UserSubExtend | null;
@@ -34,6 +35,7 @@ const initialState: UserState = {
   isAdmin: null,
   isWriter: null,
   isBannerMan: null,
+  isReviewer: null,
   renewSubscription: null,
   stripeCustomerId: null,
   userSubExtend: null,

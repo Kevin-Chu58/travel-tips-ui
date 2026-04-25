@@ -23,14 +23,6 @@ const getMyBusiness = async (): Promise<Business[]> => {
   return await http.get(http.apiBaseURLs.api, "businesses/my", undefined);
 };
 
-// const getMyNonPendingBusiness = async (): Promise<Business[]> => {
-//   return await http.get(
-//     http.apiBaseURLs.api,
-//     "businesses/my/non-pending",
-//     undefined,
-//   );
-// };
-
 const getBusinessById = async (businessId: number): Promise<Business> => {
   return await http.get(
     http.apiBaseURLs.api,
@@ -39,21 +31,25 @@ const getBusinessById = async (businessId: number): Promise<Business> => {
   );
 };
 
-const getBusinessByParams = async (
-  userId?: number,
-  status?: number,
-): Promise<Business[]> => {
-  let params = new URLSearchParams();
-
-  if (userId) params.append("userId", userId.toString());
-  if (status) params.append("status", status.toString());
-
-  return await http.get(
-    http.apiBaseURLs.api,
-    `businesses?${params.toString()}`,
-    undefined,
-  );
+const getPendingBusinesses = async (): Promise<Business[]> => {
+  return await http.get(http.apiBaseURLs.api, `businesses/pending`, undefined);
 };
+
+// const getBusinessByParams = async (
+//   userId?: number,
+//   status?: number,
+// ): Promise<Business[]> => {
+//   let params = new URLSearchParams();
+
+//   if (userId) params.append("userId", userId.toString());
+//   if (status) params.append("status", status.toString());
+
+//   return await http.get(
+//     http.apiBaseURLs.api,
+//     `businesses?${params.toString()}`,
+//     undefined,
+//   );
+// };
 
 const postNewBusiness = async (
   newBusiness: BusinessPost,
@@ -111,7 +107,7 @@ export const businessesService = {
   getMyBusiness,
   // getMyNonPendingBusiness,
   getBusinessById,
-  getBusinessByParams,
+  getPendingBusinesses,
   postNewBusiness,
   updateBusiness,
   updateBusinessActiveStatus,

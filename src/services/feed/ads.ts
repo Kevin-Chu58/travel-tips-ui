@@ -56,22 +56,26 @@ const getMyAdByBusinessId = async (businessId: number): Promise<Ad[]> => {
   );
 };
 
-const getAdsByParams = async (
-  userId?: number,
-  businessId?: number,
-  status?: number,
-): Promise<Ad[]> => {
-  let params = new URLSearchParams();
-  if (userId) params.append("userId", userId.toString());
-  if (businessId) params.append("businessId", businessId.toString());
-  if (status) params.append("status", status.toString());
-
-  return await http.get(
-    http.apiBaseURLs.api,
-    `ads?${params.toString()}`,
-    undefined,
-  );
+const getPendingAds = async (): Promise<Ad[]> => {
+  return await http.get(http.apiBaseURLs.api, `ads/pending`, undefined);
 };
+
+// const getAdsByParams = async (
+//   userId?: number,
+//   businessId?: number,
+//   status?: number,
+// ): Promise<Ad[]> => {
+//   let params = new URLSearchParams();
+//   if (userId) params.append("userId", userId.toString());
+//   if (businessId) params.append("businessId", businessId.toString());
+//   if (status) params.append("status", status.toString());
+
+//   return await http.get(
+//     http.apiBaseURLs.api,
+//     `ads?${params.toString()}`,
+//     undefined,
+//   );
+// };
 
 const getAdById = async (id: number): Promise<Ad> => {
   return await http.get(http.apiBaseURLs.api, `ads/${id}`, undefined);
@@ -201,7 +205,7 @@ const getAdSubLogs = async (
 
 export const adsService = {
   getMyAdByBusinessId,
-  getAdsByParams,
+  getPendingAds,
   getAdById,
   getAdFeed,
   postNewAd,

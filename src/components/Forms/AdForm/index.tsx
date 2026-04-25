@@ -113,7 +113,7 @@ const AdForm = ({ open, onClose, asyncAd, ad, business }: AdFormProps) => {
         } as AdPatch;
 
         let _ad = await adsService.updateAd(ad.id, adPatch);
-        asyncAd(_ad);
+        asyncAd({ ..._ad, status: "pending" });
       }
 
       enqueueSnackbar("Ad is now waiting to be reviewed.", {

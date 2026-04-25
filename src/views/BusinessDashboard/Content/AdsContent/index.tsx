@@ -26,22 +26,10 @@ type AdsContentProps = {
 };
 
 const AdsContent = ({ business, ads, setAds }: AdsContentProps) => {
-  // ads
-  // const [ad, setAd] = useState<Ad | undefined>();
   // open form status
   const [openAdForm, setOpenAdForm] = useState<boolean>(false);
   // others
   const navigate = useNavigate();
-
-  // nav tab
-  // const [navTabValue, setNavTabValue] = useState<number>(1);
-
-  // const handleNavTabChange = (
-  //   event: React.SyntheticEvent,
-  //   newValue: number,
-  // ) => {
-  //   setNavTabValue(newValue);
-  // };
 
   const asyncPostAd = (ad: Ad) => {
     setAds([...ads, ad]);
@@ -53,11 +41,29 @@ const AdsContent = ({ business, ads, setAds }: AdsContentProps) => {
         <Typography variant="h4" className="content-header">
           Ads
         </Typography>
+        <Box className="row section gap stretch">
+          <Box className="notification-box">
+            <b>Metric Monitoring:</b> Please be advised that{" "}
+            <u>
+              we do not track or report on advertisement impressions or
+              click-through rates
+            </u>
+            . We recommend monitoring your advertising expenditure closely to
+            ensure it aligns with your budget.
+          </Box>
+          <Box className="notification-box">
+            <b>Ad Frequency:</b> Advertisements are displayed at an interval of
+            one per every eight published trips. To ensure your purchase is
+            fully utilized and cost-effective,{" "}
+            <u>
+              please verify that your target includes a minimum of eight trips.
+            </u>
+          </Box>
+        </Box>
         <Box className="button-box">
           <Button
-            className="create-button"
             variant="contained"
-            color="success"
+            color="utility"
             startIcon={<FiPlus />}
             onClick={() => setOpenAdForm(true)}
             disableRipple
@@ -95,8 +101,8 @@ const AdsContent = ({ business, ads, setAds }: AdsContentProps) => {
                   <Box className="column start">
                     {ad.subStatus ? (
                       <Chip
-                        color={StyleUtils.getColorThemeByAdStatus(ad.status)}
-                        label={ad.status}
+                        color={StyleUtils.getColorThemeByAdStatus(ad.subStatus)}
+                        label={ad.subStatus}
                         size="small"
                       />
                     ) : (

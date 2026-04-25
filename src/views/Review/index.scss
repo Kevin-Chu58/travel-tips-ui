@@ -1,0 +1,27 @@
+.review-view {
+  margin-top: 4rem;
+
+  .review-type-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    max-width: 300px;
+    height: fit-content;
+    padding: 1rem;
+    background-color: var(--info-100);
+    border-radius: 0.5rem;
+    cursor: pointer;
+
+    &:hover {
+      background-color: var(--info-700);
+
+      .MuiTypography-root {
+        color: white;
+      }
+
+      .MuiDivider-root {
+        border-color: rgba(white, 0.6);
+      }
+    }
+  }
+}

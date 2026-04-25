@@ -14,7 +14,7 @@ export type AdTarget = AdTargetPost & {
   isPrimary: boolean;
 };
 
-export type AdTargetAnalytics = {
+export type AdTargetAnalysis = {
   id: number;
   rank: string;
   percent: number;
@@ -24,13 +24,13 @@ const getAdTargetsByAdId = async (id: number): Promise<AdTarget[]> => {
   return await http.get(http.apiBaseURLs.api, `adTargets/${id}`, undefined);
 };
 
-const getAdTargetAnalytics = async (
+const getAdTargetAnalysis = async (
   id: number,
   targetId: number,
-): Promise<AdTargetAnalytics> => {
+): Promise<AdTargetAnalysis> => {
   return await http.get(
     http.apiBaseURLs.api,
-    `adTargets/${id}/ad-target/${targetId}/analytics`,
+    `adTargets/${id}/ad-target/${targetId}/analysis`,
     undefined,
   );
 };
@@ -49,6 +49,6 @@ const setAtTargetAsPrimary = async (
 
 export const adTargetsService = {
   getAdTargetsByAdId,
-  getAdTargetAnalytics,
+  getAdTargetAnalysis,
   setAtTargetAsPrimary,
 };

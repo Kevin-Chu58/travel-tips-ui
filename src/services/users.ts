@@ -14,6 +14,7 @@ export type UserBasic = UserSimple & {
   isAdmin?: boolean;
   isWriter?: boolean;
   isBannerMan?: boolean;
+  isReviewer?: boolean;
   renewSubscription: boolean;
   stripCustomerId?: string;
   userSubExtend?: UserSubExtend;

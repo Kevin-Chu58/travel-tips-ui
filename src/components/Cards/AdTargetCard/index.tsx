@@ -4,7 +4,7 @@ import { Box, Chip, ListItemButton, Menu, Typography } from "@mui/material";
 import {
   adTargetsService,
   type AdTarget,
-  type AdTargetAnalytics,
+  type AdTargetAnalysis,
 } from "@services/feed/adTargets";
 import { regionsService } from "@services/search/regions";
 import { type UserSimple, usersService } from "@services/users";
@@ -37,8 +37,8 @@ const AdTargetCard = ({
   const isMobile = useIsMobile();
   // display
   const [value, setValue] = useState<string>("");
-  // analytics
-  const [analytics, setAnalytics] = useState<AdTargetAnalytics | undefined>();
+  // analysis
+  const [analysis, setAnalysis] = useState<AdTargetAnalysis | undefined>();
   // value data
   const [user, setUser] = useState<UserSimple | undefined>();
   // popover
@@ -73,11 +73,11 @@ const AdTargetCard = ({
     if (!adId) return;
 
     try {
-      let analytics = await adTargetsService.getAdTargetAnalytics(
+      let analysis = await adTargetsService.getAdTargetAnalysis(
         adId,
         adTarget.id,
       );
-      setAnalytics(analytics);
+      setAnalysis(analysis);
     } catch (e) {
       if (e instanceof Error) enqueueSnackbar(e.message, { variant: "error" });
     }
@@ -179,12 +179,12 @@ const AdTargetCard = ({
           <Typography>{adTarget.weight}</Typography>
         </Box>
         <Box className="row gap-large">
-          {analytics ? (
+          {analysis ? (
             <React.Fragment>
               <Typography>
                 <b>Rank</b>
               </Typography>
-              <Typography>{`${analytics.rank} (${analytics.percent}%)`}</Typography>
+              <Typography>{`${analysis.rank} (${analysis.percent}%)`}</Typography>
             </React.Fragment>
           ) : (
             <TTButton

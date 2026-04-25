@@ -29,6 +29,7 @@ import type { HeaderTab, NavTab } from "@constants/Types";
 import AccountBoxIcon from "@mui/icons-material/AccountBox";
 import ViewCarouselIcon from "@mui/icons-material/ViewCarousel";
 import HandshakeIcon from '@mui/icons-material/Handshake';
+import ReviewsIcon from '@mui/icons-material/Reviews';
 // import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 // import ArticleIcon from '@mui/icons-material/Article';
 // import TokenIcon from '@mui/icons-material/Token';
@@ -122,12 +123,18 @@ const HeaderBar = () => {
       name: "banner",
       to: "/banners",
       element: <ViewCarouselIcon fontSize="small" />,
-      condition: user.isAdmin,
+      condition: user.isAdmin || user.isBannerMan,
     },
     {
       name: "partnership",
       to: "/partnership",
       element: <HandshakeIcon fontSize="small" />,
+    },
+    {
+      name: "Review",
+      to: "/review",
+      element: <ReviewsIcon fontSize="small" />,
+      condition: user.isAdmin || user.isReviewer,
     },
     // {
     //   name: "setting",

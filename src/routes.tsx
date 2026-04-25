@@ -15,6 +15,7 @@ import Membership from "@views/Membership";
 import Subscription from "@views/Subscription";
 import Partnership from "@views/Partnership";
 import BusinessDashboard from "@views/BusinessDashboard";
+import Review from "@views/Review";
 
 const routes = [
   {
@@ -81,6 +82,11 @@ const routes = [
     name: "BusinessDashboard",
     path: "/business/*",
     element: <BusinessDashboard />,
+  },
+  {
+    name: "Review",
+    path: "/review",
+    element: <Review />,
   },
   {
     name: "Settings",
