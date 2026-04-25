@@ -55,9 +55,9 @@ jobs:
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_GREEN_BAY_09F55A01E }}
           action: "upload"
-          app_location: "/"
+          app_location: "dist"
           api_location: ""
-          output_location: "dist"
+          output_location: ""
           skip_app_build: true
           github_id_token: ${{ steps.idtoken.outputs.result }}
 
@@ -72,4 +72,3 @@ jobs:
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_GREEN_BAY_09F55A01E }}
           action: "close"
-          
