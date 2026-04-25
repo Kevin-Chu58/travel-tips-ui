@@ -9,7 +9,7 @@ let tokenExpiry: number | undefined;
 let refreshPromise: Promise<string | undefined> | null = null;
 
 let getTokenSilentlyFn: (() => Promise<string>) | null = null;
-// let isAuthenticatedFn: (() => Promise<boolean>) | null = null;
+let isAuthenticatedFn: (() => Promise<boolean>) | null = null;
 let goToLoginPortalFn: (() => Promise<void>) | null = null;
 let loginFn: (() => Promise<void>) | null = null;
 let logoutFn: (() => Promise<void>) | null = null;
@@ -24,9 +24,9 @@ export const setGetTokenSilentlyFn = (fn: () => Promise<string>) => {
   getTokenSilentlyFn = fn;
 };
 
-// export const setIsAuthenticatedFn = (fn: () => Promise<boolean>) => {
-//   isAuthenticatedFn = fn;
-// };
+export const setIsAuthenticatedFn = (fn: () => Promise<boolean>) => {
+  isAuthenticatedFn = fn;
+};
 
 export const setGoToLoginPortalFn = (fn: () => Promise<void>) => {
   goToLoginPortalFn = fn;
