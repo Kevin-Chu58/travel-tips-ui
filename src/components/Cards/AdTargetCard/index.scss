@@ -1,0 +1,12 @@
+.ad-target-card {
+  padding: .5rem;
+  border-radius: .5rem;
+
+  &:hover {
+    background-color: var(--utility-50);
+  }
+
+  .action-button {
+    margin-left: auto;
+  }
+}

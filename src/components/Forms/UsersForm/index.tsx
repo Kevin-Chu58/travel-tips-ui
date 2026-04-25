@@ -1,7 +1,7 @@
 import type { UserSimple } from "@services/users";
 import UserCard from "@components/Cards/UserCard";
 import PersonIcon from "@mui/icons-material/Person";
-import FormBase from "../FormBase";
+import FormBase from "../FormBases/FormBase";
 import { Box, Typography } from "@mui/material";
 
 type UsersFormProps = {

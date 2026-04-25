@@ -7,7 +7,7 @@ import {
   RadioGroup,
   Typography,
 } from "@mui/material";
-import FormBase from "../FormBase";
+import FormBase from "../FormBases/FormBase";
 import RegionForm from "../RegionForm";
 import BudgetForm from "../BudgetForm";
 import type { TripSearchParams } from "@services/trips";

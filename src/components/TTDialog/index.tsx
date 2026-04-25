@@ -1,7 +1,7 @@
 import { Box, Dialog, type DialogProps, type SxProps } from "@mui/material";
 import type { ReactNode } from "react";
-import "./index.scss";
 import clsx from "clsx";
+import "./index.scss";
 
 type TTDialogProps = {
   className?: string;

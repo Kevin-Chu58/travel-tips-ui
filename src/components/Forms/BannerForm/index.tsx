@@ -10,7 +10,7 @@ import {
   Typography,
   type SelectChangeEvent,
 } from "@mui/material";
-import FormBase from "../FormBase";
+import FormBase from "../FormBases/FormBase";
 import React, { useEffect, useState } from "react";
 import DescriptionTextField from "@components/TextField/DescriptionTextField";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
@@ -33,6 +33,7 @@ import AddIcon from "@mui/icons-material/Add";
 import TTButton from "@components/TTButton";
 import { enqueueSnackbar } from "notistack";
 import TimeUtils from "@utils/TimeUtils";
+import { ImageType } from "@constants/Enums";
 import dayjs from "dayjs";
 import "./index.scss";
 
@@ -403,7 +404,7 @@ const BannerForm = ({
                 <ImageSelector
                   imageIds={image ? [image?.id] : []}
                   setImage={asyncImage}
-                  banner
+                  imageType={ImageType.Banner}
                 >
                   <Typography>
                     {image ? "Change Image" : "Choose Image"}

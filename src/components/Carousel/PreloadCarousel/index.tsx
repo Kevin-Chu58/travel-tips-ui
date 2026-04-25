@@ -20,6 +20,7 @@ type PreloadCarouselProps = {
   height?: number;
   innerButtons?: boolean;
   circularBorder?: boolean;
+  aspectRatioType?: string;
   children?: ReactNode;
 };
 
@@ -31,9 +32,9 @@ const PreloadCarousel = ({
   onClick,
   onDelete = () => {},
   interval = 4000,
-  height = 200,
   innerButtons = false,
   circularBorder = false,
+  aspectRatioType,
   children,
 }: PreloadCarouselProps) => {
   // window
@@ -114,15 +115,13 @@ const PreloadCarousel = ({
       onClick={onClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      sx={{
-        height: `${height}px`,
-      }}
     >
       {/* image-layer */}
       <Box
         className={clsx(
           "preload-carousel-image-overflow-container",
           circularBorder && "circular-border",
+          aspectRatioType
         )}
       >
         <Box

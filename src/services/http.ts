@@ -24,13 +24,14 @@ const get = <TResponse>(
   apiBaseURL: string,
   endpoint: string,
   headers = new Headers(),
+  jsonContentType: boolean = true,
 ): Promise<TResponse> =>
   makeRequest(
     apiBaseURL,
     endpoint,
     "get",
     undefined,
-    setContentTypeJSON(headers),
+    jsonContentType ? setContentTypeJSON(headers) : headers,
   );
 
 const put = <TResponse>(
@@ -38,8 +39,15 @@ const put = <TResponse>(
   endpoint: string,
   body: HttpRequestBody = "",
   headers = new Headers(),
+  jsonContentType: boolean = true,
 ): Promise<TResponse> =>
-  makeRequest(apiBaseURL, endpoint, "put", body, setContentTypeJSON(headers));
+  makeRequest(
+    apiBaseURL,
+    endpoint,
+    "put",
+    body,
+    jsonContentType ? setContentTypeJSON(headers) : headers,
+  );
 
 /**
  * Post image data to the API
@@ -74,8 +82,15 @@ const post = <TResponse>(
   endpoint: string,
   body: HttpRequestBody = "",
   headers = new Headers(),
+  jsonContentType: boolean = true,
 ): Promise<TResponse> =>
-  makeRequest(apiBaseURL, endpoint, "post", body, setContentTypeJSON(headers));
+  makeRequest(
+    apiBaseURL,
+    endpoint,
+    "post",
+    body,
+    jsonContentType ? setContentTypeJSON(headers) : headers,
+  );
 
 // PATCH is required to be in all caps.  http services automatically capitalizes headers for post,put,get,del... but not patch.
 const patch = <TResponse>(
@@ -83,21 +98,29 @@ const patch = <TResponse>(
   endpoint: string,
   body: HttpRequestBody = "",
   headers = new Headers(),
+  jsonContentType: boolean = true,
 ): Promise<TResponse> =>
-  makeRequest(apiBaseURL, endpoint, "PATCH", body, setContentTypeJSON(headers));
+  makeRequest(
+    apiBaseURL,
+    endpoint,
+    "PATCH",
+    body,
+    jsonContentType ? setContentTypeJSON(headers) : headers,
+  );
 
 const del = <TResponse>(
   apiBaseURL: string,
   endpoint: string,
   body: HttpRequestBody = "",
   headers = new Headers(),
+  jsonContentType: boolean = true,
 ): Promise<TResponse> =>
   makeRequest(
     apiBaseURL,
     endpoint,
     "delete",
     body,
-    setContentTypeJSON(headers),
+    jsonContentType ? setContentTypeJSON(headers) : headers,
   );
 
 /**
@@ -252,7 +275,7 @@ const toQueryString = (
 
 const apiBaseURLs = {
   api:
-    // import.meta.env.VITE_API_URL_LOCAL ??
+    import.meta.env.VITE_API_URL_LOCAL ??
     import.meta.env.VITE_API_URL_PRODUCTION_US_WEST ??
     "",
   mapbox: import.meta.env.VITE_MAPBOX_API ?? "",

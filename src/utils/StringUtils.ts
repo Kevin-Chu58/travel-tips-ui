@@ -35,6 +35,20 @@ const getBudgetStr = (budget?: number) => {
   return "$".repeat(budget);
 };
 
+// cost display
+
+const formatCurrency = (
+  amountInSmallestUnit: number,
+  currencyCode: string,
+  locale: string = "en-US",
+) => {
+  const amount = amountInSmallestUnit / 100;
+  return new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency: currencyCode,
+  }).format(amount);
+};
+
 // markdown identifier
 const BOLD_IDENT = "**";
 const ITALIC_IDENT = "_";
@@ -70,6 +84,8 @@ export const StringUtils = {
   slugify,
   // budget
   getBudgetStr,
+  // price display
+  formatCurrency,
   // markdown identifier
   BOLD_IDENT,
   ITALIC_IDENT,

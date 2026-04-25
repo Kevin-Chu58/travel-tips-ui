@@ -1,0 +1,61 @@
+@use "../../../../stylings/layout" as *;
+@use "../../../../stylings/box_shadows" as *;
+
+.business-dashboard-ad-content {
+  // .tabs.MuiTabs-root {
+  //   button {
+  //     min-height: 0;
+  //     margin-top: 0.5rem;
+  //     text-transform: capitalize;
+  //     border-radius: 0.5rem;
+  //     padding: 0.4rem 0.5rem;
+  //     transition: 0.2s ease-in-out background-color;
+
+  //     &:hover {
+  //       background-color: var(--utility-50);
+  //     }
+  //   }
+
+  //   .MuiTab-root.Mui-selected {
+  //     color: var(--success-main);
+  //   }
+
+  //   .MuiTabs-indicator {
+  //     background-color: var(--success-main);
+  //   }
+  // }
+
+  .ad-content-button-box {
+    margin: 1rem 0;
+  }
+
+  .ad-detail-box {
+    margin: 0rem 0;
+  }
+
+  .ad-card-container {
+    width: 240px;
+  }
+
+  .stripe-sub-box {
+    margin: 0 1rem 0 auto;
+  }
+
+  .stripe-sub-detail-box {
+    margin: 1rem 0.5rem;
+  }
+
+  .MuiGrid-root {
+    .params.MuiTypography-root {
+      font-weight: bold;
+    }
+
+    .MuiTypography-root:not(.params) {
+      display: flex;
+      flex-wrap: wrap;
+      min-width: 0;
+      white-space: normal;
+      word-break: break-word;
+    }
+  }
+}

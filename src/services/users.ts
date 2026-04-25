@@ -13,11 +13,17 @@ export type UserBasic = UserSimple & {
   emailVerified: boolean;
   isAdmin?: boolean;
   isWriter?: boolean;
+  isBannerMan?: boolean;
+  isReviewer?: boolean;
+  renewSubscription: boolean;
+  stripCustomerId?: string;
+  userSubExtend?: UserSubExtend;
 };
 
 export type UserProfileBasic = UserSimple & {
   isAdmin?: boolean;
   isWriter?: boolean;
+  isBannerMan?: boolean;
   followerCount: number;
   followingCount: number;
   numTrips: number;
@@ -37,8 +43,38 @@ export type UserSearchParams = {
   limit?: number;
 };
 
+// extensions
+
+export type UserSubExtend = {
+  userId: number;
+  cycleStart?: Date;
+  monthIndex?: number;
+  pdfDownloadCount: number;
+  tripCount: number;
+  maxPdfDownloadCount: number;
+  maxTripCount: number;
+};
+
+const getUserById = async (
+  id: number,
+  showPicture: boolean = true,
+): Promise<UserSimple> => {
+  const params = new URLSearchParams();
+  if (showPicture !== undefined) params.append("showPicture", `${showPicture}`);
+
+  return await http.get(
+    http.apiBaseURLs.api,
+    `users/${id}?${params.toString()}`,
+    undefined,
+  );
+};
+
 const getUserByUserId = async (userId: string): Promise<UserSimple> => {
-  return await http.get(http.apiBaseURLs.api, `users/${userId}`, undefined);
+  return await http.get(
+    http.apiBaseURLs.api,
+    `users/userId/${userId}`,
+    undefined,
+  );
 };
 
 const getUsersByUsername = async (
@@ -143,7 +179,38 @@ const unfollowUser = async (id: number): Promise<void> => {
   );
 };
 
+// subscription
+
+const isMember = async (): Promise<void> => {
+  return await http.get(http.apiBaseURLs.api, "users/me/member", undefined);
+};
+
+const generatePdf = async (): Promise<void> => {
+  return await http.post(
+    http.apiBaseURLs.api,
+    "users/generate-pdf",
+    undefined,
+    undefined,
+  );
+};
+
+const updateRenewSubscription = async (
+  renewSubscription: boolean,
+): Promise<void> => {
+  const params = new URLSearchParams();
+
+  params.append("renewSubscription", renewSubscription.toString());
+
+  return await http.patch(
+    http.apiBaseURLs.api,
+    `users/renewSubscription?${params.toString()}`,
+    undefined,
+    undefined,
+  );
+};
+
 export const usersService = {
+  getUserById,
   getUserByUserId,
   getUsersByUsername,
   getUserBasicInfo,
@@ -157,4 +224,8 @@ export const usersService = {
   getFollowings,
   followUser,
   unfollowUser,
+  // subscription
+  isMember,
+  generatePdf,
+  updateRenewSubscription,
 };

@@ -22,6 +22,7 @@ import { RegionUtils } from "@utils/RegionUtils";
 // import ShareIcon from "@mui/icons-material/Share";
 import ArchiveIcon from "@mui/icons-material/Archive";
 import UnarchiveIcon from "@mui/icons-material/Unarchive";
+import LockIcon from "@mui/icons-material/Lock";
 import { StringUtils } from "@utils/StringUtils";
 import type { UtilityItem } from "@constants/Types";
 import BookmarkIcon from "@mui/icons-material/Bookmark";
@@ -29,6 +30,7 @@ import BookmarkAddIcon from "@mui/icons-material/BookmarkAdd";
 import BookmarkRemoveIcon from "@mui/icons-material/BookmarkRemove";
 import UserAvatar from "@components/UserAvatar";
 import { useNavToProfile } from "@hooks/useNavToProfile";
+import DeleteTripForm from "@components/Forms/DeleteTripForm";
 import clsx from "clsx";
 import "./index.scss";
 
@@ -52,6 +54,8 @@ const TripCard = ({
   // popover
   const [popoverAnchorEl, setPopoverAnchorEl] =
     useState<HTMLButtonElement | null>(null);
+  // open form status
+  const [openDeleteTrip, setOpenDeleteTrip] = useState<boolean>(false);
   // nav to profile
   const navToProfile = useNavToProfile(trip.createdBy);
   // others
@@ -162,6 +166,10 @@ const TripCard = ({
     setPopoverAnchorEl(null);
   };
 
+  const handleDeleteTrip = async () => {
+    if (asyncDeleteTrip) asyncDeleteTrip(trip);
+  };
+
   // buttons
 
   // TODO: button - share
@@ -220,9 +228,12 @@ const TripCard = ({
     </MenuItem>
   );
 
-  // TODO: button - delete
   const deleteButton = (
-    <MenuItem key="delete" className="error" onClick={() => {}}>
+    <MenuItem
+      key="delete"
+      className="error"
+      onClick={() => setOpenDeleteTrip(true)}
+    >
       <ListItemIcon>
         <DeleteIcon />
       </ListItemIcon>
@@ -269,7 +280,6 @@ const TripCard = ({
             setIndex={setImageIndex}
             readonly
             circularBorder
-            height={200}
           />
         ) : (
           <img src={TLogo} className="image" />
@@ -329,14 +339,21 @@ const TripCard = ({
         </Typography>
       </Box>
 
-      {/* visibility tag */}
-      {!readonly ? (
-        <Chip
-          icon={trip.isPublic ? <VisibilityIcon /> : <VisibilityOffIcon />}
-          label={trip.isPublic ? "public" : "private"}
-          size="small"
-        />
-      ) : undefined}
+      <Box className="row">
+        {/* visibility tag */}
+        {!readonly ? (
+          <Chip
+            icon={trip.isPublic ? <VisibilityIcon /> : <VisibilityOffIcon />}
+            label={trip.isPublic ? "public" : "private"}
+            size="small"
+          />
+        ) : undefined}
+
+        {/* readonly tag - caused by expired membership */}
+        {trip.isReadonly && !readonly ? (
+          <Chip icon={<LockIcon />} label="read-only" size="small" />
+        ) : undefined}
+      </Box>
 
       <Box className="chip-container">
         {/* region tag */}
@@ -356,6 +373,16 @@ const TripCard = ({
           />
         ) : undefined}
       </Box>
+
+      {/* forms */}
+      {openDeleteTrip ? (
+        <DeleteTripForm
+          open={openDeleteTrip}
+          onClose={() => setOpenDeleteTrip(false)}
+          trip={trip}
+          asyncDeleteTrip={handleDeleteTrip}
+        />
+      ) : undefined}
     </Box>
   );
 };

@@ -12,7 +12,7 @@ import {
   Select,
   Typography,
 } from "@mui/material";
-import FormBase from "../FormBase";
+import FormBase from "../FormBases/FormBase";
 import { useEffect, useState } from "react";
 import {
   writingsService,

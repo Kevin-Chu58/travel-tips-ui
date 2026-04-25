@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import FormBase from "../FormBase";
+import FormBase from "../FormBases/FormBase";
 import {
   regionsService,
   type Region,

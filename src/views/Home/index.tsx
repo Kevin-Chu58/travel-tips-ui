@@ -8,7 +8,7 @@ import {
 import { useNavigate, useSearchParams } from "react-router";
 import TripCard from "@components/Cards/TripCard";
 import TTIconButton from "@components/TTIconButton";
-import TravelExploreIcon from "@mui/icons-material/TravelExplore";
+import SearchIcon from "@mui/icons-material/Search";
 import TTButton from "@components/TTButton";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import type { SearchResults } from "@services/http";
@@ -24,16 +24,27 @@ import NavTopFab from "@components/Behavioral/NavTopFab";
 import UserAvatar from "@components/UserAvatar";
 import { bannersService, type Banner } from "@services/feed/banners";
 import BannerCard from "@components/Cards/BannerCard";
+import Slide from "@components/Profile/Slide";
+import { adsService, type Ad } from "@services/feed/ads";
+import AdCard from "@components/Cards/AdCard";
 import clsx from "clsx";
 import "./index.scss";
+
+type TripResult = Trip & {
+  type: "trip";
+};
+type AdResult = Ad & {
+  type: "ad";
+};
+type Result = TripResult | AdResult;
 
 const Home = () => {
   // window
   const isMobile = useIsMobile();
   // recommendations
   const [banners, setBanners] = useState<Banner[]>([]);
-  // trips - search result
-  const [trips, setTrips] = useState<Trip[]>([]);
+  // results - search result (results + ad feeds)
+  const [results, setResults] = useState<Result[]>([]);
   // search params
   const [tripParams, setTripParams] = useState<TripSearchParams>({}); // the only-true params
   const [tripFilterParams, setTripFilterParams] = useState<TripSearchParams>(
@@ -99,7 +110,7 @@ const Home = () => {
 
     const initTrips = async () => {
       if (!hasParamResult) {
-        setTrips([]);
+        setResults([]);
         return;
       }
 
@@ -160,20 +171,61 @@ const Home = () => {
     }));
   };
 
-  const asyncTrips = (
+  const asyncTrips = async (
     tripResults: SearchResults<Trip>,
     isNewSearch: boolean = false,
   ) => {
-    if (!tripParams.cursor || isNewSearch) setTrips([...tripResults.results]);
-    else setTrips((prev) => [...prev, ...tripResults.results]);
+    const newTrips = tripResults.results.map(
+      (t) => ({ type: "trip", ...t }) as Result,
+    );
+
+    // We calculate based on current length to maintain the 1-in-8 cadence
+    const startCount = isNewSearch ? 0 : results.length;
+    const endCount = startCount + newTrips.length;
+
+    // How many multiples of 8 are between our start and end?
+    const adsNeeded = Math.floor(endCount / 8) - Math.floor(startCount / 8);
+
+    // Fetch random ads in parallel
+    const adPromises = Array.from({ length: adsNeeded }, () =>
+      adsService.getAdFeed(tripParams),
+    );
+    const fetchedAds = await Promise.all(adPromises);
+
+    // Filter out 'void' (undefined) results immediately
+    const validAds = fetchedAds.filter((ad): ad is Ad => !!ad);
+
+    // Interleave them
+    const combined: Result[] = [];
+    let adPtr = 0;
+
+    newTrips.forEach((trip, index) => {
+      combined.push(trip);
+
+      const currentPosition = startCount + index + 1;
+      // Every 8th total item, inject one of our fetched ads
+      if (currentPosition % 8 === 0 && adPtr < validAds.length) {
+        combined.push({ ...validAds[adPtr], type: "ad" } as Result);
+        adPtr++;
+      }
+    });
+
+    // Update State
+    if (isNewSearch) {
+      setResults(combined);
+    } else {
+      setResults((prev) => [...prev, ...combined]);
+    }
   };
 
   const asyncUpdateTrip = (trip: Trip) => {
-    let _trips = [...trips];
-    let tripIndex = _trips.findIndex((t) => t.id === trip.id);
-    _trips[tripIndex] = trip;
+    let _results = [...results];
+    let tripIndex = _results.findIndex(
+      (res) => res.id === trip.id && res.type === "trip",
+    );
+    _results[tripIndex] = { type: "trip", ...trip } as Result;
 
-    setTrips([..._trips]);
+    setResults([..._results]);
   };
 
   const getTripsByParams = async (isNewSearch: boolean = false) => {
@@ -205,6 +257,8 @@ const Home = () => {
 
   // trigger when press enter when focus on search input
   const handleKeyDownSearch = async (event: React.KeyboardEvent) => {
+    if (!hasParamSearch) return;
+
     if (event.key === "Enter") {
       await handleSearch();
     }
@@ -272,13 +326,17 @@ const Home = () => {
   ];
 
   const Recommendation = () => {
+    const bannerEles = banners.map((banner) => (
+      <BannerCard key={banner.id} banner={banner} mobileView={isMobile} />
+    ));
+
     return (
       <Box className="banner-box no-scrollbar">
-        <Box className="banner-gallery">
-          {banners.map((banner) => (
-            <BannerCard key={banner.id} banner={banner} mobileView={isMobile} />
-          ))}
-        </Box>
+        {isMobile ? (
+          <Box className="banner-gallery">{bannerEles}</Box>
+        ) : (
+          <Slide elements={bannerEles} />
+        )}
       </Box>
     );
   };
@@ -302,6 +360,8 @@ const Home = () => {
             Matching Trips
           </Typography>
         </Box>
+
+        {/* chips */}
         <Box className="chip-box">
           {chips.map((chip) =>
             chip.condition ? (
@@ -333,17 +393,25 @@ const Home = () => {
             ) : undefined,
           )}
         </Box>
-        {trips.length > 0 ? (
+
+        {/* trip results with ad feed */}
+        {results.length > 0 ? (
           <Box className="trip-cards-box">
-            {trips.map((trip) => (
-              <TripCard
-                key={trip.id}
-                trip={trip}
-                onClick={() => navigate(`/trip/${trip.id}`)}
-                asyncUpdateTrip={asyncUpdateTrip}
-                readonly
-              />
-            ))}
+            {results.map((res, i) => {
+              if (res.type === "trip") {
+                return (
+                  <TripCard
+                    key={`${res.type}-${i}`}
+                    trip={res}
+                    onClick={() => navigate(`/trip/${res.id}`)}
+                    asyncUpdateTrip={asyncUpdateTrip}
+                    readonly
+                  />
+                );
+              } else {
+                return <AdCard key={`${res.type}-${i}`} ad={res} />;
+              }
+            })}
           </Box>
         ) : (
           <NoSearchResult />
@@ -360,8 +428,6 @@ const Home = () => {
       maxWidth={false}
       disableGutters
     >
-      {!hasParamResult ? <Recommendation /> : undefined}
-
       <Box className="search-box">
         <Box className="search-content-box">
           {/* input */}
@@ -379,8 +445,8 @@ const Home = () => {
 
           {/* search button */}
           <Box className="search-button-box">
-            <TTIconButton onClick={handleSearch} disabled={!hasParamSearch}>
-              <TravelExploreIcon />
+            <TTIconButton onClick={handleSearch}>
+              <SearchIcon />
             </TTIconButton>
           </Box>
         </Box>
@@ -398,7 +464,7 @@ const Home = () => {
 
       {/* content */}
       <Box className={clsx("content-box", isMobile && "mobile")}>
-        {hasParamResult ? <SearchResult /> : undefined}
+        {hasParamResult ? <SearchResult /> : <Recommendation />}
       </Box>
 
       {/* fabs */}

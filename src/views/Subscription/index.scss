@@ -1,0 +1,165 @@
+@use "../../stylings/layout" as *;
+@use "../../stylings/color" as *;
+@use "../../stylings/box_shadows" as *;
+
+.subscription-view {
+  color: black;
+  overflow-x: hidden;
+  overflow-y: auto;
+  height: $screen-height;
+  background-color: var(--secondary-main);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  .section {
+    position: relative;
+    width: 100dvw;
+    min-height: $screen-height;
+  }
+
+  .section,
+  .overlay {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: start;
+    color: white;
+  }
+
+  .main-section {
+    background-image: url("../../assets/gemini_travel_sea_shore.png");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+  }
+
+  .overlay {
+    position: absolute;
+    width: 100%;
+    height: $screen-height;
+    overflow-y: auto;
+    background-color: color-mix(in srgb, var(--utility-900), transparent 40%);
+    padding: 2rem 1rem;
+
+    .text.MuiTypography-root {
+      text-align: center;
+      font-size: 2.4rem;
+      color: white;
+      font-weight: bold;
+      font-family: noto serif;
+      text-transform: capitalize;
+      transform: scaleY(0.9);
+
+      &.mobile {
+        font-size: 2rem;
+      }
+    }
+
+    .primary-button {
+      width: 160px;
+      color: white;
+      background-color: transparent;
+      box-shadow: $box-shadow;
+      transition: .2s ease-in all;
+
+      &.proceed {
+        margin-top: 2rem;
+      }
+
+      &.Mui-disabled {
+        color: var(--utility-700);
+        background-color: var(--utility-400);
+      }
+
+      &.focus:not(.Mui-disabled),
+      &:hover:not(.Mui-disabled) {
+        width: 200px;
+        color: black;
+        background-color: white;
+        border-color: white;
+      }
+    }
+
+    .subscribe-link {
+      color: white;
+      text-decoration-color: white;
+      cursor: pointer;
+    }
+  }
+
+  .header-box {
+    margin-top: 0rem;
+    margin-bottom: 2rem;
+  }
+
+  .header.MuiTypography-root {
+    font-size: 3rem;
+    font-weight: bold;
+    font-family: noto serif;
+  }
+
+  .sub-header.MuiTypography-root {
+    font-size: 1.4rem;
+    font-family: noto serif;
+    margin-bottom: 1rem;
+  }
+
+  .step-card.MuiGrid-root {
+    margin: 1rem;
+    position: relative;
+  }
+
+  .disclaimer-box {
+    max-width: 600px;
+
+    .MuiCheckbox-root {
+      color: white;
+    }
+
+    .MuiTypography-root {
+      font-weight: bold;
+    }
+  }
+
+  .grid.MuiGrid-root {
+    margin: 1rem;
+  }
+
+  .plan-card {
+    padding: 1rem;
+    border: 2px white solid;
+    border-radius: 1rem;
+    cursor: pointer;
+    box-shadow: $heavy-box-shadow;
+    transition: 0.2s ease-in all;
+
+    .MuiTypography-root {
+      font-size: 1.1rem;
+      font-weight: bold;
+    }
+
+    .tag.MuiTypography-root {
+      font-family: lily script one;
+    }
+
+    .price-box {
+      margin-left: auto;
+    }
+
+    .old-price.MuiTypography-root {
+      color: var(--utility-300);
+      text-decoration: line-through;
+    }
+
+    &.focus,
+    &:hover {
+      color: black;
+      background-color: white;
+
+      .old-price.MuiTypography-root {
+        color: var(--utility-400);
+      }
+    }
+  }
+}

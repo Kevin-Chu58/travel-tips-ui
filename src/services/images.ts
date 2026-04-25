@@ -103,6 +103,30 @@ const deleteBannerImage = async (id: number): Promise<number> => {
   );
 };
 
+// business images
+
+const uploadBusinessImage = async (
+  businessId: number,
+  file: Blob | File,
+): Promise<Image> => {
+  return await http.postImage(
+    http.apiBaseURLs.api,
+    `images/business/${businessId}`,
+    file,
+    undefined,
+    undefined,
+  );
+};
+
+const deleteBusinessImage = async (id: number): Promise<void> => {
+  return await http.del(
+    http.apiBaseURLs.api,
+    `images/business/${id}`,
+    undefined,
+    undefined,
+  );
+};
+
 export const imagesService = {
   // images
   getMyImages,
@@ -115,4 +139,7 @@ export const imagesService = {
   uploadBannerImage,
   updateBannerImageName,
   deleteBannerImage,
+  // business images
+  uploadBusinessImage,
+  deleteBusinessImage,
 };

@@ -19,6 +19,7 @@ type TTButtonProps = {
   circular?: boolean;
   onClick?: React.MouseEventHandler<HTMLButtonElement>;
   stopPropagation?: boolean;
+  fakeButton?: boolean;
   sx?: SxProps;
   children?: ReactNode;
 };
@@ -40,6 +41,7 @@ const TTButton = ({
   circular = false,
   onClick = () => {},
   stopPropagation = true,
+  fakeButton = false,
   sx,
   children,
 }: TTButtonProps) => {
@@ -58,6 +60,7 @@ const TTButton = ({
       role="button"
       aria-label={ariaLabel}
       className={className}
+      component={fakeButton ? "div" : "button"}
       size={size}
       color={color}
       variant={variant}
@@ -68,7 +71,7 @@ const TTButton = ({
       disabled={disabled}
       disableTouchRipple={disableRipple}
       href={to}
-      onClick={(e) => {
+      onClick={(e: any) => {
         if (stopPropagation) e.stopPropagation();
         to ? navigate(to) : onClick(e);
       }}

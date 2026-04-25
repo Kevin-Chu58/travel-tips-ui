@@ -32,6 +32,7 @@ import NavButton from "@components/Button/NavButton";
 import LockIcon from "@mui/icons-material/Lock";
 import LockOpenIcon from "@mui/icons-material/LockOpen";
 import ReplyIcon from "@mui/icons-material/Reply";
+import LocalActivityIcon from "@mui/icons-material/LocalActivity";
 import { useNavigate } from "react-router";
 import "./index.scss";
 
@@ -275,20 +276,27 @@ const TaoComponent = ({
           {/* privacy status */}
           <Box className="privacy-setting">
             {!readonly ? (
-              <React.Fragment>
-                <Checkbox
-                  color="default"
-                  checked={isPrivate}
-                  icon={<LockOpenIcon />}
-                  checkedIcon={<LockIcon />}
-                  onClick={handlePrivacyStatusClick}
-                />
-                {tao?.isPrivate ? (
-                  <Typography>Only visible to you and shared users</Typography>
-                ) : (
-                  <Typography>Visible to Everyone</Typography>
-                )}
-              </React.Fragment>
+              <Box className="column">
+                <Box className="row">
+                  <Checkbox
+                    color="default"
+                    checked={isPrivate}
+                    icon={<LockOpenIcon />}
+                    checkedIcon={<LockIcon />}
+                    onClick={handlePrivacyStatusClick}
+                  />
+                  {tao?.isPrivate ? (
+                    <Typography>
+                      Only visible to you and shared users
+                    </Typography>
+                  ) : (
+                    <Typography>Visible to Everyone</Typography>
+                  )}
+                </Box>
+                <Box className="row primary">
+                  <LocalActivityIcon fontSize="small" /> Member Only
+                </Box>
+              </Box>
             ) : tao?.isPrivate ? (
               <React.Fragment>
                 <LockIcon />
@@ -395,7 +403,8 @@ const TaoComponent = ({
               <Box className="row full">
                 <Typography className="large-text">Directions</Typography>
                 {prevTao && tao ? (
-                  <NavButton className="jump-to-button"
+                  <NavButton
+                    className="jump-to-button"
                     link={MapUtils.getGoogleRouteLink(
                       prevTao.attraction.address,
                       tao.attraction.address,

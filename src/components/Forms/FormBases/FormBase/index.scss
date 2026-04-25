@@ -1,7 +1,6 @@
-@use "../../../stylings/box_shadows" as *;
+@use "../../../../stylings/box_shadows" as *;
 
 .form-base-container {
-  // width: fit-content;
   display: flex;
   flex-direction: column;
   position: relative;

@@ -1,4 +1,5 @@
 @use "../../../stylings/box_shadows" as *;
+@use "../../../stylings/layout" as *;
 
 .preload-carousel-box {
   width: 100%;
@@ -9,6 +10,12 @@
 
 .preload-carousel-image-overflow-container {
   overflow: hidden;
+  aspect-ratio: $default-aspect-ratio;
+
+
+  &.trip-profile {
+    aspect-ratio: $trip-profile-aspect-ratio;
+  }
 
   &.circular-border {
     border-radius: 1rem;

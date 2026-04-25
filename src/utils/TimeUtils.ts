@@ -17,7 +17,7 @@ export interface DateInfo {
 
 const getSurroundingDates = (
   center: Date = new Date(),
-  range: number = 4
+  range: number = 4,
 ): DateInfo[] => {
   const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const months = [
@@ -56,7 +56,7 @@ const getSurroundingDates = (
 
 export interface DayHours {
   start: string; // "09:00"
-  end: string;   // "17:00"
+  end: string; // "17:00"
 }
 
 // Map day names to indices
@@ -118,7 +118,7 @@ const isOpenNow = (weekHours: (DayHours | null)[]): boolean => {
  *   [ {start, end}, ..., null ]
  */
 const parseWeeklyHours = (
-  hoursInput: string[] | undefined
+  hoursInput: string[] | undefined,
 ): (DayHours | null)[] => {
   const weekHours: (DayHours | null)[] = Array(7).fill(null);
 
@@ -242,7 +242,7 @@ const formatTimeDiff = (diff: number) => {
 const updateTimeByHour = (
   hours: number,
   time: number,
-  setTime: (state: number) => void
+  setTime: (state: number) => void,
 ) => {
   let minutes = time % 60;
   setTime(hours * 60 + minutes);
@@ -251,7 +251,7 @@ const updateTimeByHour = (
 const updateTimeByMinute = (
   minute: number,
   time: number,
-  setTime: (state: number) => void
+  setTime: (state: number) => void,
 ) => {
   let hours = Math.floor(time / 60);
   setTime(hours * 60 + minute);
@@ -300,6 +300,25 @@ const formatTimehmmAToHHmmss = (time: string) => {
   return dayjsFormat(time, hmma, HHmmss);
 };
 
+// Date
+
+const getDate = (date: Date) => {
+  return date.toLocaleString().split("T")[0];
+};
+
+const toFullDateTimeNumericDisplay = (date: Date) => {
+  const fullDisplay = new Date(date).toLocaleString("en-US", {
+    year: "numeric",
+    month: "numeric",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+
+  return fullDisplay;
+};
+
 const TimeUtils = {
   // get surrounding dates
   getSurroundingDates,
@@ -326,6 +345,9 @@ const TimeUtils = {
   formatTimeHHmmTohmmA,
   formatTimeHHmmTohA,
   formatTimehmmAToHHmmss,
+  // Date
+  getDate,
+  toFullDateTimeNumericDisplay,
 };
 
 export default TimeUtils;

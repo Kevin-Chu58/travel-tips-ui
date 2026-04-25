@@ -6,6 +6,18 @@ import type { SvgIconProps, SxProps } from "@mui/material";
 import type { ClassValue } from "clsx";
 
 // UI
+
+export type CustomStylingTextProps = {
+  text: string;
+  variant?: any; // Matches MUI Typography variants
+};
+
+export type HeaderTab = {
+  name: string;
+  to: string;
+  requireAuth?: boolean;
+};
+
 export type WorkshopRoute = {
   name: string;
   path: string;

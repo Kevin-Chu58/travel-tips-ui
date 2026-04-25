@@ -1,0 +1,47 @@
+@use "../../../../stylings/layout" as *;
+
+.demo-form-base {
+  // Target the MUI Paper component directly
+  .MuiPaper-root {
+    display: flex;
+    flex-direction: column;
+    max-height: 90vh; // Give the dialog a max height so it can scroll
+  }
+
+  .demo-form-base-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%; // Fill the Paper
+    overflow: hidden; // Prevent the main container from scrolling
+  }
+
+  .demo-form-base-demo-box {
+    position: relative;
+    flex-shrink: 0; // Don't let the header squash
+    padding: 1rem;
+    background-color: var(--info-50);
+  }
+
+  .demo-form-base-content-box { // Fix class name to match SCSS
+    flex-grow: 1; // Take up all remaining space
+    min-height: 0; // CRITICAL: Allows flex child to overflow correctly
+    overflow-y: auto; // Only this part scrolls
+    padding: 1rem 2rem;
+    padding-right: 3rem;
+  }
+
+  .demo-form-base-footer {
+    height: 2rem;
+  }
+
+  .action-button-box {
+    position: absolute;
+    bottom: .5rem;
+    right: 1rem;
+  }
+
+  .demo-content-box {
+    width: 240px;
+    height: auto;
+  }
+}

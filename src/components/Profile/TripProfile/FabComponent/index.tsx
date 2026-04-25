@@ -16,6 +16,7 @@ import React, { useEffect, useState } from "react";
 import type { UtilityItem } from "@constants/Types";
 import clsx from "clsx";
 import "./index.scss";
+import { usersService } from "@services/users";
 
 type FabComponentProps = {
   tripBasicRef: React.RefObject<Trip | undefined>;
@@ -112,6 +113,15 @@ const FabComponent = ({
     }
   };
 
+  const handleTripPdfClick = async () => {
+    try {
+      await usersService.isMember();
+      setOpenTripPdfForm(true);
+    } catch (e) {
+      if (e instanceof Error) enqueueSnackbar(e.message, { variant: "error" });
+    }
+  };
+
   // fabs
 
   const fabs = [
@@ -159,7 +169,7 @@ const FabComponent = ({
       content: <DownloadIcon />,
       description: "utility",
       stylingCondition: [!Boolean(tao) && "visible"],
-      onClick: () => setOpenTripPdfForm(true),
+      onClick: handleTripPdfClick,
     },
     // add action - tao
     {

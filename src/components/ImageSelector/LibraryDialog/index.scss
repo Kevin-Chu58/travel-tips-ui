@@ -1,4 +1,5 @@
 @use "../../../stylings/box_shadows" as *;
+@use "../../../stylings/layout" as *;
 
 .library-dialog-box {
   width: 60vw;
@@ -28,7 +29,7 @@
 
 .library-dialog-image-library {
   display: grid;
-  grid-template-columns: repeat(auto-fill, 15rem);
+  grid-template-columns: $default-grid-template-columns;
   justify-content: center;
   padding: 1rem;
   padding-bottom: 4rem;
@@ -38,14 +39,14 @@
 }
 
 .library-dialog-image-container {
-  width: 240px;
+  aspect-ratio: $default-aspect-ratio;
   border-radius: 1rem;
   padding: 0.5rem;
   background-color: transparent;
   cursor: pointer;
 
   &:hover {
-    background-color: var(--utility-300);
+    background-color: var(--utility-100);
   }
 
   &.focus {
@@ -55,9 +56,9 @@
 
 .library-dialog-image-box {
   border-radius: 1rem;
+  aspect-ratio: $default-aspect-ratio;
   box-shadow: $mild_box_shadow;
   overflow: hidden;
-  height: 200px;
 }
 
 .library-dialog-image {

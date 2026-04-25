@@ -1,0 +1,47 @@
+@use "../../../stylings/box_shadows" as *;
+@use "../../../stylings/layout" as *;
+
+.ad-card-box {
+  aspect-ratio: $default-aspect-ratio;
+  box-shadow: $mild-box-shadow;
+  border-radius: 1rem;
+  background-color: white;
+  color: var(--utility-800);
+  cursor: pointer;
+
+  a {
+    color: var(--utility-800);
+    text-decoration: none;
+  }
+
+  .image-box {
+    display: flex;
+    // height: 100%;
+    transition: none;
+    border-radius: 1rem 1rem 0 0;
+    aspect-ratio: $default-aspect-ratio;
+    overflow: hidden;
+  }
+
+  .ad-image {
+    display: flex;
+    height: 100%;
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+
+  .footer {
+    height: 100%;
+    padding: 0.2rem 0.5rem;
+    overflow: hidden;
+  }
+
+  .ad-card-button-box {
+    margin-left: auto;
+  }
+
+  .link-button.MuiButton-root {
+    padding: .2rem .5rem;
+    min-width: 3rem;
+  }
+}

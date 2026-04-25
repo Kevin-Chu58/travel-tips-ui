@@ -1,6 +1,6 @@
 import type { UserSimple } from "@services/users";
 import GroupIcon from "@mui/icons-material/Group";
-import FormBase from "../FormBase";
+import FormBase from "../FormBases/FormBase";
 import { Box, Typography } from "@mui/material";
 import React, { useState } from "react";
 import UserCard from "@components/Cards/UserCard";
@@ -12,6 +12,7 @@ import GroupAddIcon from "@mui/icons-material/GroupAdd";
 import GroupRemoveIcon from "@mui/icons-material/GroupRemove";
 import GroupOffIcon from "@mui/icons-material/GroupOff";
 import UserSearchAutoComplete from "@components/Search/UserSearchAutoComplete";
+import LocalActivityIcon from "@mui/icons-material/LocalActivity";
 import clsx from "clsx";
 import "./index.scss";
 
@@ -112,6 +113,11 @@ const TripShareForm = ({
         <React.Fragment>
           <GroupIcon /> Shared Users
         </React.Fragment>
+      }
+      subTitle={
+        <Box className="row primary">
+          <LocalActivityIcon fontSize="small" /> Member Only
+        </Box>
       }
       closeButtonLabel="Close"
       closeButtonTheme="utility"

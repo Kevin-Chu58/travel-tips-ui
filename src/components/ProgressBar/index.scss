@@ -1,0 +1,49 @@
+@use "../../stylings/box_shadows"as *;
+
+.progress-bar {
+  border-radius: 0.2rem;
+  overflow: hidden;
+  color: white;
+  background-color: var(--utility-900);
+  box-shadow: $mild-box-shadow;
+
+  .count-box {
+    margin: .5rem;
+    margin-bottom: 0;
+    height: 8px;
+    gap: 0;
+
+    .current-value,
+    .max-value {
+      height: 100%;
+    }
+
+    .current-value {
+      background-color: var(--success-main);
+      z-index: 5;
+
+      &.max {
+        background-color: var(--primary-main);
+      }
+    }
+
+    .max-value {
+      background-color: var(--utility-500);
+    }
+  }
+
+  .count-notice {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.2rem 1rem;
+
+    .MuiTypography-root {
+      font-family: lily script one;
+      letter-spacing: 10%;
+    }
+
+    a {
+      color: var(--primary-main);
+    }
+  }
+}

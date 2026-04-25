@@ -11,6 +11,11 @@ import Profile from "@views/Profile";
 import Settings from "@views/Settings";
 import EmailUnverified from "@views/EmailUnverified";
 import Banner from "@views/Banner";
+import Membership from "@views/Membership";
+import Subscription from "@views/Subscription";
+import Partnership from "@views/Partnership";
+import BusinessDashboard from "@views/BusinessDashboard";
+import Review from "@views/Review";
 
 const routes = [
   {
@@ -44,6 +49,11 @@ const routes = [
     element: <Doc />,
   },
   {
+    name: "Membership",
+    path: "/membership",
+    element: <Membership />,
+  },
+  {
     name: "Gospel",
     path: "/gospel/*",
     element: <Gospel />,
@@ -54,9 +64,29 @@ const routes = [
     element: <Profile />,
   },
   {
+    name: "Subscription",
+    path: "/subscription/*",
+    element: <Subscription />,
+  },
+  {
     name: "Banner",
     path: "/banners",
     element: <Banner />,
+  },
+  {
+    name: "Partnership",
+    path: "/partnership",
+    element: <Partnership />,
+  },
+  {
+    name: "BusinessDashboard",
+    path: "/business/*",
+    element: <BusinessDashboard />,
+  },
+  {
+    name: "Review",
+    path: "/review",
+    element: <Review />,
   },
   {
     name: "Settings",

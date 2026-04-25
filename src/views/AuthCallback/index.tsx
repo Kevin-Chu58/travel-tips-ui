@@ -2,7 +2,7 @@ import { useAuth0 } from "@auth0/auth0-react";
 import { Box, CircularProgress, Typography } from "@mui/material";
 import ErrorIcon from "@mui/icons-material/Error";
 import { useNavigate } from "react-router";
-import { getReturnToUrl, markLoggedIn } from "@services/tokens";
+import { getReturnToUrl } from "@services/tokens";
 import { useEffect } from "react";
 import "./index.scss";
 
@@ -14,7 +14,6 @@ const AuthCallback = () => {
 
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
-      markLoggedIn();
       const returnTo = getReturnToUrl() || "/";
       navigate(returnTo, { replace: true });
     }

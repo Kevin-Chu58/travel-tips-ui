@@ -1,27 +1,31 @@
-// ChatGPT wrote this
-
 import { LS_USER_BASIC } from "@constants/localStorage";
+
+// ============================================================================
+// State
+// ============================================================================
 
 let cachedToken: string | undefined;
 let tokenExpiry: number | undefined;
+let refreshPromise: Promise<string | undefined> | null = null;
 
 let getTokenSilentlyFn: (() => Promise<string>) | null = null;
+let isAuthenticatedFn: (() => Promise<boolean>) | null = null;
 let goToLoginPortalFn: (() => Promise<void>) | null = null;
 let loginFn: (() => Promise<void>) | null = null;
 let logoutFn: (() => Promise<void>) | null = null;
 
-/** Tracks whether the user is currently logged in */
-let isLoggedIn = false;
-
-/** Tracks the user's url before logging in */
 let returnToUrl: string | undefined = undefined;
 
 // ============================================================================
-// Public API
+// Init
 // ============================================================================
 
 export const setGetTokenSilentlyFn = (fn: () => Promise<string>) => {
   getTokenSilentlyFn = fn;
+};
+
+export const setIsAuthenticatedFn = (fn: () => Promise<boolean>) => {
+  isAuthenticatedFn = fn;
 };
 
 export const setGoToLoginPortalFn = (fn: () => Promise<void>) => {
@@ -36,54 +40,14 @@ export const setLogoutFn = (fn: () => Promise<void>) => {
   logoutFn = fn;
 };
 
-/** Mark the user as logged in (call after successful login) */
-export const markLoggedIn = () => {
-  isLoggedIn = true;
-};
-
-/** Mark the user as logged out (call in your logout button handler) */
-export const markLoggedOut = () => {
-  isLoggedIn = false;
-  cachedToken = undefined;
-  tokenExpiry = undefined;
-
-  localStorage.removeItem(LS_USER_BASIC);
-};
-
-export const goToLoginPortal = async () => {
-  if (goToLoginPortalFn) await goToLoginPortalFn();
-};
-
-export const login = async () => {
-  if (loginFn) await loginFn();
-};
-
-export const logout = async () => {
-  if (logoutFn) await logoutFn();
-};
-
-export const reauth = async () => {
-  if (logoutFn) await logoutFn();
-  if (loginFn) await loginFn();
-};
-
-export const setReturnToUrl = (returnTo: string) => {
-  returnToUrl = returnTo;
-};
-
-export const getReturnToUrl = () => {
-  return returnToUrl;
-};
-
 // ============================================================================
-// Token Logic
+// Token
 // ============================================================================
 
-export const ensureToken = async () => {
+export const ensureToken = async (): Promise<string | undefined> => {
   const now = Date.now();
-  const buffer = 60 * 1000; // 1 minute before expiry
+  const buffer = 60 * 1000;
 
-  // Need fresh token?
   if (!cachedToken || !tokenExpiry || now + buffer > tokenExpiry) {
     return await getNewToken();
   }
@@ -92,23 +56,28 @@ export const ensureToken = async () => {
 };
 
 export const getNewToken = async (): Promise<string | undefined> => {
+  if (refreshPromise) return refreshPromise;
+
+  refreshPromise = _getNewToken().finally(() => {
+    refreshPromise = null;
+  });
+
+  return refreshPromise;
+};
+
+const _getNewToken = async (): Promise<string | undefined> => {
   if (!getTokenSilentlyFn) return undefined;
+
   try {
     const token = await getTokenSilentlyFn();
     cachedToken = token;
 
     // Decode JWT expiry
     const base64 = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
-    const decoded = JSON.parse(
-      decodeURIComponent(
-        atob(base64)
-          .split("")
-          .map((c) => "%" + c.charCodeAt(0).toString(16).padStart(2, "0"))
-          .join(""),
-      ),
-    );
-
+    const decoded = JSON.parse(atob(base64));
     tokenExpiry = decoded.exp * 1000;
+
+    return cachedToken;
   } catch (error: any) {
     const msg = error?.error_description?.toLowerCase() ?? "";
 
@@ -119,20 +88,59 @@ export const getNewToken = async (): Promise<string | undefined> => {
       msg.includes("session");
 
     if (isAuthError) {
-      // If user is NOT logged in, do nothing — silent failure
-      if (!isLoggedIn) {
-        return undefined;
-      }
+      // If we have user data cached, they were previously logged in
+      // → session expired → force logout to clean up
+      const wasLoggedIn = !!localStorage.getItem(LS_USER_BASIC);
 
-      // If user IS logged in → session expired → auto logout
-      if (logoutFn) logoutFn();
+      if (!wasLoggedIn) return undefined; // genuine guest, silent failure
 
-      // After logging out, state is already cleared in markLoggedOut() externally
+      // Authenticated but session expired — force logout
+      await logout();
       return undefined;
     }
 
-    // Unknown error → rethrow
     throw error;
   }
-  return cachedToken;
+};
+
+// ============================================================================
+// Auth actions
+// ============================================================================
+
+export const goToLoginPortal = async () => {
+  if (goToLoginPortalFn) await goToLoginPortalFn();
+};
+
+export const login = async () => {
+  if (loginFn) await loginFn();
+};
+
+export const logout = async () => {
+  _clearSession();
+  if (logoutFn) await logoutFn();
+  console.log("a", logoutFn);
+};
+
+export const reauth = async () => {
+  _clearSession();
+  if (logoutFn) await logoutFn();
+  if (loginFn) await loginFn();
+};
+
+// ============================================================================
+// Session
+// ============================================================================
+
+const _clearSession = () => {
+  cachedToken = undefined;
+  tokenExpiry = undefined;
+  localStorage.removeItem(LS_USER_BASIC);
+};
+
+export const setReturnToUrl = (url: string) => {
+  returnToUrl = url;
+};
+
+export const getReturnToUrl = () => {
+  return returnToUrl;
 };

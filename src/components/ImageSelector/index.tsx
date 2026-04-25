@@ -9,29 +9,35 @@ import {
 } from "@mui/material";
 import InventoryIcon from "@mui/icons-material/Inventory";
 import FileUploadIcon from "@mui/icons-material/FileUpload";
-import { enqueueSnackbar } from "notistack";
 import LibraryDialog from "./LibraryDialog";
 import CropperDialog from "./CropperDialog";
 import type { Image } from "@services/images";
+import { ImageType } from "@constants/Enums";
 import "./index.scss";
 
 type ImageSelectorProps = {
   imageIds?: number[];
   disabled?: boolean;
+  onCrop?: (blob: Blob, dataUrl: string) => void;
   asyncAddImage?: (state: number) => void; // do something with the image id
   setImage?: (state: Image) => void; // do something with the image view model
   readonly?: boolean;
-  banner?: boolean;
+  imageType?: ImageType;
+  identifier?: number;
+  notify?: boolean;
   children: ReactNode;
 };
 
 const ImageSelector = ({
   imageIds = [],
   disabled = false,
+  onCrop,
   asyncAddImage,
   setImage,
   readonly = false,
-  banner = false,
+  imageType,
+  identifier,
+  notify = true,
   children,
 }: ImageSelectorProps) => {
   // popover
@@ -44,6 +50,11 @@ const ImageSelector = ({
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   // ref
   const fileInputRef = useRef<HTMLInputElement>(null);
+  // others
+  const isBanner = imageType === ImageType.Banner;
+  const isBusiness = imageType === ImageType.Business;
+  const isAd = imageType === ImageType.Ad;
+  const showLibraryDialog = !(isBusiness || isAd);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -69,11 +80,7 @@ const ImageSelector = ({
   const handleClickPopover = (event: React.MouseEvent<HTMLButtonElement>) => {
     if (readonly) return;
 
-    if (disabled)
-      enqueueSnackbar("You can only attach up to 4 images to a trip.", {
-        variant: "error",
-      });
-    else setPopoverAnchorEl(event.currentTarget);
+    if (!disabled) setPopoverAnchorEl(event.currentTarget);
   };
 
   const handleClosePopover = () => {
@@ -112,12 +119,14 @@ const ImageSelector = ({
         onClose={handleClosePopover}
       >
         {/* button - library  */}
-        <MenuItem onClick={handleClickLibraryDialog}>
-          <ListItemIcon>
-            <InventoryIcon />
-          </ListItemIcon>
-          <ListItemText primary="Select From Library" />
-        </MenuItem>
+        {showLibraryDialog ? (
+          <MenuItem onClick={handleClickLibraryDialog}>
+            <ListItemIcon>
+              <InventoryIcon />
+            </ListItemIcon>
+            <ListItemText primary="Select From Library" />
+          </MenuItem>
+        ) : undefined}
 
         {/* button - upload  */}
         <MenuItem onClick={openFileDialog}>
@@ -136,23 +145,28 @@ const ImageSelector = ({
       </Menu>
 
       {/* dialog - library */}
-      <LibraryDialog
-        open={openLibraryDialog}
-        onClose={handleCloseLibraryDialog}
-        imageIds={imageIds}
-        asyncAddImage={asyncAddImage}
-        setImage={setImage}
-        banner={banner}
-      />
+      {showLibraryDialog ? (
+        <LibraryDialog
+          open={openLibraryDialog}
+          onClose={handleCloseLibraryDialog}
+          imageIds={imageIds}
+          asyncAddImage={asyncAddImage}
+          setImage={setImage}
+          banner={isBanner}
+        />
+      ) : undefined}
 
       {/* dialog - cropper */}
       <CropperDialog
         open={openCropperDialog}
         onClose={handleCloseCropperDialog}
         imageSrc={imageSrc}
+        onCrop={onCrop}
         asyncAddImage={asyncAddImage}
         setImage={setImage}
-        banner={banner}
+        imageType={imageType}
+        identifier={identifier}
+        notify={notify}
       />
     </React.Fragment>
   );

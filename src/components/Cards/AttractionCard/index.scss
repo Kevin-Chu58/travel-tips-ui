@@ -1,14 +1,13 @@
 @use "../../../stylings/box_shadows" as *;
+@use "../../../stylings/layout" as *;
 @use "../../../stylings/color" as *;
 
 .attraction-card-box {
-  width: 240px;
   cursor: pointer;
 }
 
 .attraction-card-map-box {
-  width: 240px;
-  height: 200px;
+  aspect-ratio: $default-aspect-ratio;
   position: relative;
   border: 1px solid $divider;
   border-radius: 1rem;
@@ -17,14 +16,14 @@
 }
 
 .attraction-card-hover-box {
-  width: 240px;
-  height: 200px;
+  aspect-ratio: $default-aspect-ratio;
   display: flex;
   flex-direction: column;
   position: absolute;
   justify-content: center;
   align-items: center;
-  top: 240px;
+  top: 100%;
+  width: 100%;
   transition: .2s ease-in top;
   background-color: rgba(0, 0, 0, .6);
   color: lightgrey;

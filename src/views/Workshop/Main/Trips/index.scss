@@ -1,7 +1,17 @@
-.workshop-main-content-trips-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, 15rem);
-  justify-content: center;
-  margin-top: 1rem;
-  gap: 1rem;
+@use "../../../../stylings/box_shadows" as *;
+@use "../../../../stylings/layout" as *;
+
+.workshop-trips-box {
+  .progress-bar-box {
+    margin-top: 1rem;
+  }
+
+  .trips-container {
+    display: grid;
+    width: 100%;
+    grid-template-columns: $default-grid-template-columns;
+    // justify-content: center;
+    margin-top: 1rem;
+    gap: 1rem;
+  }
 }

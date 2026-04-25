@@ -28,6 +28,7 @@ import DeleteBannerForm from "@components/Forms/DeleteBannerForm";
 import { useCursorScroll } from "@hooks/useCursorScroll";
 import NavTopFab from "@components/Behavioral/NavTopFab";
 import LibraryDialog from "@components/ImageSelector/LibraryDialog";
+import { useNavigate } from "react-router";
 import clsx from "clsx";
 import "./index.scss";
 
@@ -50,6 +51,8 @@ const BannerView = () => {
     number | undefined
   >();
   const [imageDialogOpen, setImageDialogOpen] = useState<boolean>(false);
+  // others
+  const navigate = useNavigate();
 
   // use effects
 
@@ -60,9 +63,15 @@ const BannerView = () => {
   const initiateBanners = async (isInit: boolean = false) => {
     if (!isInit && !cursor) return;
 
-    let banners = await bannersService.getBanners(cursor);
-    setBanners(banners.results);
-    setCursor(banners.cursor);
+    try {
+      let banners = await bannersService.getBanners(cursor);
+      setBanners(banners.results);
+      setCursor(banners.cursor);
+    } catch (e) {
+      if (e instanceof Error) {
+        navigate("/");
+      }
+    }
   };
 
   // async functions
@@ -150,7 +159,10 @@ const BannerView = () => {
                   </TableHead>
                   <TableBody>
                     {banners.map((banner) => (
-                      <TableRow key={banner.id} onClick={() => handleBannerClick(banner.id)}>
+                      <TableRow
+                        key={banner.id}
+                        onClick={() => handleBannerClick(banner.id)}
+                      >
                         <TableCell>{banner.title}</TableCell>
                         <TableCell align="right">{banner.from}</TableCell>
                         <TableCell align="right">

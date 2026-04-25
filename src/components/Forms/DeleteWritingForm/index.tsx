@@ -1,5 +1,5 @@
 import { Typography } from "@mui/material";
-import FormBase from "../FormBase";
+import FormBase from "../FormBases/FormBase";
 import WarningIcon from "@mui/icons-material/Warning";
 import DeleteIcon from "@mui/icons-material/Delete";
 

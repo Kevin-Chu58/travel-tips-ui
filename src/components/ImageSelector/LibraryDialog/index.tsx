@@ -8,9 +8,9 @@ import { BehaviorUtils } from "@utils/BehaviorUtils";
 import { enqueueSnackbar } from "notistack";
 import { useIsMobile } from "@hooks/useIsMobile";
 import ImageLibrary from "@components/ImageLibrary";
+import ImageForm from "@components/Forms/ImageForm";
 import clsx from "clsx";
 import "./index.scss";
-import ImageForm from "@components/Forms/ImageForm";
 
 type LibraryDialogProps = {
   open: boolean;

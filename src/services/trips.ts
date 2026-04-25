@@ -28,6 +28,7 @@ export type Trip = TripPost & {
   budget?: number;
   images?: Image[];
   sharedUsers: UserSimple[];
+  isReadonly: boolean;
 };
 
 export type TripSearchParams = {
@@ -125,6 +126,17 @@ const patchTripIsHidden = async (
     http.apiBaseURLs.api,
     `trips/isHidden/${isHidden}`,
     body,
+    undefined,
+  );
+};
+
+const deleteTrip = async (
+  id: number,
+): Promise<number> => {
+  return await http.del(
+    http.apiBaseURLs.api,
+    `trips/${id}`,
+    undefined,
     undefined,
   );
 };
@@ -257,6 +269,7 @@ export const tripsService = {
   patchTrip,
   patchTripIsPublic,
   patchTripIsHidden,
+  deleteTrip,
   // trip shares
   getSharedUsersByTripId,
   shareTripWithUser,

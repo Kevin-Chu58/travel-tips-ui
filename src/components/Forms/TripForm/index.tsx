@@ -11,6 +11,9 @@ import { tripsService, type Trip } from "@services/trips";
 import { useState } from "react";
 import { BehaviorUtils } from "@utils/BehaviorUtils";
 import { useSnackbar } from "notistack";
+import { useDispatch, useSelector } from "react-redux";
+import type { RootState } from "@redux/store";
+import { setUser } from "@redux/userSlice";
 import "./index.scss";
 
 type TripFormProps = {
@@ -25,6 +28,13 @@ const TripForm = ({ isOpen, setIsOpen, asyncAddTrip }: TripFormProps) => {
   // new trip attributes
   const [name, setName] = useState<string>("");
   const [isCreating, setIsCreating] = useState<boolean>(false);
+  // user
+  const userSubExtend = useSelector(
+    (state: RootState) => state.user.userSubExtend,
+  );
+  // redux
+  const dispatch = useDispatch();
+  // others
   const actionIcon = isCreating ? (
     <CircularProgress size="1rem" sx={{ color: "white" }} />
   ) : (
@@ -53,6 +63,16 @@ const TripForm = ({ isOpen, setIsOpen, asyncAddTrip }: TripFormProps) => {
       await BehaviorUtils.sleep();
       handleCloseMenu();
       asyncAddTrip(newTrip);
+
+      if (userSubExtend)
+        dispatch(
+          setUser({
+            userSubExtend: {
+              ...userSubExtend,
+              tripCount: userSubExtend.tripCount + 1,
+            },
+          }),
+        );
 
       enqueueSnackbar("Successfully created new trip.", {
         variant: "success",

@@ -1,7 +1,7 @@
 import { Box, Chip, Table, Typography } from "@mui/material";
 import React, { useState } from "react";
 import { RegionUtils } from "@utils/RegionUtils";
-import FormBase from "../FormBase";
+import FormBase from "../FormBases/FormBase";
 import RegionForm from "../RegionForm";
 import type { Trip } from "@services/trips";
 import { useIsMobile } from "@hooks/useIsMobile";

@@ -1,4 +1,5 @@
 @use "../../../stylings/box_shadows" as *;
+@use "../../../stylings/layout" as *;
 @use "../../../stylings/color" as *;
 
 .user-profile {
@@ -154,10 +155,9 @@
   }
 
   .top-trip-box {
-    display: flex;
-    justify-content: center;
-    align-items: start;
-    flex-wrap: wrap;
+    display: grid;
+    width: 100%;
+    grid-template-columns: $default-grid-template-columns;
     gap: 1rem;
   }
 }

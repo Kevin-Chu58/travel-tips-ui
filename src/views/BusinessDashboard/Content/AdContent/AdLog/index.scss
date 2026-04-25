@@ -1,0 +1,8 @@
+.ad-log-box {
+  padding: .5rem;
+  cursor: pointer;
+
+  &:hover {
+    background-color: var(--utility-50);
+  }
+}

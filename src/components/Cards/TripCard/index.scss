@@ -1,15 +1,14 @@
 @use "../../../stylings/box_shadows" as *;
+@use "../../../stylings/layout" as *;
 @use "../../../stylings/color" as *;
 
 .trip-card-box {
-  width: 240px;
   gap: 0.5rem;
   border-radius: 1rem;
   cursor: pointer;
 
   .image-box {
-    width: 240px;
-    height: 200px;
+    aspect-ratio: $default-aspect-ratio;
     border-radius: 1rem;
     background-color: var(--primary-main);
     box-shadow: $box-shadow;

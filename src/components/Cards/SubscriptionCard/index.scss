@@ -1,0 +1,38 @@
+@use "../../../stylings/box_shadows" as *;
+
+.subscription-card {
+  margin: 1rem;
+  padding: 1rem;
+  color: black;
+  background-color: white;
+  border: 2px white solid;
+  border-radius: 0.5rem;
+  box-shadow: $mild-box-shadow;
+
+  .title.MuiTypography-root,
+  .status.MuiTypography-root {
+    font-family: lily script one;
+    font-size: 1.4rem;
+  }
+
+  .title.MuiTypography-root {
+    margin-right: auto;
+  }
+
+  .active.MuiTypography-root {
+    color: var(--success-main);
+  }
+
+  .trialing.MuiTypography-root {
+    color: var(--primary-main);
+  }
+
+  .expired.MuiTypography-root,
+  .canceled.MuiTypography-root {
+    color: var(--utility-600);
+  }
+
+  .past_due.MuiTypography-root {
+    color: var(--error-main);
+  }
+}
