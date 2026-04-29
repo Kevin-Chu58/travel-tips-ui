@@ -1,9 +1,9 @@
 {
   "navigationFallback": {
     "rewrite": "/index.html",
-    "exclude": ["/assets/*", "/*.scss", "/*.js", "/*.png", "/*.jpg", "/*.svg", "/*.ico"],
+    "exclude": ["/assets/*", "/*.scss", "/*.js", "/*.png", "/*.jpg", "/*.svg", "/*.ico"]
   },
   "globalHeaders": {
-    "Referrer-Policy": "strict-origin-when-cross-origin",
-  },
+    "Referrer-Policy": "strict-origin-when-cross-origin"
+  }
 }
