@@ -14,7 +14,7 @@ import {
 import { taosService, TransportModes, type Tao } from "@services/taos";
 import MapUtils from "@utils/MapUtils";
 import TimeUtils from "@utils/TimeUtils";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { SiGooglemaps } from "react-icons/si";
 import HighlightItem from "@components/Item/HighlightItem";
 import { highlightsService, type Highlight } from "@services/highlights";
@@ -59,34 +59,58 @@ const TaoComponent = ({
   onClose,
   readonly = false,
 }: TaoComponentProps) => {
-  // tao
   const [_tao, _setTao] = useState<Tao | undefined>();
   const attraction = _tao?.attraction;
-  // privacy status
   const [isPrivate, setIsPrivate] = useState<boolean>(false);
-  // highlight
   const [highlight, setHighlight] = useState<Highlight | undefined>();
   const [description, setDescription] = useState<string>("");
   const [isCreating, setIsCreating] = useState<boolean>(false);
-  // transport mode
   const [transportMode, setTransportMode] = useState<string>(
     tao?.transportMode ?? TransportModes[0],
   );
-  // open form states
   const [openDiscoverHighlights, setOpenDiscoverHighlights] =
     useState<boolean>(false);
-  // others
   const navigate = useNavigate();
 
-  const taoIndex = taos?.findIndex((t) => t.id === tao?.id);
-  const prevTao = taos && taoIndex! > 0 ? taos[taoIndex! - 1] : undefined;
-  const routeResponse = taoIndex ? routeResponses?.at(taoIndex - 1) : undefined;
-  const formatedSections =
-    routeResponse && routeResponse.routes?.at(0)
-      ? MapUtils.mergeRoutingSections(routeResponse.routes[0])
-      : undefined;
+  const taoIndex = useMemo(
+    () => taos?.findIndex((t) => t.id === tao?.id),
+    [taos, tao?.id],
+  );
 
-  // rerender _tao on tao when is defined
+  const prevTao = useMemo(
+    () => (taos && taoIndex! > 0 ? taos[taoIndex! - 1] : undefined),
+    [taos, taoIndex],
+  );
+
+  const routeResponse = useMemo(
+    () => (taoIndex ? routeResponses?.at(taoIndex - 1) : undefined),
+    [routeResponses, taoIndex],
+  );
+
+  const formatedSections = useMemo(
+    () =>
+      routeResponse && routeResponse.routes?.at(0)
+        ? MapUtils.mergeRoutingSections(routeResponse.routes[0])
+        : undefined,
+    [routeResponse],
+  );
+
+  const googleRouteLink = useMemo(
+    () =>
+      prevTao && tao
+        ? MapUtils.getGoogleRouteLink(
+            prevTao.attraction.address,
+            tao.attraction.address,
+          )
+        : undefined,
+    [prevTao, tao],
+  );
+
+  const googleMapLink = useMemo(
+    () => MapUtils.getGoogleMapLink(attraction?.address ?? ""),
+    [attraction?.address],
+  );
+
   useEffect(() => {
     if (tao) {
       _setTao(tao);
@@ -97,141 +121,174 @@ const TaoComponent = ({
     }
   }, [tao?.id, tao?.attraction.id, tao?.highlight?.id, tao?.start, tao?.end]);
 
-  const handlePrivacyStatusClick = async () => {
+  const handlePrivacyStatusClick = useCallback(async () => {
     if (tao) {
       try {
         let newStatus = await taosService.patchTaoPrivacy(tao.id, !isPrivate);
-
         tao.isPrivate = newStatus;
         asyncEditDayTaos(tao);
         setIsPrivate((prev) => !prev);
-
         enqueueSnackbar("Event privacy status updated.", {
           variant: "success",
         });
       } catch (e) {
-        if (e instanceof Error) {
+        if (e instanceof Error)
           enqueueSnackbar(e.message, { variant: "error" });
-        }
       }
     }
-  };
+  }, [tao, isPrivate, asyncEditDayTaos]);
 
-  const handlePostHighlight = async () => {
+  const handlePostHighlight = useCallback(async () => {
     if (isCreating && tao && description) {
       try {
         let highlightPost = {
           attractionId: tao.attraction.id,
           description: description,
         };
-
         let newHighlight = await highlightsService.postHighlight(highlightPost);
-
-        let taoPatch = {
-          ...tao,
-          highlightId: newHighlight.id,
-        };
-
+        let taoPatch = { ...tao, highlightId: newHighlight.id };
         let updatedTao = await taosService.patchTao(tao.id, taoPatch);
         asyncEditDayTaos(updatedTao);
         setDescription("");
-
         enqueueSnackbar("Successfully created highlight for this event.", {
           variant: "success",
         });
       } catch (e) {
-        if (e instanceof Error) {
+        if (e instanceof Error)
           enqueueSnackbar(e.message, { variant: "error" });
-        }
       }
     }
-  };
+  }, [isCreating, tao, description, asyncEditDayTaos]);
 
-  const handleUpdateHighlight = async (highlight: Highlight | undefined) => {
-    if (tao) {
-      try {
-        let updatedTao = { ...tao, highlight: highlight };
-        asyncEditDayTaos(updatedTao);
-        setHighlight(highlight);
-      } catch (e) {
-        if (e instanceof Error) {
-          enqueueSnackbar(e.message, { variant: "error" });
+  const handleUpdateHighlight = useCallback(
+    async (highlight: Highlight | undefined) => {
+      if (tao) {
+        try {
+          let updatedTao = { ...tao, highlight: highlight };
+          asyncEditDayTaos(updatedTao);
+          setHighlight(highlight);
+        } catch (e) {
+          if (e instanceof Error)
+            enqueueSnackbar(e.message, { variant: "error" });
         }
       }
-    }
-  };
+    },
+    [tao, asyncEditDayTaos],
+  );
 
-  const handleDetachHighlight = async () => {
+  const handleDetachHighlight = useCallback(async () => {
     if (tao) {
       try {
         let updatedTao = await taosService.patchTaoDetachHighlight(tao.id);
         asyncEditDayTaos(updatedTao);
-
         enqueueSnackbar("Successfully detached highlight.", {
           variant: "success",
         });
       } catch (e) {
-        if (e instanceof Error) {
+        if (e instanceof Error)
           enqueueSnackbar(e.message, { variant: "error" });
-        }
       }
     }
-  };
+  }, [tao, asyncEditDayTaos]);
 
-  const handleTransportModeChange = async (event: SelectChangeEvent) => {
-    let newTransportMode = event.target.value;
+  const handleTransportModeChange = useCallback(
+    async (event: SelectChangeEvent) => {
+      let newTransportMode = event.target.value;
 
-    if (!TransportModes.includes(newTransportMode)) {
-      enqueueSnackbar("Transport mode unrecognized.", { variant: "error" });
-      return;
-    }
+      if (!TransportModes.includes(newTransportMode)) {
+        enqueueSnackbar("Transport mode unrecognized.", { variant: "error" });
+        return;
+      }
 
-    if (tao) {
-      try {
-        await taosService.patchTao(tao.id, { transportMode: newTransportMode });
+      if (tao) {
+        try {
+          await taosService.patchTao(tao.id, {
+            transportMode: newTransportMode,
+          });
+          enqueueSnackbar(`Transport mode updated to ${newTransportMode}.`, {
+            variant: "success",
+          });
+          setTransportMode(newTransportMode);
 
-        enqueueSnackbar(`Transport mode updated to ${newTransportMode}.`, {
-          variant: "success",
-        });
+          let updatedTao = { ...tao, transportMode: newTransportMode };
+          asyncEditDayTaos(updatedTao);
 
-        setTransportMode(newTransportMode);
+          let updatedRouteResponse = await hereMapService.getRoutingByTaoId(
+            tao.id,
+          );
+          if (!updatedRouteResponse) updatedRouteResponse = { routes: [] };
 
-        let updatedTao = { ...tao, transportMode: newTransportMode };
-        asyncEditDayTaos(updatedTao);
-
-        let updatedRouteResponse = await hereMapService.getRoutingByTaoId(
-          tao.id,
-        );
-        if (!updatedRouteResponse) {
-          updatedRouteResponse = { routes: [] };
-        }
-
-        let routeResponses = routeResponsesMapRef.current.get(tao.dayId);
-        if (routeResponses && taoIndex) {
-          routeResponses[taoIndex - 1] = updatedRouteResponse;
-
-          routeResponsesMapRef.current.set(tao.dayId, routeResponses);
-          setRouteResponses(routeResponses);
-        }
-      } catch (e) {
-        if (e instanceof Error) {
-          enqueueSnackbar(e.message, { variant: "error" });
+          let routeResponses = routeResponsesMapRef.current.get(tao.dayId);
+          if (routeResponses && taoIndex) {
+            routeResponses[taoIndex - 1] = updatedRouteResponse;
+            routeResponsesMapRef.current.set(tao.dayId, routeResponses);
+            setRouteResponses(routeResponses);
+          }
+        } catch (e) {
+          if (e instanceof Error)
+            enqueueSnackbar(e.message, { variant: "error" });
         }
       }
-    }
-  };
+    },
+    [tao, taoIndex, asyncEditDayTaos, routeResponsesMapRef, setRouteResponses],
+  );
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     onClose();
     setDescription("");
     setHighlight(undefined);
-  };
+  }, [onClose]);
+
+  const handleAttractionClick = useCallback(
+    () => navigate(`/attraction/${attraction?.id}`),
+    [navigate, attraction?.id],
+  );
+
+  const handleOpenDiscoverHighlights = useCallback(
+    () => setOpenDiscoverHighlights(true),
+    [],
+  );
+
+  const handleCloseDiscoverHighlights = useCallback(
+    () => setOpenDiscoverHighlights(false),
+    [],
+  );
+
+  const handleStartCreating = useCallback(() => setIsCreating(true), []);
+  const handleStopCreating = useCallback(() => setIsCreating(false), []);
+
+  const transportModeItems = useMemo(
+    () =>
+      TransportModes.map((mode: string) => (
+        <MenuItem key={mode} className="selected-transport-mode" value={mode}>
+          {mode}
+        </MenuItem>
+      )),
+    [],
+  );
+
+  const wikiImageItems = useMemo(
+    () =>
+      wikiImages.map((image) => {
+        let titleRegex = /(?<=:).*(?=\.)/gm;
+        let imageTitle = image.title.match(titleRegex)?.join() ?? "";
+        return (
+          <img
+            key={image.title}
+            className="wiki-image"
+            src={image.url}
+            alt={imageTitle}
+            loading="lazy"
+          />
+        );
+      }),
+    [wikiImages],
+  );
 
   return (
     <Box className="trip-profile-tao-comp-box">
       {/* header */}
       <Box className="header-box">
-        {/* start - end time */}
         <Typography>
           {TimeUtils.formatTimeHHmmssTohmmA(tao?.start ?? "")} -{" "}
           {TimeUtils.formatTimeHHmmssTohmmA(tao?.end ?? "")}
@@ -243,22 +300,16 @@ const TaoComponent = ({
 
       <Divider variant="middle" flexItem />
 
-      {/* tao content */}
       <Box className="content-box">
         <Box className="section">
-          {/* title & address */}
           <Typography className="title">
             Visit{" "}
-            <span
-              className="title-span"
-              onClick={() => navigate(`/attraction/${attraction?.id}`)}
-            >
+            <span className="title-span" onClick={handleAttractionClick}>
               {attraction?.title}
             </span>
           </Typography>
           <Typography>{attraction?.address}</Typography>
 
-          {/* attraction category */}
           {attraction?.category ? (
             <Box>
               <Chip
@@ -273,7 +324,6 @@ const TaoComponent = ({
             </Box>
           ) : undefined}
 
-          {/* privacy status */}
           <Box className="privacy-setting">
             {!readonly ? (
               <Box className="column">
@@ -308,34 +358,17 @@ const TaoComponent = ({
           </Box>
         </Box>
 
-        {/* wiki images */}
         {wikiImages.length > 0 ? (
           <React.Fragment>
-            <Box className="wiki-image-box">
-              {wikiImages.map((image) => {
-                let titleRegex = /(?<=:).*(?=\.)/gm;
-                let imageTitle = image.title.match(titleRegex)?.join() ?? "";
-                return (
-                  <img
-                    key={image.title}
-                    className="wiki-image"
-                    src={image.url}
-                    alt={imageTitle}
-                    loading="lazy"
-                  />
-                );
-              })}
-            </Box>
+            <Box className="wiki-image-box">{wikiImageItems}</Box>
           </React.Fragment>
         ) : undefined}
 
-        {/* highlight */}
         {highlight?.description ? (
           <React.Fragment>
             <Divider flexItem />
             <Box className="section">
               <Typography className="large-text">Highlight</Typography>
-
               <Box>
                 <HighlightItem
                   highlight={highlight}
@@ -353,7 +386,6 @@ const TaoComponent = ({
             <Divider flexItem />
             <Box className="section">
               <Typography className="large-text">Highlight</Typography>
-
               <Box>
                 {!isCreating ? (
                   <Box>
@@ -362,18 +394,17 @@ const TaoComponent = ({
                         Discover amazing highlights {"\n"} — or make your own!
                       </Typography>
                     </Box>
-
                     <Box className="highlight-button-box">
                       <TTButton
                         className="highlight-button"
                         color="info"
-                        onClick={() => setOpenDiscoverHighlights(true)}
+                        onClick={handleOpenDiscoverHighlights}
                       >
                         discover
                       </TTButton>
                       <TTButton
                         className="highlight-button"
-                        onClick={() => setIsCreating(true)}
+                        onClick={handleStartCreating}
                       >
                         create & share
                       </TTButton>
@@ -385,7 +416,7 @@ const TaoComponent = ({
                       description={description}
                       setDescription={setDescription}
                       onAction={handlePostHighlight}
-                      onClose={() => setIsCreating(false)}
+                      onClose={handleStopCreating}
                       isPost
                     />
                   </Box>
@@ -395,7 +426,6 @@ const TaoComponent = ({
           </React.Fragment>
         ) : undefined}
 
-        {/* ways of transport */}
         {routeResponse ? (
           <React.Fragment>
             <Divider flexItem />
@@ -403,25 +433,17 @@ const TaoComponent = ({
               <Box className="row full">
                 <Typography className="large-text">Directions</Typography>
                 {prevTao && tao ? (
-                  <NavButton
-                    className="jump-to-button"
-                    link={MapUtils.getGoogleRouteLink(
-                      prevTao.attraction.address,
-                      tao.attraction.address,
-                    )}
-                  >
+                  <NavButton className="jump-to-button" link={googleRouteLink}>
                     <ReplyIcon className="jump-to-icon" />
                   </NavButton>
                 ) : undefined}
               </Box>
 
-              {/* notice - optional */}
-              {routeResponse.notices ? (
-                routeResponse.notices.length > 0 ? (
-                  <Alert severity="warning">
-                    {routeResponse.notices[0].title}
-                  </Alert>
-                ) : undefined
+              {routeResponse?.notices?.length &&
+              routeResponse.notices.length > 0 ? (
+                <Alert severity="warning">
+                  {routeResponse.notices[0].title}
+                </Alert>
               ) : undefined}
 
               <Box>
@@ -432,14 +454,7 @@ const TaoComponent = ({
                     value={transportMode}
                     onChange={handleTransportModeChange}
                   >
-                    {TransportModes.map((mode: string) => (
-                      <MenuItem
-                        className="selected-transport-mode"
-                        value={mode}
-                      >
-                        {mode}
-                      </MenuItem>
-                    ))}
+                    {transportModeItems}
                   </Select>
                 ) : (
                   <Typography className="transport-mode">
@@ -450,7 +465,6 @@ const TaoComponent = ({
                   <Typography variant="caption" color="textSecondary">
                     Routing information © HERE
                   </Typography>
-                  {/* direction - time, distance, actions, agency, etc. */}
                   {(formatedSections ?? []).map((section) => (
                     <DirectionAccordion
                       key={section.id}
@@ -464,17 +478,14 @@ const TaoComponent = ({
           </React.Fragment>
         ) : undefined}
 
-        {/* links to other resources */}
         <Divider flexItem />
         <Box className="resource-section">
           <Typography className="large-text">Other Resources</Typography>
-
           <Box className="link-box">
-            {/* links */}
             <Box>
               <NavButton
                 className="success"
-                link={MapUtils.getGoogleMapLink(attraction?.address ?? "")}
+                link={googleMapLink}
                 icon={<SiGooglemaps size={24} />}
                 label="Google Map"
                 hovered
@@ -487,7 +498,7 @@ const TaoComponent = ({
       <DiscoverHighlightsForm
         tao={tao}
         open={openDiscoverHighlights}
-        onClose={() => setOpenDiscoverHighlights(false)}
+        onClose={handleCloseDiscoverHighlights}
         asyncEditDayTaos={asyncEditDayTaos}
       />
     </Box>

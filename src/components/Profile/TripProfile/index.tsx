@@ -3,7 +3,7 @@ import type { Route, NavTab, GeoCoordinate } from "@constants/Types";
 import { useIsMobile } from "@hooks/useIsMobile";
 import { Box, Chip, Typography } from "@mui/material";
 import { type Trip, tripsService } from "@services/trips";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { useSnackbar } from "notistack";
 import ImageSelector from "@components/ImageSelector";
@@ -99,12 +99,10 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
     GeoCoordinate | undefined
   >();
   // form open status
-  const [openDeleteDayForm, setOpenDeleteDayForm] = useState<boolean>(false);
-  const [openEditTaoForm, setOpenEditTaoForm] = useState<boolean>(false);
-  const [openDeleteTaoForm, setOpenDeleteTaoForm] = useState<boolean>(false);
+  const [openForm, setOpenForm] = useState<
+    "deleteDay" | "editTao" | "deleteTao" | "share" | "pdf" | null
+  >(null);
   const [openImageForm, setOpenImageForm] = useState<number | undefined>();
-  const [openTripShareForm, setOpenTripShareForm] = useState<boolean>(false);
-  const [openTripPdfForm, setOpenTripPdfForm] = useState<boolean>(false);
   const [openUI, setOpenUI] = useState<boolean>(true);
   const [hideImages, setHideImages] = useState<boolean>(false);
   // behavior
@@ -128,273 +126,188 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
   const correctUri = uri.length > 1 ? uri : "";
   const navigate = useNavigate();
 
-  const taoMarkers = taos?.map((tao) => {
-    // markers - taos of a particular day
-    return {
-      id: String(tao.id),
-      label: tao.attraction.title,
-      lat: tao.attraction.lat,
-      lng: tao.attraction.lng,
-      zoom: MapUtils.resultTypeToZoom(tao.attraction.resultType),
-    };
-  });
+  const overViewNavTab = useMemo(
+    () => ({
+      name: "Overview",
+      label: "Overview",
+      to: `${correctUri}/trip/${tripId}`,
+    }),
+    [correctUri, tripId],
+  );
 
-  const geoMarkers = taoGeos?.map((taoGeo) => {
-    // markers - all taos
-    return {
-      id: String(taoGeo.id),
-      groupId: taoGeo.dayId,
-      label: taoGeo.title,
-      lat: taoGeo.lat,
-      lng: taoGeo.lng,
-      zoom: 12,
-    };
-  });
+  const navTabs = useMemo(() => {
+    let navTabs = [{ ...overViewNavTab }] as NavTab[];
+
+    if (tripBasic?.numDays) {
+      for (let i = 0; i < tripBasic.numDays; i++) {
+        let dayIndex = i + 1;
+        let navTab = {
+          name: `Day ${dayIndex}`,
+          label: `Day ${dayIndex}`,
+          to: `${correctUri}/trip/${tripId}/day/${dayIndex}`,
+          deletable: Number(dayId) === dayIndex,
+        };
+
+        navTabs.push(navTab);
+      }
+    }
+
+    return navTabs;
+  }, [tripBasic?.numDays, dayId, tripId, correctUri]);
+
+  const taoMarkers = useMemo(
+    () =>
+      taos?.map((tao) => {
+        // markers - taos of a particular day
+        return {
+          id: String(tao.id),
+          label: tao.attraction.title,
+          lat: tao.attraction.lat,
+          lng: tao.attraction.lng,
+          zoom: MapUtils.resultTypeToZoom(tao.attraction.resultType),
+        };
+      }),
+    [taos],
+  );
+
+  const geoMarkers = useMemo(
+    () =>
+      taoGeos?.map((taoGeo) => {
+        // markers - all taos
+        return {
+          id: String(taoGeo.id),
+          groupId: taoGeo.dayId,
+          label: taoGeo.title,
+          lat: taoGeo.lat,
+          lng: taoGeo.lng,
+          zoom: 12,
+        };
+      }),
+    [taoGeos],
+  );
 
   const isOverview = !Boolean(dayId);
 
-  const markers = isOverview ? geoMarkers : taoMarkers; // ?? geoMarkers ?? [];
-  // console.log(markers);
-  // console.log(dayOverviewFocus);
+  const markers = useMemo(
+    () => (isOverview ? geoMarkers : taoMarkers),
+    [isOverview, geoMarkers, taoMarkers],
+  );
 
   const maxImageCount = 4;
   const isMaxImageCountReached = images.length === maxImageCount;
 
-  const initTrip = async () => {
-    try {
-      if (tripId) {
-        setIsLoading(true);
+  const imageIds = useMemo(() => images.map((image) => image.id), [images]);
 
-        // get trip basic
-        let tripBasic = await tripsService.getTripById(Number(tripId));
-        tripBasicRef.current = tripBasic;
-        asyncTrip();
+  const addIcon = useMemo(
+    () => (isMaxImageCountReached || readonly ? undefined : <AddIcon />),
+    [isMaxImageCountReached, readonly],
+  );
 
-        imagesRef.current = tripBasic.images ?? [];
-        asyncImages();
+  const sharedUsers = useMemo(() => tripBasic?.sharedUsers ?? [], [tripBasic]);
 
-        BehaviorUtils.sleep();
-        setIsLoading(false);
-      }
-    } catch (e) {
-      if (e instanceof Error) {
-        navigate("/");
-      }
-    }
-  };
+  const dayFocus = useMemo(() => days[Number(dayId ?? 0) - 1], [days]);
 
-  const deleteTripImage = async (index: number) => {
-    if (tripBasic) {
-      try {
-        let imageId = images[index].id;
-        await tripsService.deleteTripImage(tripBasic.id, imageId);
+  // async functions
 
-        asyncDetachImage(imageId);
-
-        enqueueSnackbar("Successfully detached image.", {
-          variant: "success",
-        });
-      } catch (e) {
-        if (e instanceof Error)
-          enqueueSnackbar(e.message, { variant: "error" });
-      }
-    }
-  };
-
-  const initTaoGeos = async () => {
-    if (tripBasic?.id) {
-      let taoGeos = await tripsService.getTripTaoGeosById(tripBasic.id);
-      taoGeosRef.current = taoGeos;
-      setTaoGeos(taoGeos);
-    }
-  };
-
-  const initDays = async () => {
-    if (tripId) {
-      // get days with trip id
-      let days = await daysService.getDaysByTripId(Number(tripId));
-      setDays(days);
-    }
-  };
-
-  const initTao = (tao: Tao | undefined) => {
-    if (!tao) {
-      setTao(undefined);
-    } else if (taos) {
-      let _tao = taos.find((t) => t.id === tao.id);
-      setTao(_tao);
-    }
-  };
-
-  const initTaos = async (dayId?: number, silentUpdate: boolean = false) => {
-    const _dayId = dayId ?? day?.id; // Prioritize the passed ID
-    if (!_dayId) return;
-
-    // Check if we already have it in the Ref Map
-    let taos = taosMapRef.current.get(_dayId);
-
-    // If we don't have it (or it's a forced refresh), fetch it
-    if (!taos) {
-      taos = await taosService.getTaosByDayId(_dayId);
-      taosMapRef.current.set(_dayId, taos);
-    }
-
-    // Only update global "active day" state if NOT silent
-    if (!silentUpdate) {
-      setTaos(taos);
-      prevDayId.current = _dayId; // Only update the "current day" pointer here
-    }
-  };
-
-  const initWikiImages = async () => {
-    if (tao) {
-      let id = tao.attraction.id;
-      let images = wikiImagesRef.current.get(id);
-
-      if (images) {
-        setWikiImages(images);
-      } else {
-        try {
-          images = await wikiCommonsService.getWikiImagesByAttractionId(id);
-          wikiImagesRef.current.set(id, images);
-          setWikiImages(images);
-        } catch (_) {
-          wikiImagesRef.current.set(id, []);
-          setWikiImages([]);
-        }
-      }
-    }
-  };
-
-  const initRouteResponses = async (
-    refresh: boolean = false,
-    dayId?: number,
-    silentUpdate: boolean = false,
-  ) => {
-    const _dayId = dayId ?? day?.id;
-    if (_dayId) {
-      // check routeResponsesMapRef first when switches from day to day
-      let routeResponses: HereRoutingResponse[] | undefined;
-      if (!refresh) routeResponses = routeResponsesMapRef.current.get(_dayId);
-
-      // if routeResponsesMapRef has no routing info for that day, get it from API
-      if (!routeResponses) {
-        routeResponses = await hereMapService.getRoutingsOnDay(_dayId);
-        routeResponsesMapRef.current.set(_dayId, routeResponses);
-      }
-
-      prevDayId.current = _dayId;
-
-      await initRoutes(routeResponses, silentUpdate);
-    } else {
-      setRoutes(undefined);
-    }
-  };
-
-  const initRoutes = async (
-    routeResponses: HereRoutingResponse[],
-    silentUpdate: boolean = false,
-  ) => {
-    let routes = MapUtils.routingResponses2Routes(routeResponses) as Route[];
-
-    if (!silentUpdate) {
-      setRoutes(routes);
-      setRouteResponses(routeResponses);
-    }
-  };
-
-  // ref async functions
-
-  const asyncTrip = () => {
+  const asyncTrip = useCallback(() => {
     if (!tripBasicRef.current) return;
     setTripBasic({ ...tripBasicRef.current });
-  };
+  }, []);
 
-  const asyncImages = () => {
+  const asyncImages = useCallback(() => {
     setImages([...imagesRef.current]); // ensure new reference
-  };
+  }, []);
 
-  const asyncAddImage = async (imageId: number) => {
-    if (tripId) {
-      const image = await tripsService.postTripImage(parseInt(tripId), imageId);
+  const asyncAddImage = useCallback(
+    async (imageId: number) => {
+      if (tripId) {
+        const image = await tripsService.postTripImage(Number(tripId), imageId);
 
-      imagesRef.current.push(image);
-      asyncImages();
-    }
-  };
+        imagesRef.current.push(image);
+        asyncImages();
+      }
+    },
+    [tripId],
+  );
 
-  const asyncDetachImage = (imageId: number) => {
+  const asyncDetachImage = useCallback((imageId: number) => {
     imagesRef.current = imagesRef.current.filter((i) => i.id !== imageId);
     asyncImages();
-  };
+  }, []);
 
-  const asyncUpdateImage = (image: Image) => {
+  const asyncUpdateImage = useCallback((image: Image) => {
     let images = imagesRef.current;
     let imageIndex = images.findIndex((img) => img.id === image.id);
     images[imageIndex] = image;
 
     imagesRef.current = images;
     asyncImages();
-  };
+  }, []);
 
   // add day and delete day auto-reflects on days by useEffect triggered on tripBasic.numDays
 
-  const asyncAddDayTaos = (tao: Tao) => {
-    if (day) {
-      let dayTaos = taosMapRef.current.get(day.id);
+  const asyncAddDayTaos = useCallback(
+    (tao: Tao) => {
+      if (day) {
+        let dayTaos = taosMapRef.current.get(day.id);
 
-      if (dayTaos) {
-        dayTaos.push(tao);
-        dayTaos = TimeUtils.orderTaos(dayTaos);
+        if (dayTaos) {
+          dayTaos.push(tao);
+          dayTaos = TimeUtils.orderTaos(dayTaos);
 
-        taosMapRef.current.set(day.id, dayTaos);
-        setTaos(dayTaos);
+          taosMapRef.current.set(day.id, dayTaos);
+          setTaos(dayTaos);
 
-        initRouteResponses(true);
-
-        // also add to taoGeos
-        taoGeosRef.current?.push({
-          id: tao.id,
-          dayId: tao.dayId,
-          title: tao.attraction.title,
-          lat: tao.attraction.lat,
-          lng: tao.attraction.lng,
-        });
-
-        setTaoGeos(taoGeosRef.current);
-      }
-    }
-  };
-
-  const asyncEditDayTaos = async (tao: Tao) => {
-    if (day) {
-      let dayTaos = taosMapRef.current.get(day.id);
-
-      if (dayTaos) {
-        let index = dayTaos.findIndex((_tao) => _tao.id === tao.id);
-        // check whether attraction is the same
-        let isAttractionSame =
-          dayTaos[index].attraction.id === tao.attraction.id;
-        dayTaos[index] = tao;
-
-        let prevTaoOrder = dayTaos.map((tao) => tao.id);
-        let newTaos = TimeUtils.orderTaos(dayTaos);
-        let currTaoOrder = newTaos.map((tao) => tao.id);
-
-        taosMapRef.current.set(day.id, newTaos);
-        setTaos(newTaos);
-        setTao(tao);
-
-        let orderChanged = !isEqual(prevTaoOrder, currTaoOrder);
-
-        if (!isAttractionSame || orderChanged) {
           initRouteResponses(true);
+
+          // also add to taoGeos
+          taoGeosRef.current?.push({
+            id: tao.id,
+            dayId: tao.dayId,
+            title: tao.attraction.title,
+            lat: tao.attraction.lat,
+            lng: tao.attraction.lng,
+          });
+
+          setTaoGeos(taoGeosRef.current);
         }
       }
-    }
-  };
+    },
+    [day],
+  );
 
-  const asyncDeleteDay = () => {
+  const asyncEditDayTaos = useCallback(
+    async (tao: Tao) => {
+      if (day) {
+        let dayTaos = taosMapRef.current.get(day.id);
+
+        if (dayTaos) {
+          let index = dayTaos.findIndex((_tao) => _tao.id === tao.id);
+          // check whether attraction is the same
+          let isAttractionSame =
+            dayTaos[index].attraction.id === tao.attraction.id;
+          dayTaos[index] = tao;
+
+          let prevTaoOrder = dayTaos.map((tao) => tao.id);
+          let newTaos = TimeUtils.orderTaos(dayTaos);
+          let currTaoOrder = newTaos.map((tao) => tao.id);
+
+          taosMapRef.current.set(day.id, newTaos);
+          setTaos(newTaos);
+          setTao(tao);
+
+          let orderChanged = !isEqual(prevTaoOrder, currTaoOrder);
+
+          if (!isAttractionSame || orderChanged) {
+            initRouteResponses(true);
+          }
+        }
+      }
+    },
+    [day],
+  );
+
+  const asyncDeleteDay = useCallback(() => {
     let newDayId = Number(dayId) - 1;
     isDefaultDirectingRef.current = false;
 
@@ -404,26 +317,31 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
     else navigate(`${overViewNavTab.to}/day/${newDayId}`, { replace: true });
 
     asyncTrip();
-  };
+  }, [dayId, overViewNavTab]);
 
-  const asyncDeleteDayTaos = (tao: Tao | undefined) => {
-    if (day && tao) {
-      let dayTaos = taosMapRef.current.get(day.id);
+  const asyncDeleteDayTaos = useCallback(
+    (tao: Tao | undefined) => {
+      if (day && tao) {
+        let dayTaos = taosMapRef.current.get(day.id);
 
-      if (dayTaos) {
-        dayTaos = dayTaos.filter((t) => t.id !== tao.id);
-        taosMapRef.current.set(day.id, dayTaos);
-        setTaos(dayTaos);
-        setTao(undefined);
+        if (dayTaos) {
+          dayTaos = dayTaos.filter((t) => t.id !== tao.id);
+          taosMapRef.current.set(day.id, dayTaos);
+          setTaos(dayTaos);
+          setTao(undefined);
 
-        initRouteResponses(true);
+          initRouteResponses(true);
 
-        // also delete from taoGeos
-        taoGeosRef.current = taoGeosRef.current?.filter((t) => t.id !== tao.id);
-        setTaoGeos(taoGeosRef.current);
+          // also delete from taoGeos
+          taoGeosRef.current = taoGeosRef.current?.filter(
+            (t) => t.id !== tao.id,
+          );
+          setTaoGeos(taoGeosRef.current);
+        }
       }
-    }
-  };
+    },
+    [day, tao],
+  );
 
   // render trip on tripid
   useEffect(() => {
@@ -469,7 +387,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
     initRouteResponses();
   }, [day?.id]);
 
-  const fetchAllDays = async () => {
+  const fetchAllDays = useCallback(async () => {
     // 1. Create an array of promises
     const promises = days.map(async (day) => {
       await initTaos(day.id, true);
@@ -480,38 +398,13 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
     await Promise.all(promises);
 
     // 3. Update state once everything is done
-    console.log(new Map(taosMapRef.current));
     setTaosMap(new Map(taosMapRef.current));
     setRouteResponsesMap(new Map(routeResponsesMapRef.current));
-  };
+  }, [days]);
 
-  const overViewNavTab = {
-    name: "Overview",
-    label: "Overview",
-    to: `${correctUri}/trip/${tripId}`,
-  };
+  // handle functions
 
-  const getNavTabs = () => {
-    let navTabs = [{ ...overViewNavTab }] as NavTab[];
-
-    if (tripBasic?.numDays) {
-      for (let i = 0; i < tripBasic.numDays; i++) {
-        let dayIndex = i + 1;
-        let navTab = {
-          name: `Day ${dayIndex}`,
-          label: `Day ${dayIndex}`,
-          to: `${correctUri}/trip/${tripId}/day/${dayIndex}`,
-          deletable: Number(dayId) === dayIndex,
-        };
-
-        navTabs.push(navTab);
-      }
-    }
-
-    return navTabs;
-  };
-
-  const handlePostDay = async () => {
+  const handlePostDay = useCallback(async () => {
     // check if max taos per day is reached
     if (taos && taos.length >= max_day_per_trip) {
       enqueueSnackbar("Max number of events reached per day.", {
@@ -535,12 +428,208 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
         }
       }
     }
-  };
+  }, [
+    tao,
+    taos,
+    tripBasic,
+    overViewNavTab,
+    enqueueSnackbar,
+    asyncTrip,
+    navigate,
+  ]);
 
-  const handleUsernameClick = (e: React.MouseEvent<HTMLLIElement>) => {
-    e.stopPropagation();
-    navToProfile();
-  };
+  const handleUsernameClick = useCallback(
+    (e: React.MouseEvent<HTMLLIElement>) => {
+      e.stopPropagation();
+      navToProfile();
+    },
+    [navToProfile],
+  );
+
+  const handleOpenImageForm = useCallback(
+    () => setOpenImageForm(imageIndex),
+    [imageIndex, setOpenImageForm],
+  );
+
+  const handleOpenUI = useCallback(
+    () => setOpenUI((prev) => !prev),
+    [setOpenUI],
+  );
+
+  const handleCloseForm = useCallback(() => setOpenForm(null), [setOpenForm]);
+
+  const handleUpdateDeleteTao = useCallback(() => {
+    setTao(undefined);
+    asyncDeleteDayTaos(tao);
+  }, [tao, setTao, asyncDeleteDayTaos]);
+
+  const handleCloseImageForm = useCallback(
+    () => setOpenImageForm(undefined),
+    [setOpenImageForm],
+  );
+
+  // init functions
+
+  const initTrip = useCallback(async () => {
+    try {
+      if (tripId) {
+        setIsLoading(true);
+
+        // get trip basic
+        let tripBasic = await tripsService.getTripById(Number(tripId));
+        tripBasicRef.current = tripBasic;
+        asyncTrip();
+
+        imagesRef.current = tripBasic.images ?? [];
+        asyncImages();
+
+        BehaviorUtils.sleep();
+        setIsLoading(false);
+      }
+    } catch (e) {
+      if (e instanceof Error) {
+        navigate("/");
+      }
+    }
+  }, [tripId, setIsLoading, asyncTrip, asyncImages]);
+
+  const deleteTripImage = useCallback(
+    async (index: number) => {
+      if (tripBasic) {
+        try {
+          let imageId = images[index].id;
+          await tripsService.deleteTripImage(tripBasic.id, imageId);
+
+          asyncDetachImage(imageId);
+
+          enqueueSnackbar("Successfully detached image.", {
+            variant: "success",
+          });
+        } catch (e) {
+          if (e instanceof Error)
+            enqueueSnackbar(e.message, { variant: "error" });
+        }
+      }
+    },
+    [tripBasic, images, asyncDetachImage, enqueueSnackbar],
+  );
+
+  const initTaoGeos = useCallback(async () => {
+    if (tripBasic?.id) {
+      let taoGeos = await tripsService.getTripTaoGeosById(tripBasic.id);
+      taoGeosRef.current = taoGeos;
+      setTaoGeos(taoGeos);
+    }
+  }, [tripBasic, setTaoGeos]);
+
+  const initDays = useCallback(async () => {
+    if (tripId) {
+      // get days with trip id
+      let days = await daysService.getDaysByTripId(Number(tripId));
+      setDays(days);
+    }
+  }, [tripId, setDays]);
+
+  const initTao = useCallback(
+    (tao: Tao | undefined) => {
+      if (!tao) {
+        setTao(undefined);
+      } else if (taos) {
+        let _tao = taos.find((t) => t.id === tao.id);
+        setTao(_tao);
+      }
+    },
+    [taos, setTao],
+  );
+
+  const initTaos = useCallback(
+    async (dayId?: number, silentUpdate: boolean = false) => {
+      const _dayId = dayId ?? day?.id; // Prioritize the passed ID
+      if (!_dayId) return;
+
+      // Check if we already have it in the Ref Map
+      let taos = taosMapRef.current.get(_dayId);
+
+      // If we don't have it (or it's a forced refresh), fetch it
+      if (!taos) {
+        taos = await taosService.getTaosByDayId(_dayId);
+        taosMapRef.current.set(_dayId, taos);
+      }
+
+      // Only update global "active day" state if NOT silent
+      if (!silentUpdate) {
+        setTaos(taos);
+        prevDayId.current = _dayId; // Only update the "current day" pointer here
+      }
+    },
+    [day, prevDayId, setTaos],
+  );
+
+  const initWikiImages = useCallback(async () => {
+    if (tao) {
+      let id = tao.attraction.id;
+      let images = wikiImagesRef.current.get(id);
+
+      if (images) {
+        setWikiImages(images);
+      } else {
+        try {
+          images = await wikiCommonsService.getWikiImagesByAttractionId(id);
+          wikiImagesRef.current.set(id, images);
+          setWikiImages(images);
+        } catch (_) {
+          wikiImagesRef.current.set(id, []);
+          setWikiImages([]);
+        }
+      }
+    }
+  }, [tao, setWikiImages]);
+
+  const initRoutes = useCallback(
+    async (
+      routeResponses: HereRoutingResponse[],
+      silentUpdate: boolean = false,
+    ) => {
+      let routes = MapUtils.routingResponses2Routes(routeResponses) as Route[];
+
+      if (!silentUpdate) {
+        setRoutes(routes);
+        setRouteResponses(routeResponses);
+      }
+    },
+    [setRoutes, setRouteResponses],
+  );
+
+  const initRouteResponses = useCallback(
+    async (
+      refresh: boolean = false,
+      dayId?: number,
+      silentUpdate: boolean = false,
+    ) => {
+      const _dayId = dayId ?? day?.id;
+      if (_dayId) {
+        // check routeResponsesMapRef first when switches from day to day
+        let routeResponses: HereRoutingResponse[] | undefined;
+        if (!refresh) routeResponses = routeResponsesMapRef.current.get(_dayId);
+
+        // if routeResponsesMapRef has no routing info for that day, get it from API
+        if (!routeResponses) {
+          routeResponses = await hereMapService.getRoutingsOnDay(_dayId);
+          routeResponsesMapRef.current.set(_dayId, routeResponses);
+        }
+
+        prevDayId.current = _dayId;
+
+        await initRoutes(routeResponses, silentUpdate);
+      } else {
+        setRoutes(undefined);
+      }
+    },
+    [day, initRoutes, setRoutes],
+  );
+
+  // other handle funcitons
+  const handleCloseTao = useCallback(() => initTao(undefined), [initTao]);
 
   return (
     <Box className="trip-profile-box">
@@ -570,7 +659,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
                   height={isMobile ? 200 : 240}
                   onDelete={deleteTripImage}
                   readonly={readonly}
-                  onClick={() => setOpenImageForm(imageIndex)}
+                  onClick={handleOpenImageForm}
                   innerButtons
                   aspectRatioType="trip-profile"
                 />
@@ -604,7 +693,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
               <Box className="image-selector-box">
                 {!readonly ? (
                   <ImageSelector
-                    imageIds={images.map((image) => image.id)}
+                    imageIds={imageIds}
                     disabled={isMaxImageCountReached}
                     asyncAddImage={asyncAddImage}
                     readonly={readonly}
@@ -614,11 +703,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
                         label={`${images.length}/${maxImageCount}`}
                         color="utility"
                         size="small"
-                        icon={
-                          isMaxImageCountReached || readonly ? undefined : (
-                            <AddIcon />
-                          )
-                        }
+                        icon={addIcon}
                       />
                     </ToolTip>
                   </ImageSelector>
@@ -627,11 +712,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
                     label={`${imageIndex + 1}/${images.length}`}
                     color="utility"
                     size="small"
-                    icon={
-                      isMaxImageCountReached || readonly ? undefined : (
-                        <AddIcon />
-                      )
-                    }
+                    icon={addIcon}
                   />
                 ) : undefined}
               </Box>
@@ -653,7 +734,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
             {/* section - nav bar (nav tabs + add day icon button) */}
             <Box className="section-box">
               <SectionComponent
-                navTabs={getNavTabs()}
+                navTabs={navTabs}
                 navTabValue={navTabValue}
                 setNavTabValue={setNavTabValue}
                 handlePostDay={handlePostDay}
@@ -705,7 +786,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
               routeResponsesMapRef={routeResponsesMapRef}
               routeResponses={routeResponses}
               setRouteResponses={initRoutes}
-              onClose={() => initTao(undefined)}
+              onClose={handleCloseTao}
               asyncEditDayTaos={asyncEditDayTaos}
               readonly={readonly}
             />
@@ -714,10 +795,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
 
         {/* open button */}
         <Box className={"open-button-box"}>
-          <UIShowButton
-            isOpen={openUI}
-            onClick={() => setOpenUI((prev) => !prev)}
-          />
+          <UIShowButton isOpen={openUI} onClick={handleOpenUI} />
         </Box>
 
         {/* tool fab group */}
@@ -733,11 +811,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
             tripBasic={tripBasic}
             tao={tao}
             isOverview={isOverview}
-            setOpenTripShareForm={setOpenTripShareForm}
-            setOpenTripPdfForm={setOpenTripPdfForm}
-            setOpenDeleteDayForm={setOpenDeleteDayForm}
-            setOpenEditTaoForm={setOpenEditTaoForm}
-            setOpenDeleteTaoForm={setOpenDeleteTaoForm}
+            setOpenForm={setOpenForm}
             isRestricted={isRestricted}
             readonly={readonly}
           />
@@ -760,17 +834,17 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
       {/* forms */}
 
       <TripShareForm
-        open={openTripShareForm}
-        onClose={() => setOpenTripShareForm(false)}
+        open={openForm === "share"}
+        onClose={handleCloseForm}
         tripBasicRef={tripBasicRef}
-        sharedUsers={tripBasic?.sharedUsers ?? []}
+        sharedUsers={sharedUsers}
         asyncTrip={asyncTrip}
         readonly={readonly}
       />
 
       <TripPdfForm
-        open={openTripPdfForm}
-        onClose={() => setOpenTripPdfForm(false)}
+        open={openForm === "pdf"}
+        onClose={handleCloseForm}
         tripRef={tripBasicRef}
         days={days}
         taosMap={taosMap}
@@ -780,27 +854,24 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
       />
 
       <DeleteDayForm
-        open={openDeleteDayForm}
-        onClose={() => setOpenDeleteDayForm(false)}
-        day={days[Number(dayId ?? 0) - 1]}
+        open={openForm === "deleteDay"}
+        onClose={handleCloseForm}
+        day={dayFocus}
         dayId={Number(dayId)}
         tripBasicRef={tripBasicRef}
         asyncDeleteDay={asyncDeleteDay}
       />
 
       <DeleteTaoForm
-        open={openDeleteTaoForm}
-        onClose={() => setOpenDeleteTaoForm(false)}
+        open={openForm === "deleteTao"}
+        onClose={handleCloseForm}
         tao={tao}
-        setIsParentUpdated={() => {
-          setTao(undefined);
-          asyncDeleteDayTaos(tao);
-        }}
+        setIsParentUpdated={handleUpdateDeleteTao}
       />
 
       <TaoForm
-        open={openEditTaoForm}
-        onClose={() => setOpenEditTaoForm(false)}
+        open={openForm === "editTao"}
+        onClose={handleCloseForm}
         dayIndex={Number(dayId)}
         dayId={day?.id}
         tao={tao}
@@ -812,7 +883,7 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
 
       <ImageForm
         image={image}
-        onClose={() => setOpenImageForm(undefined)}
+        onClose={handleCloseImageForm}
         asyncUpdateImage={asyncUpdateImage}
         asyncDeleteImage={asyncDetachImage}
         readonly={readonly}

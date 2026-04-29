@@ -10,7 +10,7 @@ import {
 import { tripsService, type Trip, type TripPatch } from "@services/trips";
 import TimeUtils from "@utils/TimeUtils";
 import { enqueueSnackbar } from "notistack";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import SettingsIcon from "@mui/icons-material/Settings";
 import TTChipButton from "@components/TTChipButton";
 import TagForm from "@components/Forms/TagForm";
@@ -39,65 +39,59 @@ const NameComponent = ({
   isSharedUser = false,
   readonly = false,
 }: NameComponentProps) => {
-  // title
   const [title, setTitle] = useState<string | undefined>(tripBasic?.title);
   const [isEditingTitle, setIsEditingTitle] = useState<boolean>(false);
-  // form
   const [openTagForm, setOpenTagForm] = useState<boolean>(false);
 
-  // renreder title on trip basic title
   useEffect(() => {
     setTitle(tripBasic?.title);
   }, [tripBasic?.title]);
 
-  const handleUpdateRegion = async (regionId?: number) => {
-    try {
-      if (tripBasicRef.current) {
-        const completeRegion = await tripsService.patchTripRegionTag(
-          tripBasicRef.current.id,
-          regionId,
-        );
-        tripBasicRef.current.region = RegionUtils.getRegionAddress(
-          completeRegion,
-        )
-          ? completeRegion
-          : undefined;
-        if (asyncTrip) asyncTrip();
-
-        enqueueSnackbar("Region tag updated.", {
-          variant: "success",
-        });
+  const handleUpdateRegion = useCallback(
+    async (regionId?: number) => {
+      try {
+        if (tripBasicRef.current) {
+          const completeRegion = await tripsService.patchTripRegionTag(
+            tripBasicRef.current.id,
+            regionId,
+          );
+          tripBasicRef.current.region = RegionUtils.getRegionAddress(
+            completeRegion,
+          )
+            ? completeRegion
+            : undefined;
+          if (asyncTrip) asyncTrip();
+          enqueueSnackbar("Region tag updated.", { variant: "success" });
+        }
+      } catch (e) {
+        if (e instanceof Error)
+          enqueueSnackbar(e.message, { variant: "error" });
       }
-    } catch (e) {
-      if (e instanceof Error) {
-        enqueueSnackbar(e.message, { variant: "error" });
+    },
+    [tripBasicRef, asyncTrip],
+  );
+
+  const handleUpdateBudget = useCallback(
+    async (budget?: number) => {
+      try {
+        if (tripBasicRef.current) {
+          const newBudget = await tripsService.patchTripBudgetTag(
+            tripBasicRef.current.id,
+            budget,
+          );
+          tripBasicRef.current.budget = newBudget > 0 ? newBudget : undefined;
+          if (asyncTrip) asyncTrip();
+          enqueueSnackbar("Budget tag updated.", { variant: "success" });
+        }
+      } catch (e) {
+        if (e instanceof Error)
+          enqueueSnackbar(e.message, { variant: "error" });
       }
-    }
-  };
+    },
+    [tripBasicRef, asyncTrip],
+  );
 
-  const handleUpdateBudget = async (budget?: number) => {
-    try {
-      if (tripBasicRef.current) {
-        const newBudget = await tripsService.patchTripBudgetTag(
-          tripBasicRef.current.id,
-          budget,
-        );
-
-        tripBasicRef.current.budget = newBudget > 0 ? newBudget : undefined;
-        if (asyncTrip) asyncTrip();
-
-        enqueueSnackbar("Budget tag updated.", {
-          variant: "success",
-        });
-      }
-    } catch (e) {
-      if (e instanceof Error) {
-        enqueueSnackbar(e.message, { variant: "error" });
-      }
-    }
-  };
-
-  const updateTitle = async () => {
+  const updateTitle = useCallback(async () => {
     if (!title) {
       setIsEditingTitle(false);
       return;
@@ -124,11 +118,9 @@ const NameComponent = ({
           tripBasicRef.current.id,
           tripPatch,
         );
-
         enqueueSnackbar("Successfully updated trip title.", {
           variant: "success",
         });
-
         tripBasicRef.current.title = tripPatch.title!;
         if (asyncTrip) asyncTrip();
       } catch (e) {
@@ -138,21 +130,38 @@ const NameComponent = ({
     }
 
     setIsEditingTitle(false);
-  };
+  }, [title, tripBasicRef, asyncTrip]);
 
-  const handleTitleKeyDown = (
-    event: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>,
-  ) => {
-    if (event.key === "Enter") {
-      updateTitle();
-    }
-  };
+  const handleTitleKeyDown = useCallback(
+    (event: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      if (event.key === "Enter") updateTitle();
+    },
+    [updateTitle],
+  );
+
+  const handleTitleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => setTitle(e.target.value),
+    [],
+  );
+
+  const handleStartEditing = useCallback(() => setIsEditingTitle(true), []);
+  const handleOpenTagForm = useCallback(() => setOpenTagForm(true), []);
+  const handleCloseTagForm = useCallback(() => setOpenTagForm(false), []);
+
+  const handleDeleteRegion = useCallback(
+    () => handleUpdateRegion(undefined),
+    [handleUpdateRegion],
+  );
+
+  const handleDeleteBudget = useCallback(
+    () => handleUpdateBudget(undefined),
+    [handleUpdateBudget],
+  );
 
   return (
     <Box className="trip-profile-name-comp">
       {!isLoading ? (
         <React.Fragment>
-          {/* title */}
           {!readonly ? (
             isEditingTitle ? (
               <FormControl variant="outlined">
@@ -160,19 +169,16 @@ const NameComponent = ({
                   className="input"
                   ref={inputRef}
                   value={title}
-                  onChange={(e) => setTitle(e.target.value)}
+                  onChange={handleTitleChange}
                   endAdornment={`${title?.length ?? 0}/50`}
                   onBlur={updateTitle}
-                  onKeyDown={(e) => handleTitleKeyDown(e)}
+                  onKeyDown={handleTitleKeyDown}
                   autoFocus
                   size="small"
                 />
               </FormControl>
             ) : (
-              <Button
-                className="title-button"
-                onClick={() => setIsEditingTitle(true)}
-              >
+              <Button className="title-button" onClick={handleStartEditing}>
                 <Typography className="title" variant="h6">
                   {tripBasicRef.current?.title}
                 </Typography>
@@ -185,12 +191,10 @@ const NameComponent = ({
             </Typography>
           )}
 
-          {/* days & tags */}
           <Box className="tag-container">
             <Typography className="num-days">
               {TimeUtils.formatDays(tripBasicRef.current?.numDays ?? 0)}
             </Typography>
-            {/* region tag */}
             {tripBasicRef?.current?.region ? (
               <Chip
                 color="region"
@@ -198,23 +202,17 @@ const NameComponent = ({
                 label={RegionUtils.getRegionAddress(
                   tripBasicRef?.current?.region,
                 )}
-                onDelete={
-                  !readonly ? () => handleUpdateRegion(undefined) : undefined
-                }
+                onDelete={!readonly ? handleDeleteRegion : undefined}
               />
             ) : undefined}
-            {/* budget tag */}
             {tripBasicRef.current?.budget ? (
               <Chip
                 color="success"
                 size="small"
                 label={StringUtils.getBudgetStr(tripBasicRef.current.budget)}
-                onDelete={
-                  !readonly ? () => handleUpdateBudget(undefined) : undefined
-                }
+                onDelete={!readonly ? handleDeleteBudget : undefined}
               />
             ) : undefined}
-            {/* shareWith tag */}
             {isSharedUser ? (
               <Chip
                 color="info"
@@ -223,8 +221,6 @@ const NameComponent = ({
                 icon={<GroupIcon />}
               />
             ) : undefined}
-
-            {/* tag form button */}
             {!readonly ? (
               <ToolTip title="Update Tags" offsetY={-8}>
                 <TTChipButton
@@ -233,7 +229,7 @@ const NameComponent = ({
                   icon={<SettingsIcon />}
                   label="tags"
                   size="small"
-                  onClick={() => setOpenTagForm(true)}
+                  onClick={handleOpenTagForm}
                 />
               </ToolTip>
             ) : undefined}
@@ -246,10 +242,9 @@ const NameComponent = ({
         </React.Fragment>
       )}
 
-      {/* form */}
       <TagForm
         open={openTagForm}
-        onClose={() => setOpenTagForm(false)}
+        onClose={handleCloseTagForm}
         trip={tripBasicRef.current}
         onUpdateRegion={handleUpdateRegion}
         onUpdateBudget={handleUpdateBudget}

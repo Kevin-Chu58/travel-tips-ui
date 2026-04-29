@@ -6,7 +6,7 @@ import DaySchedule from "@components/Schedule/DaySchedule";
 import DayEvent from "@components/Schedule/DayEvent";
 import type { Tao } from "@services/taos";
 import TTTabs from "@components/TTTabs";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import clsx from "clsx";
 import "./index.scss";
 
@@ -33,16 +33,20 @@ const DayComponent = ({
   setLastGeoCoordinate,
   readonly = false,
 }: DayComponentProps) => {
-  const viewNavTabs = [
-    {
-      name: "event",
-      label: "Event",
-    },
-    {
-      name: "calendar",
-      label: "Calendar",
-    },
-  ] as NavTab[];
+  const viewNavTabs = useMemo(
+    () =>
+      [
+        {
+          name: "event",
+          label: "Event",
+        },
+        {
+          name: "calendar",
+          label: "Calendar",
+        },
+      ] as NavTab[],
+    [],
+  );
 
   // window
   const isMobile = useIsMobile();
@@ -68,7 +72,7 @@ const DayComponent = ({
           className={clsx(
             "trip-profile-day-comp-schedule-box",
             viewNavTabValue === 1 && "day-schedule",
-            isMobile && "mobile"
+            isMobile && "mobile",
           )}
         >
           {viewNavTabValue === 0 ? (

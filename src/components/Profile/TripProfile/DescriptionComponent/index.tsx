@@ -4,7 +4,7 @@ import { Box, Button, IconButton, Skeleton, Typography } from "@mui/material";
 import { tripsService, type Trip, type TripPatch } from "@services/trips";
 import { enqueueSnackbar } from "notistack";
 import MarkdownBox from "@components/MarkdownBox";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import ZoomOutMapIcon from "@mui/icons-material/ZoomOutMap";
 import ZoomInMapIcon from "@mui/icons-material/ZoomInMap";
 import ToolTip from "@components/ToolTip";
@@ -42,11 +42,11 @@ const DescriptionComponent = ({
     if (isEditingDescription) setDescription(tripBasicRef.current?.description);
   }, [isEditingDescription]);
 
-  const handleDescriptionClose = () => {
+  const handleDescriptionClose = useCallback(() => {
     setIsEditingDescription(false);
-  };
+  }, [setIsEditingDescription]);
 
-  const handleDescriptionUpdate = async () => {
+  const handleDescriptionUpdate = useCallback(async () => {
     const trimmedDescription = description?.trim();
     if (tripBasicRef.current?.description === trimmedDescription) {
       setIsEditingDescription(false);
@@ -74,7 +74,23 @@ const DescriptionComponent = ({
           enqueueSnackbar(e.message, { variant: "error" });
       }
     }
-  };
+  }, [
+    description,
+    setIsEditingDescription,
+    setDescription,
+    enqueueSnackbar,
+    asyncTrip,
+  ]);
+
+  const handleIsEditingDescriptionTrue = useCallback(
+    () => setIsEditingDescription(true),
+    [setIsEditingDescription],
+  );
+
+  const handleHideImages = useCallback(
+    () => setHideImages((prev) => !prev),
+    [setHideImages],
+  );
 
   return (
     <Box className="trip-profile-description-comp">
@@ -83,10 +99,7 @@ const DescriptionComponent = ({
           <Box className="header-container">
             <Typography className="header">Summary</Typography>
             <ToolTip title={hideImages ? "Zoom Out" : "Zoom In"} offsetY={-8}>
-              <IconButton
-                className="zoom-button"
-                onClick={() => setHideImages((prev) => !prev)}
-              >
+              <IconButton className="zoom-button" onClick={handleHideImages}>
                 {hideImages ? <ZoomOutMapIcon /> : <ZoomInMapIcon />}
               </IconButton>
             </ToolTip>
@@ -120,7 +133,7 @@ const DescriptionComponent = ({
             ) : Boolean(description) ? (
               <Button
                 className="button"
-                onClick={() => setIsEditingDescription(true)}
+                onClick={handleIsEditingDescriptionTrue}
               >
                 <MarkdownBox
                   text={tripBasicRef.current?.description}
@@ -130,7 +143,7 @@ const DescriptionComponent = ({
             ) : (
               <Button
                 className="empty-button"
-                onClick={() => setIsEditingDescription(true)}
+                onClick={handleIsEditingDescriptionTrue}
                 fullWidth
               >
                 <Typography className="trip-profile-text">
