@@ -20,7 +20,6 @@ import { enqueueSnackbar } from "notistack";
 import { useIsMobile } from "@hooks/useIsMobile";
 import MenuIcon from "@mui/icons-material/Menu";
 import TTIconButton from "@components/TTIconButton";
-import WritingForm from "@components/Forms/WritingForm";
 import AddIcon from "@mui/icons-material/Add";
 import TTButton from "@components/TTButton";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
@@ -31,6 +30,9 @@ import DeleteWritingForm from "@components/Forms/DeleteWritingForm";
 import AddWritingLabelForm from "@components/Forms/AddWritingLabelForm";
 import clsx from "clsx";
 import "./index.scss";
+
+// lazy load
+const WritingForm = React.lazy(() => import("@components/Forms/WritingForm"));
 
 type GospelContentProps = {
   setIsHidden: React.Dispatch<React.SetStateAction<boolean>>;

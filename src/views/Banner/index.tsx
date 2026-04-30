@@ -21,7 +21,6 @@ import {
 } from "@services/feed/banners";
 import TTButton from "@components/TTButton";
 import AddIcon from "@mui/icons-material/Add";
-import BannerForm from "@components/Forms/BannerForm";
 import ImageIcon from "@mui/icons-material/Image";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import DeleteBannerForm from "@components/Forms/DeleteBannerForm";
@@ -31,6 +30,9 @@ import LibraryDialog from "@components/ImageSelector/LibraryDialog";
 import { useNavigate } from "react-router";
 import clsx from "clsx";
 import "./index.scss";
+
+// lazy load
+const BannerForm = React.lazy(() => import("@components/Forms/BannerForm"));
 
 // name "Banner" has already taken by "Banner" type
 const BannerView = () => {

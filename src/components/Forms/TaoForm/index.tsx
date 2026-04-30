@@ -16,12 +16,14 @@ import { enqueueSnackbar } from "notistack";
 import { taosService, type Tao } from "@services/taos";
 import TimeUtils from "@utils/TimeUtils";
 import { hhmm, hhmmss, HHmmss, hmma } from "@constants/Times";
-import TTTimePicker from "@components/TTTimePicker";
 import type { GeoCoordinate } from "@constants/Types";
 import type { Dayjs } from "dayjs";
 import dayjs from "dayjs";
 import clsx from "clsx";
 import "./index.scss";
+
+// lazy load
+const TTTimePicker = React.lazy(() => import("@components/TTTimePicker"));
 
 type TaoFormProps = {
   open: boolean;

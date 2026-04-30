@@ -55,8 +55,7 @@ export default defineConfig({
         manualChunks: {
           "react-vendor": ["react", "react-dom", "react-router"],
           "mui-vendor": ["@mui/material", "@mui/icons-material"],
-          "map-vendor": ["maplibre-gl"],
-          pdf: ["jspdf"],
+          pdf: ["jspdf", 'html-to-image'],
           editor: ["cropperjs"],
         },
       },
