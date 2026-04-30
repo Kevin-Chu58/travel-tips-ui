@@ -1,8 +1,13 @@
 import { MapPin } from "@constants/Maps";
 import { Box, type SxProps } from "@mui/material";
 import L from "leaflet";
-import "leaflet/dist/leaflet.css";
-import React, { useEffect, useRef, type ReactNode } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  type ReactNode,
+} from "react";
 import type { GeoCoordinate, Marker, Route } from "@constants/Types";
 import { decode } from "@here/flexpolyline";
 import "./index.scss";
@@ -78,6 +83,10 @@ const Map = React.memo(
     /** useEffect */
 
     useEffect(() => {
+      import("leaflet/dist/leaflet.css");
+    }, []);
+
+    useEffect(() => {
       if (mapInstanceRef.current) {
         // delay slightly if you have a CSS transition for the UI sliding
         const timer = setTimeout(() => {
@@ -88,6 +97,11 @@ const Map = React.memo(
       }
     }, [openUI]);
 
+    const markersKey = useMemo(
+      () => markers.map((m) => `${m.id}-${m.lat}-${m.lng}`).join(","),
+      [markers],
+    );
+
     // update on markers, taoId, focusRoute and routeCoords to update the overall map
     useEffect(() => {
       if (mapInstanceRef.current) {
@@ -95,7 +109,7 @@ const Map = React.memo(
         setMarkers();
         setView();
       }
-    }, [markers.toString(), mapRoutes, focusId, focusRoute]);
+    }, [markersKey, mapRoutes, focusId, focusRoute]);
 
     // rerender my location on currentCoordinate
     useEffect(() => {
@@ -148,7 +162,7 @@ const Map = React.memo(
 
         mapInstanceRef.current = L.map(
           mapRef.current,
-          readonly ? mapOptionsReadonly : mapOptions
+          readonly ? mapOptionsReadonly : mapOptions,
         ).setView([lat, lng], 4);
 
         if (!readonly) {
@@ -176,12 +190,12 @@ const Map = React.memo(
             keepBuffer: 1,
             attribution:
               '&copy; 2026 HERE | &copy; <a href="https://www.maptiler.com/copyright/" target="_blank" rel="noopener noreferrer">MapTiler</a> &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors',
-          }
+          },
         ).addTo(mapInstanceRef.current);
       }
     }, []);
 
-    const setRoutes = () => {
+    const setRoutes = useCallback(() => {
       // remove old polyline routes
       routesRef.current.forEach((m) => mapInstanceRef.current!.removeLayer(m));
       routesRef.current = [];
@@ -203,7 +217,7 @@ const Map = React.memo(
 
         // create polyline for each route coords array
         const polyline = L.polyline(coords as L.LatLngExpression[], {
-          color: isFocused ? mapRoute?.color ?? "#1976d2" : "#bdbdbd",
+          color: isFocused ? (mapRoute?.color ?? "#1976d2") : "#bdbdbd",
           weight: 8,
           opacity: 1,
         });
@@ -217,14 +231,18 @@ const Map = React.memo(
         // update the z-index
         if (!isFocused) polyline.bringToBack();
       });
-    };
+    }, [markers, mapRoutes, focusId, focusOnRoute, showRouteColor]);
 
-    const setMarkers = () => {
+    const setMarkers = useCallback(() => {
       let isFocusFound = false;
 
       // remove old markers
       markersRef.current.forEach((m) => mapInstanceRef.current!.removeLayer(m));
       markersRef.current = [];
+
+      const uniqueGroupIds = Array.from(
+        new Set(markers.map((m) => m.groupId)),
+      ).sort();
 
       markers.forEach((marker, i) => {
         let isFocus = focusOnGroup
@@ -242,11 +260,6 @@ const Map = React.memo(
         let markerLabel = undefined;
 
         if (showMarkerLabel && marker.groupId) {
-          const uniqueGroupIds = Array.from(
-            new Set(markers.map((m) => m.groupId))
-          );
-          uniqueGroupIds.sort();
-
           const dayLabel =
             uniqueGroupIds.findIndex((id) => id === marker.groupId) + 1;
 
@@ -256,8 +269,8 @@ const Map = React.memo(
         let icon = isFocus
           ? MapPin({ color: "var(--success-main)", label: markerLabel })
           : isNextFocus
-          ? MapPin({ color: "var(--info-main)", label: markerLabel })
-          : MapPin({ label: markerLabel });
+            ? MapPin({ color: "var(--info-main)", label: markerLabel })
+            : MapPin({ label: markerLabel });
         let zIndexOffset = isFocus ? 100 : 0;
 
         const leafletMarker = L.marker([marker.lat, marker.lng], {
@@ -286,9 +299,16 @@ const Map = React.memo(
           }
         }
       });
-    };
+    }, [
+      markers,
+      focusId,
+      focusOnGroup,
+      focusOnRoute,
+      showMarkerLabel,
+      openPopUp,
+    ]);
 
-    const setView = () => {
+    const setView = useCallback(() => {
       // Get the center from bounds (true center)
       const bounds = L.latLngBounds(markers.map((m) => [m.lat, m.lng]));
       if (!bounds.isValid()) return;
@@ -302,12 +322,12 @@ const Map = React.memo(
         let marker = markers.find((m) => m.id === focusId);
         if (marker) mapInstanceRef.current?.panTo([marker.lat, marker.lng]);
       }
-    };
+    }, [markers, focusId, focusOnGroup, focusMapShift]);
 
-    const setMyLocation = () => {
+    const setMyLocation = useCallback(() => {
       // remove old pin points
       MyLocationRef.current.forEach((m) =>
-        mapInstanceRef.current!.removeLayer(m)
+        mapInstanceRef.current!.removeLayer(m),
       );
       MyLocationRef.current = [];
 
@@ -317,7 +337,7 @@ const Map = React.memo(
           [currentCoordinate.lat, currentCoordinate.lng],
           {
             icon: MapPin({ color: "gold" }),
-          }
+          },
         );
 
         // add pin point to markerRef
@@ -326,14 +346,14 @@ const Map = React.memo(
         // add pin point to map
         leafletMyLocation.addTo(mapInstanceRef.current!);
       }
-    };
+    }, [currentCoordinate]);
 
     return (
       <Box className="map-box" ref={mapRef} sx={sx}>
         {children}
       </Box>
     );
-  }
+  },
 );
 
-export default React.memo(Map);
+export default Map;

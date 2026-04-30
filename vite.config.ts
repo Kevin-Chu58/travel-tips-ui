@@ -4,6 +4,7 @@ import tsconfigPaths from "vite-tsconfig-paths";
 import JavaScriptObfuscator from "javascript-obfuscator";
 import type { Plugin } from "vite";
 import type { OutputBundle, OutputChunk } from "rollup";
+import compression from "vite-plugin-compression";
 
 // Custom plugin to obfuscate JS after build
 function obfuscatePlugin(): Plugin {
@@ -59,6 +60,8 @@ export default defineConfig({
     tsconfigPaths({
       projects: ["./tsconfig.app.json"], // explicitly tell it to use this
     }),
+    compression({ algorithm: "brotliCompress", ext: ".br" }),
+    compression({ algorithm: "gzip" }),
   ],
   publicDir: "public",
 });

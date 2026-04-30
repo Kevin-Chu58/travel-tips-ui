@@ -833,53 +833,63 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
 
       {/* forms */}
 
-      <TripShareForm
-        open={openForm === "share"}
-        onClose={handleCloseForm}
-        tripBasicRef={tripBasicRef}
-        sharedUsers={sharedUsers}
-        asyncTrip={asyncTrip}
-        readonly={readonly}
-      />
+      {openForm === "share" && (
+        <TripShareForm
+          open
+          onClose={handleCloseForm}
+          tripBasicRef={tripBasicRef}
+          sharedUsers={sharedUsers}
+          asyncTrip={asyncTrip}
+          readonly={readonly}
+        />
+      )}
 
-      <TripPdfForm
-        open={openForm === "pdf"}
-        onClose={handleCloseForm}
-        tripRef={tripBasicRef}
-        days={days}
-        taosMap={taosMap}
-        routeResponsesMap={routeResponsesMap}
-        geoMarkers={geoMarkers}
-        fetchAllDays={fetchAllDays}
-      />
+      {openForm === "pdf" && (
+        <TripPdfForm
+          open
+          onClose={handleCloseForm}
+          tripRef={tripBasicRef}
+          days={days}
+          taosMap={taosMap}
+          routeResponsesMap={routeResponsesMap}
+          geoMarkers={geoMarkers}
+          fetchAllDays={fetchAllDays}
+        />
+      )}
 
-      <DeleteDayForm
-        open={openForm === "deleteDay"}
-        onClose={handleCloseForm}
-        day={dayFocus}
-        dayId={Number(dayId)}
-        tripBasicRef={tripBasicRef}
-        asyncDeleteDay={asyncDeleteDay}
-      />
+      {openForm === "deleteDay" && (
+        <DeleteDayForm
+          open
+          onClose={handleCloseForm}
+          day={dayFocus}
+          dayId={Number(dayId)}
+          tripBasicRef={tripBasicRef}
+          asyncDeleteDay={asyncDeleteDay}
+        />
+      )}
 
-      <DeleteTaoForm
-        open={openForm === "deleteTao"}
-        onClose={handleCloseForm}
-        tao={tao}
-        setIsParentUpdated={handleUpdateDeleteTao}
-      />
+      {openForm === "deleteTao" && (
+        <DeleteTaoForm
+          open
+          onClose={handleCloseForm}
+          tao={tao}
+          setIsParentUpdated={handleUpdateDeleteTao}
+        />
+      )}
 
-      <TaoForm
-        open={openForm === "editTao"}
-        onClose={handleCloseForm}
-        dayIndex={Number(dayId)}
-        dayId={day?.id}
-        tao={tao}
-        lastGeoCoordinate={lastGeoCoordinate}
-        setLastGeoCoordinate={setLastGeoCoordinate}
-        asyncAddDayTaos={asyncAddDayTaos}
-        asyncEditDayTaos={asyncEditDayTaos}
-      />
+      {openForm === "editTao" && (
+        <TaoForm
+          open
+          onClose={handleCloseForm}
+          dayIndex={Number(dayId)}
+          dayId={day?.id}
+          tao={tao}
+          lastGeoCoordinate={lastGeoCoordinate}
+          setLastGeoCoordinate={setLastGeoCoordinate}
+          asyncAddDayTaos={asyncAddDayTaos}
+          asyncEditDayTaos={asyncEditDayTaos}
+        />
+      )}
 
       <ImageForm
         image={image}
