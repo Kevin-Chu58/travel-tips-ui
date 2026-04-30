@@ -80,121 +80,6 @@ const Map = React.memo(
 
     const apiKey = import.meta.env.VITE_MAP_TILER_API_KEY;
 
-    /** useEffect */
-
-    useEffect(() => {
-      import("leaflet/dist/leaflet.css");
-    }, []);
-
-    useEffect(() => {
-      if (mapInstanceRef.current) {
-        // delay slightly if you have a CSS transition for the UI sliding
-        const timer = setTimeout(() => {
-          mapInstanceRef.current!.invalidateSize();
-        }, 0); // adjust to match your UI transition duration
-
-        return () => clearTimeout(timer);
-      }
-    }, [openUI]);
-
-    const markersKey = useMemo(
-      () => markers.map((m) => `${m.id}-${m.lat}-${m.lng}`).join(","),
-      [markers],
-    );
-
-    // update on markers, taoId, focusRoute and routeCoords to update the overall map
-    useEffect(() => {
-      if (mapInstanceRef.current) {
-        setRoutes();
-        setMarkers();
-        setView();
-      }
-    }, [markersKey, mapRoutes, focusId, focusRoute]);
-
-    // rerender my location on currentCoordinate
-    useEffect(() => {
-      if (mapInstanceRef.current) {
-        setMyLocation();
-      }
-    }, [currentCoordinate]);
-
-    // render the set coordinate event on mount
-    useEffect(() => {
-      if (mapInstanceRef.current && setCurrentCoordinate) {
-        const handler = (e: L.LeafletMouseEvent) => {
-          const { lat, lng } = e.latlng;
-
-          const normalizedLng = ((((lng + 180) % 360) + 360) % 360) - 180;
-
-          setCurrentCoordinate({ lat, lng: normalizedLng });
-
-          // Instantly move the map to the new coordinate
-          mapInstanceRef.current!.setView([lat, normalizedLng]);
-        };
-
-        // right click
-        mapInstanceRef.current.on("click", handler);
-
-        return () => {
-          if (mapInstanceRef.current)
-            mapInstanceRef.current.off("click", handler);
-        };
-      }
-    }, [setCurrentCoordinate]);
-
-    // renrender the whole map on isUpdated
-    useEffect(() => {
-      if (mapRef.current && !mapInstanceRef.current) {
-        let mapOptions: L.MapOptions = {
-          maxZoom: 18,
-          zoomControl: false, // hide zoom buttons
-        };
-
-        let mapOptionsReadonly: L.MapOptions = {
-          ...mapOptions,
-          dragging: false, // disable dragging
-          scrollWheelZoom: false, // disable wheel zoom
-          doubleClickZoom: false, // disable double-click
-          boxZoom: false, // disable shift-drag zoom
-          keyboard: false, // disable keyboard navigation
-          touchZoom: false, // disable pinch zoom on mobile
-        };
-
-        mapInstanceRef.current = L.map(
-          mapRef.current,
-          readonly ? mapOptionsReadonly : mapOptions,
-        ).setView([lat, lng], 4);
-
-        if (!readonly) {
-          L.control
-            .zoom({
-              position: "bottomright", // options: 'topleft', 'topright', 'bottomleft', 'bottomright'
-            })
-            .addTo(mapInstanceRef.current);
-        }
-
-        if (mapInstanceRef.current && markers.length > 0) {
-          setRoutes();
-          setMarkers();
-          setView();
-          setMyLocation();
-        }
-
-        L.tileLayer(
-          `https://api.maptiler.com/maps/streets-v2/256/{z}/{x}/{y}@2x.png?key=${apiKey}`,
-          {
-            // L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-            maxZoom: 18,
-            updateWhenIdle: true, // load tiles only after user stops moving
-            updateWhenZooming: false, // don’t load intermediate zoom tiles
-            keepBuffer: 1,
-            attribution:
-              '&copy; 2026 HERE | &copy; <a href="https://www.maptiler.com/copyright/" target="_blank" rel="noopener noreferrer">MapTiler</a> &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors',
-          },
-        ).addTo(mapInstanceRef.current);
-      }
-    }, []);
-
     const setRoutes = useCallback(() => {
       // remove old polyline routes
       routesRef.current.forEach((m) => mapInstanceRef.current!.removeLayer(m));
@@ -347,6 +232,121 @@ const Map = React.memo(
         leafletMyLocation.addTo(mapInstanceRef.current!);
       }
     }, [currentCoordinate]);
+
+    /** useEffect */
+
+    useEffect(() => {
+      import("leaflet/dist/leaflet.css");
+    }, []);
+
+    useEffect(() => {
+      if (mapInstanceRef.current) {
+        // delay slightly if you have a CSS transition for the UI sliding
+        const timer = setTimeout(() => {
+          mapInstanceRef.current!.invalidateSize();
+        }, 0); // adjust to match your UI transition duration
+
+        return () => clearTimeout(timer);
+      }
+    }, [openUI]);
+
+    const markersKey = useMemo(
+      () => markers.map((m) => `${m.id}-${m.lat}-${m.lng}`).join(","),
+      [markers],
+    );
+
+    // update on markers, taoId, focusRoute and routeCoords to update the overall map
+    useEffect(() => {
+      if (mapInstanceRef.current) {
+        setRoutes();
+        setMarkers();
+        setView();
+      }
+    }, [markersKey, mapRoutes, focusId, focusRoute]);
+
+    // rerender my location on currentCoordinate
+    useEffect(() => {
+      if (mapInstanceRef.current) {
+        setMyLocation();
+      }
+    }, [currentCoordinate]);
+
+    // render the set coordinate event on mount
+    useEffect(() => {
+      if (mapInstanceRef.current && setCurrentCoordinate) {
+        const handler = (e: L.LeafletMouseEvent) => {
+          const { lat, lng } = e.latlng;
+
+          const normalizedLng = ((((lng + 180) % 360) + 360) % 360) - 180;
+
+          setCurrentCoordinate({ lat, lng: normalizedLng });
+
+          // Instantly move the map to the new coordinate
+          mapInstanceRef.current!.setView([lat, normalizedLng]);
+        };
+
+        // right click
+        mapInstanceRef.current.on("click", handler);
+
+        return () => {
+          if (mapInstanceRef.current)
+            mapInstanceRef.current.off("click", handler);
+        };
+      }
+    }, [setCurrentCoordinate]);
+
+    // renrender the whole map on isUpdated
+    useEffect(() => {
+      if (mapRef.current && !mapInstanceRef.current) {
+        let mapOptions: L.MapOptions = {
+          maxZoom: 18,
+          zoomControl: false, // hide zoom buttons
+        };
+
+        let mapOptionsReadonly: L.MapOptions = {
+          ...mapOptions,
+          dragging: false, // disable dragging
+          scrollWheelZoom: false, // disable wheel zoom
+          doubleClickZoom: false, // disable double-click
+          boxZoom: false, // disable shift-drag zoom
+          keyboard: false, // disable keyboard navigation
+          touchZoom: false, // disable pinch zoom on mobile
+        };
+
+        mapInstanceRef.current = L.map(
+          mapRef.current,
+          readonly ? mapOptionsReadonly : mapOptions,
+        ).setView([lat, lng], 4);
+
+        if (!readonly) {
+          L.control
+            .zoom({
+              position: "bottomright", // options: 'topleft', 'topright', 'bottomleft', 'bottomright'
+            })
+            .addTo(mapInstanceRef.current);
+        }
+
+        if (mapInstanceRef.current && markers.length > 0) {
+          setRoutes();
+          setMarkers();
+          setView();
+          setMyLocation();
+        }
+
+        L.tileLayer(
+          `https://api.maptiler.com/maps/streets-v2/256/{z}/{x}/{y}@2x.png?key=${apiKey}`,
+          {
+            // L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            maxZoom: 18,
+            updateWhenIdle: true, // load tiles only after user stops moving
+            updateWhenZooming: false, // don’t load intermediate zoom tiles
+            keepBuffer: 1,
+            attribution:
+              '&copy; 2026 HERE | &copy; <a href="https://www.maptiler.com/copyright/" target="_blank" rel="noopener noreferrer">MapTiler</a> &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors',
+          },
+        ).addTo(mapInstanceRef.current);
+      }
+    }, []);
 
     return (
       <Box className="map-box" ref={mapRef} sx={sx}>
