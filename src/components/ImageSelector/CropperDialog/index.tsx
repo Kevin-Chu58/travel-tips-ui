@@ -8,7 +8,7 @@ import {
   Typography,
 } from "@mui/material";
 import FileUploadIcon from "@mui/icons-material/FileUpload";
-import { useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { Cropper, type ReactCropperElement } from "react-cropper";
 import { useIsMobile } from "@hooks/useIsMobile";
 import { enqueueSnackbar } from "notistack";
@@ -42,37 +42,39 @@ const CropperDialog = ({
   identifier,
   notify = true,
 }: CropperDialogProps) => {
-  // window
   const isMobile = useIsMobile();
-  // name
   const [name, setName] = useState<string>("");
-  // cropper image
   const [preview, setPreview] = useState<string | null>(null);
-  // behavior
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const actionButtonIcon = isLoading ? (
-    <CircularProgress size="1rem" sx={{ color: "white" }} />
-  ) : (
-    <FileUploadIcon />
-  );
-  // ref
   const cropperRef = useRef<ReactCropperElement>(null);
 
-  const handlePreview = () => {
+  const actionButtonIcon = useMemo(
+    () =>
+      isLoading ? (
+        <CircularProgress size="1rem" sx={{ color: "white" }} />
+      ) : (
+        <FileUploadIcon />
+      ),
+    [isLoading],
+  );
+
+  const handleClose = useCallback(() => {
+    onClose();
+    setPreview(null);
+    setName("");
+  }, [onClose]);
+
+  const handlePreview = useCallback(() => {
     const cropper = cropperRef.current?.cropper;
     if (!cropper) return;
-
     const canvas = cropper.getCroppedCanvas();
     if (!canvas) return;
+    setPreview(canvas.toDataURL("image/jpeg"));
+  }, []);
 
-    const croppedDataUrl = canvas.toDataURL("image/jpeg");
-    setPreview(croppedDataUrl); // store in state for rendering
-  };
-
-  const handleCrop = async () => {
+  const handleCrop = useCallback(async () => {
     const cropper = cropperRef.current?.cropper;
     if (!cropper) return;
-
     const canvas = cropper.getCroppedCanvas();
     if (!canvas) return;
 
@@ -81,15 +83,12 @@ const CropperDialog = ({
       return;
     }
 
-    // Convert cropped canvas to Blob
     canvas.toBlob(async (blob) => {
       if (!blob) return;
 
-      // Optional: if on crop is provided, return the cropped image instead
       if (onCrop) {
         const dataUrl = canvas.toDataURL("image/jpeg");
         onCrop(blob, dataUrl);
-
         handleClose();
         return;
       }
@@ -105,29 +104,30 @@ const CropperDialog = ({
         notify,
       );
       BehaviorUtils.sleep();
-
-      // close the dialog
       handleClose();
       setIsLoading(false);
     }, "image/jpeg");
-  };
+  }, [
+    name,
+    onCrop,
+    asyncAddImage,
+    setImage,
+    imageType,
+    identifier,
+    notify,
+    handleClose,
+  ]);
 
-  const handleNameTextFieldChange = (
-    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-  ) => {
-    setName(event.target.value);
-  };
-
-  const handleClose = () => {
-    onClose();
-    setPreview(null);
-    setName("");
-  };
+  const handleNameChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      setName(e.target.value);
+    },
+    [],
+  );
 
   return (
     <TTDialog open={open} onClose={handleClose} hidePadding>
       <Box className={clsx("cropper-dialog-box", isMobile && "mobile")}>
-        {/* cropper */}
         <Box>
           <Cropper
             ref={cropperRef}
@@ -142,7 +142,6 @@ const CropperDialog = ({
             crop={handlePreview}
           />
         </Box>
-        {/* new image form */}
         <Box
           className={clsx(
             "cropper-dialog-image-form-box",
@@ -150,7 +149,6 @@ const CropperDialog = ({
           )}
         >
           <Box>
-            {/* name */}
             <Typography className="cropper-dialog-primary-text">
               Name
             </Typography>
@@ -163,7 +161,7 @@ const CropperDialog = ({
                 size="small"
                 value={name}
                 placeholder="optional"
-                onChange={(e) => handleNameTextFieldChange(e)}
+                onChange={handleNameChange}
                 endAdornment={`${name.length}/50`}
                 autoFocus
               />
@@ -178,7 +176,6 @@ const CropperDialog = ({
               *All images are converted to jpeg format.
             </Typography>
 
-            {/* image preview */}
             <Box className="cropper-dialog-image-preview-box">
               {preview && (
                 <img
@@ -189,7 +186,6 @@ const CropperDialog = ({
               )}
             </Box>
 
-            {/* upload button */}
             <Box className="cropper-dialog-button-box">
               <TTButton
                 label="cancel"

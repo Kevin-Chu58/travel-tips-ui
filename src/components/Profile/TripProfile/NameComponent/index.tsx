@@ -13,12 +13,14 @@ import { enqueueSnackbar } from "notistack";
 import React, { useCallback, useEffect, useState } from "react";
 import SettingsIcon from "@mui/icons-material/Settings";
 import TTChipButton from "@components/TTChipButton";
-import TagForm from "@components/Forms/TagForm";
 import ToolTip from "@components/ToolTip";
 import { RegionUtils } from "@utils/RegionUtils";
 import { StringUtils } from "@utils/StringUtils";
 import GroupIcon from "@mui/icons-material/Group";
 import "./index.scss";
+
+// lazy load
+const TagForm = React.lazy(() => import("@components/Forms/TagForm"));
 
 type NameComponentProps = {
   tripBasicRef: React.RefObject<Trip | undefined>;

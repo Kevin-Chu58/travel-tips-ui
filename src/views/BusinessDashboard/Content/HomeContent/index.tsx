@@ -5,12 +5,14 @@ import { type Ad } from "@services/feed/ads";
 import { Link } from "react-router";
 import TTButton from "@components/TTButton";
 import React from "react";
-import ImageSelector from "@components/ImageSelector";
 import { imagesService, type Image } from "@services/images";
 import { ImageType } from "@constants/Enums";
 import { enqueueSnackbar } from "notistack";
 import clsx from "clsx";
 import "./index.scss";
+
+// lazy load
+const ImageSelector = React.lazy(() => import('@components/ImageSelector'));
 
 type HomeContentProps = {
   business: Business | undefined;

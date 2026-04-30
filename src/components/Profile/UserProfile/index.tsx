@@ -12,7 +12,6 @@ import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "@redux/store";
 import { FaCrown } from "react-icons/fa";
 import ToolTip from "@components/ToolTip";
-import ImageSelector from "@components/ImageSelector";
 import { setUser as setUserSlice } from "@redux/userSlice";
 import React, { useEffect, useState } from "react";
 import { tripsService, type Trip } from "@services/trips";
@@ -23,6 +22,9 @@ import UserAvatar from "@components/UserAvatar";
 import { goToLoginPortal } from "@services/tokens";
 import clsx from "clsx";
 import "./index.scss";
+
+// lazy load
+const ImageSelector = React.lazy(() => import('@components/ImageSelector'));
 
 type UserProfileProps = {
   user?: UserProfileBasic;

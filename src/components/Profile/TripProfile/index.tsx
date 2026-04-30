@@ -6,7 +6,6 @@ import { type Trip, tripsService } from "@services/trips";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { useSnackbar } from "notistack";
-import ImageSelector from "@components/ImageSelector";
 import TLogo from "@assets/T.svg";
 import AddIcon from "@mui/icons-material/Add";
 import TTChipButton from "@components/TTChipButton";
@@ -24,7 +23,6 @@ import MapUtils from "@utils/MapUtils";
 import TaoComponent from "./TaoComponent";
 import DeleteTaoForm from "@components/Forms/DeleteTaoForm";
 import DayOverviewComponent from "./DayOverviewComponent";
-import TaoForm from "@components/Forms/TaoForm";
 import {
   hereMapService,
   type HereRoutingResponse,
@@ -38,16 +36,21 @@ import {
   type WikiImage,
 } from "@services/wikiCommons/wikiCommons";
 import ImageForm from "@components/Forms/ImageForm";
-import { isEqual } from "lodash";
+import { isEqual } from "lodash-es";
 import ToolTip from "@components/ToolTip";
 import TripShareForm from "@components/Forms/TripShareForm";
 import { useSelector } from "react-redux";
 import type { RootState } from "@redux/store";
-import TripPdfForm from "@components/Forms/TripPdfForm";
 import UserAvatar from "@components/UserAvatar";
 import { useNavToProfile } from "@hooks/useNavToProfile";
+import React from "react";
 import clsx from "clsx";
 import "./index.scss";
+
+// lazy load
+const TripPdfForm = React.lazy(() => import("@components/Forms/TripPdfForm"));
+const TaoForm = React.lazy(() => import('@components/Forms/TaoForm'));
+const ImageSelector = React.lazy(() => import('@components/ImageSelector'));
 
 type TripProfileProps = {
   uri?: string;

@@ -1,4 +1,4 @@
-import React, { useRef, useState, type ReactNode } from "react";
+import React, { useCallback, useRef, useState, type ReactNode } from "react";
 import "cropperjs/dist/cropper.css";
 import {
   Button,
@@ -19,8 +19,8 @@ type ImageSelectorProps = {
   imageIds?: number[];
   disabled?: boolean;
   onCrop?: (blob: Blob, dataUrl: string) => void;
-  asyncAddImage?: (state: number) => void; // do something with the image id
-  setImage?: (state: Image) => void; // do something with the image view model
+  asyncAddImage?: (state: number) => void;
+  setImage?: (state: Image) => void;
   readonly?: boolean;
   imageType?: ImageType;
   identifier?: number;
@@ -40,67 +40,65 @@ const ImageSelector = ({
   notify = true,
   children,
 }: ImageSelectorProps) => {
-  // popover
   const [popoverAnchorEl, setPopoverAnchorEl] =
-    React.useState<HTMLButtonElement | null>(null);
-  // dialog
+    useState<HTMLButtonElement | null>(null);
   const [openLibraryDialog, setOpenLibraryDialog] = useState<boolean>(false);
   const [openCropperDialog, setOpenCropperDialog] = useState<boolean>(false);
-  // cropper image
   const [imageSrc, setImageSrc] = useState<string | null>(null);
-  // ref
   const fileInputRef = useRef<HTMLInputElement>(null);
-  // others
+
+  // these are stable — defined outside or never change
   const isBanner = imageType === ImageType.Banner;
   const isBusiness = imageType === ImageType.Business;
   const isAd = imageType === ImageType.Ad;
   const showLibraryDialog = !(isBusiness || isAd);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      setImageSrc(reader.result as string);
-      setOpenCropperDialog(true);
-      handleClosePopover();
-
-      // Reset so reselecting the same file works (double-click)
-      e.target.value = "";
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const openFileDialog = () => {
-    fileInputRef.current?.click();
-  };
-
-  // popover
-  const handleClickPopover = (event: React.MouseEvent<HTMLButtonElement>) => {
-    if (readonly) return;
-
-    if (!disabled) setPopoverAnchorEl(event.currentTarget);
-  };
-
-  const handleClosePopover = () => {
+  const handleClosePopover = useCallback(() => {
     setPopoverAnchorEl(null);
-  };
+  }, []);
 
-  // dialog
-  const handleClickLibraryDialog = () => {
+  const handleFileChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        setImageSrc(reader.result as string);
+        setOpenCropperDialog(true);
+        handleClosePopover();
+        e.target.value = "";
+      };
+      reader.readAsDataURL(file);
+    },
+    [handleClosePopover],
+  );
+
+  const openFileDialog = useCallback(() => {
+    fileInputRef.current?.click();
+  }, []);
+
+  const handleClickPopover = useCallback(
+    (event: React.MouseEvent<HTMLButtonElement>) => {
+      if (readonly) return;
+      if (!disabled) setPopoverAnchorEl(event.currentTarget);
+    },
+    [readonly, disabled],
+  );
+
+  const handleClickLibraryDialog = useCallback(() => {
     setOpenLibraryDialog(true);
     handleClosePopover();
-  };
+  }, [handleClosePopover]);
 
-  const handleCloseLibraryDialog = () => {
+  const handleCloseLibraryDialog = useCallback(() => {
     setOpenLibraryDialog(false);
-  };
+  }, []);
 
-  const handleCloseCropperDialog = () => {
+  const handleCloseCropperDialog = useCallback(() => {
     setOpenCropperDialog(false);
     setImageSrc(null);
-  };
+  }, []);
 
   return (
     <React.Fragment>
@@ -118,7 +116,6 @@ const ImageSelector = ({
         open={Boolean(popoverAnchorEl)}
         onClose={handleClosePopover}
       >
-        {/* button - library  */}
         {showLibraryDialog ? (
           <MenuItem onClick={handleClickLibraryDialog}>
             <ListItemIcon>
@@ -128,7 +125,6 @@ const ImageSelector = ({
           </MenuItem>
         ) : undefined}
 
-        {/* button - upload  */}
         <MenuItem onClick={openFileDialog}>
           <input
             type="file"
@@ -144,7 +140,6 @@ const ImageSelector = ({
         </MenuItem>
       </Menu>
 
-      {/* dialog - library */}
       {showLibraryDialog ? (
         <LibraryDialog
           open={openLibraryDialog}
@@ -156,20 +151,22 @@ const ImageSelector = ({
         />
       ) : undefined}
 
-      {/* dialog - cropper */}
-      <CropperDialog
-        open={openCropperDialog}
-        onClose={handleCloseCropperDialog}
-        imageSrc={imageSrc}
-        onCrop={onCrop}
-        asyncAddImage={asyncAddImage}
-        setImage={setImage}
-        imageType={imageType}
-        identifier={identifier}
-        notify={notify}
-      />
+      {/* ✅ conditional mount — only mount when open */}
+      {openCropperDialog && (
+        <CropperDialog
+          open
+          onClose={handleCloseCropperDialog}
+          imageSrc={imageSrc}
+          onCrop={onCrop}
+          asyncAddImage={asyncAddImage}
+          setImage={setImage}
+          imageType={imageType}
+          identifier={identifier}
+          notify={notify}
+        />
+      )}
     </React.Fragment>
   );
 };
 
-export default ImageSelector;
+export default React.memo(ImageSelector);

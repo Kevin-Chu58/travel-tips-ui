@@ -11,14 +11,14 @@ import type { Tao } from "@services/taos";
 import type { HereRoutingResponse } from "@services/hereMap/hereMap";
 import LocalActivityIcon from "@mui/icons-material/LocalActivity";
 import DownloadIcon from "@mui/icons-material/Download";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { enqueueSnackbar } from "notistack";
 import { usersService } from "@services/users";
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "@redux/store";
 import ProgressBar from "@components/ProgressBar";
-import "./index.scss";
 import { setUser } from "@redux/userSlice";
+import "./index.scss";
 
 type TripPdfFormProps = {
   open: boolean;
@@ -44,36 +44,42 @@ const TripPdfForm = ({
   geoMarkers,
   fetchAllDays,
 }: TripPdfFormProps) => {
-  // user
   const userSubExtend = useSelector(
     (state: RootState) => state.user.userSubExtend,
   );
-  // redux
   const dispatch = useDispatch();
-  // trip count
-  const current = userSubExtend?.pdfDownloadCount ?? 0;
-  const max = userSubExtend?.maxPdfDownloadCount ?? 0;
-  // behavior
   const [isDownloading, setIsDownLoading] = useState<boolean>(false);
 
-  // enforce all details to trip on opening the form
+  // derived from userSubExtend — no need for separate state
+  const current = userSubExtend?.pdfDownloadCount ?? 0;
+  const max = userSubExtend?.maxPdfDownloadCount ?? 0;
+
   useEffect(() => {
     if (open) fetchAllDays();
-  }, [open]);
+  }, [open, fetchAllDays]);
 
-  // enfore rerender on taosMap, since taosMap does not trigger UI update because it's a map
-  useEffect(() => {}, [taosMap]);
+  const subTitleContent = useMemo(
+    () => (
+      <Box className="row primary">
+        <LocalActivityIcon fontSize="small" /> Member Only
+      </Box>
+    ),
+    [],
+  );
 
-  const handleDownloadPdf = async () => {
+  const actionButtonStartIcon = useMemo(() => <DownloadIcon />, []);
+
+  const handleClose = useCallback(() => {
+    if (!isDownloading) onClose();
+  }, [isDownloading, onClose]);
+
+  const handleDownloadPdf = useCallback(async () => {
     setIsDownLoading(true);
 
-    // verify user membership first
     try {
       await usersService.generatePdf();
     } catch (e) {
-      if (e instanceof Error) {
-        enqueueSnackbar(e.message, { variant: "error" });
-      }
+      if (e instanceof Error) enqueueSnackbar(e.message, { variant: "error" });
       setIsDownLoading(false);
       return;
     }
@@ -88,11 +94,7 @@ const TripPdfForm = ({
     for (let i = 0; i < pages.length; i++) {
       const pageEl = pages[i] as HTMLElement;
 
-      // 1. Capture image
-      const dataUrl = await toPng(pageEl, {
-        quality: 1,
-        pixelRatio: 2,
-      });
+      const dataUrl = await toPng(pageEl, { quality: 1, pixelRatio: 2 });
 
       const imgProps = pdf.getImageProperties(dataUrl);
       const pdfWidth = pdf.internal.pageSize.getWidth();
@@ -100,26 +102,20 @@ const TripPdfForm = ({
 
       pdf.addImage(dataUrl, "PNG", 0, 0, A4_WIDTH, A4_HEIGHT);
 
-      // 2. Manually find and add links
       const links = pageEl.querySelectorAll("a");
       const rootRect = pageEl.getBoundingClientRect();
 
       links.forEach((link) => {
         const linkRect = link.getBoundingClientRect();
-
-        // Calculate relative position (0 to 1 scale)
         const x = ((linkRect.left - rootRect.left) / rootRect.width) * pdfWidth;
         const y = ((linkRect.top - rootRect.top) / rootRect.height) * pdfHeight;
         const w = (linkRect.width / rootRect.width) * pdfWidth;
         const h = (linkRect.height / rootRect.height) * pdfHeight;
-
-        // Add invisible link annotation
         pdf.link(x, y, w, h, { url: link.href });
       });
 
       if (i < pages.length - 1) pdf.addPage();
 
-      // 3. Yield to browser to avoid freezing
       await new Promise((resolve) => setTimeout(resolve, 50));
 
       enqueueSnackbar(`Processed page ${i + 1} of ${pages.length}`, {
@@ -128,10 +124,9 @@ const TripPdfForm = ({
     }
 
     setIsDownLoading(false);
-
     pdf.save(`${tripRef.current?.title ?? "trip"}.pdf`);
 
-    if (userSubExtend)
+    if (userSubExtend) {
       dispatch(
         setUser({
           userSubExtend: {
@@ -140,24 +135,34 @@ const TripPdfForm = ({
           },
         }),
       );
-  };
+    }
+  }, [tripRef, userSubExtend, dispatch]);
+
+  const dayPages = useMemo(
+    () =>
+      days.map((day, i) => (
+        <DayPdfPage
+          key={`day-pdf-${day.id}`}
+          dayIndex={i}
+          taos={taosMap?.get(day.id)}
+          routingResponses={routeResponsesMap?.get(day.id)}
+        />
+      )),
+    [days, taosMap, routeResponsesMap],
+  );
 
   return (
     <FormBase
       className="trip-pdf-form"
       open={open}
-      onClose={!isDownloading ? onClose : () => {}}
+      onClose={handleClose}
       width="60vw"
       height="80vh"
       maxHeight="80vh"
       title="Preview PDF"
-      subTitle={
-        <Box className="row primary">
-          <LocalActivityIcon fontSize="small" /> Member Only
-        </Box>
-      }
+      subTitle={subTitleContent}
       actionButtonLabel="download PDF"
-      actionButtonStartIcon={<DownloadIcon />}
+      actionButtonStartIcon={actionButtonStartIcon}
       actionButtonOnClick={handleDownloadPdf}
       isLoading={isDownloading}
       panel
@@ -166,14 +171,7 @@ const TripPdfForm = ({
         <ProgressBar current={current} max={max} object="PDFs" />
         <Box className="pdf-pages-box">
           <OverviewPdfPage tripRef={tripRef} markers={geoMarkers} />
-          {days.map((day, i) => (
-            <DayPdfPage
-              key={`day-pdf-${day.id}`}
-              dayIndex={i}
-              taos={taosMap?.get(day.id)}
-              routingResponses={routeResponsesMap?.get(day.id)}
-            />
-          ))}
+          {dayPages}
         </Box>
       </Box>
     </FormBase>

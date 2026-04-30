@@ -4,14 +4,17 @@ import type { Business } from "@services/feed/businesses";
 import { adsService, type Ad, type AdPatch } from "@services/feed/ads";
 import { Box, Grid, TextField, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
-import ImageSelector from "@components/ImageSelector";
 import TTButton from "@components/TTButton";
 import { ImageType } from "@constants/Enums";
 import { FiUpload, FiX } from "react-icons/fi";
 import { enqueueSnackbar } from "notistack";
 import { useIsMobile } from "@hooks/useIsMobile";
+import React from "react";
 import clsx from "clsx";
 import "./index.scss";
+
+// lazy load
+const ImageSelector = React.lazy(() => import("@components/ImageSelector"));
 
 type AdFormProps = {
   open: boolean;

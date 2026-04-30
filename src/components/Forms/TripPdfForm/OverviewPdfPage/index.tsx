@@ -13,27 +13,29 @@ type OverviewPdfPageProps = {
   markers: Marker[] | undefined;
 };
 
-const OverviewPdfPage = ({ tripRef, markers }: OverviewPdfPageProps) => {
-  return (
-    <PdfPagePreview>
-      <PdfPage>
-        <Box className="page-box max-content">
-          <NameComponent tripBasicRef={tripRef} readonly />
+const OverviewPdfPage = React.memo(
+  ({ tripRef, markers }: OverviewPdfPageProps) => {
+    return (
+      <PdfPagePreview>
+        <PdfPage>
+          <Box className="page-box max-content">
+            <NameComponent tripBasicRef={tripRef} readonly />
 
-          <Box>
-            <Typography color="primary" fontWeight="bold" variant="h6">
-              Summary
-            </Typography>
-            <MarkdownBox text={tripRef.current?.description} disableGap />
-          </Box>
+            <Box>
+              <Typography color="primary" fontWeight="bold" variant="h6">
+                Summary
+              </Typography>
+              <MarkdownBox text={tripRef.current?.description} disableGap />
+            </Box>
 
-          <Box className="map-box">
-            <Map markers={markers} showMarkerLabel readonly />
+            <Box className="map-box">
+              <Map markers={markers} showMarkerLabel readonly />
+            </Box>
           </Box>
-        </Box>
-      </PdfPage>
-    </PdfPagePreview>
-  );
-};
+        </PdfPage>
+      </PdfPagePreview>
+    );
+  },
+);
 
 export default OverviewPdfPage;

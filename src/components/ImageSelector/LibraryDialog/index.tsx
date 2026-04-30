@@ -3,7 +3,7 @@ import TTDialog from "@components/TTDialog";
 import { Box, CircularProgress, Divider, Typography } from "@mui/material";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
 import { imagesService, type Image } from "@services/images";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { BehaviorUtils } from "@utils/BehaviorUtils";
 import { enqueueSnackbar } from "notistack";
 import { useIsMobile } from "@hooks/useIsMobile";
@@ -31,37 +31,22 @@ const LibraryDialog = ({
   banner = false,
   hasAction = true,
 }: LibraryDialogProps) => {
-  // window
   const isMobile = useIsMobile();
-  // images
   const [images, setImages] = useState<Image[]>([]);
   const [selectedImageId, setSelectedImageId] = useState<number | undefined>();
-  // image
   const [selectedImage, setSelectedImage] = useState<Image | undefined>();
-  // behavior
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  // button
-  const actionButtonIcon = isLoading ? (
-    <CircularProgress size="1rem" sx={{ color: "white" }} />
-  ) : (
-    <AttachFileIcon />
+
+  const actionButtonIcon = useMemo(
+    () =>
+      isLoading ? (
+        <CircularProgress size="1rem" sx={{ color: "white" }} />
+      ) : (
+        <AttachFileIcon />
+      ),
+    [isLoading],
   );
 
-  const asyncUpdateImage = async (image: Image) => {
-    let _images = [...images];
-    let index = _images.findIndex((i) => i.id === image.id);
-    if (index < 0) return;
-
-    _images[index] = image;
-    setImages([..._images]);
-  };
-
-  const asyncDeleteImage = async (id: number) => {
-    let _images = images.filter((i) => i.id !== id);
-    setImages([..._images]);
-  };
-
-  // rerender library images on openLibraryDialog
   useEffect(() => {
     const initLibraryImages = async () => {
       if (open) {
@@ -75,43 +60,55 @@ const LibraryDialog = ({
       }
     };
     initLibraryImages();
-  }, [open]);
+  }, [open, banner, imageIds]);
 
-  const handleImageAttach = async () => {
+  const asyncUpdateImage = useCallback((image: Image) => {
+    setImages((prev) => {
+      const index = prev.findIndex((i) => i.id === image.id);
+      if (index < 0) return prev;
+      const updated = [...prev];
+      updated[index] = image;
+      return updated;
+    });
+  }, []);
+
+  const asyncDeleteImage = useCallback((id: number) => {
+    setImages((prev) => prev.filter((i) => i.id !== id));
+  }, []);
+
+  const handleClose = useCallback(() => {
+    onClose();
+    setSelectedImageId(undefined);
+  }, [onClose]);
+
+  const handleImageAttach = useCallback(async () => {
     if (selectedImageId) {
       try {
         setIsLoading(true);
-
         if (asyncAddImage) asyncAddImage(selectedImageId);
-
         if (setImage) {
           let image = images.find((i) => i.id === selectedImageId);
           setImage(image!);
         }
-
         enqueueSnackbar("Successfully attached image.", { variant: "success" });
       } catch (e) {
-        if (e instanceof Error) {
+        if (e instanceof Error)
           enqueueSnackbar(e.message, { variant: "error" });
-        }
       }
       BehaviorUtils.sleep();
-
-      // close the dialog
       handleClose();
       setIsLoading(false);
     }
-  };
+  }, [selectedImageId, asyncAddImage, setImage, images, handleClose]);
 
-  const handleClose = () => {
-    onClose();
-    setSelectedImageId(undefined);
-  };
+  const handleCloseImageForm = useCallback(
+    () => setSelectedImage(undefined),
+    [],
+  );
 
   return (
     <TTDialog open={open} onClose={handleClose} hidePadding>
       <Box className={clsx("library-dialog-box", isMobile && "mobile")}>
-        {/* header - library dialog */}
         <Box className="library-dialog-header-box">
           <Typography className="library-dialog-primary-text">
             {banner ? "Banner" : "Your"} Image Library
@@ -125,7 +122,6 @@ const LibraryDialog = ({
 
         <Divider variant="middle" flexItem />
 
-        {/* image library */}
         <ImageLibrary
           images={images}
           selectedImageId={selectedImageId}
@@ -133,7 +129,6 @@ const LibraryDialog = ({
           setSelectedImage={setSelectedImage}
         />
 
-        {/* attach button */}
         {hasAction ? (
           <Box className="library-dialog-button-box">
             <TTButton
@@ -149,11 +144,10 @@ const LibraryDialog = ({
         ) : undefined}
       </Box>
 
-      {/* forms */}
       {banner && !hasAction ? (
         <ImageForm
           image={selectedImage}
-          onClose={() => setSelectedImage(undefined)}
+          onClose={handleCloseImageForm}
           asyncUpdateImage={asyncUpdateImage}
           asyncDeleteImage={asyncDeleteImage}
           banner={banner}

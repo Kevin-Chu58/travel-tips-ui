@@ -12,6 +12,7 @@ function obfuscatePlugin(): Plugin {
     name: "obfuscate-plugin",
     apply: "build",
     enforce: "post",
+
     generateBundle(_, bundle: OutputBundle) {
       for (const [_, file] of Object.entries(bundle)) {
         if (file.type === "chunk") {
@@ -51,6 +52,13 @@ export default defineConfig({
         assetFileNames: "assets/[name]-[hash][extname]",
         chunkFileNames: "assets/[name]-[hash].js",
         entryFileNames: "assets/[name]-[hash].js",
+        manualChunks: {
+          "react-vendor": ["react", "react-dom", "react-router"],
+          "mui-vendor": ["@mui/material", "@mui/icons-material"],
+          "map-vendor": ["maplibre-gl"],
+          pdf: ["jspdf"],
+          editor: ["cropperjs"],
+        },
       },
     },
   },

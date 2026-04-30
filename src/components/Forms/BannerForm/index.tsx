@@ -17,7 +17,6 @@ import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import type { Dayjs } from "dayjs";
 import { type Image } from "@services/images";
-import ImageSelector from "@components/ImageSelector";
 import BannerCard from "@components/Cards/BannerCard";
 import {
   type BannerStyling,
@@ -36,6 +35,9 @@ import TimeUtils from "@utils/TimeUtils";
 import { ImageType } from "@constants/Enums";
 import dayjs from "dayjs";
 import "./index.scss";
+
+// lazy load
+const ImageSelector = React.lazy(() => import("@components/ImageSelector"));
 
 type BannerFormProps = {
   open: boolean;
