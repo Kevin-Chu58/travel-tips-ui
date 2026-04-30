@@ -1,9 +1,15 @@
-import Mapper from "@components/Map";
-import type { Route, NavTab, GeoCoordinate } from "@constants/Types";
+import type { NavTab, GeoCoordinate } from "@constants/Types";
 import { useIsMobile } from "@hooks/useIsMobile";
 import { Box, Chip, Typography } from "@mui/material";
 import { type Trip, tripsService } from "@services/trips";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useNavigate, useParams } from "react-router";
 import { useSnackbar } from "notistack";
 import TLogo from "@assets/T.svg";
@@ -11,24 +17,16 @@ import AddIcon from "@mui/icons-material/Add";
 import TTChipButton from "@components/TTChipButton";
 import { type Image } from "@services/images";
 import PreloadCarousel from "@components/Carousel/PreloadCarousel";
-import NameComponent from "./NameComponent";
-import DescriptionComponent from "./DescriptionComponent";
-import DayComponent from "./DayComponent";
-import SectionComponent from "./SectionComponent";
-import { BehaviorUtils } from "@utils/BehaviorUtils";
 import DeleteDayForm from "@components/Forms/DeleteDayForm";
 import { daysService, type Day } from "@services/days";
 import { taosService, type Tao, type TaoGeo } from "@services/taos";
 import MapUtils from "@utils/MapUtils";
-import TaoComponent from "./TaoComponent";
 import DeleteTaoForm from "@components/Forms/DeleteTaoForm";
-import DayOverviewComponent from "./DayOverviewComponent";
 import {
   hereMapService,
   type HereRoutingResponse,
 } from "@services/hereMap/hereMap";
 import UIShowButton from "@components/Button/UIShowButton";
-import FabComponent from "./FabComponent";
 import TimeUtils from "@utils/TimeUtils";
 import { max_day_per_trip } from "@constants/Restrictions";
 import {
@@ -48,9 +46,17 @@ import clsx from "clsx";
 import "./index.scss";
 
 // lazy load
+const DayComponent = React.lazy(() => import("./DayComponent"));
+const NameComponent = React.lazy(() => import("./NameComponent"));
+const DayOverviewComponent = React.lazy(() => import("./DayOverviewComponent"));
+const DescriptionComponent = React.lazy(() => import("./DescriptionComponent"));
+const SectionComponent = React.lazy(() => import("./SectionComponent"));
+const TaoComponent = React.lazy(() => import("./TaoComponent"));
+const FabComponent = React.lazy(() => import("./FabComponent"));
 const TripPdfForm = React.lazy(() => import("@components/Forms/TripPdfForm"));
-const TaoForm = React.lazy(() => import('@components/Forms/TaoForm'));
-const ImageSelector = React.lazy(() => import('@components/ImageSelector'));
+const TaoForm = React.lazy(() => import("@components/Forms/TaoForm"));
+const ImageSelector = React.lazy(() => import("@components/ImageSelector"));
+const Mapper = React.lazy(() => import("@components/Map"));
 
 type TripProfileProps = {
   uri?: string;
@@ -96,7 +102,11 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
   const [routeResponses, setRouteResponses] = useState<
     HereRoutingResponse[] | undefined
   >();
-  const [routes, setRoutes] = useState<Route[]>();
+  const routes = useMemo(() => {
+    if (!routeResponses) return undefined;
+    return MapUtils.routingResponses2Routes(routeResponses);
+  }, [routeResponses]);
+  // const [routes, setRoutes] = useState<Route[]>();
   // last geo coordinate
   const [lastGeoCoordinate, setLastGeoCoordinate] = useState<
     GeoCoordinate | undefined
@@ -346,18 +356,24 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
     [day, tao],
   );
 
-  // render trip on tripid
+  // render all on tripid
   useEffect(() => {
-    initTrip();
+    initAll();
   }, [tripId]);
 
-  // rerender taoGeos and days on numDays
+  // // rerender taoGeos and days on numDays
+  // useEffect(() => {
+  //   if (tripBasic?.numDays !== undefined) {
+  //     initTaoGeos();
+  //     initDays();
+  //   }
+  // }, [tripBasic?.numDays]);
+
+  // // rerender taos on day update
   useEffect(() => {
-    if (tripBasic?.numDays !== undefined) {
-      initTaoGeos();
-      initDays();
-    }
-  }, [tripBasic?.numDays]);
+    initTaos();
+    initRouteResponses();
+  }, [day?.id]);
 
   // rerender navTabValue on dayId
   useEffect(() => {
@@ -380,15 +396,9 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
   }, [navTabValue, days]);
 
   useEffect(() => {
-    if (tao) initWikiImages();
+    if (Boolean(tao)) initWikiImages();
     else setWikiImages([]);
   }, [tao]);
-
-  // rerender taos on day update
-  useEffect(() => {
-    initTaos();
-    initRouteResponses();
-  }, [day?.id]);
 
   const fetchAllDays = useCallback(async () => {
     // 1. Create an array of promises
@@ -473,28 +483,53 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
 
   // init functions
 
-  const initTrip = useCallback(async () => {
-    try {
-      if (tripId) {
-        setIsLoading(true);
+  const initAll = async () => {
+    if (!tripId) return;
 
-        // get trip basic
-        let tripBasic = await tripsService.getTripById(Number(tripId));
-        tripBasicRef.current = tripBasic;
-        asyncTrip();
+    setIsLoading(true);
 
-        imagesRef.current = tripBasic.images ?? [];
-        asyncImages();
+    const trip = await tripsService.getTripById(Number(tripId));
+    tripBasicRef.current = trip;
+    asyncTrip();
 
-        BehaviorUtils.sleep();
-        setIsLoading(false);
-      }
-    } catch (e) {
-      if (e instanceof Error) {
-        navigate("/");
-      }
-    }
-  }, [tripId, setIsLoading, asyncTrip, asyncImages]);
+    imagesRef.current = trip.images ?? [];
+    asyncImages();
+
+    setIsLoading(false);
+
+    const [daysData, taoGeosData] = await Promise.all([
+      daysService.getDaysByTripId(trip.id),
+      tripsService.getTripTaoGeosById(trip.id),
+    ]);
+
+    setDays(daysData);
+    setTaoGeos(taoGeosData);
+
+    setIsLoading(false);
+  };
+
+  // const initTrip = useCallback(async () => {
+  //   try {
+  //     if (tripId) {
+  //       setIsLoading(true);
+
+  //       // get trip basic
+  //       let tripBasic = await tripsService.getTripById(Number(tripId));
+  //       tripBasicRef.current = tripBasic;
+  //       asyncTrip();
+
+  //       imagesRef.current = tripBasic.images ?? [];
+  //       asyncImages();
+
+  //       BehaviorUtils.sleep();
+  //       setIsLoading(false);
+  //     }
+  //   } catch (e) {
+  //     if (e instanceof Error) {
+  //       navigate("/");
+  //     }
+  //   }
+  // }, [tripId, setIsLoading, asyncTrip, asyncImages]);
 
   const deleteTripImage = useCallback(
     async (index: number) => {
@@ -517,21 +552,21 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
     [tripBasic, images, asyncDetachImage, enqueueSnackbar],
   );
 
-  const initTaoGeos = useCallback(async () => {
-    if (tripBasic?.id) {
-      let taoGeos = await tripsService.getTripTaoGeosById(tripBasic.id);
-      taoGeosRef.current = taoGeos;
-      setTaoGeos(taoGeos);
-    }
-  }, [tripBasic, setTaoGeos]);
+  // const initTaoGeos = useCallback(async () => {
+  //   if (tripBasic?.id) {
+  //     let taoGeos = await tripsService.getTripTaoGeosById(tripBasic.id);
+  //     taoGeosRef.current = taoGeos;
+  //     setTaoGeos(taoGeos);
+  //   }
+  // }, [tripBasic, setTaoGeos]);
 
-  const initDays = useCallback(async () => {
-    if (tripId) {
-      // get days with trip id
-      let days = await daysService.getDaysByTripId(Number(tripId));
-      setDays(days);
-    }
-  }, [tripId, setDays]);
+  // const initDays = useCallback(async () => {
+  //   if (tripId) {
+  //     // get days with trip id
+  //     let days = await daysService.getDaysByTripId(Number(tripId));
+  //     setDays(days);
+  //   }
+  // }, [tripId, setDays]);
 
   const initTao = useCallback(
     (tao: Tao | undefined) => {
@@ -593,14 +628,17 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
       routeResponses: HereRoutingResponse[],
       silentUpdate: boolean = false,
     ) => {
-      let routes = MapUtils.routingResponses2Routes(routeResponses) as Route[];
+      // let routes = MapUtils.routingResponses2Routes(routeResponses) as Route[];
 
       if (!silentUpdate) {
-        setRoutes(routes);
+        // setRoutes(routes);
         setRouteResponses(routeResponses);
       }
     },
-    [setRoutes, setRouteResponses],
+    [
+      // setRoutes,
+      setRouteResponses,
+    ],
   );
 
   const initRouteResponses = useCallback(
@@ -625,10 +663,14 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
 
         await initRoutes(routeResponses, silentUpdate);
       } else {
-        setRoutes(undefined);
+        // setRoutes(undefined);
       }
     },
-    [day, initRoutes, setRoutes],
+    [
+      day,
+      initRoutes,
+      // setRoutes
+    ],
   );
 
   // other handle funcitons
@@ -823,15 +865,19 @@ const TripProfile = ({ uri = "/", readonly = false }: TripProfileProps) => {
 
       {/* map */}
       <Box className="map-box">
-        <Mapper
-          markers={markers}
-          mapRoutes={routes}
-          focusId={isOverview ? String(dayOverviewFocus) : String(tao?.id)}
-          openUI={openUI}
-          focusRoute
-          focusOnGroup={Boolean(isOverview)}
-          openPopUp
-        />
+        <Suspense fallback={<div />}>
+          {openUI && (
+            <Mapper
+              markers={markers}
+              mapRoutes={routes}
+              focusId={isOverview ? String(dayOverviewFocus) : String(tao?.id)}
+              openUI={openUI}
+              focusRoute
+              focusOnGroup={Boolean(isOverview)}
+              openPopUp
+            />
+          )}
+        </Suspense>
       </Box>
 
       {/* forms */}

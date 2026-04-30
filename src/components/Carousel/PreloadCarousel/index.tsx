@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useRef, type ReactNode } from "react";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  type ReactNode,
+  useMemo,
+} from "react";
 import { Box } from "@mui/material";
 import type { Image } from "@services/images";
 import TTIconButton from "@components/TTIconButton";
@@ -94,20 +100,14 @@ const PreloadCarousel = ({
     };
   }, [interval, images.length]);
 
-  const imageSrc = [
-    {
-      src: images[prevIndex].url,
-      alt: "prev",
-    },
-    {
-      src: images[index]?.url,
-      alt: "current",
-    },
-    {
-      src: images[nextIndex].url,
-      alt: "next",
-    },
-  ];
+  const imageSrc = useMemo(
+    () => [
+      { src: images[prevIndex].url, alt: "prev" },
+      { src: images[index]?.url, alt: "current" },
+      { src: images[nextIndex].url, alt: "next" },
+    ],
+    [images, index],
+  );
 
   return (
     <Box
@@ -121,7 +121,7 @@ const PreloadCarousel = ({
         className={clsx(
           "preload-carousel-image-overflow-container",
           circularBorder && "circular-border",
-          aspectRatioType
+          aspectRatioType,
         )}
       >
         <Box
@@ -140,6 +140,8 @@ const PreloadCarousel = ({
               style={{
                 width: `${slideWidthPercent}%`,
               }}
+              loading={image.alt === "current" ? "eager" : "lazy"}
+              decoding="async"
             />
           ))}
         </Box>

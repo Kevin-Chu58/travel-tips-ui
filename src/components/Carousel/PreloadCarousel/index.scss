@@ -11,7 +11,7 @@
 .preload-carousel-image-overflow-container {
   overflow: hidden;
   aspect-ratio: $default-aspect-ratio;
-
+  // contain: layout paint size;
 
   &.trip-profile {
     aspect-ratio: $trip-profile-aspect-ratio;
@@ -25,7 +25,13 @@
 .preload-carousel-image-box {
   display: flex;
   height: 100%;
-  transition: none;
+  // transition: transform 0.5s ease;
+  // will-change: transform;
+  // backface-visibility: hidden;
+
+  // display: flex;
+  // height: 100%;
+  // transition: none;
 
   &.animate {
     transition: transform 0.5s ease;
@@ -33,6 +39,7 @@
 }
 
 .preload-carousel-image {
+  width: 100%;
   height: 100%;
   object-fit: cover;
   flex-shrink: 0;
@@ -59,7 +66,7 @@
   margin: auto 0;
   display: flex;
   align-items: center;
-  transition: all ease-in-out 0.2s;
+  transition: transform 0.2s ease, opacity 0.2s ease;
 }
 
 .preload-carousel-scroll-button.MuiIconButton-root {
