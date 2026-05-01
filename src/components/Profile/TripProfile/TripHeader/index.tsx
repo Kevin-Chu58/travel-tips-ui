@@ -7,12 +7,15 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import TLogo from "@assets/T.svg";
 import UserAvatar from "@components/UserAvatar";
 import { Box, Chip, Typography } from "@mui/material";
-import ImageSelector from "@components/ImageSelector";
 import ImageForm from "@components/Forms/ImageForm";
 import { useNavToProfile } from "@hooks/useNavToProfile";
 import AddIcon from "@mui/icons-material/Add";
 import ToolTip from "@components/ToolTip";
 import TTChipButton from "@components/TTChipButton";
+import React from "react";
+
+// lazy load
+const ImageSelector = React.lazy(() => import("@components/ImageSelector"));
 
 type TripHeaderProps = {
   trip: Trip | undefined;

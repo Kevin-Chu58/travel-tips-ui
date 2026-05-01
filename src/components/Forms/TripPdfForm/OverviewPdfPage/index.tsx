@@ -6,7 +6,9 @@ import type { Trip } from "@services/trips";
 import React from "react";
 import MarkdownBox from "@components/MarkdownBox";
 import type { Marker } from "@constants/Types";
-import Map from "@components/Map";
+
+// lazy load
+const Map = React.lazy(() => import("@components/Map"));
 
 type OverviewPdfPageProps = {
   trip: Trip | undefined;

@@ -1,11 +1,14 @@
-import Map from "@components/Map";
 import { Box, Chip, Typography } from "@mui/material";
 import type { Attraction } from "@services/attractions";
 import MapUtils from "@utils/MapUtils";
 import { useState } from "react";
 import { useNavigate } from "react-router";
-import "./index.scss";
 import clsx from "clsx";
+import "./index.scss";
+import React from "react";
+
+// lazy load
+const Map = React.lazy(() => import("@components/Map"));
 
 type AttractionCardProps = {
   attraction: Attraction;

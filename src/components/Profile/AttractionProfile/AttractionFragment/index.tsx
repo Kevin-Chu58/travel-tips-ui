@@ -1,6 +1,5 @@
 import { Box, Chip, Menu, MenuItem, Typography } from "@mui/material";
 import React, { useState } from "react";
-import Map from "@components/Map";
 import MapUtils from "@utils/MapUtils";
 import type { HerePlace } from "@services/hereMap/hereMap";
 import NavButton from "@components/Button/NavButton";
@@ -12,6 +11,9 @@ import { UrlUtils } from "@utils/UrlUtils";
 import TTButton from "@components/TTButton";
 import clsx from "clsx";
 import "./index.scss";
+
+// lazy load
+const Map = React.lazy(() => import("@components/Map"));
 
 type AttractionFragmentProps = {
   herePlace: HerePlace | undefined;

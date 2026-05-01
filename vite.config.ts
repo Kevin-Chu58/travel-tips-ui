@@ -19,8 +19,8 @@ function obfuscatePlugin(): Plugin {
           const chunk = file as OutputChunk;
           const obfuscationResult = JavaScriptObfuscator.obfuscate(chunk.code, {
             compact: true,
-            controlFlowFlattening: true,
-            deadCodeInjection: true,
+            // controlFlowFlattening: true,
+            // deadCodeInjection: true,
             stringArray: true,
             rotateStringArray: true,
             stringArrayEncoding: ["base64"],
@@ -55,7 +55,7 @@ export default defineConfig({
         manualChunks: {
           "react-vendor": ["react", "react-dom", "react-router"],
           "mui-vendor": ["@mui/material", "@mui/icons-material"],
-          pdf: ["jspdf", 'html-to-image'],
+          pdf: ["jspdf", 'html-to-image', "html2canvas"],
           editor: ["cropperjs"],
         },
       },

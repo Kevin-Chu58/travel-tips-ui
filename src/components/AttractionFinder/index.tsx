@@ -1,7 +1,6 @@
 import { Box, CircularProgress, Typography } from "@mui/material";
 import { useEffect, useMemo, useState } from "react";
 import TTDialog from "@components/TTDialog";
-import Map from "@components/Map";
 import TTIconButton from "@components/TTIconButton";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
@@ -23,6 +22,9 @@ import { type GeoCoordinate } from "@constants/Types";
 import type { HerePlace } from "@services/hereMap/hereMap";
 import clsx from "clsx";
 import "./index.scss";
+
+// lazy load
+const Map = React.lazy(() => import("@components/Map"));
 
 type AttractionFinderProps = {
   open: boolean;

@@ -1,7 +1,6 @@
 import PdfPage from "@components/PdfPage";
 import PdfPagePreview from "@components/PdfPagePreview";
 import { Box, Chip, Typography } from "@mui/material";
-import Map from "@components/Map";
 import { type Tao } from "@services/taos";
 import MapUtils from "@utils/MapUtils";
 import type { HereRoutingResponse } from "@services/hereMap/hereMap";
@@ -11,6 +10,9 @@ import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import ReplyIcon from "@mui/icons-material/Reply";
 import DirectionAccordion from "@components/Accordions/DirectionAccordion";
 import React, { useMemo } from "react";
+
+// lazy load
+const Map = React.lazy(() => import("@components/Map"));
 
 type DayPdfPageProps = {
   dayIndex: number;

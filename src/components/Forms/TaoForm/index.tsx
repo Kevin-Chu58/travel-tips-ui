@@ -1,5 +1,4 @@
 import AttractionFinder from "@components/AttractionFinder";
-import Map from "@components/Map";
 import TTButton from "@components/TTButton";
 import TTDialog from "@components/TTDialog";
 import { useIsMobile } from "@hooks/useIsMobile";
@@ -21,7 +20,8 @@ import dayjs from "dayjs";
 import clsx from "clsx";
 import "./index.scss";
 
-// lazy load
+// lazy load/
+const Map = React.lazy(() => import("@components/Map"));
 const TTTimePicker = React.lazy(() => import("@components/TTTimePicker"));
 
 type TaoFormProps = {
