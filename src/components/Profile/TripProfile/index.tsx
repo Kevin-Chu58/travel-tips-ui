@@ -33,14 +33,13 @@ import React from "react";
 import clsx from "clsx";
 import "./index.scss";
 import NameComponent from "./NameComponent";
+import DayComponent from "./DayComponent";
+import DescriptionComponent from "./DescriptionComponent";
+import DayOverviewComponent from "./DayOverviewComponent";
+import TaoComponent from "./TaoComponent";
+import FabComponent from "./FabComponent";
 
 // lazy load
-const DayComponent = React.lazy(() => import("./DayComponent"));
-// const NameComponent = React.lazy(() => import("./NameComponent"));
-const DayOverviewComponent = React.lazy(() => import("./DayOverviewComponent"));
-const DescriptionComponent = React.lazy(() => import("./DescriptionComponent"));
-const TaoComponent = React.lazy(() => import("./TaoComponent"));
-const FabComponent = React.lazy(() => import("./FabComponent"));
 const TripPdfForm = React.lazy(() => import("@components/Forms/TripPdfForm"));
 const Mapper = React.lazy(() => import("@components/Map"));
 
