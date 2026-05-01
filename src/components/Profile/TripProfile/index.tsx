@@ -32,10 +32,11 @@ import TripHeader from "./TripHeader";
 import React from "react";
 import clsx from "clsx";
 import "./index.scss";
+import NameComponent from "./NameComponent";
 
 // lazy load
 const DayComponent = React.lazy(() => import("./DayComponent"));
-const NameComponent = React.lazy(() => import("./NameComponent"));
+// const NameComponent = React.lazy(() => import("./NameComponent"));
 const DayOverviewComponent = React.lazy(() => import("./DayOverviewComponent"));
 const DescriptionComponent = React.lazy(() => import("./DescriptionComponent"));
 const TaoComponent = React.lazy(() => import("./TaoComponent"));
