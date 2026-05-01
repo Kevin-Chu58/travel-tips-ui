@@ -1,11 +1,8 @@
 import ToolTip from "@components/ToolTip";
-import { Badge, Fab, type FabOwnProps } from "@mui/material";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
+import { Fab, type FabOwnProps } from "@mui/material";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import GroupIcon from "@mui/icons-material/Group";
-import AddIcon from "@mui/icons-material/Add";
 import { enqueueSnackbar } from "notistack";
 import { tripsService, type Trip } from "@services/trips";
 import DownloadIcon from "@mui/icons-material/Download";
@@ -19,22 +16,18 @@ import clsx from "clsx";
 import "./index.scss";
 
 type FabComponentProps = {
-  tripBasicRef: React.RefObject<Trip | undefined>;
-  tripBasic: Trip | undefined;
+  trip: Trip | undefined;
   tao: Tao | undefined;
   isOverview: boolean;
   setOpenForm: React.Dispatch<
-    React.SetStateAction<
-      "deleteDay" | "editTao" | "deleteTao" | "share" | "pdf" | null
-    >
+    React.SetStateAction<"share" | "pdf" | null>
   >;
   isRestricted?: boolean;
   readonly?: boolean;
 };
 
 const FabComponent = ({
-  tripBasicRef,
-  tripBasic,
+  trip,
   tao,
   isOverview,
   setOpenForm,
@@ -44,27 +37,19 @@ const FabComponent = ({
   const [isPublished, setIsPublished] = useState<boolean>(false);
   const [isBookmarked, setIsBookmarked] = useState<boolean>(false);
 
-  const sharedUserNum = useMemo(
-    () => tripBasicRef?.current?.sharedUsers.length ?? 0,
-    [tripBasic], // tripBasic as proxy since ref changes won't trigger re-render
-  );
-
   useEffect(() => {
-    if (tripBasic) {
-      setIsPublished(tripBasic.isPublic);
-      setIsBookmarked(tripBasic.isBookmarked);
+    if (trip) {
+      setIsPublished(trip.isPublic);
+      setIsBookmarked(trip.isBookmarked);
     }
-  }, [tripBasic]);
+  }, [trip]);
 
   const togglePublishStatus = useCallback(async () => {
-    if (!tripBasicRef.current) return;
+    if (!trip) return;
     try {
-      let newPublishState = !tripBasicRef.current.isPublic;
-      await tripsService.patchTripIsPublic(
-        [tripBasicRef.current.id],
-        newPublishState,
-      );
-      tripBasicRef.current.isPublic = newPublishState;
+      let newPublishState = !trip.isPublic;
+      await tripsService.patchTripIsPublic([trip.id], newPublishState);
+      trip.isPublic = newPublishState;
       setIsPublished(newPublishState);
       enqueueSnackbar(
         `Successfully make the trip ${newPublishState ? "public" : "private"}.`,
@@ -73,18 +58,18 @@ const FabComponent = ({
     } catch (e) {
       if (e instanceof Error) enqueueSnackbar(e.message, { variant: "error" });
     }
-  }, [tripBasicRef]);
+  }, [trip]);
 
   const toggleIsBookmarked = useCallback(async () => {
-    if (!tripBasicRef.current) return;
+    if (!trip) return;
     try {
-      let newIsBookmarked = !tripBasicRef.current.isBookmarked;
+      let newIsBookmarked = !trip.isBookmarked;
       if (newIsBookmarked) {
-        await tripsService.addBookmark(tripBasicRef.current.id);
+        await tripsService.addBookmark(trip.id);
       } else {
-        await tripsService.removeBookmark(tripBasicRef.current.id);
+        await tripsService.removeBookmark(trip.id);
       }
-      tripBasicRef.current.isBookmarked = newIsBookmarked;
+      trip.isBookmarked = newIsBookmarked;
       setIsBookmarked(newIsBookmarked);
       enqueueSnackbar(
         `Successfully ${newIsBookmarked ? "bookmarked" : "unbookmarked"} the trip.`,
@@ -93,7 +78,7 @@ const FabComponent = ({
     } catch (e) {
       if (e instanceof Error) enqueueSnackbar(e.message, { variant: "error" });
     }
-  }, [tripBasicRef]);
+  }, [trip]);
 
   const handleTripPdfClick = useCallback(async () => {
     try {
@@ -106,18 +91,6 @@ const FabComponent = ({
 
   const handleOpenShare = useCallback(
     () => setOpenForm("share"),
-    [setOpenForm],
-  );
-  const handleOpenEditTao = useCallback(
-    () => setOpenForm("editTao"),
-    [setOpenForm],
-  );
-  const handleOpenDeleteTao = useCallback(
-    () => setOpenForm("deleteTao"),
-    [setOpenForm],
-  );
-  const handleOpenDeleteDay = useCallback(
-    () => setOpenForm("deleteDay"),
     [setOpenForm],
   );
 
@@ -146,13 +119,7 @@ const FabComponent = ({
         {
           label: "Shared Users",
           condition: !readonly || isRestricted,
-          content: sharedUserNum ? (
-            <Badge badgeContent={sharedUserNum} color="primary">
-              <GroupIcon />
-            </Badge>
-          ) : (
-            <GroupIcon />
-          ),
+          content: <GroupIcon />,
           description: "utility",
           stylingCondition: [!Boolean(tao) && "visible"],
           onClick: handleOpenShare,
@@ -164,46 +131,18 @@ const FabComponent = ({
           stylingCondition: [!Boolean(tao) && "visible"],
           onClick: handleTripPdfClick,
         },
-        {
-          label: "Add Event",
-          condition: !readonly,
-          content: <AddIcon />,
-          description: "info",
-          stylingCondition: [!Boolean(tao) && !isOverview && "visible"],
-          onClick: handleOpenEditTao,
-        },
-        {
-          label: "Edit event",
-          condition: !readonly,
-          content: <EditIcon />,
-          description: "info",
-          stylingCondition: [Boolean(tao) && "visible"],
-          onClick: handleOpenEditTao,
-        },
-        {
-          label: Boolean(tao) ? "Delete event" : "Delete day",
-          condition: !readonly,
-          content: <DeleteForeverIcon />,
-          description: "error",
-          stylingCondition: !isOverview && "visible",
-          onClick: Boolean(tao) ? handleOpenDeleteTao : handleOpenDeleteDay,
-        },
       ] as UtilityItem[],
     [
       tao,
       isOverview,
       isPublished,
       isBookmarked,
-      sharedUserNum,
       readonly,
       isRestricted,
       toggleIsBookmarked,
       togglePublishStatus,
       handleOpenShare,
       handleTripPdfClick,
-      handleOpenEditTao,
-      handleOpenDeleteTao,
-      handleOpenDeleteDay,
     ],
   );
 

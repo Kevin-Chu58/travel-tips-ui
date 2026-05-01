@@ -8,7 +8,7 @@ import TripProfile from "@components/Profile/TripProfile";
 const Trip = () => {
   return (
     <Container maxWidth={false} disableGutters>
-      <TripProfile uri="/workshop" />
+      <TripProfile />
     </Container>
   );
 };

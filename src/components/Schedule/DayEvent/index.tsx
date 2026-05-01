@@ -5,6 +5,8 @@ import TimeUtils from "@utils/TimeUtils";
 import { useIsMobile } from "@hooks/useIsMobile";
 import LockIcon from "@mui/icons-material/Lock";
 import ToolTip from "@components/ToolTip";
+import TTIconButton from "@components/TTIconButton";
+import ClearIcon from "@mui/icons-material/Clear";
 import React from "react";
 import clsx from "clsx";
 import "./index.scss";
@@ -12,9 +14,16 @@ import "./index.scss";
 type DayEventProps = {
   taos: Tao[] | undefined;
   setTao: (state: Tao) => void;
+  deleteMode: boolean;
+  onDeleteClick: (e: any, state: Tao) => void;
 };
 
-const DayEvent = ({ taos, setTao }: DayEventProps) => {
+const DayEvent = ({
+  taos,
+  setTao,
+  deleteMode,
+  onDeleteClick,
+}: DayEventProps) => {
   // others
   const isMobile = useIsMobile();
 
@@ -74,6 +83,18 @@ const DayEvent = ({ taos, setTao }: DayEventProps) => {
               <Box className="arrow-box">
                 <ArrowForwardIcon />
               </Box>
+
+              {deleteMode && (
+                <Box className="delete-box">
+                  <TTIconButton
+                    className="delete-icon-button"
+                    onClick={(e) => onDeleteClick(e, tao)}
+                    noBorder
+                  >
+                    <ClearIcon />
+                  </TTIconButton>
+                </Box>
+              )}
             </Box>
           </React.Fragment>
         );

@@ -5,7 +5,6 @@ import TTButton from "@components/TTButton";
 import { useState } from "react";
 import TTDialog from "@components/TTDialog";
 import { enqueueSnackbar } from "notistack";
-import { BehaviorUtils } from "@utils/BehaviorUtils";
 import { taosService, type Tao } from "@services/taos";
 import "./index.scss";
 
@@ -42,10 +41,7 @@ const DeleteTaoForm = ({
 
         await taosService.deleteTao(tao.id);
 
-        BehaviorUtils.sleep();
         setIsDeleting(false);
-
-        enqueueSnackbar("Successfully deleted event.", { variant: "success" });
         setIsParentUpdated();
       }
     } catch (e) {

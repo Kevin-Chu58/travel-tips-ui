@@ -2,7 +2,7 @@ import type { UserSimple } from "@services/users";
 import GroupIcon from "@mui/icons-material/Group";
 import FormBase from "../FormBases/FormBase";
 import { Box, Typography } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import UserCard from "@components/Cards/UserCard";
 import TTButton from "@components/TTButton";
 import { tripsService, type Trip } from "@services/trips";
@@ -19,28 +19,32 @@ import "./index.scss";
 type TripShareFormProps = {
   open: boolean;
   onClose: () => void;
-  tripBasicRef?: React.RefObject<Trip | undefined>;
-  sharedUsers: UserSimple[];
-  asyncTrip: () => void;
+  trip: Trip | undefined;
   readonly?: boolean;
 };
 
 const TripShareForm = ({
   open,
   onClose,
-  tripBasicRef,
-  sharedUsers,
-  asyncTrip,
+  trip,
   readonly = false,
 }: TripShareFormProps) => {
   // window
   const isMobile = useIsMobile();
   // selected
   const [selected, setSelected] = useState<UserSimple | undefined>(undefined);
-  // input
-  // const [value, setValue] = useState<string>("");
+  // shared users
+  const [sharedUsers, setSharedUsers] = useState<UserSimple[]>([]);
 
-  // handle
+  // use effects
+
+  useEffect(() => {
+    if (!trip) return;
+
+    setSharedUsers(trip.sharedUsers);
+  }, [trip]);
+
+  // handle functions
 
   const handleClose = () => {
     onClose();
@@ -48,17 +52,15 @@ const TripShareForm = ({
   };
 
   const handleShareClick = async () => {
-    if (!tripBasicRef?.current) return;
-    if (!selected) return;
+    if (!trip || !selected) return;
 
     try {
       const newShareWith = await tripsService.shareTripWithUser(
-        tripBasicRef.current.id,
+        trip.id,
         selected.userId,
       );
 
-      tripBasicRef.current.sharedUsers.push(newShareWith);
-      asyncTrip();
+      setSharedUsers((prev) => [...prev, newShareWith]);
 
       enqueueSnackbar("Share trip with the user.", { variant: "success" });
       setSelected(undefined);
@@ -68,16 +70,13 @@ const TripShareForm = ({
   };
 
   const handleUnshareClick = async (userId: string) => {
-    if (!tripBasicRef?.current) return;
+    if (!trip) return;
 
     try {
-      await tripsService.unshareTripWithUser(tripBasicRef.current.id, userId);
+      await tripsService.unshareTripWithUser(trip.id, userId);
 
-      tripBasicRef.current.sharedUsers =
-        tripBasicRef.current.sharedUsers.filter(
-          (user) => user.userId != userId,
-        );
-      asyncTrip();
+      let _sharedUsers = sharedUsers.filter((user) => user.userId != userId);
+      setSharedUsers([..._sharedUsers]);
 
       enqueueSnackbar("Unshare trip with the user.", { variant: "success" });
     } catch (e) {
@@ -86,13 +85,12 @@ const TripShareForm = ({
   };
 
   const handleUnshareAllClick = async () => {
-    if (!tripBasicRef?.current) return;
+    if (!trip) return;
 
     try {
-      await tripsService.unshareTripWithAll(tripBasicRef.current.id);
+      await tripsService.unshareTripWithAll(trip.id);
 
-      tripBasicRef.current.sharedUsers = [];
-      asyncTrip();
+      setSharedUsers([]);
 
       enqueueSnackbar("Unshare trip with all users.", { variant: "success" });
     } catch (e) {

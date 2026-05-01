@@ -5,8 +5,6 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import TTButton from "@components/TTButton";
 import TTDialog from "@components/TTDialog";
 import { enqueueSnackbar } from "notistack";
-import { BehaviorUtils } from "@utils/BehaviorUtils";
-import type { Trip } from "@services/trips";
 import { useState } from "react";
 import "./index.scss";
 
@@ -15,7 +13,6 @@ type DeleteDayFormProps = {
   onClose: () => void;
   day: Day | undefined;
   dayId: number | undefined;
-  tripBasicRef: React.RefObject<Trip | undefined>;
   asyncDeleteDay: () => void;
 };
 
@@ -24,7 +21,6 @@ const DeleteDayForm = ({
   onClose,
   day,
   dayId,
-  tripBasicRef,
   asyncDeleteDay,
 }: DeleteDayFormProps) => {
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
@@ -47,14 +43,9 @@ const DeleteDayForm = ({
 
         await daysService.deleteDay(day?.id);
 
-        BehaviorUtils.sleep();
-
         setIsDeleting(false);
 
-        tripBasicRef.current!.numDays! -= 1;
         asyncDeleteDay();
-
-        enqueueSnackbar("Successfully deleted day.", { variant: "success" });
       }
     } catch (e) {
       if (e instanceof Error) {

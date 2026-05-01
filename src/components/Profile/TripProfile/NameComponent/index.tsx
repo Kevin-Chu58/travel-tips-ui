@@ -8,7 +8,6 @@ import {
   Typography,
 } from "@mui/material";
 import { tripsService, type Trip, type TripPatch } from "@services/trips";
-import TimeUtils from "@utils/TimeUtils";
 import { enqueueSnackbar } from "notistack";
 import React, { useCallback, useEffect, useState } from "react";
 import SettingsIcon from "@mui/icons-material/Settings";
@@ -17,15 +16,14 @@ import ToolTip from "@components/ToolTip";
 import { RegionUtils } from "@utils/RegionUtils";
 import { StringUtils } from "@utils/StringUtils";
 import GroupIcon from "@mui/icons-material/Group";
+import { type RegionComplete } from "@services/search/regions";
 import "./index.scss";
 
 // lazy load
 const TagForm = React.lazy(() => import("@components/Forms/TagForm"));
 
 type NameComponentProps = {
-  tripBasicRef: React.RefObject<Trip | undefined>;
-  tripBasic?: Trip;
-  asyncTrip?: () => void;
+  trip: Trip | undefined;
   isLoading?: boolean;
   inputRef?: React.RefObject<HTMLInputElement | null>;
   isSharedUser?: boolean;
@@ -33,36 +31,40 @@ type NameComponentProps = {
 };
 
 const NameComponent = ({
-  tripBasicRef,
-  tripBasic,
-  asyncTrip,
+  trip,
   isLoading,
   inputRef,
   isSharedUser = false,
   readonly = false,
 }: NameComponentProps) => {
-  const [title, setTitle] = useState<string | undefined>(tripBasic?.title);
+  // title
+  const [title, setTitle] = useState<string>();
   const [isEditingTitle, setIsEditingTitle] = useState<boolean>(false);
+  // tag form
   const [openTagForm, setOpenTagForm] = useState<boolean>(false);
+  // tags
+  const [regionTag, setRegionTag] = useState<RegionComplete>();
+  const [budgetTag, setBudgetTag] = useState<number>();
 
   useEffect(() => {
-    setTitle(tripBasic?.title);
-  }, [tripBasic?.title]);
+    if (!trip) return;
+
+    setTitle(trip.title);
+    setRegionTag(trip.region);
+    setBudgetTag(trip.budget);
+  }, [trip]);
 
   const handleUpdateRegion = useCallback(
     async (regionId?: number) => {
       try {
-        if (tripBasicRef.current) {
+        if (trip) {
           const completeRegion = await tripsService.patchTripRegionTag(
-            tripBasicRef.current.id,
+            trip.id,
             regionId,
           );
-          tripBasicRef.current.region = RegionUtils.getRegionAddress(
-            completeRegion,
-          )
-            ? completeRegion
-            : undefined;
-          if (asyncTrip) asyncTrip();
+
+          setRegionTag(completeRegion);
+
           enqueueSnackbar("Region tag updated.", { variant: "success" });
         }
       } catch (e) {
@@ -70,19 +72,19 @@ const NameComponent = ({
           enqueueSnackbar(e.message, { variant: "error" });
       }
     },
-    [tripBasicRef, asyncTrip],
+    [trip, setRegionTag],
   );
 
   const handleUpdateBudget = useCallback(
     async (budget?: number) => {
       try {
-        if (tripBasicRef.current) {
+        if (trip) {
           const newBudget = await tripsService.patchTripBudgetTag(
-            tripBasicRef.current.id,
+            trip.id,
             budget,
           );
-          tripBasicRef.current.budget = newBudget > 0 ? newBudget : undefined;
-          if (asyncTrip) asyncTrip();
+          setBudgetTag(newBudget);
+
           enqueueSnackbar("Budget tag updated.", { variant: "success" });
         }
       } catch (e) {
@@ -90,10 +92,12 @@ const NameComponent = ({
           enqueueSnackbar(e.message, { variant: "error" });
       }
     },
-    [tripBasicRef, asyncTrip],
+    [trip, setBudgetTag],
   );
 
   const updateTitle = useCallback(async () => {
+    if (!trip) return;
+
     if (!title) {
       setIsEditingTitle(false);
       return;
@@ -101,30 +105,18 @@ const NameComponent = ({
 
     const trimmedTitle = title.trim();
 
-    if (
-      trimmedTitle === tripBasicRef.current?.title ||
-      trimmedTitle.length > 50
-    ) {
-      if (trimmedTitle.length > 50) {
-        enqueueSnackbar("Trip title is too long.", { variant: "error" });
-      }
+    if (trimmedTitle.length > 50) {
+      enqueueSnackbar("Trip title is too long.", { variant: "error" });
       setIsEditingTitle(false);
-      setTitle(tripBasicRef.current!.title);
+      setTitle(trip.title);
       return;
     }
 
-    if (tripBasicRef.current) {
+    if (trip) {
       try {
         let tripPatch = { title: trimmedTitle } as TripPatch;
-        tripPatch = await tripsService.patchTrip(
-          tripBasicRef.current.id,
-          tripPatch,
-        );
-        enqueueSnackbar("Successfully updated trip title.", {
-          variant: "success",
-        });
-        tripBasicRef.current.title = tripPatch.title!;
-        if (asyncTrip) asyncTrip();
+        tripPatch = await tripsService.patchTrip(trip.id, tripPatch);
+        setTitle(trimmedTitle);
       } catch (e) {
         if (e instanceof Error)
           enqueueSnackbar(e.message, { variant: "error" });
@@ -132,7 +124,7 @@ const NameComponent = ({
     }
 
     setIsEditingTitle(false);
-  }, [title, tripBasicRef, asyncTrip]);
+  }, [title, setTitle]);
 
   const handleTitleKeyDown = useCallback(
     (event: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -182,36 +174,30 @@ const NameComponent = ({
             ) : (
               <Button className="title-button" onClick={handleStartEditing}>
                 <Typography className="title" variant="h6">
-                  {tripBasicRef.current?.title}
+                  {title}
                 </Typography>
               </Button>
             )
           ) : (
             <Typography className="title-readonly" variant="h6">
-              {tripBasicRef.current?.title}{" "}
-              <span className="helper">#{tripBasicRef.current?.id}</span>
+              {title} <span className="helper">#{trip?.id}</span>
             </Typography>
           )}
 
           <Box className="tag-container">
-            <Typography className="num-days">
-              {TimeUtils.formatDays(tripBasicRef.current?.numDays ?? 0)}
-            </Typography>
-            {tripBasicRef?.current?.region ? (
+            {regionTag ? (
               <Chip
                 color="region"
                 size="small"
-                label={RegionUtils.getRegionAddress(
-                  tripBasicRef?.current?.region,
-                )}
+                label={RegionUtils.getRegionAddress(regionTag)}
                 onDelete={!readonly ? handleDeleteRegion : undefined}
               />
             ) : undefined}
-            {tripBasicRef.current?.budget ? (
+            {budgetTag ? (
               <Chip
                 color="success"
                 size="small"
-                label={StringUtils.getBudgetStr(tripBasicRef.current.budget)}
+                label={StringUtils.getBudgetStr(budgetTag)}
                 onDelete={!readonly ? handleDeleteBudget : undefined}
               />
             ) : undefined}
@@ -244,13 +230,17 @@ const NameComponent = ({
         </React.Fragment>
       )}
 
-      <TagForm
-        open={openTagForm}
-        onClose={handleCloseTagForm}
-        trip={tripBasicRef.current}
-        onUpdateRegion={handleUpdateRegion}
-        onUpdateBudget={handleUpdateBudget}
-      />
+      {openTagForm && (
+        <TagForm
+          open
+          onClose={handleCloseTagForm}
+          tripId={trip?.id}
+          region={regionTag}
+          budget={budgetTag}
+          onUpdateRegion={handleUpdateRegion}
+          onUpdateBudget={handleUpdateBudget}
+        />
+      )}
     </Box>
   );
 };

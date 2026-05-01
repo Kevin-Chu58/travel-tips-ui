@@ -1,29 +1,20 @@
 import DescriptionTextField from "@components/TextField/DescriptionTextField";
 import TTButton from "@components/TTButton";
-import { Box, Button, IconButton, Skeleton, Typography } from "@mui/material";
+import { Box, Button, Skeleton, Typography } from "@mui/material";
 import { tripsService, type Trip, type TripPatch } from "@services/trips";
 import { enqueueSnackbar } from "notistack";
 import MarkdownBox from "@components/MarkdownBox";
 import React, { useCallback, useEffect, useState } from "react";
-import ZoomOutMapIcon from "@mui/icons-material/ZoomOutMap";
-import ZoomInMapIcon from "@mui/icons-material/ZoomInMap";
-import ToolTip from "@components/ToolTip";
 import "./index.scss";
 
 type DescriptionComponentProps = {
-  tripBasicRef: React.RefObject<Trip | undefined>;
-  asyncTrip: () => void;
-  hideImages: boolean;
-  setHideImages: React.Dispatch<React.SetStateAction<boolean>>;
+  trip: Trip | undefined;
   isLoading: boolean;
   readonly?: boolean;
 };
 
 const DescriptionComponent = ({
-  tripBasicRef,
-  asyncTrip,
-  hideImages,
-  setHideImages,
+  trip,
   isLoading,
   readonly = false,
 }: DescriptionComponentProps) => {
@@ -35,61 +26,38 @@ const DescriptionComponent = ({
 
   // render title on trip basic
   useEffect(() => {
-    setDescription(tripBasicRef.current?.description);
-  }, [tripBasicRef.current?.description]);
+    if (!trip) return;
 
-  useEffect(() => {
-    if (isEditingDescription) setDescription(tripBasicRef.current?.description);
-  }, [isEditingDescription]);
+    setDescription(trip.description);
+  }, [trip]);
 
   const handleDescriptionClose = useCallback(() => {
     setIsEditingDescription(false);
   }, [setIsEditingDescription]);
 
   const handleDescriptionUpdate = useCallback(async () => {
+    if (!trip) return;
+
     const trimmedDescription = description?.trim();
-    if (tripBasicRef.current?.description === trimmedDescription) {
+    if (trip.description === trimmedDescription) {
       setIsEditingDescription(false);
-      setDescription(tripBasicRef.current?.description);
+      setDescription(trip.description);
       return;
     }
 
-    if (tripBasicRef.current) {
-      try {
-        let tripPatch = { description: trimmedDescription } as TripPatch;
-        tripPatch = await tripsService.patchTrip(
-          tripBasicRef.current.id,
-          tripPatch,
-        );
+    try {
+      let tripPatch = { description: trimmedDescription } as TripPatch;
+      tripPatch = await tripsService.patchTrip(trip.id, tripPatch);
 
-        enqueueSnackbar("Successfully updated trip summary.", {
-          variant: "success",
-        });
-
-        tripBasicRef.current.description = tripPatch.description;
-        asyncTrip();
-        setIsEditingDescription(false);
-      } catch (e) {
-        if (e instanceof Error)
-          enqueueSnackbar(e.message, { variant: "error" });
-      }
+      setIsEditingDescription(false);
+    } catch (e) {
+      if (e instanceof Error) enqueueSnackbar(e.message, { variant: "error" });
     }
-  }, [
-    description,
-    setIsEditingDescription,
-    setDescription,
-    enqueueSnackbar,
-    asyncTrip,
-  ]);
+  }, [description, setIsEditingDescription, setDescription, enqueueSnackbar]);
 
   const handleIsEditingDescriptionTrue = useCallback(
     () => setIsEditingDescription(true),
     [setIsEditingDescription],
-  );
-
-  const handleHideImages = useCallback(
-    () => setHideImages((prev) => !prev),
-    [setHideImages],
   );
 
   return (
@@ -98,11 +66,6 @@ const DescriptionComponent = ({
         <React.Fragment>
           <Box className="header-container">
             <Typography className="header">Summary</Typography>
-            <ToolTip title={hideImages ? "Zoom Out" : "Zoom In"} offsetY={-8}>
-              <IconButton className="zoom-button" onClick={handleHideImages}>
-                {hideImages ? <ZoomOutMapIcon /> : <ZoomInMapIcon />}
-              </IconButton>
-            </ToolTip>
           </Box>
 
           {!readonly ? (
@@ -135,10 +98,7 @@ const DescriptionComponent = ({
                 className="button"
                 onClick={handleIsEditingDescriptionTrue}
               >
-                <MarkdownBox
-                  text={tripBasicRef.current?.description}
-                  disableGap
-                />
+                <MarkdownBox text={description} disableGap />
               </Button>
             ) : (
               <Button
@@ -152,9 +112,7 @@ const DescriptionComponent = ({
               </Button>
             )
           ) : (
-            <MarkdownBox
-              text={tripBasicRef.current?.description || "*Nothing to preview*"}
-            />
+            <MarkdownBox text={description || "*Nothing to preview*"} />
           )}
         </React.Fragment>
       ) : (

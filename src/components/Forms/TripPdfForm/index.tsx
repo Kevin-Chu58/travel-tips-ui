@@ -23,10 +23,10 @@ import "./index.scss";
 type TripPdfFormProps = {
   open: boolean;
   onClose: () => void;
-  tripRef: React.RefObject<Trip | undefined>;
+  trip: Trip | undefined;
   days: Day[];
-  taosMap: Map<number, Tao[]> | undefined;
-  routeResponsesMap: Map<number, HereRoutingResponse[]> | undefined;
+  taosMapRef: React.RefObject<Map<number, Tao[]>>;
+  routeResponsesMapRef: React.RefObject<Map<number, HereRoutingResponse[]>>;
   geoMarkers: Marker[] | undefined;
   fetchAllDays: () => Promise<void>;
 };
@@ -37,10 +37,10 @@ const A4_HEIGHT = 297;
 const TripPdfForm = ({
   open,
   onClose,
-  tripRef,
+  trip,
   days,
-  taosMap,
-  routeResponsesMap,
+  taosMapRef,
+  routeResponsesMapRef,
   geoMarkers,
   fetchAllDays,
 }: TripPdfFormProps) => {
@@ -49,13 +49,17 @@ const TripPdfForm = ({
   );
   const dispatch = useDispatch();
   const [isDownloading, setIsDownLoading] = useState<boolean>(false);
+  const [allDaysFetched, setAllDaysFetched] = useState(false);
 
   // derived from userSubExtend — no need for separate state
   const current = userSubExtend?.pdfDownloadCount ?? 0;
   const max = userSubExtend?.maxPdfDownloadCount ?? 0;
 
   useEffect(() => {
-    if (open) fetchAllDays();
+    if (open) {
+      setAllDaysFetched(false);
+      fetchAllDays().then(() => setAllDaysFetched(true));
+    }
   }, [open, fetchAllDays]);
 
   const subTitleContent = useMemo(
@@ -124,7 +128,7 @@ const TripPdfForm = ({
     }
 
     setIsDownLoading(false);
-    pdf.save(`${tripRef.current?.title ?? "trip"}.pdf`);
+    pdf.save(`${trip?.title ?? "trip"}.pdf`);
 
     if (userSubExtend) {
       dispatch(
@@ -136,7 +140,7 @@ const TripPdfForm = ({
         }),
       );
     }
-  }, [tripRef, userSubExtend, dispatch]);
+  }, [trip, userSubExtend, dispatch]);
 
   const dayPages = useMemo(
     () =>
@@ -144,11 +148,11 @@ const TripPdfForm = ({
         <DayPdfPage
           key={`day-pdf-${day.id}`}
           dayIndex={i}
-          taos={taosMap?.get(day.id)}
-          routingResponses={routeResponsesMap?.get(day.id)}
+          taos={taosMapRef.current.get(day.id)}
+          routingResponses={routeResponsesMapRef.current.get(day.id)}
         />
       )),
-    [days, taosMap, routeResponsesMap],
+    [days, allDaysFetched],
   );
 
   return (
@@ -170,7 +174,7 @@ const TripPdfForm = ({
       <Box className="column">
         <ProgressBar current={current} max={max} object="PDFs" />
         <Box className="pdf-pages-box">
-          <OverviewPdfPage tripRef={tripRef} markers={geoMarkers} />
+          <OverviewPdfPage trip={trip} markers={geoMarkers} />
           {dayPages}
         </Box>
       </Box>

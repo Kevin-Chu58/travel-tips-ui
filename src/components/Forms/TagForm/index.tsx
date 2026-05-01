@@ -3,24 +3,28 @@ import React, { useState } from "react";
 import { RegionUtils } from "@utils/RegionUtils";
 import FormBase from "../FormBases/FormBase";
 import RegionForm from "../RegionForm";
-import type { Trip } from "@services/trips";
+import type { RegionComplete } from "@services/search/regions";
 import { useIsMobile } from "@hooks/useIsMobile";
 import { StringUtils } from "@utils/StringUtils";
 import BudgetForm from "../BudgetForm";
 import "./index.scss";
 
 type TagFormProps = {
-  trip?: Trip;
   open: boolean;
   onClose: () => void;
+  tripId: number | undefined;
+  region: RegionComplete | undefined;
+  budget: number | undefined;
   onUpdateRegion: (state?: number) => void;
   onUpdateBudget: (state?: number) => void;
 };
 
 const tagForm = ({
-  trip,
   open,
   onClose,
+  tripId,
+  region,
+  budget,
   onUpdateRegion,
   onUpdateBudget,
 }: TagFormProps) => {
@@ -61,7 +65,7 @@ const tagForm = ({
               <Chip
                 color="region"
                 size="small"
-                label={RegionUtils.getRegionAddress(trip?.region)}
+                label={RegionUtils.getRegionAddress(region)}
               />
             </Box>
             {/* budget tag */}
@@ -70,7 +74,7 @@ const tagForm = ({
               <Chip
                 color="success"
                 size="small"
-                label={StringUtils.getBudgetStr(trip?.budget)}
+                label={StringUtils.getBudgetStr()}
               />
             </Box>
           </Box>
@@ -82,7 +86,7 @@ const tagForm = ({
                 <th>
                   <Chip
                     color="region"
-                    label={RegionUtils.getRegionAddress(trip?.region)}
+                    label={RegionUtils.getRegionAddress(region)}
                   />
                 </th>
               </tr>
@@ -92,7 +96,7 @@ const tagForm = ({
                   <Chip
                     color="success"
                     variant="filled"
-                    label={StringUtils.getBudgetStr(trip?.budget)}
+                    label={StringUtils.getBudgetStr(budget)}
                   />
                 </th>
               </tr>
@@ -105,15 +109,15 @@ const tagForm = ({
       <RegionForm
         open={openRegionForm}
         onClose={() => setOpenRegionForm(false)}
-        completeRegion={trip?.region}
+        completeRegion={region}
         onUpdate={handleUpdateRegion}
       />
 
       <BudgetForm
         open={openBudgetForm}
         onClose={() => setOpenBudgetForm(false)}
-        tripId={trip?.id}
-        budget={trip?.budget}
+        tripId={tripId}
+        budget={budget}
         onUpdate={handleUpdateBudget}
       />
     </React.Fragment>

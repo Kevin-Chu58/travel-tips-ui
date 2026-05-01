@@ -5,7 +5,6 @@ import TTDialog from "@components/TTDialog";
 import { useIsMobile } from "@hooks/useIsMobile";
 import { Typography, Box, Divider, CircularProgress } from "@mui/material";
 import type { Attraction } from "@services/attractions";
-import { BehaviorUtils } from "@utils/BehaviorUtils";
 import MapUtils from "@utils/MapUtils";
 import React, { useEffect, useState } from "react";
 import CloseIcon from "@mui/icons-material/Close";
@@ -35,8 +34,8 @@ type TaoFormProps = {
   end?: string;
   lastGeoCoordinate?: GeoCoordinate | undefined;
   setLastGeoCoordinate?: (state: GeoCoordinate) => void;
-  asyncAddDayTaos: (state: Tao) => void;
-  asyncEditDayTaos: (state: Tao) => void;
+  asyncAddDayTaos?: (state: Tao) => void;
+  asyncEditDayTaos?: (state: Tao) => void;
 };
 
 const TaoForm = ({
@@ -145,7 +144,7 @@ const TaoForm = ({
 
           let updatedTao = await taosService.patchTao(tao.id, _tao);
 
-          asyncEditDayTaos(updatedTao);
+          if (asyncEditDayTaos) asyncEditDayTaos(updatedTao);
         } else {
           let _tao = {
             dayId: _dayId,
@@ -155,16 +154,8 @@ const TaoForm = ({
           };
           let newTao = await taosService.postTao(_dayId, _tao);
 
-          asyncAddDayTaos(newTao);
+          if (asyncAddDayTaos) asyncAddDayTaos(newTao);
         }
-
-        await BehaviorUtils.sleep();
-        enqueueSnackbar(
-          `Succesfully ${tao ? "updated" : "created"} the event.`,
-          {
-            variant: "success",
-          }
-        );
       } catch (e) {
         if (e instanceof Error) {
           enqueueSnackbar(e.message, { variant: "error" });
@@ -229,7 +220,7 @@ const TaoForm = ({
                   <Box
                     className={clsx(
                       "tao-form-attraction-box",
-                      isMobile && "mobile"
+                      isMobile && "mobile",
                     )}
                   >
                     {/* map */}

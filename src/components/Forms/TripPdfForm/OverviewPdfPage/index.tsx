@@ -9,23 +9,23 @@ import type { Marker } from "@constants/Types";
 import Map from "@components/Map";
 
 type OverviewPdfPageProps = {
-  tripRef: React.RefObject<Trip | undefined>;
+  trip: Trip | undefined;
   markers: Marker[] | undefined;
 };
 
 const OverviewPdfPage = React.memo(
-  ({ tripRef, markers }: OverviewPdfPageProps) => {
+  ({ trip, markers }: OverviewPdfPageProps) => {
     return (
       <PdfPagePreview>
         <PdfPage>
           <Box className="page-box max-content">
-            <NameComponent tripBasicRef={tripRef} readonly />
+            <NameComponent trip={trip} readonly />
 
             <Box>
               <Typography color="primary" fontWeight="bold" variant="h6">
                 Summary
               </Typography>
-              <MarkdownBox text={tripRef.current?.description} disableGap />
+              <MarkdownBox text={trip?.description} disableGap />
             </Box>
 
             <Box className="map-box">

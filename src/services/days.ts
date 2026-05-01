@@ -17,7 +17,7 @@ const getDaysByTripId = async (tripId: number): Promise<Day[]> => {
   return await http.get(http.apiBaseURLs.api, `days/${tripId}`, undefined);
 };
 
-const postNewDay = async (tripId: number): Promise<void> => {
+const postNewDay = async (tripId: number): Promise<Day> => {
   return await http.post(
     http.apiBaseURLs.api,
     `days/${tripId}`,

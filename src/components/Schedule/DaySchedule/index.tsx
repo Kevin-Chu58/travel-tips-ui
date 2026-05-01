@@ -1,4 +1,10 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { TIMES_WITH_OFFSET } from "@constants/Times";
 import { Box, Typography } from "@mui/material";
 import TaoForm from "@components/Forms/TaoForm";
@@ -9,6 +15,8 @@ import { max_tao_per_day } from "@constants/Restrictions";
 import type { GeoCoordinate } from "@constants/Types";
 import LockIcon from "@mui/icons-material/Lock";
 import ToolTip from "@components/ToolTip";
+import TTIconButton from "@components/TTIconButton";
+import ClearIcon from "@mui/icons-material/Clear";
 import clsx from "clsx";
 import "./index.scss";
 
@@ -22,6 +30,8 @@ type DayScheduleProps = {
   setLastGeoCoordinate?: (state: GeoCoordinate) => void;
   asyncAddDayTaos: (state: Tao) => void;
   asyncEditDayTaos: (state: Tao) => void;
+  deleteMode: boolean;
+  onDeleteClick: (e: any, state: Tao) => void;
   readonly?: boolean;
 };
 
@@ -35,6 +45,8 @@ const DaySchedule = ({
   setLastGeoCoordinate,
   asyncAddDayTaos,
   asyncEditDayTaos,
+  deleteMode,
+  onDeleteClick,
   readonly = false,
 }: DayScheduleProps) => {
   // behavior - index of time entries
@@ -86,7 +98,7 @@ const DaySchedule = ({
       let endOfDay = TIMES_WITH_OFFSET[TIMES_WITH_OFFSET.length - 1].time;
 
       let startIndex = TIMES_WITH_OFFSET.findIndex(
-        (timeEntry) => timeEntry.time === start
+        (timeEntry) => timeEntry.time === start,
       );
       let endIndex =
         end === endOfDay
@@ -106,16 +118,16 @@ const DaySchedule = ({
 
   // user interactions
 
-  const handleCloseDialog = () => {
+  const handleCloseDialog = useCallback(() => {
     setIsOpen(false);
     setIsSelecting(false);
     setSelectTimeInterval([]);
-  };
+  }, []);
 
-  const handleMouseLeaveDayScheduleBox = () => {
+  const handleMouseLeaveDayScheduleBox = useCallback(() => {
     setIsSelecting(false);
     setSelectTimeInterval([]);
-  };
+  }, []);
 
   const handleClickTimeEntryBox = (timeIndex: number) => {
     if (readonly) return;
@@ -228,68 +240,91 @@ const DaySchedule = ({
 
   // tao content action
 
-  const handleClickTao = (e: React.MouseEvent<HTMLDivElement>, tao: Tao) => {
-    e.stopPropagation();
-    setTao(tao);
-  };
+  const handleClickTao = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>, tao: Tao) => {
+      e.stopPropagation();
+      setTao(tao);
+    },
+    [setTao],
+  );
 
-  const getTaoContent = (timeIndex: number) => {
-    const entry = taoMap.get(timeIndex);
-    if (!entry) return null;
+  const taoContents = useMemo(() => {
+    const result = new Map<number, React.ReactNode>();
+    taoMap.forEach((_, timeIndex) => {
+      const entry = taoMap.get(timeIndex);
+      if (!entry) return;
 
-    const { tao, interval } = entry;
-    const _interval = interval[1] - interval[0] + 1;
-    const boxHeight = blockHeight * _interval;
+      const { tao, interval } = entry;
+      const _interval = interval[1] - interval[0] + 1;
+      const boxHeight = blockHeight * _interval;
+      const startTime = TimeUtils.formatTimeHHmmssTohmmA(tao.start);
+      const endTime = TimeUtils.formatTimeHHmmssTohmmA(tao.end);
 
-    const startTime = TimeUtils.formatTimeHHmmssTohmmA(tao.start);
-    const endTime = TimeUtils.formatTimeHHmmssTohmmA(tao.end);
-
-    return (
-      <Box className="tao-content-box" onClick={(e) => handleClickTao(e, tao)}>
-        <Box height={boxHeight} className="tao-content">
-          <Box className="tao-title-box">
-            <Typography
-              className="tao-title"
-              sx={{ WebkitLineClamp: _interval }}
-            >
-              {tao.attraction.title}
-            </Typography>
-            {tao.isPrivate ? (
-              <ToolTip
-                title="Only visible to you and shared users"
-                offsetY={-4}
+      result.set(
+        timeIndex,
+        <Box
+          className="tao-content-box"
+          onClick={(e) => handleClickTao(e, tao)}
+        >
+          <Box height={boxHeight} className="tao-content">
+            <Box className="tao-title-box">
+              <Typography
+                className="tao-title"
+                sx={{ WebkitLineClamp: _interval }}
               >
-                <LockIcon />
-              </ToolTip>
-            ) : undefined}
+                {tao.attraction.title}
+              </Typography>
+              {tao.isPrivate ? (
+                <ToolTip
+                  title="Only visible to you and shared users"
+                  offsetY={-4}
+                >
+                  <LockIcon />
+                </ToolTip>
+              ) : undefined}
+            </Box>
+            <Typography className="tao-title">
+              {startTime}-{endTime}
+            </Typography>
           </Box>
-          <Typography className="tao-title">
-            {startTime}-{endTime}
-          </Typography>
-        </Box>
-      </Box>
-    );
-  };
+          {deleteMode && (
+            <Box className="delete-box">
+              <TTIconButton
+                className="delete-icon-button"
+                onClick={(e) => onDeleteClick(e, tao)}
+                noBorder
+              >
+                <ClearIcon />
+              </TTIconButton>
+            </Box>
+          )}
+        </Box>,
+      );
+    });
+    return result;
+  }, [taoMap, deleteMode, handleClickTao]);
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLElement>) => {
-    if (isOpen) return;
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent<HTMLElement>) => {
+      if (isOpen) return;
+      const rect = containerRef.current?.getBoundingClientRect();
+      if (rect) {
+        const firstBox = containerRef.current
+          ?.firstElementChild as HTMLElement | null;
+        if (!firstBox) return;
 
-    const rect = containerRef.current?.getBoundingClientRect();
-    if (rect) {
-      const firstBox = containerRef.current
-        ?.firstElementChild as HTMLElement | null;
-      if (!firstBox) return;
+        if (boxHeightRef.current === 0)
+          boxHeightRef.current = firstBox.getBoundingClientRect().height;
 
-      if (boxHeightRef.current === 0)
-        boxHeightRef.current = firstBox.getBoundingClientRect().height;
-
-      const offsetY = e.clientY - rect.top;
-      const index = Math.floor(offsetY / boxHeightRef.current);
-      if (index >= 0 && index < TIMES_WITH_OFFSET.length) {
-        setHoverIndex(index);
+        const offsetY = e.clientY - rect.top;
+        const index = Math.floor(offsetY / boxHeightRef.current);
+        if (index >= 0 && index < TIMES_WITH_OFFSET.length) {
+          setHoverIndex(index);
+        }
       }
-    }
-  };
+    },
+    [isOpen, taoTimeIntervals],
+  );
 
   return (
     <Box
@@ -307,13 +342,13 @@ const DaySchedule = ({
               !occupiedSet.has(i) &&
                 (isInBetween(i) || (!isSelecting && hoverIndex === i)) &&
                 "highlight",
-              occupiedSet.has(i) && "unclickable"
+              occupiedSet.has(i) && "unclickable",
             )}
             key={i}
             onClick={() => handleClickTimeEntryBox(i)}
           >
             {/* tao content */}
-            {getTaoContent(i)}
+            {taoContents.get(i) ?? null}
 
             {/* hourly time marker */}
             {showHourMarkers && timeEntry.isHourly ? (
@@ -324,21 +359,23 @@ const DaySchedule = ({
               </Box>
             ) : undefined}
           </Box>
-        ) : undefined
+        ) : undefined,
       )}
 
-      <TaoForm
-        open={isOpen}
-        onClose={handleCloseDialog}
-        dayIndex={dayIndex}
-        dayId={dayId}
-        start={start}
-        end={end}
-        lastGeoCoordinate={lastGeoCoordinate}
-        setLastGeoCoordinate={setLastGeoCoordinate}
-        asyncAddDayTaos={asyncAddDayTaos}
-        asyncEditDayTaos={asyncEditDayTaos}
-      />
+      {isOpen && (
+        <TaoForm
+          open
+          onClose={handleCloseDialog}
+          dayIndex={dayIndex}
+          dayId={dayId}
+          start={start}
+          end={end}
+          lastGeoCoordinate={lastGeoCoordinate}
+          setLastGeoCoordinate={setLastGeoCoordinate}
+          asyncAddDayTaos={asyncAddDayTaos}
+          asyncEditDayTaos={asyncEditDayTaos}
+        />
+      )}
     </Box>
   );
 };

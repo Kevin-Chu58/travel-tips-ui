@@ -43,6 +43,7 @@
   }
 
   .header-box {
+    padding-bottom: 0.5rem;
     box-shadow: $mild_box_shadow;
     z-index: 100;
   }
@@ -75,15 +76,11 @@
   }
 
   .image-box {
-    height: 0;
+    height: auto;
     display: flex;
     flex-direction: column;
     position: relative;
     overflow: hidden;
-
-    &.visible {
-      height: auto;
-    }
   }
 
   .default-image-box {
@@ -128,7 +125,7 @@
     }
 
     .username.MuiTypography-root {
-      font-size: .8rem;
+      font-size: 0.8rem;
       cursor: pointer;
 
       &:hover {
@@ -209,6 +206,24 @@
 
     &.hidden {
       display: none;
+    }
+  }
+
+  .delete-box {
+    position: absolute;
+    top: -1rem;
+    right: -0.5rem;
+
+    .MuiIconButton-root.delete-icon-button {
+      width: 1rem;
+      height: 1rem;
+      color: white;
+      background-color: var(--error-main);
+
+      .MuiSvgIcon-root {
+        width: 0.8rem;
+        height: 0.8rem;
+      }
     }
   }
 }

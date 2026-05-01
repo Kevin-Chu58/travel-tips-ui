@@ -19,6 +19,12 @@
   flex-direction: column;
   overflow-x: hidden;
   overflow-y: auto;
+
+  .nav-back-button.MuiButton-root {
+    background-color: var(--utility-100);
+    border-radius: 0;
+    box-shadow: none;
+  }
 }
 
 .trip-profile-day-comp-view-tab-box {

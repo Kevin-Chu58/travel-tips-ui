@@ -33,7 +33,10 @@ import LockIcon from "@mui/icons-material/Lock";
 import LockOpenIcon from "@mui/icons-material/LockOpen";
 import ReplyIcon from "@mui/icons-material/Reply";
 import LocalActivityIcon from "@mui/icons-material/LocalActivity";
-import { useNavigate } from "react-router";
+import { useNavigate, useParams } from "react-router";
+import TaoForm from "@components/Forms/TaoForm";
+import EditIcon from "@mui/icons-material/Edit";
+import type { GeoCoordinate } from "@constants/Types";
 import "./index.scss";
 
 type TaoComponentProps = {
@@ -70,7 +73,20 @@ const TaoComponent = ({
   );
   const [openDiscoverHighlights, setOpenDiscoverHighlights] =
     useState<boolean>(false);
+  // open form status
+  const [openEditTaoForm, setOpenEditTaoForm] = useState<boolean>(false);
+  // others
+  const { dayId } = useParams(); // dayId - day index in days, not day.id
   const navigate = useNavigate();
+
+  const lastGeoCoordinate = useMemo(
+    () =>
+      ({
+        lat: tao?.attraction.lat,
+        lng: tao?.attraction.lng,
+      }) as GeoCoordinate,
+    [tao],
+  );
 
   const taoIndex = useMemo(
     () => taos?.findIndex((t) => t.id === tao?.id),
@@ -121,6 +137,8 @@ const TaoComponent = ({
     }
   }, [tao?.id, tao?.attraction.id, tao?.highlight?.id, tao?.start, tao?.end]);
 
+  // handle functions
+
   const handlePrivacyStatusClick = useCallback(async () => {
     if (tao) {
       try {
@@ -128,9 +146,6 @@ const TaoComponent = ({
         tao.isPrivate = newStatus;
         asyncEditDayTaos(tao);
         setIsPrivate((prev) => !prev);
-        enqueueSnackbar("Event privacy status updated.", {
-          variant: "success",
-        });
       } catch (e) {
         if (e instanceof Error)
           enqueueSnackbar(e.message, { variant: "error" });
@@ -150,9 +165,6 @@ const TaoComponent = ({
         let updatedTao = await taosService.patchTao(tao.id, taoPatch);
         asyncEditDayTaos(updatedTao);
         setDescription("");
-        enqueueSnackbar("Successfully created highlight for this event.", {
-          variant: "success",
-        });
       } catch (e) {
         if (e instanceof Error)
           enqueueSnackbar(e.message, { variant: "error" });
@@ -181,9 +193,6 @@ const TaoComponent = ({
       try {
         let updatedTao = await taosService.patchTaoDetachHighlight(tao.id);
         asyncEditDayTaos(updatedTao);
-        enqueueSnackbar("Successfully detached highlight.", {
-          variant: "success",
-        });
       } catch (e) {
         if (e instanceof Error)
           enqueueSnackbar(e.message, { variant: "error" });
@@ -205,9 +214,6 @@ const TaoComponent = ({
           await taosService.patchTao(tao.id, {
             transportMode: newTransportMode,
           });
-          enqueueSnackbar(`Transport mode updated to ${newTransportMode}.`, {
-            variant: "success",
-          });
           setTransportMode(newTransportMode);
 
           let updatedTao = { ...tao, transportMode: newTransportMode };
@@ -220,9 +226,10 @@ const TaoComponent = ({
 
           let routeResponses = routeResponsesMapRef.current.get(tao.dayId);
           if (routeResponses && taoIndex) {
-            routeResponses[taoIndex - 1] = updatedRouteResponse;
+            const newRouteResponses = [...routeResponses];
+            newRouteResponses[taoIndex - 1] = updatedRouteResponse;
             routeResponsesMapRef.current.set(tao.dayId, routeResponses);
-            setRouteResponses(routeResponses);
+            setRouteResponses(newRouteResponses);
           }
         } catch (e) {
           if (e instanceof Error)
@@ -230,7 +237,7 @@ const TaoComponent = ({
         }
       }
     },
-    [tao, taoIndex, asyncEditDayTaos, routeResponsesMapRef, setRouteResponses],
+    [tao, taoIndex, asyncEditDayTaos, setRouteResponses],
   );
 
   const handleClose = useCallback(() => {
@@ -256,6 +263,16 @@ const TaoComponent = ({
 
   const handleStartCreating = useCallback(() => setIsCreating(true), []);
   const handleStopCreating = useCallback(() => setIsCreating(false), []);
+
+  const handleOpenTaoForm = useCallback(() => {
+    setOpenEditTaoForm(true);
+  }, [setOpenEditTaoForm]);
+
+  const handleCloseForm = useCallback(() => {
+    setOpenEditTaoForm(false);
+  }, [setOpenEditTaoForm]);
+
+  // components
 
   const transportModeItems = useMemo(
     () =>
@@ -288,11 +305,19 @@ const TaoComponent = ({
   return (
     <Box className="trip-profile-tao-comp-box">
       {/* header */}
-      <Box className="header-box">
+      <Box className="row gap-large header-box">
         <Typography>
           {TimeUtils.formatTimeHHmmssTohmmA(tao?.start ?? "")} -{" "}
           {TimeUtils.formatTimeHHmmssTohmmA(tao?.end ?? "")}
         </Typography>
+        <TTButton
+          color="secondary"
+          onClick={handleOpenTaoForm}
+          startIcon={<EditIcon />}
+          circular
+        >
+          Update
+        </TTButton>
         <TTIconButton className="close-button" onClick={handleClose}>
           <CloseIcon />
         </TTIconButton>
@@ -331,8 +356,8 @@ const TaoComponent = ({
                   <Checkbox
                     color="default"
                     checked={isPrivate}
-                    icon={<LockOpenIcon />}
-                    checkedIcon={<LockIcon />}
+                    icon={<LockOpenIcon className="lock-icon" />}
+                    checkedIcon={<LockIcon className="lock-icon" />}
                     onClick={handlePrivacyStatusClick}
                   />
                   {tao?.isPrivate ? (
@@ -501,6 +526,18 @@ const TaoComponent = ({
         onClose={handleCloseDiscoverHighlights}
         asyncEditDayTaos={asyncEditDayTaos}
       />
+
+      {openEditTaoForm && (
+        <TaoForm
+          open
+          onClose={handleCloseForm}
+          dayIndex={Number(dayId)}
+          dayId={tao?.dayId}
+          tao={tao}
+          lastGeoCoordinate={lastGeoCoordinate}
+          asyncEditDayTaos={asyncEditDayTaos}
+        />
+      )}
     </Box>
   );
 };
