@@ -126,7 +126,7 @@ const DayComponent = ({
         {/* add day button */}
         {!readonly && (
           <Box className="row right">
-            <ToolTip title="Add new day" offsetY={-8}>
+            <ToolTip title="Add new event" offsetY={-8}>
               <Box>
                 <TTIconButton size="small" onClick={handleOpenTaoForm} noBorder>
                   <AddIcon fontSize="small" />
@@ -134,7 +134,7 @@ const DayComponent = ({
               </Box>
             </ToolTip>
             <Divider orientation="vertical" variant="middle" flexItem />
-            <ToolTip title="Delete day" offsetY={-8}>
+            <ToolTip title="Delete event" offsetY={-8}>
               <Box>
                 <TTIconButton size="small" onClick={handleDeleteMode} noBorder>
                   <RemoveIcon fontSize="small" />
