@@ -29,22 +29,20 @@ import TripShareForm from "@components/Forms/TripShareForm";
 import { useSelector } from "react-redux";
 import type { RootState } from "@redux/store";
 import TripHeader from "./TripHeader";
-import React from "react";
-import clsx from "clsx";
-import "./index.scss";
 import NameComponent from "./NameComponent";
 import DayOverviewComponent from "./DayOverviewComponent";
 import TaoComponent from "./TaoComponent";
 import FabComponent from "./FabComponent";
+import DayComponent from "./DayComponent";
+import React from "react";
+import clsx from "clsx";
+import "./index.scss";
 
 // lazy load
 const TripPdfForm = React.lazy(() => import("@components/Forms/TripPdfForm"));
 const Mapper = React.lazy(() => import("@components/Map"));
 
-const DayComponentModule = () => import("./DayComponent");
 const DescriptionComponentModule = () => import("./DescriptionComponent");
-
-const DayComponent = React.lazy(DayComponentModule);
 const DescriptionComponent = React.lazy(DescriptionComponentModule);
 
 type TripProfileProps = {
@@ -232,10 +230,7 @@ const TripProfile = ({ readonly = false }: TripProfileProps) => {
 
   // In TripProfile, after determining isOverview:
   useEffect(() => {
-    if (isOverview) {
-      // Preload day component in background while user is on overview
-      import("./DayComponent");
-    } else {
+    if (!isOverview) {
       // Preload description in background while user is on a day
       import("./DescriptionComponent");
     }
