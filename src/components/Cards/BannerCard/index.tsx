@@ -2,11 +2,14 @@ import { useIsMobile } from "@hooks/useIsMobile";
 import type { Banner } from "@services/feed/banners";
 import { Box, Chip, Typography, type SxProps } from "@mui/material";
 import type { Theme } from "@emotion/react";
-import MarkdownBox from "@components/MarkdownBox";
 import { StyleUtils } from "@utils/StyleUtils";
 import { useNavigate } from "react-router";
+import React, { Suspense } from "react";
 import clsx from "clsx";
 import "./index.scss";
+
+// lazy load
+const MarkdownBox = React.lazy(() => import("@components/MarkdownBox"));
 
 type BannerCardProps = {
   banner: Banner;
@@ -50,11 +53,14 @@ const BannerCard = ({
     <Box className="banner-content-box" sx={dynamicStyles}>
       <Box className="content">
         <Typography className="title">{banner.title}</Typography>
-        <MarkdownBox
-          className="overview"
-          text={banner.overview}
-          isOfficial
-        ></MarkdownBox>
+        <Suspense>
+          <MarkdownBox
+            className="overview"
+            text={banner.overview}
+            isOfficial
+          ></MarkdownBox>
+        </Suspense>
+
         {banner.label ? (
           <Chip variant="filled" className="label" label={banner.label} />
         ) : undefined}

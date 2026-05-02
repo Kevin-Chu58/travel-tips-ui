@@ -1,4 +1,3 @@
-import AttractionFinder from "@components/AttractionFinder";
 import TTButton from "@components/TTButton";
 import TTDialog from "@components/TTDialog";
 import { useIsMobile } from "@hooks/useIsMobile";
@@ -23,6 +22,7 @@ import "./index.scss";
 // lazy load/
 const Map = React.lazy(() => import("@components/Map"));
 const TTTimePicker = React.lazy(() => import("@components/TTTimePicker"));
+const AttractionFinder = React.lazy(() => import("@components/AttractionFinder"));
 
 type TaoFormProps = {
   open: boolean;

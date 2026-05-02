@@ -249,6 +249,10 @@ span.helper {
     width: 100%;
   }
 
+  &.fit {
+    width: fit-content;
+  }
+
   &.section {
     margin: 1rem 0;
   }
@@ -268,10 +272,6 @@ span.helper {
 
   &.end {
     align-items: end;
-  }
-
-  &.fit {
-    width: fit-content;
   }
 }
 

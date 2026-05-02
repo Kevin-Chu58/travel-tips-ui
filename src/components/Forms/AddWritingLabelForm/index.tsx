@@ -20,8 +20,8 @@ import {
   type WritingLabelType,
 } from "@services/gospel/writings";
 import { StringUtils } from "@utils/StringUtils";
-import "./index.scss";
 import { enqueueSnackbar } from "notistack";
+import "./index.scss";
 
 type AddWritingLabelFormProps = {
   open: boolean;

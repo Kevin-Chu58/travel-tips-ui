@@ -1,8 +1,11 @@
 import { Box, Container } from "@mui/material";
-import MarkdownBox from "@components/MarkdownBox";
-import "./index.scss";
 import TTButton from "@components/TTButton";
 import { useNavigate } from "react-router";
+import React, { Suspense } from "react";
+import "./index.scss";
+
+// lazy load
+const MarkdownBox = React.lazy(() => import("@components/MarkdownBox"));
 
 const Guide = () => {
   const navigate = useNavigate();
@@ -54,7 +57,9 @@ const Guide = () => {
     <Container className="guide-container" maxWidth={false} disableGutters>
       <Box className="container-box">
         <Box className="markdown-container">
-          <MarkdownBox text={guide_purpose} />
+          <Suspense fallback={<Box>{guide_purpose}</Box>}>
+            <MarkdownBox text={guide_purpose} />
+          </Suspense>
           <Box className="center-container">
             <b>Checkout my demo here! 🔻🔻🔻</b>
           </Box>
@@ -66,7 +71,9 @@ const Guide = () => {
               onClick={navigateToDemo}
             />
           </Box>
-          <MarkdownBox text={guide_create_new_trip} />
+          <Suspense fallback={<Box>{guide_create_new_trip}</Box>}>
+            <MarkdownBox text={guide_create_new_trip} />
+          </Suspense>
           <Box className="iframe-container">
             <iframe
               src="https://drive.google.com/file/d/1WrV7RRPEhV9w_5a4aFtL7bykyKhkJKzi/preview"
@@ -76,7 +83,9 @@ const Guide = () => {
               allowFullScreen
             />
           </Box>
-          <MarkdownBox text={guide_add_events} />
+          <Suspense fallback={<Box>{guide_add_events}</Box>}>
+            <MarkdownBox text={guide_add_events} />
+          </Suspense>
           <Box className="iframe-container">
             <iframe
               src="https://drive.google.com/file/d/1Pm-g-qT7Ez9YF6_AEb6lZMYw6YHOp1-U/preview"
@@ -86,7 +95,9 @@ const Guide = () => {
               allowFullScreen
             />
           </Box>
-          <MarkdownBox text={guide_markdown} />
+          <Suspense fallback={<Box>{guide_markdown}</Box>}>
+            <MarkdownBox text={guide_markdown} />
+          </Suspense>
         </Box>
       </Box>
     </Container>

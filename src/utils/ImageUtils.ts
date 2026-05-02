@@ -9,7 +9,7 @@ const compressImage = async (
   widthOrHeight?: number,
 ): Promise<File> => {
   const options = {
-    maxSizeMB: sizeMB ?? 0.2, // Target max size in MB (e.g. 0.2 = 200KB)
+    maxSizeMB: sizeMB ?? 0.4, // Target max size in MB (e.g. 0.4 = 400KB)
     maxWidthOrHeight: widthOrHeight ?? 1500, // Optional: Resize image if needed
     useWebWorker: true, // Speed boost
   };
@@ -17,6 +17,7 @@ const compressImage = async (
   try {
     const compressedBlob = await imageCompression(file, options);
     const maxSizeKB = options.maxSizeMB * 1000;
+
     if (compressedBlob.size > maxSizeKB * 1024) {
       throw new Error(`Cropped image must be smaller than ${maxSizeKB} KB`);
     }
@@ -55,30 +56,24 @@ const uploadImage = async (
   identifier?: number,
   notify: boolean = false,
 ) => {
-  const isBanner = imageType === ImageType.Banner;
-
-  const fileFromBlob = new File([blob], "cropped.jpg", { type: blob.type });
   try {
-    // Compress image
-    const compressedBlob = isBanner
-      ? await ImageUtils.compressImage(fileFromBlob, 1)
-      : await ImageUtils.compressImage(fileFromBlob);
+
     setIsLoading(true);
 
     let newImage = undefined;
     switch (imageType) {
       case ImageType.Banner:
-        newImage = await imagesService.uploadBannerImage(compressedBlob, name);
+        newImage = await imagesService.uploadBannerImage(blob, name);
         break;
       case ImageType.Business:
         if (identifier)
           newImage = await imagesService.uploadBusinessImage(
             identifier,
-            compressedBlob,
+            blob,
           );
         break;
       default:
-        newImage = await imagesService.uploadImage(compressedBlob, name);
+        newImage = await imagesService.uploadImage(blob, name);
     }
 
     if (newImage) {

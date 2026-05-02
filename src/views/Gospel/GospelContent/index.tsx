@@ -10,7 +10,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useNavigate, useParams, useSearchParams } from "react-router";
-import React, { useEffect, useState } from "react";
+import React, { Suspense, useEffect, useMemo, useState } from "react";
 import {
   writingsService,
   type Writing,
@@ -18,21 +18,24 @@ import {
 } from "@services/gospel/writings";
 import { enqueueSnackbar } from "notistack";
 import { useIsMobile } from "@hooks/useIsMobile";
-import MenuIcon from "@mui/icons-material/Menu";
-import TTIconButton from "@components/TTIconButton";
 import AddIcon from "@mui/icons-material/Add";
 import TTButton from "@components/TTButton";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import MarkdownBox from "@components/MarkdownBox";
-import DeleteWritingForm from "@components/Forms/DeleteWritingForm";
-import AddWritingLabelForm from "@components/Forms/AddWritingLabelForm";
 import clsx from "clsx";
 import "./index.scss";
+import GospelNavButton from "./GospelNavButton";
 
 // lazy load
+const AddWritingLabelForm = React.lazy(
+  () => import("@components/Forms/AddWritingLabelForm"),
+);
 const WritingForm = React.lazy(() => import("@components/Forms/WritingForm"));
+const DeleteWritingForm = React.lazy(
+  () => import("@components/Forms/DeleteWritingForm"),
+);
+const MarkdownBox = React.lazy(() => import("@components/MarkdownBox"));
 
 type GospelContentProps = {
   setIsHidden: React.Dispatch<React.SetStateAction<boolean>>;
@@ -51,19 +54,17 @@ const GospelContent = ({ setIsHidden }: GospelContentProps) => {
     undefined,
   );
   // Writings
-  const [Writings, setWritings] = useState<Writing[]>([]);
+  const [writings, setWritings] = useState<Writing[]>([]);
   // Writing
-  const [Writing, setWriting] = useState<Writing | undefined>(undefined);
+  const [writing, setWriting] = useState<Writing | undefined>(undefined);
   // my Writings
   const [myWritings, setMyWritings] = useState<Writing[]>([]);
   // my Writing - in edit
   const [myWriting, setMyWriting] = useState<Writing | undefined>();
   // form status
-  const [openAddWritingLabelForm, setOpenAddWritingLabelForm] =
-    useState<boolean>(false);
-  const [openNewWritingForm, setOpenNewWritingForm] = useState<boolean>(false);
-  const [openDeleteWritingForm, setOpenDeleteWritingForm] =
-    useState<boolean>(false);
+  const [openForm, setOpenForm] = useState<
+    "addWritingLabel" | "writing" | "deleteWriting" | null
+  >(null);
   // behavior
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
@@ -176,7 +177,7 @@ const GospelContent = ({ setIsHidden }: GospelContentProps) => {
 
       enqueueSnackbar("Writing deleted.", { variant: "success" });
 
-      setOpenDeleteWritingForm(false);
+      setOpenForm(null);
     } catch (e) {
       if (e instanceof Error) {
         enqueueSnackbar(e.message, { variant: "error" });
@@ -185,17 +186,17 @@ const GospelContent = ({ setIsHidden }: GospelContentProps) => {
   };
 
   const handleOpenWritingForm = () => {
-    setOpenNewWritingForm(true);
+    setOpenForm("writing");
     handleAnchorElClose();
   };
 
   const handleCloseWritingForm = () => {
-    setOpenNewWritingForm(false);
+    setOpenForm(null);
     setMyWriting(undefined);
   };
 
   const handleOpenDeleteWritingForm = () => {
-    setOpenDeleteWritingForm(true);
+    setOpenForm("deleteWriting");
     handleAnchorElClose();
   };
 
@@ -228,27 +229,31 @@ const GospelContent = ({ setIsHidden }: GospelContentProps) => {
 
   // components
 
-  const NavButton = (isWriting: boolean = false, showInPc: boolean = true) => {
-    return isMobile ? (
-      <TTIconButton onClick={() => setIsHidden(false)} noBorder>
-        <MenuIcon />
-      </TTIconButton>
-    ) : showInPc ? (
-      <Typography
-        className="back-text"
-        onClick={isWriting ? handleBack : handleBackHome}
-      >
-        {isWriting ? `<< Back to Topic` : `<< Back to Home`}
-      </Typography>
-    ) : undefined;
-  };
+  // const NavButton = (isWriting: boolean = false, showInPc: boolean = true) => {
+  //   return isMobile ? (
+  //     <TTIconButton onClick={() => setIsHidden(false)} noBorder>
+  //       <MenuIcon />
+  //     </TTIconButton>
+  //   ) : showInPc ? (
+  //     <Typography
+  //       className="back-text"
+  //       onClick={isWriting ? handleBack : handleBackHome}
+  //     >
+  //       {isWriting ? `<< Back to Topic` : `<< Back to Home`}
+  //     </Typography>
+  //   ) : undefined;
+  // };
 
-  const WriterView = () => {
+  const WriterView = useMemo(() => {
     return (
       <Box className={clsx("gospel-content-container", isMobile && "mobile")}>
         <Box className="header-box">
           {/* nav button - only in mobile view */}
-          {NavButton()}
+          <GospelNavButton
+            setIsHidden={setIsHidden}
+            handleBack={handleBack}
+            handleBackHome={handleBackHome}
+          />
           <Typography
             className={clsx("category", isMobile && "mobile")}
             variant="h3"
@@ -262,14 +267,14 @@ const GospelContent = ({ setIsHidden }: GospelContentProps) => {
               label="New Labels"
               startIcon={<AddIcon />}
               color="info"
-              onClick={() => setOpenAddWritingLabelForm(true)}
+              onClick={() => setOpenForm("addWritingLabel")}
             />
             {/* add Writing */}
             <TTButton
               label="New Writing"
               startIcon={<AddIcon />}
               color="utility"
-              onClick={() => setOpenNewWritingForm(true)}
+              onClick={() => setOpenForm("writing")}
             />
           </Box>
         </Box>
@@ -278,30 +283,30 @@ const GospelContent = ({ setIsHidden }: GospelContentProps) => {
 
         {/* content */}
         <Box>
-          {myWritings.map((Writing) => (
+          {myWritings.map((writing) => (
             <MenuItem
-              key={Writing.id}
+              key={writing.id}
               className="my-Writing-menu-item"
               disableRipple
             >
               <Box className="row full">
                 <Box className="column">
                   <Box className="row full">
-                    <Typography variant="h6">{Writing.title}</Typography>
+                    <Typography variant="h6">{writing.title}</Typography>
                     <Typography variant="caption">
-                      {Writing.publishAt}
+                      {writing.publishAt}
                     </Typography>
                   </Box>
                   {/* label - category & topic */}
-                  {Writing.label ? (
+                  {writing.label ? (
                     <Box className="row wrap">
                       <Chip
-                        label={Writing.label.category?.name}
+                        label={writing.label.category?.name}
                         size="small"
                         color="info"
                       />
                       <Chip
-                        label={Writing.label.topic?.name}
+                        label={writing.label.topic?.name}
                         size="small"
                         color="utility"
                       />
@@ -314,7 +319,7 @@ const GospelContent = ({ setIsHidden }: GospelContentProps) => {
                 </Box>
 
                 <Box className="more-option-button">
-                  <IconButton onClick={(e) => handleMyWritingClick(e, Writing)}>
+                  <IconButton onClick={(e) => handleMyWritingClick(e, writing)}>
                     <MoreVertIcon />
                   </IconButton>
                 </Box>
@@ -324,15 +329,20 @@ const GospelContent = ({ setIsHidden }: GospelContentProps) => {
         </Box>
       </Box>
     );
-  };
+  }, [isMobile, myWritings, handleMyWritingClick]);
 
-  const WritingView = () => {
+  const WritingView = useMemo(() => {
     return (
       <Box className={clsx("gospel-content-container", isMobile && "mobile")}>
         <Box className="header-box">
           {/* nav button - only in mobile view */}
-          {NavButton(true)}
-          {Writing?.label ? (
+          <GospelNavButton
+            isWriting={true}
+            setIsHidden={setIsHidden}
+            handleBack={handleBack}
+            handleBackHome={handleBackHome}
+          />
+          {writing?.label ? (
             <React.Fragment>
               <Typography
                 className={clsx("category", isMobile && "mobile")}
@@ -349,18 +359,24 @@ const GospelContent = ({ setIsHidden }: GospelContentProps) => {
             </React.Fragment>
           ) : undefined}
         </Box>
-        <MarkdownBox text={Writing?.content} isOfficial />
+        <Suspense fallback={<Box>{writing?.content}</Box>}>
+          <MarkdownBox text={writing?.content} isOfficial />
+        </Suspense>
       </Box>
     );
-  };
+  }, [isMobile, writing, label]);
 
-  const TopicView = () => {
+  const TopicView = useMemo(() => {
     return (
       <Box className={clsx("gospel-content-container", isMobile && "mobile")}>
         {/* header */}
         <Box className="header-box">
           {/* nav button - only in mobile view */}
-          {NavButton()}
+          <GospelNavButton
+            setIsHidden={setIsHidden}
+            handleBack={handleBack}
+            handleBackHome={handleBackHome}
+          />
 
           <Typography
             className={clsx("category", isMobile && "mobile")}
@@ -380,10 +396,10 @@ const GospelContent = ({ setIsHidden }: GospelContentProps) => {
 
         {/* content */}
         <Box>
-          {isLoading ? undefined : Writings.length > 0 ? (
-            Writings.map((Writing, i) => (
+          {isLoading ? undefined : writings.length > 0 ? (
+            writings.map((writing, i) => (
               <MenuItem
-                key={Writing.id}
+                key={writing.id}
                 onClick={() => navigate(`./${i + 1}`)}
                 disableRipple
               >
@@ -392,8 +408,8 @@ const GospelContent = ({ setIsHidden }: GospelContentProps) => {
                   <Typography variant="h6">{i + 1}.</Typography>
                   {/* details */}
                   <Box>
-                    <Typography variant="h5">{Writing.title}</Typography>
-                    <Typography>{Writing.publishAt}</Typography>
+                    <Typography variant="h5">{writing.title}</Typography>
+                    <Typography>{writing.publishAt}</Typography>
                   </Box>
                 </Box>
               </MenuItem>
@@ -406,46 +422,67 @@ const GospelContent = ({ setIsHidden }: GospelContentProps) => {
         </Box>
       </Box>
     );
-  };
+  }, [isMobile, label, isLoading, writings]);
 
-  const FeedView = () => (
-    <Box className={clsx("gospel-content-container", isMobile && "mobile")}>
-      {/* header */}
-      <Box className="header-box">
-        {/* nav button - only in mobile view */}
-        {NavButton(false, false)}
+  const FeedView = useMemo(
+    () => (
+      <Box className={clsx("gospel-content-container", isMobile && "mobile")}>
+        {/* header */}
+        <Box className="header-box">
+          {/* nav button - only in mobile view */}
+          <GospelNavButton
+            isWriting={false}
+            showInPc={false}
+            setIsHidden={setIsHidden}
+            handleBack={handleBack}
+            handleBackHome={handleBackHome}
+          />
+        </Box>
       </Box>
-    </Box>
+    ),
+    [isMobile],
   );
 
-  const Main = () => {
-    if (labelSlug && orderId) return WritingView();
-    if (labelSlug && !orderId) return TopicView();
-    if (isWriterParams) return WriterView();
-    else return FeedView();
-  };
+  const MainContent = useMemo(() => {
+    if (labelSlug && orderId) return WritingView; // but only if moved outside
+    if (labelSlug && !orderId) return TopicView;
+    if (isWriterParams) return WriterView;
+    return FeedView;
+  }, [
+    labelSlug,
+    orderId,
+    isWriterParams,
+    WritingForm,
+    TopicView,
+    WriterView,
+    FeedView,
+  ]);
 
   return (
     <React.Fragment>
-      {Main()}
+      {MainContent}
+      {/* {Main()} */}
 
       {/* forms */}
 
-      <AddWritingLabelForm
-        open={openAddWritingLabelForm}
-        onClose={() => setOpenAddWritingLabelForm(false)}
-      />
-      <WritingForm
-        WritingId={myWriting?.id}
-        open={openNewWritingForm}
-        onClose={handleCloseWritingForm}
-        onAction={myWriting ? asyncUpdateWriting : asyncNewWriting}
-      />
-      <DeleteWritingForm
-        open={openDeleteWritingForm}
-        onClose={() => setOpenDeleteWritingForm(false)}
-        onAction={handleDeleteWriting}
-      />
+      {openForm === "addWritingLabel" && (
+        <AddWritingLabelForm open onClose={() => setOpenForm(null)} />
+      )}
+      {openForm === "writing" && (
+        <WritingForm
+          open
+          WritingId={myWriting?.id}
+          onClose={handleCloseWritingForm}
+          onAction={myWriting ? asyncUpdateWriting : asyncNewWriting}
+        />
+      )}
+      {openForm === "deleteWriting" && (
+        <DeleteWritingForm
+          open
+          onClose={() => setOpenForm(null)}
+          onAction={handleDeleteWriting}
+        />
+      )}
 
       {/* popups */}
       <Menu

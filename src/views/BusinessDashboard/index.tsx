@@ -19,8 +19,6 @@ const BusinessDashboardMain = ({ contentType }: BusinessDashboardMainProps) => {
   const { businessId } = useParams();
   // business
   const [business, setBusiness] = useState<Business | undefined>();
-  // businesses
-  const [businesses, setBusinesses] = useState<Business[]>([]);
   // ads
   const [ads, setAds] = useState<Ad[]>([]);
   // behavior
@@ -29,23 +27,11 @@ const BusinessDashboardMain = ({ contentType }: BusinessDashboardMainProps) => {
   // others
   const navigate = useNavigate();
 
-  // init business and businesses on business id in params
+  // init business on business id in params
   useEffect(() => {
     initBusiness();
-    initBusinesses();
     initAds();
   }, [businessId]);
-
-  useEffect(() => {
-    if (business) {
-      let _businesses = [...businesses];
-      let index = _businesses.findIndex((bs) => bs.id === business.id);
-      if (index > -1) {
-        _businesses[index].status = business.status;
-        setBusinesses([..._businesses]);
-      }
-    }
-  }, [business?.status]);
 
   // init functions
 
@@ -63,15 +49,6 @@ const BusinessDashboardMain = ({ contentType }: BusinessDashboardMainProps) => {
     } catch (e) {
       if (e instanceof Error) enqueueSnackbar(e.message, { variant: "error" });
       navigate("/partnership");
-    }
-  };
-
-  const initBusinesses = async () => {
-    try {
-      var result = await businessesService.getMyBusiness();
-      setBusinesses(result);
-    } catch (_) {
-      // setBusinessesLoadError(true);
     }
   };
 
@@ -108,7 +85,7 @@ const BusinessDashboardMain = ({ contentType }: BusinessDashboardMainProps) => {
   return (
     <Container className="business-dashboard" maxWidth={false} disableGutters>
       <Box className="row full">
-        <Menu business={business} businesses={businesses} />
+        <Menu business={business} />
         <Box className="business-dashboard-content-box">{getContent()}</Box>
       </Box>
     </Container>

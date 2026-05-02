@@ -8,34 +8,67 @@ import {
   ListItemText,
   Typography,
 } from "@mui/material";
-import type { Business } from "@services/feed/businesses";
-import React, { useState } from "react";
+import { businessesService, type Business } from "@services/feed/businesses";
+import React, { useEffect, useState } from "react";
 import type { NavTab } from "@constants/Types";
 import { FiHome, FiBox, FiChevronDown, FiChevronUp } from "react-icons/fi";
 import { StyleUtils } from "@utils/StyleUtils";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate, useParams } from "react-router";
 import clsx from "clsx";
 import "./index.scss";
 
 type MenuProps = {
   business: Business | undefined;
-  businesses: Business[];
+  // businesses: Business[];
   // businessesLoadError: boolean;
 };
 
 const Menu = ({
   business,
-  businesses,
+  // businesses,
   // businessesLoadError,
 }: MenuProps) => {
   // window
   const isMobile = useIsMobile();
+  // params
+  const { businessId } = useParams();
+  // businesses
+  const [businesses, setBusinesses] = useState<Business[]>([]);
   // popover
   const [popoverAnchorEl, setPopoverAnchorEl] = useState<HTMLDivElement | null>(
     null,
   );
   // others
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (business) {
+      let _businesses = [...businesses];
+      let index = _businesses.findIndex((bs) => bs.id === business.id);
+      if (index > -1) {
+        _businesses[index].status = business.status;
+        setBusinesses([..._businesses]);
+      }
+    }
+  }, [business?.status]);
+
+  // init business on business id in params
+  useEffect(() => {
+    if (businessId && popoverAnchorEl) {
+      initBusinesses();
+    }
+  }, [businessId, popoverAnchorEl]);
+
+  const initBusinesses = async () => {
+    if (businesses.length > 0) return;
+    
+    try {
+      var result = await businessesService.getMyBusiness();
+      setBusinesses(result);
+    } catch (_) {
+      // setBusinessesLoadError(true);
+    }
+  };
 
   // handle functions
 

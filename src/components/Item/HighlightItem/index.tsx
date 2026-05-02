@@ -9,17 +9,19 @@ import {
 } from "@mui/material";
 import { type Highlight } from "@services/highlights";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-import React, { useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import type { RootState } from "@redux/store";
 import HighlightForm from "@components/Forms/HighlightForm";
 import { useIsMobile } from "@hooks/useIsMobile";
-import MarkdownBox from "@components/MarkdownBox";
 import LinearScaleIcon from "@mui/icons-material/LinearScale";
 import UserAvatar from "@components/UserAvatar";
+import { useNavToProfile } from "@hooks/useNavToProfile";
 import clsx from "clsx";
 import "./index.scss";
-import { useNavToProfile } from "@hooks/useNavToProfile";
+
+// lazy load
+const MarkdownBox = React.lazy(() => import("@components/MarkdownBox"));
 
 type HighlightItemProps = {
   highlight: Highlight;
@@ -120,7 +122,9 @@ const HighlightItem = ({
   ];
 
   const highlightDescription = (
-    <MarkdownBox text={description || "*Nothing to preview*"} disableGap />
+    <Suspense fallback={<Box>{description}</Box>}>
+      <MarkdownBox text={description || "*Nothing to preview*"} disableGap />
+    </Suspense>
   );
 
   const highlightForm = (

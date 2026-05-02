@@ -137,13 +137,15 @@ const DayPdfPage = React.memo(
                 Day {dayIndex + 1} - Events
               </Typography>
               <Box className="map-box" sx={{ maxHeight: 400 }}>
-                <Map
-                  markers={taoMarkers}
-                  mapRoutes={routes}
-                  showMarkerLabel
-                  showRouteColor
-                  readonly
-                />
+                {taoMarkers && taoMarkers.length > 0 ? (
+                  <Map
+                    markers={taoMarkers}
+                    mapRoutes={routes}
+                    showMarkerLabel
+                    showRouteColor
+                    readonly
+                  />
+                ) : <Typography>No Events Today.</Typography>}
               </Box>
               {eventItems}
             </Box>

@@ -9,7 +9,6 @@ import TripsTool from "./Trips/TripsTool";
 import HighlightsTool from "./Highlights/HighlightsTool";
 import { attractionsService, type Attraction } from "@services/attractions";
 import Highlights from "./Highlights";
-import AttractionFinder from "@components/AttractionFinder";
 import TTDrawer from "@components/TTDrawer";
 import { Turn as Hamburger } from "hamburger-react";
 import { useIsMobile } from "@hooks/useIsMobile";
@@ -24,11 +23,17 @@ import SortUtils, {
 } from "@utils/SortUtils";
 import GroupIcon from "@mui/icons-material/Group";
 import ArchiveIcon from "@mui/icons-material/Archive";
-import BookmarkIcon from '@mui/icons-material/Bookmark';
+import BookmarkIcon from "@mui/icons-material/Bookmark";
 import type { RootState } from "@redux/store";
 import { useSelector } from "react-redux";
 import { useLocation } from "react-router";
+import React from "react";
 import "./index.scss";
+
+// lazy load
+const AttractionFinder = React.lazy(
+  () => import("@components/AttractionFinder"),
+);
 
 const Main = () => {
   // windows

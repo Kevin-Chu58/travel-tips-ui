@@ -13,7 +13,6 @@ import { Cropper, type ReactCropperElement } from "react-cropper";
 import { useIsMobile } from "@hooks/useIsMobile";
 import { enqueueSnackbar } from "notistack";
 import { type Image } from "@services/images";
-import { BehaviorUtils } from "@utils/BehaviorUtils";
 import { ImageUtils } from "@utils/ImageUtils";
 import { ImageType } from "@constants/Enums";
 import clsx from "clsx";
@@ -83,30 +82,42 @@ const CropperDialog = ({
       return;
     }
 
-    canvas.toBlob(async (blob) => {
-      if (!blob) return;
+    canvas.toBlob(
+      async (blob) => {
+        if (!blob) return;
 
-      if (onCrop) {
-        const dataUrl = canvas.toDataURL("image/jpeg");
-        onCrop(blob, dataUrl);
+        const fileFromBlob = new File([blob], "cropped.jpg", {
+          type: "image/jpeg",
+        });
+        const compressedBlob =
+          imageType === ImageType.Banner
+            ? await ImageUtils.compressImage(fileFromBlob, 1)
+            : await ImageUtils.compressImage(fileFromBlob);
+
+        if (onCrop) {
+          const dataUrl = URL.createObjectURL(compressedBlob);
+          onCrop(compressedBlob, dataUrl);
+          handleClose();
+          return;
+        }
+
+        await ImageUtils.uploadImage(
+          name,
+          compressedBlob,
+          setIsLoading,
+          asyncAddImage,
+          setImage,
+          imageType,
+          identifier,
+          notify,
+        );
+
         handleClose();
-        return;
-      }
-
-      await ImageUtils.uploadImage(
-        name,
-        blob,
-        setIsLoading,
-        asyncAddImage,
-        setImage,
-        imageType,
-        identifier,
-        notify,
-      );
-      BehaviorUtils.sleep();
-      handleClose();
-      setIsLoading(false);
-    }, "image/jpeg");
+        setIsLoading(false);
+      },
+      "image/jpeg",
+      0.7,
+    );
   }, [
     name,
     onCrop,

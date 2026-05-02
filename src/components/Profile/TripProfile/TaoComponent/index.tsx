@@ -310,14 +310,16 @@ const TaoComponent = ({
           {TimeUtils.formatTimeHHmmssTohmmA(tao?.start ?? "")} -{" "}
           {TimeUtils.formatTimeHHmmssTohmmA(tao?.end ?? "")}
         </Typography>
-        <TTButton
-          color="secondary"
-          onClick={handleOpenTaoForm}
-          startIcon={<EditIcon />}
-          circular
-        >
-          Update
-        </TTButton>
+        {!readonly && (
+          <TTButton
+            color="secondary"
+            onClick={handleOpenTaoForm}
+            startIcon={<EditIcon />}
+            circular
+          >
+            Update
+          </TTButton>
+        )}
         <TTIconButton className="close-button" onClick={handleClose}>
           <CloseIcon />
         </TTIconButton>

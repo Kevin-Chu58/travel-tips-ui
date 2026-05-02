@@ -75,6 +75,17 @@ export type ListToolButton = {
   onClick: () => void;
 };
 
+export const SEARCH_TYPES = [
+  {
+    label: "Writing",
+    color: "success",
+  },
+  {
+    label: "Topic",
+    color: "info",
+  },
+];
+
 // form
 
 export type DayFormParams = {
@@ -143,9 +154,7 @@ export type HighlightOrderByEnum =
   | "mostUsed"
   | "leastUsed";
 
-export type GospelSearchType = 
-  | "Writing"
-  | "Topic";
+export type GospelSearchType = "Writing" | "Topic";
 
 // labels
 

@@ -33,13 +33,13 @@ import React from "react";
 import clsx from "clsx";
 import "./index.scss";
 import NameComponent from "./NameComponent";
-import DayComponent from "./DayComponent";
-import DescriptionComponent from "./DescriptionComponent";
 import DayOverviewComponent from "./DayOverviewComponent";
 import TaoComponent from "./TaoComponent";
 import FabComponent from "./FabComponent";
 
 // lazy load
+const DayComponent = React.lazy(() => import("./DayComponent"));
+const DescriptionComponent = React.lazy(() => import("./DescriptionComponent"));
 const TripPdfForm = React.lazy(() => import("@components/Forms/TripPdfForm"));
 const Mapper = React.lazy(() => import("@components/Map"));
 
@@ -224,6 +224,18 @@ const TripProfile = ({ readonly = false }: TripProfileProps) => {
     },
     [day],
   );
+  // use effects
+
+  // In TripProfile, after determining isOverview:
+  useEffect(() => {
+    if (isOverview) {
+      // Preload day component in background while user is on overview
+      import("./DayComponent");
+    } else {
+      // Preload description in background while user is on a day
+      import("./DescriptionComponent");
+    }
+  }, [isOverview]);
 
   // render all on tripid
   useEffect(() => {

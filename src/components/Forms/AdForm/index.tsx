@@ -112,7 +112,7 @@ const AdForm = ({ open, onClose, asyncAd, ad, business }: AdFormProps) => {
             adDraft.templateId !== ad.templateId
               ? adDraft.templateId
               : undefined,
-          imageBlob: imageBlob,
+          imageFile: imageBlob,
         } as AdPatch;
 
         let _ad = await adsService.updateAd(ad.id, adPatch);

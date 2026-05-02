@@ -7,12 +7,10 @@ import { useIsMobile } from "@hooks/useIsMobile";
 import TTButton from "@components/TTButton";
 import { FiChevronsDown, FiEdit, FiPlus, FiRefreshCw } from "react-icons/fi";
 import { StyleUtils } from "@utils/StyleUtils";
-import AdForm from "@components/Forms/AdForm";
 import type { Business } from "@services/feed/businesses";
 import { adTargetsService, type AdTarget } from "@services/feed/adTargets";
 import { enqueueSnackbar } from "notistack";
 import TTIconButton from "@components/TTIconButton";
-import AdTargetForm from "@components/Forms/AdTargetForm";
 import AdTargetCard from "@components/Cards/AdTargetCard";
 import {
   type StripeBillingCyclePreviewInvoiceResponse,
@@ -24,6 +22,10 @@ import TTSWitch from "@components/TTSwitch";
 import AdLog from "./AdLog";
 import clsx from "clsx";
 import "./index.scss";
+
+// lazy load
+const AdForm = React.lazy(() => import("@components/Forms/AdForm"));
+const AdTargetForm = React.lazy(() => import("@components/Forms/AdTargetForm"));
 
 type AdContentProps = {
   business: Business | undefined;

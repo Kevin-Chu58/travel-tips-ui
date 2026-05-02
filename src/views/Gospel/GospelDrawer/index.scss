@@ -101,20 +101,22 @@
 
       &.category-menu-item {
         margin: 0 1rem;
-        border-radius: 10rem;
+        border-radius: .5rem;
 
         :not(.default).MuiTypography-root {
           font-size: 1.2rem;
+          font-family: sora;
         }
       }
 
       &.topic-menu-item {
         margin: 0 1rem;
         margin-left: 2rem;
-        border-radius: 10rem;
+        border-radius: .5rem;
 
         .MuiTypography-root {
           font-size: 1rem;
+          font-family: sora;
         }
       }
 

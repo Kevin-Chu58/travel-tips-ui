@@ -1,5 +1,5 @@
 import TTIconButton from "@components/TTIconButton";
-import type { GospelSearchType } from "@constants/Types";
+import { SEARCH_TYPES, type GospelSearchType } from "@constants/Types";
 import {
   Box,
   Chip,
@@ -9,7 +9,6 @@ import {
   MenuItem,
   OutlinedInput,
   Typography,
-  type ChipOwnProps,
 } from "@mui/material";
 import {
   type WritingLabelSearchResult,
@@ -17,7 +16,12 @@ import {
   type WritingLabel,
   type Writing,
 } from "@services/gospel/writings";
-import React, { useEffect, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
@@ -30,6 +34,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import { enqueueSnackbar } from "notistack";
 import { useSelector } from "react-redux";
 import type { RootState } from "@redux/store";
+import GospelChip from "./GospelChip";
 import clsx from "clsx";
 import "./index.scss";
 
@@ -39,17 +44,6 @@ type GospelDrawerProps = {
 };
 
 const GospelDrawer = ({ isHidden, setIsHidden }: GospelDrawerProps) => {
-  const searchTypes = [
-    {
-      label: "Writing",
-      color: "success",
-    },
-    {
-      label: "Topic",
-      color: "info",
-    },
-  ];
-
   // window
   const isMobile = useIsMobile();
   // url
@@ -62,12 +56,11 @@ const GospelDrawer = ({ isHidden, setIsHidden }: GospelDrawerProps) => {
   // categories
   const [categories, setCategories] = useState<WritingLabel[]>([]);
   // topics
-  const topicsMapRef = useRef<Map<number, WritingLabel[]>>(new Map());
   const [topicsMap, setTopicsMap] = useState<Map<number, WritingLabel[]>>(
     new Map(),
   );
-  // search
-  const valueRef = useRef<string>("");
+  // search // TODO
+  // const valueRef = useRef<string>("");
   const [value, setValue] = useState<string>(""); // search input
   const [searchType, setSearchType] = useState<GospelSearchType>("Writing");
   // search results
@@ -103,8 +96,9 @@ const GospelDrawer = ({ isHidden, setIsHidden }: GospelDrawerProps) => {
       parentLabelId: id,
     });
 
-    topicsMapRef.current.set(id, labelResult.result.topics ?? []);
-    setTopicsMap(topicsMapRef.current);
+    let _topicsMap = topicsMap;
+    _topicsMap.set(id, labelResult.result.topics ?? []);
+    setTopicsMap(_topicsMap);
   };
 
   // use effect
@@ -127,7 +121,77 @@ const GospelDrawer = ({ isHidden, setIsHidden }: GospelDrawerProps) => {
 
   // handle functions
 
-  const handleSearch = async () => {
+  const handleCloseSearch = useCallback(() => {
+    setWritingResult(undefined);
+    setWritingLabelResult(undefined);
+    setOpenSearchCategories([]);
+    setValue("");
+    setIsSearch(false);
+  }, []);
+
+  const handleTopicClick = useCallback(
+    (slug: string) => {
+      navigate(`/gospel/${slug}`);
+      setSlug(slug);
+      if (isMobile) setIsHidden(true);
+    },
+    [navigate, isMobile, setIsHidden],
+  );
+
+  const handleHomeClick = useCallback(() => {
+    navigate("/gospel");
+    setSlug(undefined);
+    if (isMobile) setIsHidden(true);
+  }, [navigate, isMobile, setIsHidden]);
+
+  const handleMyWritingClick = useCallback(() => {
+    navigate("/gospel?my");
+    setSlug(undefined);
+    if (isMobile) setIsHidden(true);
+  }, [navigate, isMobile, setIsHidden]);
+
+  const handleWritingClick = useCallback(
+    async (writing: Writing) => {
+      try {
+        const writingOrder = await writingsService.getWritingOrderById(
+          writing.id,
+        );
+        if (writingOrder > 0) {
+          navigate(`/gospel/${writing.label?.topic?.slug}/${writingOrder}`);
+        }
+      } catch (e) {
+        if (e instanceof Error)
+          enqueueSnackbar(e.message, { variant: "error" });
+      }
+    },
+    [navigate],
+  );
+
+  const handleCategoryClick = useCallback(
+    async (category: WritingLabel, isSearch: boolean = false) => {
+      const isOpened = isSearch
+        ? openSearchCategories.includes(category.slug)
+        : openCategories.includes(category.slug);
+
+      if (isOpened) {
+        isSearch
+          ? setOpenSearchCategories((prev) =>
+              prev.filter((c) => c !== category.slug),
+            )
+          : setOpenCategories((prev) =>
+              prev.filter((c) => c !== category.slug),
+            );
+      } else {
+        if (!topicsMap.has(category.id)) await initTopics(category.id);
+        isSearch
+          ? setOpenSearchCategories((prev) => [...prev, category.slug])
+          : setOpenCategories((prev) => [...prev, category.slug]);
+      }
+    },
+    [openSearchCategories, openCategories, topicsMap],
+  );
+
+  const handleSearch = useCallback(async () => {
     if (!value) return;
 
     if (searchType === "Topic") {
@@ -138,121 +202,34 @@ const GospelDrawer = ({ isHidden, setIsHidden }: GospelDrawerProps) => {
     }
 
     if (searchType === "Writing") {
-      const WritingResult = await writingsService.getWritingsByParams({
+      const writingResult = await writingsService.getWritingsByParams({
         title: value,
       });
-      setWritingResult(WritingResult);
+      setWritingResult(writingResult);
     }
 
     setIsSearch(true);
-    valueRef.current = value;
-  };
+    setValue(value);
+  }, [value, searchType]);
 
   // trigger when press enter when focus on search input
-  const handleKeyDownSearch = async (event: React.KeyboardEvent) => {
-    if (event.key === "Enter") {
-      await handleSearch();
-    }
-  };
-
-  const handleCloseSearch = () => {
-    setWritingResult(undefined);
-    setWritingLabelResult(undefined);
-    setOpenSearchCategories([]);
-    valueRef.current = "";
-
-    setIsSearch(false);
-  };
-
-  const handleCategoryClick = async (
-    category: WritingLabel,
-    isSearch: boolean = false,
-  ) => {
-    const isOpened = isSearch
-      ? openSearchCategories.includes(category.slug)
-      : openCategories.includes(category.slug);
-
-    if (isOpened) {
-      isSearch
-        ? setOpenSearchCategories((prev) =>
-            prev.filter((c) => c !== category.slug),
-          )
-        : setOpenCategories((prev) => prev.filter((c) => c !== category.slug));
-    } else {
-      // init topics under that category if haven't initiated
-      if (!topicsMap.has(category.id)) await initTopics(category.id);
-
-      isSearch
-        ? setOpenSearchCategories((prev) => [...prev, category.slug])
-        : setOpenCategories((prev) => [...prev, category.slug]);
-    }
-  };
-
-  const handleTopicClick = (slug: string) => {
-    navigate(`/gospel/${slug}`);
-    setSlug(slug);
-
-    if (isMobile) setIsHidden(true);
-  };
-
-  const handleWritingClick = async (Writing: Writing) => {
-    try {
-      const WritingOrder = await writingsService.getWritingOrderById(
-        Writing.id,
-      );
-
-      if (WritingOrder > 0) {
-        navigate(`/gospel/${Writing.label?.topic?.slug}/${WritingOrder}`);
+  const handleKeyDownSearch = useCallback(
+    async (event: React.KeyboardEvent) => {
+      if (event.key === "Enter") {
+        await handleSearch();
       }
-    } catch (e) {
-      if (e instanceof Error) enqueueSnackbar(e.message, { variant: "error" });
-    }
-  };
-
-  const handleHomeClick = () => {
-    navigate("/gospel");
-    setSlug(undefined);
-
-    if (isMobile) setIsHidden(true);
-  };
-
-  const handleMyWritingClick = () => {
-    navigate("/gospel?my");
-    setSlug(undefined);
-
-    if (isMobile) setIsHidden(true);
-  };
+    },
+    [],
+  );
 
   // components
 
-  const chip = (
-    searchType?: GospelSearchType,
-    isDefault: boolean = false,
-    size: ChipOwnProps["size"] = "small",
-    onClick?: () => void,
-  ) => {
-    if (!searchType) return undefined;
-
-    const _searchType = searchTypes.find((t) => t.label === searchType);
-    return (
-      <Chip
-        key={_searchType?.label}
-        label={_searchType?.label}
-        className={clsx(
-          "chip",
-          Boolean(onClick) && "onClick",
-          !isDefault && "custom",
-        )}
-        size={size}
-        onClick={onClick}
-        color={
-          isDefault ? "default" : (_searchType?.color as ChipOwnProps["color"])
-        }
-      />
-    );
+  type MenuItemProps = {
+    label: WritingLabel;
+    isSearch?: boolean;
   };
 
-  const menuItem = (label: WritingLabel, isSearch: boolean = false) => {
+  const menuItem = ({ label, isSearch = false }: MenuItemProps) => {
     const isOpened = isSearch
       ? openSearchCategories.includes(label.slug)
       : openCategories.includes(label.slug);
@@ -272,7 +249,7 @@ const GospelDrawer = ({ isHidden, setIsHidden }: GospelDrawerProps) => {
           disableRipple
         >
           <Typography>
-            {highlightText(label.name, valueRef.current, DefaultHighlight)}
+            {highlightText(label.name, value, DefaultHighlight)}
           </Typography>
           {hasCollapse ? isOpened ? <RemoveIcon /> : <AddIcon /> : undefined}
         </MenuItem>
@@ -299,97 +276,118 @@ const GospelDrawer = ({ isHidden, setIsHidden }: GospelDrawerProps) => {
     );
   };
 
-  const SearchContent = (
-    <React.Fragment>
-      <Divider variant="middle">
-        <Chip label="search result" onDelete={handleCloseSearch} />
-      </Divider>
-      {searchType === "Topic" ? (
-        <React.Fragment>
-          {_categoryCount > 0 ? (
-            <React.Fragment>
-              <Typography className="caption">category</Typography>
-              {WritingLabelResult?.categories?.map((category) =>
-                menuItem(category, true),
-              )}
-            </React.Fragment>
-          ) : undefined}
-          {_topicCount > 0 ? (
-            <React.Fragment>
-              <Typography className="caption">topic</Typography>
-              {WritingLabelResult?.topics?.map((topic) => menuItem(topic))}
-            </React.Fragment>
-          ) : undefined}
-        </React.Fragment>
-      ) : (
-        <React.Fragment>
-          <Typography className="caption">Writing</Typography>
-          {WritingResult?.map((Writing) => (
-            <MenuItem
-              key={Writing.id}
-              className="category-menu-item"
-              onClick={() => handleWritingClick(Writing)}
-            >
-              <Box display="flex" flexDirection="column">
-                {/* label - category & topic */}
-                <Typography
-                  className="default"
-                  variant="subtitle2"
-                  fontWeight="bold"
-                >
-                  <span style={{ color: "var(--info-900)" }}>
-                    {Writing.label?.category?.name}
-                  </span>
-                  {` > ${Writing.label?.topic?.name}`}
-                </Typography>
-                {/* Writing title with highlight */}
-                <Typography>
-                  {highlightText(
-                    Writing.title,
-                    valueRef.current,
-                    DefaultHighlight,
-                  )}
-                </Typography>
-              </Box>
-            </MenuItem>
-          ))}
-        </React.Fragment>
-      )}
-    </React.Fragment>
+  const SearchContent = useMemo(
+    () => (
+      <React.Fragment>
+        <Divider variant="middle">
+          <Chip label="search result" onDelete={handleCloseSearch} />
+        </Divider>
+        {searchType === "Topic" ? (
+          <React.Fragment>
+            {_categoryCount > 0 && (
+              <React.Fragment>
+                <Typography className="caption">category</Typography>
+                {WritingLabelResult?.categories?.map((category) =>
+                  menuItem({ label: category, isSearch: true }),
+                )}
+              </React.Fragment>
+            )}
+            {_topicCount > 0 && (
+              <React.Fragment>
+                <Typography className="caption">topic</Typography>
+                {WritingLabelResult?.topics?.map((topic) =>
+                  menuItem({ label: topic }),
+                )}
+              </React.Fragment>
+            )}
+          </React.Fragment>
+        ) : (
+          <React.Fragment>
+            <Typography className="caption">Writing</Typography>
+            {WritingResult?.map((writing) => (
+              <MenuItem
+                key={writing.id}
+                className="category-menu-item"
+                onClick={() => handleWritingClick(writing)}
+              >
+                <Box display="flex" flexDirection="column">
+                  <Typography
+                    className="default"
+                    variant="subtitle2"
+                    fontWeight="bold"
+                  >
+                    <span style={{ color: "var(--info-900)" }}>
+                      {writing.label?.category?.name}
+                    </span>
+                    {` > ${writing.label?.topic?.name}`}
+                  </Typography>
+                  <Typography>
+                    {highlightText(writing.title, value, DefaultHighlight)}
+                  </Typography>
+                </Box>
+              </MenuItem>
+            ))}
+          </React.Fragment>
+        )}
+      </React.Fragment>
+    ),
+    [
+      searchType,
+      _categoryCount,
+      _topicCount,
+      WritingLabelResult,
+      WritingResult,
+      handleCloseSearch,
+      handleWritingClick,
+    ],
   );
 
-  const NavContent = (
-    <React.Fragment>
-      <Typography className="caption">navigation</Typography>
-      <MenuItem
-        key="main"
-        className={clsx(
-          "category-menu-item",
-          !labelSlug && !orderId && !isWriterParams && "hovered",
-        )}
-        onClick={handleHomeClick}
-      >
-        <Typography>Home</Typography>
-      </MenuItem>
-      {isWriter ? (
+  const NavContent = useMemo(
+    () => (
+      <React.Fragment>
+        <Typography className="caption">navigation</Typography>
         <MenuItem
-          key="my"
+          key="main"
           className={clsx(
             "category-menu-item",
-            !labelSlug && !orderId && isWriterParams && "hovered",
+            !labelSlug && !orderId && !isWriterParams && "hovered",
           )}
-          onClick={handleMyWritingClick}
+          onClick={handleHomeClick}
         >
-          <Typography>My Writings</Typography>
+          <Typography>Home</Typography>
         </MenuItem>
-      ) : undefined}
-      {categories.length > 0 ? (
-        <React.Fragment>
-          <Typography className="caption">all categories</Typography>
-          {categories.map((category) => menuItem(category))}
-        </React.Fragment>
-      ) : undefined}
-    </React.Fragment>
+        {isWriter && (
+          <MenuItem
+            key="my"
+            className={clsx(
+              "category-menu-item",
+              !labelSlug && !orderId && isWriterParams && "hovered",
+            )}
+            onClick={handleMyWritingClick}
+          >
+            <Typography>My Writings</Typography>
+          </MenuItem>
+        )}
+        {categories.length > 0 && (
+          <React.Fragment>
+            <Typography className="caption">all categories</Typography>
+            {categories.map((category) => menuItem({ label: category }))}
+          </React.Fragment>
+        )}
+      </React.Fragment>
+    ),
+    [
+      categories,
+      labelSlug,
+      orderId,
+      isWriterParams,
+      isWriter,
+      handleHomeClick,
+      handleMyWritingClick,
+      slug,
+      openCategories,
+      topicsMap,
+    ],
   );
 
   return (
@@ -414,7 +412,11 @@ const GospelDrawer = ({ isHidden, setIsHidden }: GospelDrawerProps) => {
             onKeyDown={handleKeyDownSearch}
             startAdornment={
               <Box className="start-adornment-box">
-                {chip(searchType, false, "medium")}
+                <GospelChip
+                  searchType={searchType}
+                  isDefault={false}
+                  size="medium"
+                />
               </Box>
             }
             endAdornment={
@@ -429,10 +431,16 @@ const GospelDrawer = ({ isHidden, setIsHidden }: GospelDrawerProps) => {
           />
         </FormControl>
         <Box className="chip-box">
-          {searchTypes.map((type) => {
+          {SEARCH_TYPES.map((type) => {
             const label = type.label as GospelSearchType;
-            return chip(label, label !== searchType, "small", () =>
-              setSearchType(label),
+            return (
+              <GospelChip
+                key={type.label}
+                searchType={label}
+                isDefault={label !== searchType}
+                size="small"
+                onClick={() => setSearchType(label)}
+              />
             );
           })}
         </Box>

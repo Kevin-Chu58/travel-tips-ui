@@ -1,8 +1,7 @@
 import TTButton from "@components/TTButton";
 import { Box, IconButton, InputAdornment, TextField } from "@mui/material";
-import MarkdownBox from "@components/MarkdownBox";
 import ToolTip from "@components/ToolTip";
-import { useRef, useState } from "react";
+import React, { Suspense, useRef, useState } from "react";
 import {
   LuBold,
   LuItalic,
@@ -19,6 +18,9 @@ import type { UtilityItem } from "@constants/Types";
 import { StringUtils } from "@utils/StringUtils";
 import clsx from "clsx";
 import "./index.scss";
+
+// lazy load
+const MarkdownBox = React.lazy(() => import("@components/MarkdownBox"));
 
 type DescriptionTextFieldProps = {
   value: string;
@@ -273,7 +275,9 @@ const DescriptionTextField = ({
 
       {isPreview ? (
         <Box className="preview-box">
-          <MarkdownBox text={value} isOfficial={isOfficial} />
+          <Suspense fallback={<Box>{value}</Box>}>
+            <MarkdownBox text={value} isOfficial={isOfficial} />
+          </Suspense>
         </Box>
       ) : (
         <Box className="text-field-box">

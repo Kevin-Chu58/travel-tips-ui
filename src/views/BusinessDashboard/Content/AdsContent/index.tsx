@@ -14,10 +14,13 @@ import { FiBox, FiPlus } from "react-icons/fi";
 import type { Ad } from "@services/feed/ads";
 import { StyleUtils } from "@utils/StyleUtils";
 import type { Business } from "@services/feed/businesses";
-import AdForm from "@components/Forms/AdForm";
 import { useNavigate } from "react-router";
 import { useState } from "react";
+import React from "react";
 import "./index.scss";
+
+// lazy load
+const AdForm = React.lazy(() => import("@components/Forms/AdForm"));
 
 type AdsContentProps = {
   business: Business | undefined;

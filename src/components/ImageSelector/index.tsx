@@ -151,7 +151,7 @@ const ImageSelector = ({
         />
       ) : undefined}
 
-      {/* ✅ conditional mount — only mount when open */}
+      {/* conditional mount — only mount when open */}
       {openCropperDialog && (
         <CropperDialog
           open

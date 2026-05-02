@@ -3,9 +3,11 @@ import TTButton from "@components/TTButton";
 import { Box, Button, Skeleton, Typography } from "@mui/material";
 import { tripsService, type Trip, type TripPatch } from "@services/trips";
 import { enqueueSnackbar } from "notistack";
-import MarkdownBox from "@components/MarkdownBox";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { Suspense, useCallback, useEffect, useState } from "react";
 import "./index.scss";
+
+// lazy load
+const MarkdownBox = React.lazy(() => import("@components/MarkdownBox"));
 
 type DescriptionComponentProps = {
   trip: Trip | undefined;
@@ -98,7 +100,9 @@ const DescriptionComponent = ({
                 className="button"
                 onClick={handleIsEditingDescriptionTrue}
               >
-                <MarkdownBox text={description} disableGap />
+                <Suspense fallback={<Box>{description}</Box>}>
+                  <MarkdownBox text={description} disableGap />
+                </Suspense>
               </Button>
             ) : (
               <Button
@@ -112,7 +116,9 @@ const DescriptionComponent = ({
               </Button>
             )
           ) : (
-            <MarkdownBox text={description || "*Nothing to preview*"} />
+            <Suspense fallback={<Box>{description}</Box>}>
+              <MarkdownBox text={description || "*Nothing to preview*"} />
+            </Suspense>
           )}
         </React.Fragment>
       ) : (
