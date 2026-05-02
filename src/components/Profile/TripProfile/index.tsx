@@ -36,16 +36,14 @@ import FabComponent from "./FabComponent";
 import React from "react";
 import clsx from "clsx";
 import "./index.scss";
+import DescriptionComponent from "./DescriptionComponent";
 
 // lazy load
 const TripPdfForm = React.lazy(() => import("@components/Forms/TripPdfForm"));
 const Mapper = React.lazy(() => import("@components/Map"));
 
 const DayComponentModule = () => import("./DayComponent");
-const DescriptionComponentModule = () => import("./DescriptionComponent");
-
 const DayComponent = React.lazy(DayComponentModule);
-const DescriptionComponent = React.lazy(DescriptionComponentModule);
 
 type TripProfileProps = {
   readonly?: boolean;
@@ -235,9 +233,6 @@ const TripProfile = ({ readonly = false }: TripProfileProps) => {
     if (isOverview) {
       // Preload day component in background while user is on overview
       import("./DayComponent");
-    } else {
-      // Preload description in background while user is on a day
-      import("./DescriptionComponent");
     }
   }, [isOverview]);
 
