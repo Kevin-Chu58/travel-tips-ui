@@ -5,9 +5,9 @@ import { Box, Typography } from "@mui/material";
 import type { Trip } from "@services/trips";
 import React, { Suspense } from "react";
 import type { Marker } from "@constants/Types";
+import Map from "@components/Map";
 
 // lazy load
-const Map = React.lazy(() => import("@components/Map"));
 const MarkdownBox = React.lazy(() => import("@components/MarkdownBox"));
 
 type OverviewPdfPageProps = {

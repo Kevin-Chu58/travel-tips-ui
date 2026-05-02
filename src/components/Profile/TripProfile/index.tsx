@@ -33,14 +33,14 @@ import NameComponent from "./NameComponent";
 import DayOverviewComponent from "./DayOverviewComponent";
 import TaoComponent from "./TaoComponent";
 import FabComponent from "./FabComponent";
+import DescriptionComponent from "./DescriptionComponent";
+import Mapper from "@components/Map";
 import React from "react";
 import clsx from "clsx";
 import "./index.scss";
-import DescriptionComponent from "./DescriptionComponent";
 
 // lazy load
 const TripPdfForm = React.lazy(() => import("@components/Forms/TripPdfForm"));
-const Mapper = React.lazy(() => import("@components/Map"));
 
 const DayComponentModule = () => import("./DayComponent");
 const DayComponent = React.lazy(DayComponentModule);

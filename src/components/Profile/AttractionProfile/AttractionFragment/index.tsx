@@ -9,11 +9,9 @@ import { useIsMobile } from "@hooks/useIsMobile";
 import OpeningHours from "@components/OpeningHours";
 import { UrlUtils } from "@utils/UrlUtils";
 import TTButton from "@components/TTButton";
+import Map from "@components/Map";
 import clsx from "clsx";
 import "./index.scss";
-
-// lazy load
-const Map = React.lazy(() => import("@components/Map"));
 
 type AttractionFragmentProps = {
   herePlace: HerePlace | undefined;
@@ -24,12 +22,12 @@ const AttractionFragment = ({ herePlace }: AttractionFragmentProps) => {
   const isMobile = useIsMobile();
   // opening hours
   const openingHours = TimeUtils.parseWeeklyHours(
-    herePlace?.openingHours?.at(0)?.text
+    herePlace?.openingHours?.at(0)?.text,
   );
   const isOpened = TimeUtils.isOpenNow(openingHours);
   const surroundingDates = TimeUtils.getSurroundingDates(
     new Date(),
-    isMobile ? 2 : 3
+    isMobile ? 2 : 3,
   );
   // websites
   const websites = herePlace?.contacts
@@ -133,7 +131,7 @@ const AttractionFragment = ({ herePlace }: AttractionFragmentProps) => {
                   key={category.name}
                   className={clsx(
                     "highlight-profile-attraction-fragment-chip",
-                    category.primary && "primary"
+                    category.primary && "primary",
                   )}
                   label={category.name}
                 />
@@ -144,7 +142,7 @@ const AttractionFragment = ({ herePlace }: AttractionFragmentProps) => {
             <Box className="highlight-profile-attraction-fragment-map-container">
               <Map readonly markers={markers} focusId={herePlace.id} />
               {getGoogleMapNavButton(
-                "highlight-profile-attraction-fragment-google-map-link"
+                "highlight-profile-attraction-fragment-google-map-link",
               )}
             </Box>
 
@@ -185,7 +183,7 @@ const AttractionFragment = ({ herePlace }: AttractionFragmentProps) => {
                     <Chip
                       className={clsx(
                         "highlight-profile-attraction-fragment-chip",
-                        type.primary && "primary"
+                        type.primary && "primary",
                       )}
                       key={type.id}
                       label={type.name}

@@ -15,12 +15,12 @@ import TimeUtils from "@utils/TimeUtils";
 import { hhmm, hhmmss, HHmmss, hmma } from "@constants/Times";
 import type { GeoCoordinate } from "@constants/Types";
 import type { Dayjs } from "dayjs";
+import Map from "@components/Map";
 import dayjs from "dayjs";
 import clsx from "clsx";
 import "./index.scss";
 
 // lazy load/
-const Map = React.lazy(() => import("@components/Map"));
 const TTTimePicker = React.lazy(() => import("@components/TTTimePicker"));
 const AttractionFinder = React.lazy(() => import("@components/AttractionFinder"));
 
