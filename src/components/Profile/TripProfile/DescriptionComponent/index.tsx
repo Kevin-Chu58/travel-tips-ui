@@ -5,9 +5,7 @@ import { tripsService, type Trip, type TripPatch } from "@services/trips";
 import { enqueueSnackbar } from "notistack";
 import React, { Suspense, useCallback, useEffect, useState } from "react";
 import "./index.scss";
-
-// lazy load
-const MarkdownBox = React.lazy(() => import("@components/MarkdownBox"));
+import MarkdownBox from "@components/MarkdownBox";
 
 type DescriptionComponentProps = {
   trip: Trip | undefined;
@@ -100,7 +98,7 @@ const DescriptionComponent = ({
                 className="button"
                 onClick={handleIsEditingDescriptionTrue}
               >
-                <Suspense fallback={<Box>{description}</Box>}>
+                <Suspense>
                   <MarkdownBox text={description} disableGap />
                 </Suspense>
               </Button>
@@ -116,7 +114,7 @@ const DescriptionComponent = ({
               </Button>
             )
           ) : (
-            <Suspense fallback={<Box>{description}</Box>}>
+            <Suspense>
               <MarkdownBox text={description || "*Nothing to preview*"} />
             </Suspense>
           )}
