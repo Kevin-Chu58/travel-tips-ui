@@ -121,11 +121,17 @@ const DayOverviewComponent = ({
 
   const handleClick = useCallback(
     (dayId: number, i: number) => {
+      const scrollY = window.scrollY; // save position
+
       if (focusId !== dayId) {
         setFocusId(dayId);
       } else {
         navigate(`day/${i + 1}`);
       }
+
+      requestAnimationFrame(() => {
+        window.scrollTo(0, scrollY); // restore after render
+      });
     },
     [focusId, setFocusId, navigate],
   );

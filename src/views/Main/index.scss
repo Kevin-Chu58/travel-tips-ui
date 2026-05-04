@@ -7,7 +7,7 @@
   margin-top: -4rem;
 
   .main-page-content-container {
-    height: $screen-height;
+    height: calc(100dvh - $header);
     width: 100vw;
     position: relative;
     background-image: url("https://firebasestorage.googleapis.com/v0/b/traveltips-imagestore.firebasestorage.app/o/assets%2Falone.png?alt=media&token=a3196a61-62d5-4d57-a20a-7af80d901d7d");
