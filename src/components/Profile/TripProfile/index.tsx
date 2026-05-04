@@ -96,6 +96,7 @@ const TripProfile = ({ readonly = false }: TripProfileProps) => {
   // others
   const { tripId, dayId } = useParams(); // dayId - day index in days, not day.id
   const inputRef = useRef<HTMLInputElement>(null);
+  const descriptionScrollRef = useRef<HTMLDivElement>(null);
 
   const taoMarkers = useMemo(
     () =>
@@ -190,7 +191,7 @@ const TripProfile = ({ readonly = false }: TripProfileProps) => {
 
           taosMapRef.current.set(day.id, newTaos);
           setTaos(newTaos);
-          setTao(tao); // TODO - optimize
+          setTao(tao); // TODO - optimize?
 
           let orderChanged = !isEqual(prevTaoOrder, currTaoOrder);
 
@@ -276,6 +277,16 @@ const TripProfile = ({ readonly = false }: TripProfileProps) => {
   );
 
   const handleCloseForm = useCallback(() => setOpenForm(null), [setOpenForm]);
+
+  const handleSetDayOverviewFocus = useCallback((id: number) => {
+    const scrollTop = descriptionScrollRef.current?.scrollTop ?? 0;
+    setDayOverviewFocus(id);
+    requestAnimationFrame(() => {
+      if (descriptionScrollRef.current) {
+        descriptionScrollRef.current.scrollTop = scrollTop;
+      }
+    });
+  }, []);
 
   // init functions
 
@@ -449,7 +460,7 @@ const TripProfile = ({ readonly = false }: TripProfileProps) => {
                 days={days}
                 setDays={setDays}
                 focusId={dayOverviewFocus}
-                setFocusId={setDayOverviewFocus}
+                setFocusId={handleSetDayOverviewFocus}
                 readonly={readonly}
               />
             </Box>
