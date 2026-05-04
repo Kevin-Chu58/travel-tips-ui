@@ -1,7 +1,6 @@
 import { Navigate, Route, Routes } from "react-router";
 import { Container } from "@mui/material";
 import { useParams } from "react-router";
-import { Headers } from "@constants/Layouts";
 import TripProfile from "@components/Profile/TripProfile";
 
 const TripView = () => {
@@ -13,16 +12,7 @@ const TripView = () => {
   }
 
   return (
-    <Container
-      maxWidth={false}
-      disableGutters
-      sx={{
-        color: "black",
-        overflowX: "hidden",
-        overflowY: "auto",
-        height: `calc(100vh - ${Headers}px)`,
-      }}
-    >
+    <Container className="trip-page-container" maxWidth={false} disableGutters>
       <TripProfile readonly />
     </Container>
   );

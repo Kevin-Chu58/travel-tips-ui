@@ -1,0 +1,8 @@
+@use "../../stylings/layout" as *;
+
+.trip-page-container {
+  height: $screen-height;
+  color: black;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
