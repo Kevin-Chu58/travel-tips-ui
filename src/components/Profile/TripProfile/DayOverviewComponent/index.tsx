@@ -22,7 +22,11 @@ type DayOverviewItemProps = {
   day: Day;
   index: number;
   focusId: number;
-  onClick: (dayId: number, index: number) => void;
+  onClick: (
+    e: React.MouseEvent<HTMLDivElement>,
+    dayId: number,
+    index: number,
+  ) => void;
   deleteMode: boolean;
   onDeleteClick: (state: Day) => void;
 };
@@ -43,7 +47,7 @@ const DayOverviewItem = React.memo(
             "trip-profile-day-overview-comp-day-box",
             focusId === day.id && "focus",
           )}
-          onClick={() => onClick(day.id, index)}
+          onClick={(e) => onClick(e, day.id, index)}
         >
           <Typography
             className={clsx(
@@ -120,18 +124,15 @@ const DayOverviewComponent = ({
   // handle functions
 
   const handleClick = useCallback(
-    (dayId: number, i: number) => {
-      const scrollY = window.scrollY; // save position
+    (e: React.MouseEvent<HTMLDivElement>, dayId: number, i: number) => {
+      e.preventDefault();
+      e.currentTarget.blur();
 
       if (focusId !== dayId) {
         setFocusId(dayId);
       } else {
         navigate(`day/${i + 1}`);
       }
-
-      requestAnimationFrame(() => {
-        window.scrollTo(0, scrollY); // restore after render
-      });
     },
     [focusId, setFocusId, navigate],
   );
