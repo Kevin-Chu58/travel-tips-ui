@@ -1,5 +1,5 @@
 $header: 4rem;
-$screen-height: calc(100dvh - $header);
+$screen-height: calc(100dvh - $header - env(safe-area-inset-bottom, 0px));
 
 // aspect ratio
 @use "sass:list";

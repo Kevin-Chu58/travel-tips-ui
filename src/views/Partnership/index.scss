@@ -95,8 +95,8 @@
     border-radius: 2rem;
     background-color: white;
     box-shadow: $box-shadow;
-    z-index: 10;
     transition: 0.3s ease-in-out margin-top;
+    z-index: 10;
 
     &.open {
       margin-top: calc(-1 * $screen-height + $top-margin);
