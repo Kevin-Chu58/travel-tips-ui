@@ -9,7 +9,7 @@
 
   .image-section {
     width: 100vw;
-    min-height: $screen-height;
+    height: $screen-height;
     position: relative;
     background-image: url("https://firebasestorage.googleapis.com/v0/b/traveltips-imagestore.firebasestorage.app/o/assets%2Fpartnership.jpg?alt=media&token=f0989115-edc7-4ebd-a46a-adb8589af721");
     background-position: center;
@@ -20,7 +20,7 @@
   .overlay-section {
     width: 100vw;
     flex-shrink: 0;
-    min-height: $screen-height;
+    height: $screen-height;
     display: flex;
     flex-direction: column;
     justify-content: center;
