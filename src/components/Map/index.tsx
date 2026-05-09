@@ -10,6 +10,7 @@ import React, {
 } from "react";
 import type { GeoCoordinate, Marker, Route } from "@constants/Types";
 import { decode } from "@here/flexpolyline";
+import "leaflet/dist/leaflet.css";
 import "./index.scss";
 
 type MapConfigProps = {
@@ -234,10 +235,6 @@ const Map = React.memo(
     }, [currentCoordinate]);
 
     /** useEffect */
-
-    useEffect(() => {
-      import("leaflet/dist/leaflet.css");
-    }, []);
 
     useEffect(() => {
       if (mapInstanceRef.current) {
