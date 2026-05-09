@@ -3,15 +3,17 @@ import FormBase from "../FormBases/FormBase";
 import type { Trip } from "@services/trips";
 import { jsPDF } from "jspdf";
 import { toPng } from "html-to-image";
-import OverviewPdfPage from "./OverviewPdfPage";
-import DayPdfPage from "./DayPdfPage";
+// import OverviewPdfPage from "./OverviewPdfPage";
+// import DayPdfPage from "./DayPdfPage";
 import type { Marker } from "@constants/Types";
 import type { Day } from "@services/days";
 import type { Tao } from "@services/taos";
 import type { HereRoutingResponse } from "@services/hereMap/hereMap";
 import LocalActivityIcon from "@mui/icons-material/LocalActivity";
 import DownloadIcon from "@mui/icons-material/Download";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, 
+  // useEffect,
+   useMemo, useState } from "react";
 import { enqueueSnackbar } from "notistack";
 import { usersService } from "@services/users";
 import { useDispatch, useSelector } from "react-redux";
@@ -38,29 +40,29 @@ const TripPdfForm = ({
   open,
   onClose,
   trip,
-  days,
-  taosMapRef,
-  routeResponsesMapRef,
-  geoMarkers,
-  fetchAllDays,
+  // days,
+  // taosMapRef,
+  // routeResponsesMapRef,
+  // geoMarkers,
+  // fetchAllDays,
 }: TripPdfFormProps) => {
   const userSubExtend = useSelector(
     (state: RootState) => state.user.userSubExtend,
   );
   const dispatch = useDispatch();
   const [isDownloading, setIsDownLoading] = useState<boolean>(false);
-  const [allDaysFetched, setAllDaysFetched] = useState(false);
+  // const [allDaysFetched, setAllDaysFetched] = useState(false);
 
   // derived from userSubExtend — no need for separate state
   const current = userSubExtend?.pdfDownloadCount ?? 0;
   const max = userSubExtend?.maxPdfDownloadCount ?? 0;
 
-  useEffect(() => {
-    if (open) {
-      setAllDaysFetched(false);
-      fetchAllDays().then(() => setAllDaysFetched(true));
-    }
-  }, [open, fetchAllDays]);
+  // useEffect(() => {
+  //   if (open) {
+  //     setAllDaysFetched(false);
+  //     fetchAllDays().then(() => setAllDaysFetched(true));
+  //   }
+  // }, [open, fetchAllDays]);
 
   const subTitleContent = useMemo(
     () => (
@@ -150,18 +152,18 @@ const TripPdfForm = ({
     }
   }, [trip, userSubExtend, dispatch]);
 
-  const dayPages = useMemo(
-    () =>
-      days.map((day, i) => (
-        <DayPdfPage
-          key={`day-pdf-${day.id}`}
-          dayIndex={i}
-          taos={taosMapRef.current.get(day.id)}
-          routingResponses={routeResponsesMapRef.current.get(day.id)}
-        />
-      )),
-    [days, allDaysFetched],
-  );
+  // const dayPages = useMemo(
+  //   () =>
+  //     days.map((day, i) => (
+  //       <DayPdfPage
+  //         key={`day-pdf-${day.id}`}
+  //         dayIndex={i}
+  //         taos={taosMapRef.current.get(day.id)}
+  //         routingResponses={routeResponsesMapRef.current.get(day.id)}
+  //       />
+  //     )),
+  //   [days, allDaysFetched],
+  // );
 
   return (
     <FormBase
@@ -182,12 +184,19 @@ const TripPdfForm = ({
       <Box className="column">
         <ProgressBar current={current} max={max} object="PDFs" />
         <Box className="pdf-pages-box">
-          <OverviewPdfPage
+          {/* <OverviewPdfPage
             key={geoMarkers?.length}
             trip={trip}
             markers={geoMarkers}
           />
-          {dayPages}
+          {dayPages} */}
+          <div
+            className="pdf-page"
+            style={{ width: "210mm", height: "297mm", background: "white" }}
+          >
+            <h1>Test Page</h1>
+            <p>Hello World</p>
+          </div>
         </Box>
       </Box>
     </FormBase>
