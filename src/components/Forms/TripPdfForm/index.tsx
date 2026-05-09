@@ -81,70 +81,72 @@ const TripPdfForm = ({
     setIsDownLoading(true);
 
     try {
+      enqueueSnackbar("Generating the PDF may take a few minutes.", {
+        variant: "info",
+      });
+
+      const pdf = new jsPDF("p", "mm", "a4");
+      const pages = document.querySelectorAll(".pdf-page");
+
+      // then add to PDF sequentially
+      for (let i = 0; i < pages.length; i++) {
+        const pageEl = pages[i] as HTMLElement;
+
+        const dataUrl = await toPng(pageEl, {
+          quality: 1,
+          pixelRatio: 2,
+          skipFonts: true,
+          filter: (node) => !node.classList?.contains("map-box"),
+        });
+
+        const imgProps = pdf.getImageProperties(dataUrl);
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+        pdf.addImage(dataUrl, "PNG", 0, 0, A4_WIDTH, A4_HEIGHT);
+
+        const links = pageEl.querySelectorAll("a");
+        const rootRect = pageEl.getBoundingClientRect();
+
+        links.forEach((link) => {
+          const linkRect = link.getBoundingClientRect();
+          const x =
+            ((linkRect.left - rootRect.left) / rootRect.width) * pdfWidth;
+          const y =
+            ((linkRect.top - rootRect.top) / rootRect.height) * pdfHeight;
+          const w = (linkRect.width / rootRect.width) * pdfWidth;
+          const h = (linkRect.height / rootRect.height) * pdfHeight;
+          pdf.link(x, y, w, h, { url: link.href });
+        });
+
+        if (i < pages.length - 1) pdf.addPage();
+
+        await new Promise((resolve) => setTimeout(resolve, 50));
+
+        enqueueSnackbar(`Processed page ${i + 1} of ${pages.length}`, {
+          variant: "info",
+        });
+      }
+
+      setIsDownLoading(false);
+      pdf.save(`${trip?.title ?? "trip"}.pdf`);
+
+      if (userSubExtend) {
+        dispatch(
+          setUser({
+            userSubExtend: {
+              ...userSubExtend,
+              pdfDownloadCount: userSubExtend.pdfDownloadCount + 1,
+            },
+          }),
+        );
+      }
+
       await usersService.generatePdf();
     } catch (e) {
       if (e instanceof Error) enqueueSnackbar(e.message, { variant: "error" });
       setIsDownLoading(false);
       return;
-    }
-
-    enqueueSnackbar("Generating the PDF may take a few minutes.", {
-      variant: "info",
-    });
-
-    const pdf = new jsPDF("p", "mm", "a4");
-    const pages = document.querySelectorAll(".pdf-page");
-
-    // then add to PDF sequentially
-    for (let i = 0; i < pages.length; i++) {
-      const pageEl = pages[i] as HTMLElement;
-
-      const dataUrl = await toPng(pageEl, {
-        quality: 1,
-        pixelRatio: 2,
-        skipFonts: true,
-        filter: (node) => !node.classList?.contains("map-box"),
-      });
-
-      const imgProps = pdf.getImageProperties(dataUrl);
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-
-      pdf.addImage(dataUrl, "PNG", 0, 0, A4_WIDTH, A4_HEIGHT);
-
-      const links = pageEl.querySelectorAll("a");
-      const rootRect = pageEl.getBoundingClientRect();
-
-      links.forEach((link) => {
-        const linkRect = link.getBoundingClientRect();
-        const x = ((linkRect.left - rootRect.left) / rootRect.width) * pdfWidth;
-        const y = ((linkRect.top - rootRect.top) / rootRect.height) * pdfHeight;
-        const w = (linkRect.width / rootRect.width) * pdfWidth;
-        const h = (linkRect.height / rootRect.height) * pdfHeight;
-        pdf.link(x, y, w, h, { url: link.href });
-      });
-
-      if (i < pages.length - 1) pdf.addPage();
-
-      await new Promise((resolve) => setTimeout(resolve, 50));
-
-      enqueueSnackbar(`Processed page ${i + 1} of ${pages.length}`, {
-        variant: "info",
-      });
-    }
-
-    setIsDownLoading(false);
-    pdf.save(`${trip?.title ?? "trip"}.pdf`);
-
-    if (userSubExtend) {
-      dispatch(
-        setUser({
-          userSubExtend: {
-            ...userSubExtend,
-            pdfDownloadCount: userSubExtend.pdfDownloadCount + 1,
-          },
-        }),
-      );
     }
   }, [trip, userSubExtend, dispatch]);
 

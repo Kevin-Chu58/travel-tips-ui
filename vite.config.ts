@@ -57,7 +57,7 @@ export default defineConfig({
           "mui-vendor": ["@mui/material", "@mui/icons-material"],
           pdf: ["jspdf", 'html-to-image', "html2canvas"],
           editor: ["cropperjs"],
-          map: ["leaflet"],
+          // map: ["leaflet"],
         },
       },
     },
