@@ -119,7 +119,10 @@ const TermsOfServiceProfile = ({
               checked={checkedSection7}
             />
             <Typography className="content">
-              I have read and <b>agree</b> to the User Content terms
+              I have read and <b>agree</b> to our <b>Terms of Service</b> and{" "}
+              <b>irrevocably waive any right to a refund</b> if your content is
+              deleted or your account is terminated for violating our User
+              Content standards in{" "}
               <span className="link" onClick={scrollToSection7}>
                 Section 7
               </span>
@@ -249,7 +252,7 @@ const TermsOfServiceProfile = ({
           You must be at least 13 years old to use the App.
           <br />
           If you are under the age of majority in your jurisdiction, you must
-          have permission from a pranet or legal guardian.
+          have permission from a parent or legal guardian.
         </Typography>
 
         {/* section 6 */}
@@ -653,7 +656,8 @@ const TermsOfServiceProfile = ({
         {/* section 18 */}
         <Typography variant="h6">18. Contact Us</Typography>
         <Typography className="content">
-          If you have questions about these Terms, contact us at: [email]
+          If you have questions about these Terms, contact us at:
+          kaiwen.chu58@gmail.com
         </Typography>
       </React.Fragment>
     </UserAgreementBase>
