@@ -98,9 +98,9 @@ const AttractionFinder = ({
       try {
         setIsAttractionLoading(true);
         let herePlace = await attractionsService.postNewAttraction(focusId);
-        let attraction = await attractionsService.getAttractionsByParam({
+        let attraction = (await attractionsService.getAttractionsByParam({
           hereId: herePlace.id,
-        });
+        })).results;
 
         setHerePlace(herePlace);
 

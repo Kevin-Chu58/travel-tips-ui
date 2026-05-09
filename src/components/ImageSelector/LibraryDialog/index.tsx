@@ -52,7 +52,7 @@ const LibraryDialog = ({
       if (open) {
         let imageViewModels = banner
           ? await imagesService.getBannerImages()
-          : await imagesService.getMyImages();
+          : (await imagesService.getMyImages()).results;
         let unattachedImages = imageViewModels.filter(
           (image) => !imageIds.includes(image.id),
         );
