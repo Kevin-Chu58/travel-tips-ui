@@ -93,8 +93,8 @@ const TripPdfForm = ({
         const pageEl = pages[i] as HTMLElement;
 
         const dataUrl = await toPng(pageEl, {
-          quality: 1,
-          pixelRatio: 2,
+          quality: 0.85,
+          pixelRatio: 1.25,
           skipFonts: true,
           filter: (node) => !node.classList?.contains("map-box"),
         });
