@@ -7,6 +7,7 @@ import { enqueueSnackbar } from "notistack";
 import {
   Alert,
   Box,
+  CircularProgress,
   Container,
   Grid,
   TextField,
@@ -28,7 +29,7 @@ const Partnership = () => {
   // my businesses
   const [businesses, setBusinesses] = useState<Business[]>([]);
   // behavior
-  // const [isLoadingBusiness, setIsLoadingBusiness] = useState<boolean>(false);
+  const [isLoadingBusiness, setIsLoadingBusiness] = useState<boolean>(true);
   const [isLoadingBusinessForm, setIsLoadingBusinessForm] =
     useState<boolean>(false);
   // form
@@ -60,6 +61,8 @@ const Partnership = () => {
 
     let myBusiness = await businessesService.getMyBusiness();
     setBusinesses(myBusiness);
+
+    setIsLoadingBusiness(false);
   };
 
   const clearBusinessForm = () => {
@@ -219,7 +222,10 @@ const Partnership = () => {
 
       {/* my business form */}
       <Box
-        className={clsx("column business-section", openBusinesses && "open")}
+        className={clsx(
+          "column flex business-section",
+          openBusinesses && "open",
+        )}
       >
         {/* header */}
         <Box className="row">
@@ -233,22 +239,28 @@ const Partnership = () => {
             <CloseIcon />
           </TTIconButton>
         </Box>
-        <Grid container columns={{ xs: 6, md: 12 }} spacing={1}>
-          {businesses.map((b) => (
-            <Grid key={b.id} size={6}>
-              <Box
-                className="column business-card"
-                onClick={() => navigate(`/business/${b.id}`)}
-              >
-                <Typography variant="h5">{b.name}</Typography>
-                <Box className="row gap">
-                  <Box className={clsx("status-box", `${b.status}-bg`)} />
-                  <Typography>{b.status}</Typography>
+        {!isLoadingBusiness ? (
+          <Grid container columns={{ xs: 6, md: 12 }} spacing={1}>
+            {businesses.map((b) => (
+              <Grid key={b.id} size={6}>
+                <Box
+                  className="column business-card"
+                  onClick={() => navigate(`/business/${b.id}`)}
+                >
+                  <Typography variant="h5">{b.name}</Typography>
+                  <Box className="row gap">
+                    <Box className={clsx("status-box", `${b.status}-bg`)} />
+                    <Typography>{b.status}</Typography>
+                  </Box>
                 </Box>
-              </Box>
-            </Grid>
-          ))}
-        </Grid>
+              </Grid>
+            ))}
+          </Grid>
+        ) : (
+          <Box className="column center v-center flex">
+            <CircularProgress color="success" aria-label="Loading…" />
+          </Box>
+        )}
       </Box>
     </Container>
   );

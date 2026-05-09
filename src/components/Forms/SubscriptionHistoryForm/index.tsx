@@ -6,8 +6,8 @@ import FormBase from "../FormBases/FormBase";
 import { useEffect, useRef, useState } from "react";
 import { enqueueSnackbar } from "notistack";
 import SubscriptionCard from "@components/Cards/SubscriptionCard";
-import { useCursorScroll } from "@hooks/useCursorScroll";
-import { Box } from "@mui/material";
+import { useCursorScrollOnLoadingState } from "@hooks/useCursorScroll";
+import { Box, CircularProgress } from "@mui/material";
 import "./index.scss";
 
 type SubscriptionHistoryFormProps = {
@@ -26,7 +26,7 @@ const SubscriptionHistoryForm = ({
   const containerRef = useRef<HTMLDivElement | null>(null);
   // behavior
   const [isInit, setIsInit] = useState<boolean>(false);
-  const isLoadingRef = useRef<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   // init when open the first time
   useEffect(() => {
@@ -48,13 +48,15 @@ const SubscriptionHistoryForm = ({
         enqueueSnackbar(e.message, { variant: "error" });
       }
     }
+    setIsLoading(false);
   };
 
   /// handle events
 
-  const handleScroll = useCursorScroll(
+  const handleScroll = useCursorScrollOnLoadingState(
     containerRef,
-    isLoadingRef,
+    isLoading,
+    setIsLoading,
     cursor,
     initSubHistory,
   );
@@ -68,11 +70,21 @@ const SubscriptionHistoryForm = ({
       closeButtonLabel="close"
       panel
     >
-      <Box className="sub-history-content" ref={containerRef} onScroll={handleScroll}>
-        {subHistory.map((sub) => (
-          <SubscriptionCard key={sub.id} subscription={sub} />
-        ))}
-      </Box>
+      {!isLoading ? (
+        <Box
+          className="sub-history-content"
+          ref={containerRef}
+          onScroll={handleScroll}
+        >
+          {subHistory.map((sub) => (
+            <SubscriptionCard key={sub.id} subscription={sub} />
+          ))}
+        </Box>
+      ) : (
+        <Box className="column center v-center flex">
+          <CircularProgress aria-label="Loading…" />
+        </Box>
+      )}
     </FormBase>
   );
 };

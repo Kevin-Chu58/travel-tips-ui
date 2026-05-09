@@ -1,6 +1,6 @@
 import { Box, Container } from "@mui/material";
 import { Route, Routes, useNavigate, useParams } from "react-router";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { businessesService, type Business } from "@services/feed/businesses";
 import { enqueueSnackbar } from "notistack";
 import HomeContent from "./Content/HomeContent";
@@ -22,6 +22,8 @@ const BusinessDashboardMain = ({ contentType }: BusinessDashboardMainProps) => {
   // ads
   const [ads, setAds] = useState<Ad[]>([]);
   // behavior
+  const [isLoadingAds, setIsLoadingAds] = useState<boolean>(true);
+  const [openDrawer, setOpenDrawer] = useState<boolean>(false);
   // const [businessesLoadError, setBusinessesLoadError] =
   //   useState<boolean>(false);
   // others
@@ -54,13 +56,21 @@ const BusinessDashboardMain = ({ contentType }: BusinessDashboardMainProps) => {
 
   const initAds = async () => {
     if (!businessId) return;
+
+    setIsLoadingAds(true);
     try {
       let id = Number.parseInt(businessId);
 
       var result = await adsService.getMyAdByBusinessId(id);
       setAds(result);
     } catch (_) {}
+    setIsLoadingAds(false);
   };
+
+  // handle functions
+  const handleOpenDrawer = useCallback(() => {
+    setOpenDrawer(true);
+  }, []);
 
   // components
   const getContent = () => {
@@ -71,12 +81,22 @@ const BusinessDashboardMain = ({ contentType }: BusinessDashboardMainProps) => {
             business={business}
             setBusiness={setBusiness}
             ads={ads}
+            openDrawer={handleOpenDrawer}
           />
         );
       case "ads":
-        return <AdsContent business={business} ads={ads} setAds={setAds} />;
+        return (
+          <AdsContent
+            business={business}
+            ads={ads}
+            setAds={setAds}
+            initAds={initAds}
+            openDrawer={handleOpenDrawer}
+            isLoading={isLoadingAds}
+          />
+        );
       case "ad":
-        return <AdContent business={business} />;
+        return <AdContent business={business} openDrawer={handleOpenDrawer} />;
       default:
         return <></>;
     }
@@ -85,8 +105,10 @@ const BusinessDashboardMain = ({ contentType }: BusinessDashboardMainProps) => {
   return (
     <Container className="business-dashboard" maxWidth={false} disableGutters>
       <Box className="row full">
-        <Menu business={business} />
-        <Box className="business-dashboard-content-box">{getContent()}</Box>
+        <Menu business={business} open={openDrawer} setOpen={setOpenDrawer} />
+        <Box className="column flex business-dashboard-content-box">
+          {getContent()}
+        </Box>
       </Box>
     </Container>
   );

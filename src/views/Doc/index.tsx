@@ -6,7 +6,7 @@ import TermsOfServiceProfile from "@components/Profile/UserAgreementProfile/Term
 import PrivacyPolicyProfile from "@components/Profile/UserAgreementProfile/PrivacyPolicyProfile";
 import { useLocation } from "react-router";
 import TTButton from "@components/TTButton";
-import Guide from "./Guide";
+// import Guide from "./Guide";
 import React from "react";
 import clsx from "clsx";
 import "./index.scss";
@@ -42,15 +42,15 @@ const Doc = () => {
     },
   ] as NavTab[];
 
-  const guideSection = [
-    {
-      name: "guide",
-      label: "General",
-      description: "How to use the app step by step",
-      to: "guide",
-      element: <Guide />,
-    },
-  ] as NavTab[];
+  // const guideSection = [
+  //   {
+  //     name: "guide",
+  //     label: "General",
+  //     description: "How to use the app step by step",
+  //     to: "guide",
+  //     element: <Guide />,
+  //   },
+  // ] as NavTab[];
 
   const Main = (
     <React.Fragment>
@@ -77,7 +77,7 @@ const Doc = () => {
       <Typography className="section-header" variant="h5">
         Guide
       </Typography>
-      <Box className="content-box">
+      {/* <Box className="content-box">
         {guideSection.map((sec) => (
           <Box
             key={sec.name}
@@ -89,7 +89,7 @@ const Doc = () => {
             <Typography>{sec.description}</Typography>
           </Box>
         ))}
-      </Box>
+      </Box> */}
     </React.Fragment>
   );
 
@@ -99,7 +99,7 @@ const Doc = () => {
     element: Main,
   };
 
-  const routes = [mainSection, ...userAgreementSection, ...guideSection];
+  const routes = [mainSection, ...userAgreementSection]; //, ...guideSection];
 
   return (
     <Container

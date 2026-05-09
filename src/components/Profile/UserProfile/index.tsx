@@ -1,4 +1,4 @@
-import { Box, Chip, Grid, Typography } from "@mui/material";
+import { Box, Chip, CircularProgress, Grid, Typography } from "@mui/material";
 import { usersService, type UserProfileBasic } from "@services/users";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import { enqueueSnackbar } from "notistack";
@@ -24,7 +24,7 @@ import clsx from "clsx";
 import "./index.scss";
 
 // lazy load
-const ImageSelector = React.lazy(() => import('@components/ImageSelector'));
+const ImageSelector = React.lazy(() => import("@components/ImageSelector"));
 
 type UserProfileProps = {
   user?: UserProfileBasic;
@@ -40,6 +40,8 @@ const UserProfile = ({ user, setUser }: UserProfileProps) => {
   const _user = useSelector((state: RootState) => state.user);
   // top 5 bookmarked trips
   const [topTrips, setTopTrips] = useState<Trip[]>([]);
+  // behavior
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   // others
   const navigate = useNavigate();
@@ -61,6 +63,7 @@ const UserProfile = ({ user, setUser }: UserProfileProps) => {
       });
 
       setTopTrips(topTrips.results);
+      setIsLoading(false);
     };
 
     initTopTrips();
@@ -255,21 +258,28 @@ const UserProfile = ({ user, setUser }: UserProfileProps) => {
 
         {/* top 5 trips - order by bookmarkCount */}
         <Typography className="caption">Top 5 Bookmarked Trips</Typography>
-        <Box className="top-trip-box">
-          {topTrips.length > 0 ? (
-            topTrips.map((trip) => (
-              <TripCard
-                key={trip.id}
-                trip={trip}
-                readonly
-                onClick={() => navigate(`/trip/${trip.id}`)}
-                asyncUpdateTrip={asyncUpdateTopTrip}
-              />
-            ))
-          ) : (
-            <Typography>No trips published.</Typography>
-          )}
-        </Box>
+
+        {!isLoading ? (
+          <Box className="top-trip-box">
+            {topTrips.length > 0 ? (
+              topTrips.map((trip) => (
+                <TripCard
+                  key={trip.id}
+                  trip={trip}
+                  readonly
+                  onClick={() => navigate(`/trip/${trip.id}`)}
+                  asyncUpdateTrip={asyncUpdateTopTrip}
+                />
+              ))
+            ) : (
+              <Typography>No trips published.</Typography>
+            )}
+          </Box>
+        ) : (
+          <Box className="column center v-center flex">
+            <CircularProgress aria-label="Loading…" />
+          </Box>
+        )}
       </Box>
     </Box>
   );

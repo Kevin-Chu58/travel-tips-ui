@@ -157,6 +157,11 @@ const AdTargetCard = ({
       key={adTarget.id}
       className={clsx("column full ad-target-card", !isMobile && "gap")}
     >
+      {adTarget.isPrimary ? (
+        <Typography color="success">
+          <b>Primary</b>
+        </Typography>
+      ) : undefined}
       <Box className={clsx(isMobile ? "column" : "row gap-large")}>
         <Box className="row gap-large">
           <Typography>
@@ -197,12 +202,7 @@ const AdTargetCard = ({
           )}
         </Box>
       </Box>
-      <Box className="row gap-large">
-        {adTarget.isPrimary ? (
-          <Typography color="success">
-            <b>Primary</b>
-          </Typography>
-        ) : undefined}
+      <Box className="row">
         <TTButton
           className="action-button"
           onClick={(e) => setPopoverAnchorEl(e.currentTarget)}

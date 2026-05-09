@@ -2,7 +2,9 @@ import {
   Box,
   Button,
   Chip,
+  CircularProgress,
   Divider,
+  IconButton,
   Table,
   TableBody,
   TableCell,
@@ -10,13 +12,17 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
-import { FiBox, FiPlus } from "react-icons/fi";
+import { FiBox, FiPlus, FiRefreshCw } from "react-icons/fi";
 import type { Ad } from "@services/feed/ads";
 import { StyleUtils } from "@utils/StyleUtils";
 import type { Business } from "@services/feed/businesses";
+import TTIconButton from "@components/TTIconButton";
 import { useNavigate } from "react-router";
+import { useIsMobile } from "@hooks/useIsMobile";
+import MenuIcon from "@mui/icons-material/Menu";
 import { useState } from "react";
 import React from "react";
+import clsx from "clsx";
 import "./index.scss";
 
 // lazy load
@@ -26,9 +32,21 @@ type AdsContentProps = {
   business: Business | undefined;
   ads: Ad[];
   setAds: (state: Ad[]) => void;
+  initAds: () => void;
+  openDrawer: () => void;
+  isLoading: boolean;
 };
 
-const AdsContent = ({ business, ads, setAds }: AdsContentProps) => {
+const AdsContent = ({
+  business,
+  ads,
+  setAds,
+  initAds,
+  openDrawer,
+  isLoading,
+}: AdsContentProps) => {
+  // window
+  const isMobile = useIsMobile();
   // open form status
   const [openAdForm, setOpenAdForm] = useState<boolean>(false);
   // others
@@ -39,12 +57,23 @@ const AdsContent = ({ business, ads, setAds }: AdsContentProps) => {
   };
 
   return (
-    <Box className="column full content-page business-dashboard-ads-content">
-      <Box className="column">
-        <Typography variant="h4" className="content-header">
-          Ads
-        </Typography>
-        <Box className="row section gap stretch">
+    <Box className="column full flex content-page business-dashboard-ads-content">
+      <Box className="column flex">
+        <Box className="row">
+          {isMobile && (
+            <Box>
+              <IconButton onClick={openDrawer}>
+                <MenuIcon fontSize="large" />
+              </IconButton>
+            </Box>
+          )}
+          <Typography variant="h4" className="content-header">
+            Ads
+          </Typography>
+        </Box>
+        <Box
+          className={clsx("section gap stretch", isMobile ? "column" : "row")}
+        >
           <Box className="notification-box">
             <b>Metric Monitoring:</b> Please be advised that{" "}
             <u>
@@ -63,7 +92,10 @@ const AdsContent = ({ business, ads, setAds }: AdsContentProps) => {
             </u>
           </Box>
         </Box>
-        <Box className="button-box">
+        <Box className="row gap button-box">
+          <TTIconButton onClick={initAds} noBorder>
+            <FiRefreshCw />
+          </TTIconButton>
           <Button
             variant="contained"
             color="utility"
@@ -75,33 +107,30 @@ const AdsContent = ({ business, ads, setAds }: AdsContentProps) => {
           </Button>
         </Box>
         <Divider />
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell></TableCell>
-              <TableCell>Title</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell>Strip Subscription Status</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {ads.map((ad) => (
-              <TableRow key={ad.id} onClick={() => navigate(`${ad.id}`)}>
-                <TableCell align="right">
-                  <Box className="row center indicator">
-                    <FiBox />
+        {!isLoading ? (
+          isMobile ? (
+            ads.map((ad) => (
+              <React.Fragment key={ad.id}>
+                <Box
+                  className="column section"
+                  onClick={() => navigate(`${ad.id}`)}
+                >
+                  <Box className="row">
+                    <Typography className="params">Title</Typography>
+                    <Typography>{ad.title}</Typography>
                   </Box>
-                </TableCell>
-                <TableCell>{ad.title}</TableCell>
-                <TableCell>
-                  <Chip
-                    color={StyleUtils.getColorThemeByAdStatus(ad.status)}
-                    label={ad.status}
-                    size="small"
-                  />
-                </TableCell>
-                <TableCell>
-                  <Box className="column start">
+                  <Box className="row">
+                    <Typography className="params">Status</Typography>
+                    <Chip
+                      color={StyleUtils.getColorThemeByAdStatus(ad.status)}
+                      label={ad.status}
+                      size="small"
+                    />
+                  </Box>
+                  <Box className="row">
+                    <Typography className="params">
+                      Stripe Subscription Status
+                    </Typography>
                     {ad.subStatus ? (
                       <Chip
                         color={StyleUtils.getColorThemeByAdStatus(ad.subStatus)}
@@ -112,11 +141,63 @@ const AdsContent = ({ business, ads, setAds }: AdsContentProps) => {
                       <Typography variant="body2">not subscribed</Typography>
                     )}
                   </Box>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+                </Box>
+                <Divider />
+              </React.Fragment>
+            ))
+          ) : (
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell></TableCell>
+                  <TableCell>Title</TableCell>
+                  <TableCell>Status</TableCell>
+                  <TableCell>Strip Subscription Status</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {ads.map((ad) => (
+                  <TableRow key={ad.id} onClick={() => navigate(`${ad.id}`)}>
+                    <TableCell align="right">
+                      <Box className="row center indicator">
+                        <FiBox />
+                      </Box>
+                    </TableCell>
+                    <TableCell>{ad.title}</TableCell>
+                    <TableCell>
+                      <Chip
+                        color={StyleUtils.getColorThemeByAdStatus(ad.status)}
+                        label={ad.status}
+                        size="small"
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Box className="column start">
+                        {ad.subStatus ? (
+                          <Chip
+                            color={StyleUtils.getColorThemeByAdStatus(
+                              ad.subStatus,
+                            )}
+                            label={ad.subStatus}
+                            size="small"
+                          />
+                        ) : (
+                          <Typography variant="body2">
+                            not subscribed
+                          </Typography>
+                        )}
+                      </Box>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )
+        ) : (
+          <Box className="column center v-center flex">
+            <CircularProgress color="success" aria-label="Loading…" />
+          </Box>
+        )}
 
         {/* forms */}
         <AdForm

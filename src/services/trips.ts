@@ -61,20 +61,54 @@ const getTripsByParams = async (
   return await http.get(http.apiBaseURLs.api, `trips?${_params.toString()}`);
 };
 
-const getMyTrips = async (): Promise<Trip[]> => {
-  return await http.get(http.apiBaseURLs.api, "trips/my", undefined);
+const getMyTrips = async (cursor?: string): Promise<SearchResults<Trip>> => {
+  const _params = new URLSearchParams();
+  if (cursor) _params.append("cursor", cursor);
+
+  return await http.get(
+    http.apiBaseURLs.api,
+    `trips/my?${_params.toString()}`,
+    undefined,
+  );
 };
 
-const getMyHiddenTrips = async (): Promise<Trip[]> => {
-  return await http.get(http.apiBaseURLs.api, "trips/my/hidden", undefined);
+const getMyHiddenTrips = async (
+  cursor?: string,
+): Promise<SearchResults<Trip>> => {
+  const _params = new URLSearchParams();
+  if (cursor) _params.append("cursor", cursor);
+
+  return await http.get(
+    http.apiBaseURLs.api,
+    `trips/my/hidden?${_params.toString()}`,
+    undefined,
+  );
 };
 
-const getSharedTrips = async (): Promise<Trip[]> => {
-  return await http.get(http.apiBaseURLs.api, "trips/my/shared", undefined);
+const getSharedTrips = async (
+  cursor?: string,
+): Promise<SearchResults<Trip>> => {
+  const _params = new URLSearchParams();
+  if (cursor) _params.append("cursor", cursor);
+
+  return await http.get(
+    http.apiBaseURLs.api,
+    `trips/my/shared?${_params.toString()}`,
+    undefined,
+  );
 };
 
-const getBookmarkedTrips = async (): Promise<Trip[]> => {
-  return await http.get(http.apiBaseURLs.api, "trips/my/bookmarked", undefined);
+const getBookmarkedTrips = async (
+  cursor?: string,
+): Promise<SearchResults<Trip>> => {
+  const _params = new URLSearchParams();
+  if (cursor) _params.append("cursor", cursor);
+
+  return await http.get(
+    http.apiBaseURLs.api,
+    `trips/my/bookmarked?${_params.toString()}`,
+    undefined,
+  );
 };
 
 const getTripById = async (id: number): Promise<Trip> => {
@@ -130,9 +164,7 @@ const patchTripIsHidden = async (
   );
 };
 
-const deleteTrip = async (
-  id: number,
-): Promise<number> => {
+const deleteTrip = async (id: number): Promise<number> => {
   return await http.del(
     http.apiBaseURLs.api,
     `trips/${id}`,

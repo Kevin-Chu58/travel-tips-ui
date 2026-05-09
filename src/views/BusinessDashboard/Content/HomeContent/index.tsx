@@ -1,4 +1,12 @@
-import { Avatar, Box, Divider, Grid, Typography } from "@mui/material";
+import {
+  Avatar,
+  Box,
+  CircularProgress,
+  Divider,
+  Grid,
+  IconButton,
+  Typography,
+} from "@mui/material";
 import { businessesService, type Business } from "@services/feed/businesses";
 import { useIsMobile } from "@hooks/useIsMobile";
 import { type Ad } from "@services/feed/ads";
@@ -8,19 +16,26 @@ import React from "react";
 import { imagesService, type Image } from "@services/images";
 import { ImageType } from "@constants/Enums";
 import { enqueueSnackbar } from "notistack";
+import MenuIcon from "@mui/icons-material/Menu";
 import clsx from "clsx";
 import "./index.scss";
 
 // lazy load
-const ImageSelector = React.lazy(() => import('@components/ImageSelector'));
+const ImageSelector = React.lazy(() => import("@components/ImageSelector"));
 
 type HomeContentProps = {
   business: Business | undefined;
   setBusiness: React.Dispatch<React.SetStateAction<Business | undefined>>;
   ads: Ad[];
+  openDrawer: () => void;
 };
 
-const HomeContent = ({ business, setBusiness, ads }: HomeContentProps) => {
+const HomeContent = ({
+  business,
+  setBusiness,
+  ads,
+  openDrawer,
+}: HomeContentProps) => {
   // window
   const isMobile = useIsMobile();
 
@@ -79,9 +94,18 @@ const HomeContent = ({ business, setBusiness, ads }: HomeContentProps) => {
     <Box className="column full content-page business-dashboard-home-content">
       {/* business section */}
       <Box className="column">
-        <Typography variant="h4" className="content-header">
-          Business
-        </Typography>
+        <Box className="row">
+          {isMobile && (
+            <Box>
+              <IconButton onClick={openDrawer}>
+                <MenuIcon fontSize="large" />
+              </IconButton>
+            </Box>
+          )}
+          <Typography variant="h4" className="content-header">
+            Business
+          </Typography>
+        </Box>
         <Divider />
         <Grid
           className="business-grid"
@@ -182,7 +206,11 @@ const HomeContent = ({ business, setBusiness, ads }: HomeContentProps) => {
         </Box>
       </Box>
     </Box>
-  ) : undefined;
+  ) : (
+    <Box className="column center v-center flex">
+      <CircularProgress color="success" aria-label="Loading…" />
+    </Box>
+  );
 };
 
 export default HomeContent;

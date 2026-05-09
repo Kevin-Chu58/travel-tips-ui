@@ -1,6 +1,8 @@
 import {
+  Avatar,
   Box,
   Chip,
+  CircularProgress,
   Divider,
   IconButton,
   ListItemIcon,
@@ -9,7 +11,13 @@ import {
   MenuItem,
   Typography,
 } from "@mui/material";
-import { useNavigate, useParams, useSearchParams } from "react-router";
+import {
+  Link,
+  useLocation,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from "react-router";
 import React, { Suspense, useEffect, useMemo, useState } from "react";
 import {
   writingsService,
@@ -23,9 +31,14 @@ import TTButton from "@components/TTButton";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import GospelNavButton from "./GospelNavButton";
+import {
+  youTubeFeedsService,
+  type YouTubeChannel,
+} from "@services/gospel/youtubeFeeds";
 import clsx from "clsx";
 import "./index.scss";
-import GospelNavButton from "./GospelNavButton";
+import TimeUtils from "@utils/TimeUtils";
 
 // lazy load
 const AddWritingLabelForm = React.lazy(
@@ -45,7 +58,10 @@ const GospelContent = ({ setIsHidden }: GospelContentProps) => {
   // window
   const isMobile = useIsMobile();
   // url
+  const location = useLocation();
   const { labelSlug, orderId } = useParams();
+  // feed
+  const [youTubeFeed, setYouTubeFeed] = useState<YouTubeChannel[]>([]);
   // search params
   const [searchParams] = useSearchParams();
   const isWriterParams = Boolean(searchParams.has("my"));
@@ -96,11 +112,13 @@ const GospelContent = ({ setIsHidden }: GospelContentProps) => {
 
   const initWriting = async (labelSlug: string, orderId: number) => {
     try {
+      setIsLoading(true);
       const Writing = await writingsService.getWritingByLabelOrder(
         labelSlug,
         orderId,
       );
       setWriting(Writing);
+      setIsLoading(false);
     } catch (e) {
       if (e instanceof Error) enqueueSnackbar(e.message, { variant: "error" });
     }
@@ -110,6 +128,15 @@ const GospelContent = ({ setIsHidden }: GospelContentProps) => {
     setIsLoading(true);
     const Writings = await writingsService.getMyWritings();
     setMyWritings(Writings);
+    setIsLoading(false);
+  };
+
+  const initFeed = async () => {
+    if (youTubeFeed && youTubeFeed.length > 0) return;
+
+    setIsLoading(true);
+    const _youTubeFeed = await youTubeFeedsService.getGospelYouTubeFeed();
+    setYouTubeFeed(_youTubeFeed);
     setIsLoading(false);
   };
 
@@ -163,6 +190,12 @@ const GospelContent = ({ setIsHidden }: GospelContentProps) => {
     if (!isWriterParams) return;
     initMyWritings();
   }, [isWriterParams]);
+
+  useEffect(() => {
+    if (location.pathname === "/gospel" && searchParams.size === 0) {
+      initFeed();
+    }
+  }, [location, searchParams]);
 
   // handle functions
 
@@ -229,121 +262,179 @@ const GospelContent = ({ setIsHidden }: GospelContentProps) => {
 
   // components
 
-  // const NavButton = (isWriting: boolean = false, showInPc: boolean = true) => {
-  //   return isMobile ? (
-  //     <TTIconButton onClick={() => setIsHidden(false)} noBorder>
-  //       <MenuIcon />
-  //     </TTIconButton>
-  //   ) : showInPc ? (
-  //     <Typography
-  //       className="back-text"
-  //       onClick={isWriting ? handleBack : handleBackHome}
-  //     >
-  //       {isWriting ? `<< Back to Topic` : `<< Back to Home`}
-  //     </Typography>
-  //   ) : undefined;
-  // };
-
   const WriterView = useMemo(() => {
     return (
-      <Box className={clsx("gospel-content-container", isMobile && "mobile")}>
-        <Box className="header-box">
-          {/* nav button - only in mobile view */}
-          <GospelNavButton
-            setIsHidden={setIsHidden}
-            handleBack={handleBack}
-            handleBackHome={handleBackHome}
-          />
-          <Typography
-            className={clsx("category", isMobile && "mobile")}
-            variant="h3"
-          >
-            My Writings
-          </Typography>
+      <Box
+        className={clsx(
+          "column full flex gospel-content-container",
+          isMobile && "mobile",
+        )}
+      >
+        {!isLoading ? (
+          <React.Fragment>
+            <Box className="header-box">
+              {/* nav button - only in mobile view */}
+              <GospelNavButton
+                setIsHidden={setIsHidden}
+                handleBack={handleBack}
+                handleBackHome={handleBackHome}
+              />
+              <Typography
+                className={clsx("category", isMobile && "mobile")}
+                variant="h3"
+              >
+                My Writings
+              </Typography>
 
-          <Box className="tool-box">
-            {/* label setting */}
-            <TTButton
-              label="New Labels"
-              startIcon={<AddIcon />}
-              color="info"
-              onClick={() => setOpenForm("addWritingLabel")}
-            />
-            {/* add Writing */}
-            <TTButton
-              label="New Writing"
-              startIcon={<AddIcon />}
-              color="utility"
-              onClick={() => setOpenForm("writing")}
-            />
-          </Box>
-        </Box>
-
-        <Divider />
-
-        {/* content */}
-        <Box>
-          {myWritings.map((writing) => (
-            <MenuItem
-              key={writing.id}
-              className="my-Writing-menu-item"
-              disableRipple
-            >
-              <Box className="row full">
-                <Box className="column">
-                  <Box className="row full">
-                    <Typography variant="h6">{writing.title}</Typography>
-                    <Typography variant="caption">
-                      {writing.publishAt}
-                    </Typography>
-                  </Box>
-                  {/* label - category & topic */}
-                  {writing.label ? (
-                    <Box className="row wrap">
-                      <Chip
-                        label={writing.label.category?.name}
-                        size="small"
-                        color="info"
-                      />
-                      <Chip
-                        label={writing.label.topic?.name}
-                        size="small"
-                        color="utility"
-                      />
-                    </Box>
-                  ) : (
-                    <Typography fontStyle="italic">
-                      No topic assigned
-                    </Typography>
-                  )}
-                </Box>
-
-                <Box className="more-option-button">
-                  <IconButton onClick={(e) => handleMyWritingClick(e, writing)}>
-                    <MoreVertIcon />
-                  </IconButton>
-                </Box>
+              <Box className="tool-box">
+                {/* label setting */}
+                <TTButton
+                  label="New Labels"
+                  startIcon={<AddIcon />}
+                  color="info"
+                  onClick={() => setOpenForm("addWritingLabel")}
+                />
+                {/* add Writing */}
+                <TTButton
+                  label="New Writing"
+                  startIcon={<AddIcon />}
+                  color="utility"
+                  onClick={() => setOpenForm("writing")}
+                />
               </Box>
-            </MenuItem>
-          ))}
-        </Box>
+            </Box>
+
+            <Divider />
+
+            {/* content */}
+            <Box>
+              {myWritings.map((writing) => (
+                <MenuItem
+                  key={writing.id}
+                  className="my-Writing-menu-item"
+                  disableRipple
+                >
+                  <Box className="row full">
+                    <Box className="column">
+                      <Box className="row full">
+                        <Typography variant="h6">{writing.title}</Typography>
+                        <Typography variant="caption">
+                          {writing.publishAt}
+                        </Typography>
+                      </Box>
+                      {/* label - category & topic */}
+                      {writing.label ? (
+                        <Box className="row wrap">
+                          <Chip
+                            label={writing.label.category?.name}
+                            size="small"
+                            color="info"
+                          />
+                          <Chip
+                            label={writing.label.topic?.name}
+                            size="small"
+                            color="utility"
+                          />
+                        </Box>
+                      ) : (
+                        <Typography fontStyle="italic">
+                          No topic assigned
+                        </Typography>
+                      )}
+                    </Box>
+
+                    <Box className="more-option-button">
+                      <IconButton
+                        onClick={(e) => handleMyWritingClick(e, writing)}
+                      >
+                        <MoreVertIcon />
+                      </IconButton>
+                    </Box>
+                  </Box>
+                </MenuItem>
+              ))}
+            </Box>
+          </React.Fragment>
+        ) : (
+          <Box className="column center v-center flex">
+            <CircularProgress color="info" aria-label="Loading…" />
+          </Box>
+        )}
       </Box>
     );
   }, [isMobile, myWritings, handleMyWritingClick]);
 
   const WritingView = useMemo(() => {
     return (
-      <Box className={clsx("gospel-content-container", isMobile && "mobile")}>
-        <Box className="header-box">
-          {/* nav button - only in mobile view */}
-          <GospelNavButton
-            isWriting={true}
-            setIsHidden={setIsHidden}
-            handleBack={handleBack}
-            handleBackHome={handleBackHome}
-          />
-          {writing?.label ? (
-            <React.Fragment>
+      <Box
+        className={clsx(
+          "column full flex gospel-content-container",
+          isMobile && "mobile",
+        )}
+      >
+        {!isLoading ? (
+          <React.Fragment>
+            <Box className="header-box">
+              {/* nav button - only in mobile view */}
+              <GospelNavButton
+                isWriting={true}
+                setIsHidden={setIsHidden}
+                handleBack={handleBack}
+                handleBackHome={handleBackHome}
+              />
+              {writing?.label ? (
+                <React.Fragment>
+                  <Typography
+                    className={clsx("category", isMobile && "mobile")}
+                    variant="h3"
+                  >
+                    {label?.category?.name}
+                  </Typography>
+                  <Typography
+                    className={clsx("topic", isMobile && "mobile")}
+                    variant="h5"
+                  >
+                    {label?.topic?.name}
+                  </Typography>
+                </React.Fragment>
+              ) : undefined}
+            </Box>
+            <Suspense>
+              <MarkdownBox
+                className="writing-markdown-box"
+                text={writing?.content}
+                isOfficial
+              />
+            </Suspense>
+          </React.Fragment>
+        ) : (
+          <Box className="column center v-center flex">
+            <CircularProgress color="info" aria-label="Loading…" />
+          </Box>
+        )}
+      </Box>
+    );
+  }, [isMobile, writing, label]);
+
+  const TopicView = useMemo(() => {
+    return (
+      <Box
+        className={clsx(
+          "column full flex gospel-content-container",
+          isMobile && "mobile",
+        )}
+      >
+        {!isLoading ? (
+          <React.Fragment>
+            {/* header */}
+            <Box className="header-box">
+              {/* nav button - only in mobile view */}
+              <GospelNavButton
+                setIsHidden={setIsHidden}
+                handleBack={handleBack}
+                handleBackHome={handleBackHome}
+              />
+
               <Typography
                 className={clsx("category", isMobile && "mobile")}
                 variant="h3"
@@ -356,81 +447,54 @@ const GospelContent = ({ setIsHidden }: GospelContentProps) => {
               >
                 {label?.topic?.name}
               </Typography>
-            </React.Fragment>
-          ) : undefined}
-        </Box>
-        <Suspense fallback={<Box>{writing?.content}</Box>}>
-          <MarkdownBox text={writing?.content} isOfficial />
-        </Suspense>
-      </Box>
-    );
-  }, [isMobile, writing, label]);
-
-  const TopicView = useMemo(() => {
-    return (
-      <Box className={clsx("gospel-content-container", isMobile && "mobile")}>
-        {/* header */}
-        <Box className="header-box">
-          {/* nav button - only in mobile view */}
-          <GospelNavButton
-            setIsHidden={setIsHidden}
-            handleBack={handleBack}
-            handleBackHome={handleBackHome}
-          />
-
-          <Typography
-            className={clsx("category", isMobile && "mobile")}
-            variant="h3"
-          >
-            {label?.category?.name}
-          </Typography>
-          <Typography
-            className={clsx("topic", isMobile && "mobile")}
-            variant="h5"
-          >
-            {label?.topic?.name}
-          </Typography>
-        </Box>
-
-        <Divider variant="middle" />
-
-        {/* content */}
-        <Box>
-          {isLoading ? undefined : writings.length > 0 ? (
-            writings.map((writing, i) => (
-              <MenuItem
-                key={writing.id}
-                onClick={() => navigate(`./${i + 1}`)}
-                disableRipple
-              >
-                <Box className="Writing-box">
-                  {/* order number */}
-                  <Typography variant="h6">{i + 1}.</Typography>
-                  {/* details */}
-                  <Box>
-                    <Typography variant="h5">{writing.title}</Typography>
-                    <Typography>{writing.publishAt}</Typography>
-                  </Box>
-                </Box>
-              </MenuItem>
-            ))
-          ) : (
-            <Box className="no-Writing-box">
-              <Typography>No Writings published yet.</Typography>
             </Box>
-          )}
-        </Box>
+
+            <Divider variant="middle" />
+
+            {/* content */}
+            <Box>
+              {writings.length > 0 ? (
+                writings.map((writing, i) => (
+                  <MenuItem
+                    key={writing.id}
+                    onClick={() => navigate(`./${i + 1}`)}
+                    disableRipple
+                  >
+                    <Box className="Writing-box">
+                      {/* order number */}
+                      <Typography variant="h6">{i + 1}.</Typography>
+                      {/* details */}
+                      <Box>
+                        <Typography variant="h5">{writing.title}</Typography>
+                        <Typography>{writing.publishAt}</Typography>
+                      </Box>
+                    </Box>
+                  </MenuItem>
+                ))
+              ) : (
+                <Box className="no-Writing-box">
+                  <Typography>No Writings published yet.</Typography>
+                </Box>
+              )}
+            </Box>
+          </React.Fragment>
+        ) : (
+          <Box className="column center v-center flex">
+            <CircularProgress color="info" aria-label="Loading…" />
+          </Box>
+        )}
       </Box>
     );
   }, [isMobile, label, isLoading, writings]);
 
   const FeedView = useMemo(
     () => (
-      <Box className={clsx("gospel-content-container", isMobile && "mobile")}>
+      <Box className="column full flex gospel-content-container mobile">
         {/* header */}
         <Box className="header-box">
           {/* nav button - only in mobile view */}
           <GospelNavButton
+            label="Home"
             isWriting={false}
             showInPc={false}
             setIsHidden={setIsHidden}
@@ -438,9 +502,64 @@ const GospelContent = ({ setIsHidden }: GospelContentProps) => {
             handleBackHome={handleBackHome}
           />
         </Box>
+        {!isLoading ? (
+          <Box className="column gap">
+            {youTubeFeed.map((channel) => (
+              <Box key={channel.id} className="column gap">
+                <Link
+                  className="channel-box-link"
+                  to={`https://www.youtube.com/${channel?.customUrl}`}
+                  target="_blank"
+                  rel="noopener"
+                >
+                  <Box className="row channel-box">
+                    <Avatar
+                      src={channel.thumbnailUrl}
+                      sx={{ width: 56, height: 56 }}
+                    />
+                    <Box className="column">
+                      <Typography variant="h6">{channel.title}</Typography>
+                      <Typography color="info">{channel.customUrl}</Typography>
+                    </Box>
+                  </Box>
+                </Link>
+                <Box className="row start gap videos-box no-scrollbar">
+                  {channel.videos.map((video) => (
+                    <Link
+                      key={video.videoId}
+                      className="channel-box-link"
+                      to={`https://www.youtube.com/watch?v=${video.videoId}`}
+                      target="_blank"
+                      rel="noopener"
+                    >
+                      <Box className="column video-card">
+                        <Box className="video-box">
+                          <img
+                            className="video-thumbnail"
+                            src={video.thumbnailUrl}
+                            loading="lazy"
+                          />
+                        </Box>
+                        <Typography>{video.title}</Typography>
+                        <Typography variant="body2" color="textSecondary">
+                          {TimeUtils.getDate(video.publishedAt)}
+                        </Typography>
+                      </Box>
+                    </Link>
+                  ))}
+                </Box>
+              </Box>
+            ))}
+            <Box className="row section" />
+          </Box>
+        ) : (
+          <Box className="column center v-center flex">
+            <CircularProgress color="info" aria-label="Loading…" />
+          </Box>
+        )}
       </Box>
     ),
-    [isMobile],
+    [isMobile, isLoading, youTubeFeed],
   );
 
   const MainContent = useMemo(() => {
@@ -461,10 +580,8 @@ const GospelContent = ({ setIsHidden }: GospelContentProps) => {
   return (
     <React.Fragment>
       {MainContent}
-      {/* {Main()} */}
 
       {/* forms */}
-
       {openForm === "addWritingLabel" && (
         <AddWritingLabelForm open onClose={() => setOpenForm(null)} />
       )}

@@ -36,12 +36,9 @@ import FabComponent from "./FabComponent";
 import DescriptionComponent from "./DescriptionComponent";
 import DayComponent from "./DayComponent";
 import Mapper from "@components/Map";
-import React from "react";
+import TripPdfForm from "@components/Forms/TripPdfForm";
 import clsx from "clsx";
 import "./index.scss";
-
-// lazy load
-const TripPdfForm = React.lazy(() => import("@components/Forms/TripPdfForm"));
 
 type TripProfileProps = {
   readonly?: boolean;

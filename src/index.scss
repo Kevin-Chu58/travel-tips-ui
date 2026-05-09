@@ -224,6 +224,10 @@ span.helper {
   word-break: break-word;
 }
 
+.hidden {
+  display: none;
+}
+
 .column,
 .row {
   &.primary {
@@ -256,6 +260,10 @@ span.helper {
   &.section {
     margin: 1rem 0;
   }
+
+  &.flex {
+    flex: 1;
+  }
 }
 
 .column {
@@ -272,6 +280,10 @@ span.helper {
 
   &.end {
     align-items: end;
+  }
+
+  &.v-center {
+    justify-content: center;
   }
 }
 

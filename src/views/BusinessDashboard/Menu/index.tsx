@@ -7,24 +7,30 @@ import {
   ListItemIcon,
   ListItemText,
   Typography,
+  CircularProgress,
+  Drawer,
 } from "@mui/material";
 import { businessesService, type Business } from "@services/feed/businesses";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import type { NavTab } from "@constants/Types";
 import { FiHome, FiBox, FiChevronDown, FiChevronUp } from "react-icons/fi";
 import { StyleUtils } from "@utils/StyleUtils";
-import { Link, useNavigate, useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import clsx from "clsx";
 import "./index.scss";
 
 type MenuProps = {
   business: Business | undefined;
+  open: boolean;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   // businesses: Business[];
   // businessesLoadError: boolean;
 };
 
 const Menu = ({
   business,
+  open,
+  setOpen,
   // businesses,
   // businessesLoadError,
 }: MenuProps) => {
@@ -61,7 +67,7 @@ const Menu = ({
 
   const initBusinesses = async () => {
     if (businesses.length > 0) return;
-    
+
     try {
       var result = await businessesService.getMyBusiness();
       setBusinesses(result);
@@ -89,7 +95,17 @@ const Menu = ({
   const handleBusinessClick = (businessId: number) => {
     navigate(`/business/${businessId}`);
     setPopoverAnchorEl(null);
+    setOpen(false);
   };
+
+  const handleNavTabClick = useCallback((to: string) => {
+    navigate(to);
+    setOpen(false);
+  }, []);
+
+  const handleCloseDrawer = useCallback(() => {
+    setOpen(false);
+  }, []);
 
   // components
 
@@ -177,21 +193,25 @@ const Menu = ({
               {Boolean(popoverAnchorEl) ? <FiChevronUp /> : <FiChevronDown />}
             </ListItemIcon>
           </ListItemButton>
-        ) : undefined}
+        ) : (
+          <Box className="column center flex">
+            <CircularProgress color="success" aria-label="Loading…" />
+          </Box>
+        )}
       </Box>
 
       {/* nav tabs */}
       <Box className="column menu">
         {menuNavTabs.map((tab) => (
-          <Link key={tab.name} to={tab.to!}>
-            <ListItemButton
-              className={clsx(tab.name === activeTab?.name && "focus")}
-              disableRipple
-            >
-              <ListItemIcon>{tab.element}</ListItemIcon>
-              <ListItemText>{tab.label}</ListItemText>
-            </ListItemButton>
-          </Link>
+          <ListItemButton
+            key={tab.name}
+            className={clsx(tab.name === activeTab?.name && "focus")}
+            onClick={() => handleNavTabClick(tab.to!)}
+            disableRipple
+          >
+            <ListItemIcon>{tab.element}</ListItemIcon>
+            <ListItemText>{tab.label}</ListItemText>
+          </ListItemButton>
         ))}
       </Box>
 
@@ -207,7 +227,12 @@ const Menu = ({
     </React.Fragment>
   );
 
-  if (isMobile) return <></>;
+  if (isMobile)
+    return (
+      <Drawer open={open} onClose={handleCloseDrawer}>
+        <Box className="column business-dashboard-menu">{menuContent}</Box>
+      </Drawer>
+    );
 
   return <Box className="column business-dashboard-menu">{menuContent}</Box>;
 };

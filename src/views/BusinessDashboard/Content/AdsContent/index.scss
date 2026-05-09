@@ -11,7 +11,8 @@
   }
 
   table {
-    th, td {
+    th,
+    td {
       padding: 0.5rem 1rem;
     }
 
@@ -52,5 +53,9 @@
         background-color: var(--utility-50);
       }
     }
+  }
+
+  .params.MuiTypography-root {
+    font-weight: bold;
   }
 }

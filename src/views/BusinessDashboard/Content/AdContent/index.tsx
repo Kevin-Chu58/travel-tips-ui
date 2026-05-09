@@ -1,4 +1,12 @@
-import { Box, Chip, Divider, Grid, Typography } from "@mui/material";
+import {
+  Box,
+  Chip,
+  CircularProgress,
+  Divider,
+  Grid,
+  IconButton,
+  Typography,
+} from "@mui/material";
 import { Link, useParams } from "react-router";
 import React, { useEffect, useState } from "react";
 import { adsService, type AdSubLog, type Ad } from "@services/feed/ads";
@@ -19,6 +27,7 @@ import {
 import { StringUtils } from "@utils/StringUtils";
 import TimeUtils from "@utils/TimeUtils";
 import TTSWitch from "@components/TTSwitch";
+import MenuIcon from "@mui/icons-material/Menu";
 import AdLog from "./AdLog";
 import clsx from "clsx";
 import "./index.scss";
@@ -29,9 +38,10 @@ const AdTargetForm = React.lazy(() => import("@components/Forms/AdTargetForm"));
 
 type AdContentProps = {
   business: Business | undefined;
+  openDrawer: () => void;
 };
 
-const AdContent = ({ business }: AdContentProps) => {
+const AdContent = ({ business, openDrawer }: AdContentProps) => {
   // window
   const isMobile = useIsMobile();
   // params
@@ -41,11 +51,9 @@ const AdContent = ({ business }: AdContentProps) => {
   const [ad, setAd] = useState<Ad | undefined>();
   // ad targets
   const [adTargets, setAdTargets] = useState<AdTarget[]>([]);
-  const [isAdTargetsLoading, setIsAdTargetsLoading] = useState<boolean>(true);
   // ad logs
   const [adLogs, setAdLogs] = useState<AdSubLog[]>([]);
   const [adLogCursor, setAdLogCursor] = useState<string>();
-  const [isAdLogsLoading, setIsAdLogsLoading] = useState<boolean>(true);
   // next billing cycle invoice
   const [invoice, setInvoice] = useState<
     StripeBillingCyclePreviewInvoiceResponse | undefined
@@ -57,6 +65,9 @@ const AdContent = ({ business }: AdContentProps) => {
   const [adTargetFocus, setAdTargetFocus] = useState<AdTarget | undefined>(
     undefined,
   );
+  // behavior
+  const [isAdTargetsLoading, setIsAdTargetsLoading] = useState<boolean>(true);
+  const [isAdLogsLoading, setIsAdLogsLoading] = useState<boolean>(true);
 
   // init on url params
   useEffect(() => {
@@ -210,9 +221,18 @@ const AdContent = ({ business }: AdContentProps) => {
     <Box className="column full content-page business-dashboard-ad-content">
       {/* Section - Ad Detail */}
       <Box className="column">
-        <Typography variant="h4" className="content-header">
-          Ad Detail
-        </Typography>
+        <Box className="row">
+          {isMobile && (
+            <Box>
+              <IconButton onClick={openDrawer}>
+                <MenuIcon fontSize="large" />
+              </IconButton>
+            </Box>
+          )}
+          <Typography variant="h4" className="content-header">
+            Ad Detail
+          </Typography>
+        </Box>
         <Divider />
         {/* ad detail buttons */}
         <Box
@@ -332,7 +352,11 @@ const AdContent = ({ business }: AdContentProps) => {
                 </Grid>
               </Grid>
             </Box>
-          ) : undefined}
+          ) : (
+            <Box className="column center v-center flex">
+              <CircularProgress color="success" aria-label="Loading…" />
+            </Box>
+          )}
         </Box>
       </Box>
 
@@ -410,7 +434,11 @@ const AdContent = ({ business }: AdContentProps) => {
           ) : (
             <Box className="row center section">No target created.</Box>
           )
-        ) : undefined}
+        ) : (
+          <Box className="column center v-center flex">
+            <CircularProgress color="success" aria-label="Loading…" />
+          </Box>
+        )}
       </Box>
 
       {/* Section - ad logs */}
@@ -438,7 +466,11 @@ const AdContent = ({ business }: AdContentProps) => {
               ) : (
                 <Typography variant="caption">-- End --</Typography>
               )
-            ) : undefined}
+            ) : (
+              <Box className="column center v-center flex">
+                <CircularProgress color="success" aria-label="Loading…" />
+              </Box>
+            )}
           </Box>
         </Box>
       </Box>

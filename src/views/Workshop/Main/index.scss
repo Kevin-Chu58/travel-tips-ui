@@ -11,10 +11,8 @@
   color: black;
 
   .content-container {
-    display: flex;
-    position: relative;
     width: 100%;
-    flex-direction: column;
+    height: 100%;
     background-color: white;
     overflow-y: auto;
   }

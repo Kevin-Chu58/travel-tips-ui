@@ -59,8 +59,7 @@ const GospelDrawer = ({ isHidden, setIsHidden }: GospelDrawerProps) => {
   const [topicsMap, setTopicsMap] = useState<Map<number, WritingLabel[]>>(
     new Map(),
   );
-  // search // TODO
-  // const valueRef = useRef<string>("");
+  // search
   const [value, setValue] = useState<string>(""); // search input
   const [searchType, setSearchType] = useState<GospelSearchType>("Writing");
   // search results
@@ -395,7 +394,7 @@ const GospelDrawer = ({ isHidden, setIsHidden }: GospelDrawerProps) => {
       className={clsx(
         "gospel-drawer-container",
         isMobile && "mobile",
-        isHidden && "hidden",
+        isMobile && isHidden && "hidden",
       )}
     >
       <Box className="header">

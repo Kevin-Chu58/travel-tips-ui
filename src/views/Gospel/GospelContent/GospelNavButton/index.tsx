@@ -1,9 +1,10 @@
-import TTIconButton from "@components/TTIconButton";
 import { useIsMobile } from "@hooks/useIsMobile";
 import { Typography } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
+import TTButton from "@components/TTButton";
 
 type GospelNavButtonProps = {
+  label?: string;
   isWriting?: boolean;
   showInPc?: boolean;
   setIsHidden: React.Dispatch<React.SetStateAction<boolean>>;
@@ -12,6 +13,7 @@ type GospelNavButtonProps = {
 };
 
 const GospelNavButton = ({
+  label,
   isWriting = false,
   showInPc = true,
   setIsHidden,
@@ -22,9 +24,15 @@ const GospelNavButton = ({
   const isMobile = useIsMobile();
 
   return isMobile ? (
-    <TTIconButton onClick={() => setIsHidden(false)} noBorder>
-      <MenuIcon />
-    </TTIconButton>
+    <TTButton
+      onClick={() => setIsHidden(false)}
+      startIcon={<MenuIcon />}
+      variant="text"
+      size="large"
+      color="utility"
+    >
+      {Boolean(label) && label}
+    </TTButton>
   ) : showInPc ? (
     <Typography
       className="back-text"

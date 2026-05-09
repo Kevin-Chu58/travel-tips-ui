@@ -1,5 +1,5 @@
 import type { HerePlace } from "./hereMap/hereMap";
-import http from "./http";
+import http, { type SearchResults } from "./http";
 
 export interface GetAttractionsParams {
   title?: string;
@@ -10,6 +10,8 @@ export interface GetAttractionsParams {
   state?: string;
   country?: string;
   ownerId?: number;
+  limit?: number;
+  cursor?: string;
 }
 
 type AttractionBasic = {
@@ -39,8 +41,8 @@ const getHerePlaceByAttractionId = async (id: number): Promise<HerePlace> => {
 };
 
 const getAttractionsByParam = async (
-  params: GetAttractionsParams
-): Promise<Attraction[]> => {
+  params: GetAttractionsParams,
+): Promise<SearchResults<Attraction>> => {
   const searchParams = new URLSearchParams();
 
   if (params.title) searchParams.set("title", params.title);
@@ -51,11 +53,13 @@ const getAttractionsByParam = async (
   if (params.state) searchParams.set("state", params.state);
   if (params.country) searchParams.set("country", params.country);
   if (params.ownerId) searchParams.set("ownerId", params.ownerId.toString());
+  if (params.limit) searchParams.set("limit", params.limit.toString());
+  if (params.cursor) searchParams.set("cursor", params.cursor);
 
   return await http.get(
     http.apiBaseURLs.api,
     `attractions?${searchParams.toString()}`,
-    undefined
+    undefined,
   );
 };
 
@@ -64,7 +68,7 @@ const postNewAttraction = async (hereId: string): Promise<HerePlace> => {
     http.apiBaseURLs.api,
     `attractions/${hereId}`,
     undefined,
-    undefined
+    undefined,
   );
 };
 

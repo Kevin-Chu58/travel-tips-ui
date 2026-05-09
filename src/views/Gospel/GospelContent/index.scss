@@ -3,10 +3,9 @@
 @use "../../../stylings/box_shadows" as *;
 
 .gospel-content-container {
-  display: flex;
-  flex-direction: column;
+  width: 100%;
   height: $screen-height;
-  overflow-x: hidden;
+  overflow-x: auto;
   overflow-y: auto;
   padding: 2rem;
   flex: 1;
@@ -61,6 +60,69 @@
       margin-left: 1rem;
       font-size: 1.2rem;
     }
+  }
+
+  .channel-box-link {
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .channel-box {
+    min-width: 300px;
+    width: fit-content;
+    margin: 1rem;
+    padding: 0.5rem 2rem 0.5rem 1rem;
+    border-radius: 0.5rem;
+    background-color: transparent;
+    transition: 0.2s ease-in-out background-color;
+    cursor: pointer;
+
+    &:hover {
+      background-color: var(--info-100);
+    }
+  }
+
+  .videos-box {
+    width: 100%;
+    padding: 0 1rem;
+    padding-bottom: 1rem;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+  }
+
+  .video-card {
+    $padding: .5rem;
+    width: calc(240px + 2 * $padding);
+    flex-shrink: 0;
+    padding: $padding;
+    border-radius: 1rem;
+    background-color: transparent;
+    transition: 0.2s ease-in-out background-color;
+    cursor: pointer;
+
+    &:hover {
+      background-color: var(--info-100);
+    }
+  }
+
+  .video-box {
+    width: 240px;
+    height: 180px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  .video-thumbnail {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 1rem;
+    flex-shrink: 0;
+  }
+
+  .writing-markdown-box {
+    font-family: sora;
+    margin: 1rem;
   }
 
   .MuiMenuItem-root {

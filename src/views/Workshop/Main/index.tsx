@@ -16,11 +16,6 @@ import CropperDialog from "@components/ImageSelector/CropperDialog";
 import { imagesService, type Image } from "@services/images";
 import ImagesTool from "./Images/ImagesTool";
 import Images from "./Images";
-import SortUtils, {
-  workshopAttractionsSortTypes,
-  workshopImagesSortTypes,
-  workshopTripsSortTypes,
-} from "@utils/SortUtils";
 import GroupIcon from "@mui/icons-material/Group";
 import ArchiveIcon from "@mui/icons-material/Archive";
 import BookmarkIcon from "@mui/icons-material/Bookmark";
@@ -43,16 +38,15 @@ const Main = () => {
   // nav tabs
   const [navTabValue, setNavTabValue] = useState<number>(0);
   const [subNavTabValue, setSubNavTabValue] = useState<number | undefined>();
+  // cursor
+  const [cursor, setCursor] = useState<string>();
   // Trips
-  const tripsRef = useRef<Trip[]>([]);
   const [trips, setTrips] = useState<Trip[]>([]);
   // Highlights
-  const attractionsRef = useRef<Attraction[]>([]);
   const [attractions, setAttractions] = useState<Attraction[]>([]);
   const [attractionShowHovers, setAttractionShowHovers] =
     useState<boolean>(false);
   // images
-  const imagesRef = useRef<Image[]>([]);
   const [images, setImages] = useState<Image[]>([]);
   // cropper image
   const [imageSrc, setImageSrc] = useState<string | null>(null);
@@ -61,16 +55,13 @@ const Main = () => {
   const [isAddHighlightOpen, setIsAddHighlightOpen] = useState<boolean>(false);
   const [isAddImageOpen, setIsAddImageOpen] = useState<boolean>(false);
   // tool values
-  const [sortTypeIndex, setSortTypeIndex] = useState<number>(0);
   const [selected, setSelected] = useState<number[]>([]);
   // drawer
   const [openDrawer, setOpenDrawer] = useState<boolean>(false);
   // ref
   const fileInputRef = useRef<HTMLInputElement>(null);
-  //sortTypes
-  const tripsSortTypes = workshopTripsSortTypes;
-  const attractionsSortTypes = workshopAttractionsSortTypes;
-  const imagesSortTypes = workshopImagesSortTypes;
+  // behavior
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   // others
   const location = useLocation();
 
@@ -81,7 +72,8 @@ const Main = () => {
     ) as HTMLElement | null;
     if (!container) return;
 
-    asyncTrips([]);
+    setTrips([]);
+    setCursor(undefined);
 
     requestAnimationFrame(() => {
       container.style.scrollBehavior = "auto";
@@ -95,135 +87,155 @@ const Main = () => {
 
   // async functions
 
-  const asyncTrips = (trips: Trip[]) => {
-    tripsRef.current = trips;
-    setTrips(trips);
+  const asyncAddTrip = async (trip: Trip) => {
+    setTrips((prev) => [...prev, trip]);
   };
 
-  // async functions
+  const asyncUpdateTrip = async (trip: Trip) => {
+    const _trips = trips;
+    const tripIndex = trips.findIndex((t) => t.id === trip.id);
+    _trips[tripIndex] = trip;
+    setTrips([..._trips]);
+  };
+
+  const asyncDeleteTrip = async (trip: Trip) => {
+    let filteredTrips = trips.filter((_trip) => _trip.id !== trip.id);
+    setTrips([...filteredTrips]);
+  };
+
+  // get trips
 
   const getMyTrips = async () => {
-    const myTrips = await tripsService.getMyTrips();
-    asyncTrips(SortUtils.sortList(myTrips, tripsSortTypes, sortTypeIndex));
+    if (trips.length > 0 && !cursor) return;
+
+    setIsLoading(true);
+    const myTrips = await tripsService.getMyTrips(cursor);
+
+    cursor
+      ? setTrips((prev) => [...prev, ...myTrips.results])
+      : setTrips(myTrips.results);
+
+    setCursor(myTrips.cursor);
+    setIsLoading(false);
   };
 
   // get trips others shared with me
   const getSharedTrips = async () => {
-    const sharedTrips = await tripsService.getSharedTrips();
-    asyncTrips(SortUtils.sortList(sharedTrips, tripsSortTypes, sortTypeIndex));
+    setIsLoading(true);
+    const sharedTrips = await tripsService.getSharedTrips(cursor);
+
+    cursor
+      ? setTrips((prev) => [...prev, ...sharedTrips.results])
+      : setTrips(sharedTrips.results);
+
+    setCursor(sharedTrips.cursor);
+    setIsLoading(false);
   };
 
   const getMyHiddenTrips = async () => {
-    const myHiddenTrips = await tripsService.getMyHiddenTrips();
-    asyncTrips(
-      SortUtils.sortList(myHiddenTrips, tripsSortTypes, sortTypeIndex),
-    );
+    setIsLoading(true);
+    const myHiddenTrips = await tripsService.getMyHiddenTrips(cursor);
+
+    cursor
+      ? setTrips((prev) => [...prev, ...myHiddenTrips.results])
+      : setTrips(myHiddenTrips.results);
+
+    setCursor(myHiddenTrips.cursor);
+    setIsLoading(false);
   };
 
   const getMyBookmarkedTrips = async () => {
-    const bookmarkedTrips = await tripsService.getBookmarkedTrips();
-    asyncTrips(
-      SortUtils.sortList(bookmarkedTrips, tripsSortTypes, sortTypeIndex),
-    );
-  };
+    setIsLoading(true);
+    const bookmarkedTrips = await tripsService.getBookmarkedTrips(cursor);
 
-  const asyncAddTrip = async (trip: Trip) => {
-    tripsRef.current.push(trip);
-    asyncTrips(
-      SortUtils.sortList(tripsRef.current, tripsSortTypes, sortTypeIndex),
-    );
-  };
+    cursor
+      ? setTrips((prev) => [...prev, ...bookmarkedTrips.results])
+      : setTrips(bookmarkedTrips.results);
 
-  const asyncUpdateTrip = async (trip: Trip) => {
-    const trips = tripsRef.current;
-    const tripIndex = trips.findIndex((t) => t.id === trip.id);
-    trips[tripIndex] = trip;
-    asyncTrips(SortUtils.sortList(trips, tripsSortTypes, sortTypeIndex));
-  };
-
-  const asyncDeleteTrip = async (trip: Trip) => {
-    let filteredTrips = tripsRef.current.filter(
-      (_trip) => _trip.id !== trip.id,
-    );
-    asyncTrips(
-      SortUtils.sortList(filteredTrips, tripsSortTypes, sortTypeIndex),
-    );
+    setCursor(bookmarkedTrips.cursor);
+    setIsLoading(false);
   };
 
   // ==========================
   // Attractions (with my highlights) state & handlers
   // ==========================
 
-  const asyncAttractions = (attractions: Attraction[]) => {
-    attractionsRef.current = attractions;
-    setAttractions(attractions);
-  };
-
   const getMyAttractions = async () => {
+    setIsLoading(true);
     if (user.id) {
       const myAttractions = await attractionsService.getAttractionsByParam({
         ownerId: user.id,
+        cursor: cursor,
       });
-      asyncAttractions(
-        SortUtils.sortList(myAttractions, attractionsSortTypes, sortTypeIndex),
-      );
+
+      cursor
+        ? setAttractions((prev) => [...prev, ...myAttractions.results])
+        : setAttractions(myAttractions.results);
+
+      setCursor(myAttractions.cursor);
     }
+
+    setIsLoading(false);
   };
 
   const asyncAddAttraction = async (attraction: Attraction) => {
-    let attractions = attractionsRef.current;
-    const attractionIndex = attractions.findIndex(
-      (_attraction) => _attraction.id === attraction.id,
+    let _attractions = attractions;
+    const attractionIndex = _attractions.findIndex(
+      (a) => a.id === attraction.id,
     );
     if (attractionIndex > -1) {
       attractions[attractionIndex].numHighlights! += 1;
     } else {
       attraction.numHighlights = 1;
-      attractions.push(attraction);
+      _attractions.push(attraction);
     }
 
-    asyncAttractions(
-      SortUtils.sortList(attractions, attractionsSortTypes, sortTypeIndex),
-    );
+    setAttractions(_attractions);
   };
 
   // ==========================
   // Images state & handlers
   // ==========================
 
-  const asyncImages = (images: Image[]) => {
-    imagesRef.current = images;
-    setImages(images);
-  };
-
   const getMyImages = async () => {
-    const myImages = await imagesService.getMyImages();
-    asyncImages(SortUtils.sortList(myImages, imagesSortTypes, sortTypeIndex));
+    setIsLoading(true);
+
+    const myImages = await imagesService.getMyImages(cursor);
+
+    cursor
+      ? setImages((prev) => [...prev, ...myImages.results])
+      : setImages(myImages.results);
+
+    setCursor(myImages.cursor);
+
+    setIsLoading(false);
   };
 
   const asyncAddImage = async (_: number) => {
-    const images = await imagesService.getMyImages();
-    imagesRef.current = images;
-    asyncImages(
-      SortUtils.sortList(imagesRef.current, imagesSortTypes, sortTypeIndex),
-    );
+    const myImages = await imagesService.getMyImages();
+
+    cursor
+      ? setImages((prev) => [...prev, ...myImages.results])
+      : setImages(myImages.results);
+
+    setCursor(myImages.cursor);
+
+    setIsLoading(false);
   };
 
   const asyncUpdateImage = async (image: Image) => {
-    let _image = imagesRef.current.find((_image) => _image.id === image.id);
-    if (_image) {
-      _image.name = image.name;
-      asyncImages(
-        SortUtils.sortList(imagesRef.current, imagesSortTypes, sortTypeIndex),
-      );
+    let _images = [...images];
+    let _imageId = _images.findIndex((_image) => _image.id === image.id);
+
+    if (_imageId > -1) {
+      _images[_imageId] = image;
+      setImages(_images);
     }
   };
 
   const asyncDeleteImage = async (id: number) => {
-    let filteredImages = imagesRef.current.filter((_image) => _image.id !== id);
-    asyncImages(
-      SortUtils.sortList(filteredImages, imagesSortTypes, sortTypeIndex),
-    );
+    let filteredImages = images.filter((_image) => _image.id !== id);
+    setImages(filteredImages);
   };
 
   // render the nav tab index and sub nav tab index focus when page initializes
@@ -255,7 +267,6 @@ const Main = () => {
 
   // rerender on navTabValue to reset tool values
   useEffect(() => {
-    setSortTypeIndex(0);
     setSelected([]);
   }, [navTabValue, subNavTabValue]);
 
@@ -325,6 +336,7 @@ const Main = () => {
   // ==========================
 
   const tripsElement = (
+    getMore: () => void,
     emptyMessage: string = "",
     readonly: boolean = false,
   ) => (
@@ -333,23 +345,21 @@ const Main = () => {
       readonly={readonly}
       asyncUpdateTrip={asyncUpdateTrip}
       asyncDeleteTrip={asyncDeleteTrip}
+      cursor={cursor}
+      getMore={getMore}
+      isLoading={isLoading}
       emptyMessage={emptyMessage}
     />
   );
 
   const tripsTool = (add: boolean = false) => (
     <TripsTool
-      sortTypes={tripsSortTypes}
-      sortTypeIndex={sortTypeIndex}
-      setSortTypeIndex={setSortTypeIndex}
       selected={selected}
       addOnClick={add ? () => setIsAddTripOpen(true) : undefined}
-      tripsRef={tripsRef}
       getMyTrips={getMyTrips}
       getSharedTrips={getSharedTrips}
       getMyHiddenTrips={getMyHiddenTrips}
       getMyBookmarkedTrips={getMyBookmarkedTrips}
-      asyncTrips={asyncTrips}
     />
   );
 
@@ -357,7 +367,7 @@ const Main = () => {
     name: "Trips",
     index: true,
     path: "",
-    element: tripsElement("No trips created."),
+    element: tripsElement(getMyTrips, "No trips created."),
     tool: tripsTool(true),
     addForm: (
       <TripForm
@@ -371,21 +381,21 @@ const Main = () => {
   const tripsSharedRoute = {
     name: "Trips Shared With Me",
     path: "/shared",
-    element: tripsElement("No trips shared with you.", true),
+    element: tripsElement(getSharedTrips, "No trips shared with you.", true),
     tool: tripsTool(),
   };
 
   const tripsArchiveRoute = {
     name: "Archived Trips",
     path: "/archive",
-    element: tripsElement("No trips in Archive."),
+    element: tripsElement(getMyHiddenTrips, "No trips in Archive."),
     tool: tripsTool(),
   };
 
   const tripsBookmarkedRoute = {
     name: "Bookmarked Trips",
     path: "/bookmark",
-    element: tripsElement("No trips bookmarked.", true),
+    element: tripsElement(getMyBookmarkedTrips, "No trips bookmarked.", true),
     tool: tripsTool(),
   };
 
@@ -397,17 +407,18 @@ const Main = () => {
     name: "Highlights",
     path: "/Highlights",
     element: (
-      <Highlights attractions={attractions} showHovers={attractionShowHovers} />
+      <Highlights
+        attractions={attractions}
+        cursor={cursor}
+        getMore={getMyAttractions}
+        showHovers={attractionShowHovers}
+        isLoading={isLoading}
+      />
     ),
     tool: (
       <HighlightsTool
-        sortTypes={attractionsSortTypes}
-        sortTypeIndex={sortTypeIndex}
-        setSortTypeIndex={setSortTypeIndex}
         addOnClick={() => setIsAddHighlightOpen(true)}
-        attractionsRef={attractionsRef}
         getMyAttractions={getMyAttractions}
-        asyncAttractions={asyncAttractions}
         showHovers={attractionShowHovers}
         setShowHovers={setAttractionShowHovers}
       />
@@ -431,28 +442,26 @@ const Main = () => {
     element: (
       <Images
         images={images}
+        cursor={cursor}
+        getMore={getMyImages}
         asyncUpdateImage={asyncUpdateImage}
         asyncDeleteImage={asyncDeleteImage}
+        isLoading={isLoading}
       />
     ),
     tool: (
       <ImagesTool
-        sortTypes={imagesSortTypes}
-        sortTypeIndex={sortTypeIndex}
-        setSortTypeIndex={setSortTypeIndex}
         addOnClick={openFileDialog}
         addInput={
           <input
+            className="image-selector-cropper-file-input"
             type="file"
             accept="image/*"
             ref={fileInputRef}
-            className="image-selector-cropper-file-input"
             onChange={handleFileChange}
           />
         }
-        imagesRef={imagesRef}
         getMyImages={getMyImages}
-        asyncImages={asyncImages}
       />
     ),
     addForm: (
@@ -516,7 +525,7 @@ const Main = () => {
                 )}
 
                 {/* content */}
-                <Box className="content-container">
+                <Box className="column flex content-container">
                   <Box className="content-header-container">
                     <Box className="content-title-container">
                       {isMobile && (
@@ -536,7 +545,7 @@ const Main = () => {
                   </Box>
 
                   {/* content list */}
-                  <Box className="content-content-container">
+                  <Box className="column flex content-content-container">
                     {route.element}
                   </Box>
                 </Box>

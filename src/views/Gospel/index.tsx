@@ -10,7 +10,7 @@ const Gospel = () => {
   // url
   const { orderId } = useParams();
   // behavior
-  const [isHidden, setIsHidden] = useState<boolean>(true); // hide drawer
+  const [isHidden, setIsHidden] = useState<boolean>(false); // hide drawer
 
   if (orderId && !/^\d+$/.test(orderId)) {
     return <Navigate to="." replace />;

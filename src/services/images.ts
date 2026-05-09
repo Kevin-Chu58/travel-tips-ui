@@ -1,5 +1,5 @@
 import { ImageUtils } from "@utils/ImageUtils";
-import http from "./http";
+import http, { type SearchResults } from "./http";
 
 export type Image = {
   id: number;
@@ -17,8 +17,15 @@ export type ImageRelation = {
 
 // images
 
-const getMyImages = async (): Promise<Image[]> => {
-  return await http.get(http.apiBaseURLs.api, "images/my", undefined);
+const getMyImages = async (cursor?: string): Promise<SearchResults<Image>> => {
+  const _params = new URLSearchParams();
+  if (cursor) _params.append("cursor", cursor);
+
+  return await http.get(
+    http.apiBaseURLs.api,
+    `images/my?${_params.toString()}`,
+    undefined,
+  );
 };
 
 const uploadImage = async (

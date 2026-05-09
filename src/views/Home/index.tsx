@@ -1,4 +1,11 @@
-import { Box, Chip, Container, TextField, Typography } from "@mui/material";
+import {
+  Box,
+  Chip,
+  CircularProgress,
+  Container,
+  TextField,
+  Typography,
+} from "@mui/material";
 import React, { useEffect, useRef, useState } from "react";
 import {
   type TripSearchParams,
@@ -19,7 +26,7 @@ import { StringUtils } from "@utils/StringUtils";
 import { type RegionComplete } from "@services/search/regions";
 import { RegionUtils } from "@utils/RegionUtils";
 import { usersService } from "@services/users";
-import { useCursorScroll } from "@hooks/useCursorScroll";
+import { useCursorScrollOnLoadingState } from "@hooks/useCursorScroll";
 import NavTopFab from "@components/Behavioral/NavTopFab";
 import UserAvatar from "@components/UserAvatar";
 import { bannersService, type Banner } from "@services/feed/banners";
@@ -29,6 +36,7 @@ import { adsService, type Ad } from "@services/feed/ads";
 import AdCard from "@components/Cards/AdCard";
 import clsx from "clsx";
 import "./index.scss";
+import { getRandomDefaultAd } from "@constants/Defaults";
 
 type TripResult = Trip & {
   type: "trip";
@@ -59,7 +67,7 @@ const Home = () => {
   // infinite scrolling
   const containerRef = useRef<HTMLDivElement | null>(null);
   // behavior
-  const isLoadingRef = useRef<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const isInit = useRef<boolean>(true);
   const isBannerInit = useRef<boolean>(true);
   // form open status
@@ -70,6 +78,8 @@ const Home = () => {
     Boolean(budget) || Boolean(countrySlug) || Boolean(createdBy);
   const hasParamSearch = hasParamBase || Boolean(tripFilterParams.title);
   const hasParamResult = hasParamBase || Boolean(title);
+
+  console.log(isLoading);
 
   // init searchTripParams and other states on searchParams
   useEffect(() => {
@@ -192,8 +202,8 @@ const Home = () => {
     );
     const fetchedAds = await Promise.all(adPromises);
 
-    // Filter out 'void' (undefined) results immediately
-    const validAds = fetchedAds.filter((ad): ad is Ad => !!ad);
+    // Replace undefined ads with a random default ad to display
+    const validAds = fetchedAds.map((ad) => ad ?? getRandomDefaultAd());
 
     // Interleave them
     const combined: Result[] = [];
@@ -239,13 +249,16 @@ const Home = () => {
         enqueueSnackbar(e.message, { variant: "error" });
       }
     }
+
+    setIsLoading(false);
   };
 
   /// handle events
 
-  const handleScroll = useCursorScroll(
+  const handleScroll = useCursorScrollOnLoadingState(
     containerRef,
-    isLoadingRef,
+    isLoading,
+    setIsLoading,
     tripParams.cursor,
     getTripsByParams,
   );
@@ -414,7 +427,12 @@ const Home = () => {
             })}
           </Box>
         ) : (
-          <NoSearchResult />
+          !isLoading && <NoSearchResult />
+        )}
+        {isLoading && (
+          <Box className="column center flex">
+            <CircularProgress aria-label="Loading…" />
+          </Box>
         )}
       </React.Fragment>
     );

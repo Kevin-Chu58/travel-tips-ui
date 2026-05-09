@@ -8,6 +8,10 @@
   overflow: hidden;
   box-shadow: $mild-box-shadow;
 
+  .MuiTypography-root {
+    font-family: sora;
+  }
+
   .header-container {
     color: white;
     background-color: black;

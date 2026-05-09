@@ -127,6 +127,7 @@ const DayOverviewComponent = ({
     (e: React.MouseEvent<HTMLDivElement>, dayId: number, i: number) => {
       e.preventDefault();
       e.currentTarget.blur();
+      e.currentTarget.focus({preventScroll: true});
 
       if (focusId !== dayId) {
         setFocusId(dayId);

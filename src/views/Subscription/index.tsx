@@ -14,7 +14,7 @@ import type { RootState } from "@redux/store";
 import { usersService } from "@services/users";
 import { enqueueSnackbar } from "notistack";
 import { clearUser, setUser } from "@redux/userSlice";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import TTSWitch from "@components/TTSwitch";
 import clsx from "clsx";
 import "./index.scss";
@@ -30,14 +30,14 @@ const SubscriptionView = () => {
   const [activeSub, setActiveSub] = useState<Subscription | undefined>();
   // subscription
   const [planId, setPlanId] = useState<SubscriptionType | undefined>();
-  // behavior
-  const [step, setStep] = useState<number>(0);
-  const [isCreatingSession, setIsCreatingSession] = useState<boolean>(false);
-  const [isInit, setIsInit] = useState<boolean>(false);
   // disclaimer agreement
   const [checked, setChecked] = useState<boolean>(false);
   // open form status
   const [openSubHistory, setOpenSubHistory] = useState<boolean>(false);
+  // behavior
+  const [step, setStep] = useState<number>(0);
+  const [isCreatingSession, setIsCreatingSession] = useState<boolean>(false);
+  const [isInit, setIsInit] = useState<boolean>(false);
   // others
   const navigate = useNavigate();
 
@@ -200,7 +200,13 @@ const SubscriptionView = () => {
           By subscribing, you agree to our <u>Terms of Service</u> and{" "}
           <u>irrevocably waive any right to a refund</u> if your content is
           deleted or your account is terminated for violating our{" "}
-          <u>User Content standards (Section 7)</u>.
+          <u>
+            User Content standards{" "}
+            <Link to="/doc/terms-of-service" target="_blank" rel="noopener">
+              (Section 7)
+            </Link>
+          </u>
+          .
         </Typography>
       </Box>
       <TTButton

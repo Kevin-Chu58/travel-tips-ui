@@ -83,7 +83,7 @@ const Review = () => {
     typeFocus !== undefined ? reviewTypes[typeFocus] : undefined;
 
   return (
-    <Container className="review-view" maxWidth="md" disableGutters>
+    <Container className="review-view" maxWidth="md">
       <Typography variant="h4">Pick a category to review</Typography>
       <Divider />
       <Box className="row section gap">
