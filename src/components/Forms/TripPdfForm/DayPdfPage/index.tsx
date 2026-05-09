@@ -10,7 +10,9 @@ import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import ReplyIcon from "@mui/icons-material/Reply";
 import DirectionAccordion from "@components/Accordions/DirectionAccordion";
 import React, { useMemo } from "react";
-import Map from "@components/Map";
+
+// lazy load
+const Map = React.lazy(() => import("@components/Map"));
 
 type DayPdfPageProps = {
   dayIndex: number;
