@@ -10,9 +10,7 @@ import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import ReplyIcon from "@mui/icons-material/Reply";
 import DirectionAccordion from "@components/Accordions/DirectionAccordion";
 import React, { useMemo } from "react";
-
-// lazy load
-const Map = React.lazy(() => import("@components/Map"));
+import Map from "@components/Map";
 
 type DayPdfPageProps = {
   dayIndex: number;
@@ -145,7 +143,9 @@ const DayPdfPage = React.memo(
                     showRouteColor
                     readonly
                   />
-                ) : <Typography>No Events Today.</Typography>}
+                ) : (
+                  <Typography>No Events Today.</Typography>
+                )}
               </Box>
               {eventItems}
             </Box>

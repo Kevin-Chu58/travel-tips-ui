@@ -22,9 +22,7 @@ import { type GeoCoordinate } from "@constants/Types";
 import type { HerePlace } from "@services/hereMap/hereMap";
 import clsx from "clsx";
 import "./index.scss";
-
-// lazy load
-const Map = React.lazy(() => import("@components/Map"));
+import Map from "@components/Map";
 
 type AttractionFinderProps = {
   open: boolean;
@@ -98,9 +96,11 @@ const AttractionFinder = ({
       try {
         setIsAttractionLoading(true);
         let herePlace = await attractionsService.postNewAttraction(focusId);
-        let attraction = (await attractionsService.getAttractionsByParam({
-          hereId: herePlace.id,
-        })).results;
+        let attraction = (
+          await attractionsService.getAttractionsByParam({
+            hereId: herePlace.id,
+          })
+        ).results;
 
         setHerePlace(herePlace);
 
@@ -254,7 +254,7 @@ const AttractionFinder = ({
             <Box
               className={clsx(
                 "attraction-finder-result-box-mobile",
-                showResult && "focus"
+                showResult && "focus",
               )}
             >
               {/* result list - attractions */}
@@ -293,7 +293,7 @@ const AttractionFinder = ({
       <Box
         className={clsx(
           "attraction-finder-attraction-box",
-          attraction && "focus"
+          attraction && "focus",
         )}
       >
         <Box className="attraction-finder-attraction-box-nav-box">
@@ -316,7 +316,11 @@ const AttractionFinder = ({
           <Typography className="attraction-finder-new-highlight-header">
             New Highlight
           </Typography>
-          <DescriptionTextField value={description} setValue={setDescription} maxLength={500} />
+          <DescriptionTextField
+            value={description}
+            setValue={setDescription}
+            maxLength={500}
+          />
           <Box className="attraction-finder-new-highlight-button-box">
             <TTButton
               label="create"
