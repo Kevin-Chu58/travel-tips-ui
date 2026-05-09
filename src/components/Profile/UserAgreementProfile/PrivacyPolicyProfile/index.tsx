@@ -270,9 +270,9 @@ const PrivacyPolicyProfile = ({
           your rights, contact us at:
           <br />
           <br />
-          [company name]
+          (business not registered yet)
           <br />
-          <b>Email:</b> [email]
+          <b>Email:</b> kaiwen.chu58@gmail.com
         </Typography>
       </React.Fragment>
     </UserAgreementBase>

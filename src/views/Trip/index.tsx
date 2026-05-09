@@ -23,6 +23,7 @@ const Trip = () => {
     <Routes>
       <Route path=":tripId" element={<TripView />} />
       <Route path=":tripId/day/:dayId" element={<TripView />} />
+      <Route path=":tripId/pdf-overview" element={<TripView />} />
       <Route path="*" element={<Navigate to="/home" />} />
     </Routes>
   );

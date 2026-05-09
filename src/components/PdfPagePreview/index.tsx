@@ -8,7 +8,7 @@ const PdfPagePreview: React.FC<{ children: React.ReactNode }> = React.memo(
     const ref = useRef<HTMLDivElement>(null);
     const [scale, setScale] = useState<number>(1);
 
-    // ✅ moved outside component — pure function, no need to recreate every render
+    // moved outside component — pure function, no need to recreate every render
     const initScale = useCallback(() => {
       if (!ref.current) return;
 

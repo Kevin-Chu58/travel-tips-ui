@@ -98,7 +98,11 @@ const TripPdfForm = ({
     for (let i = 0; i < pages.length; i++) {
       const pageEl = pages[i] as HTMLElement;
 
-      const dataUrl = await toPng(pageEl, { quality: 1, pixelRatio: 2 });
+      const dataUrl = await toPng(pageEl, {
+        quality: 1,
+        pixelRatio: 2,
+        skipFonts: true,
+      });
 
       const imgProps = pdf.getImageProperties(dataUrl);
       const pdfWidth = pdf.internal.pageSize.getWidth();
@@ -174,7 +178,11 @@ const TripPdfForm = ({
       <Box className="column">
         <ProgressBar current={current} max={max} object="PDFs" />
         <Box className="pdf-pages-box">
-          <OverviewPdfPage trip={trip} markers={geoMarkers} />
+          <OverviewPdfPage
+            key={geoMarkers?.length}
+            trip={trip}
+            markers={geoMarkers}
+          />
           {dayPages}
         </Box>
       </Box>
