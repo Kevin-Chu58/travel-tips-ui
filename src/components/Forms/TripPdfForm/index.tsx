@@ -88,6 +88,8 @@ const TripPdfForm = ({
       const pdf = new jsPDF("p", "mm", "a4");
       const pages = document.querySelectorAll(".pdf-page");
 
+      console.log(document.styleSheets.length);
+
       // then add to PDF sequentially
       for (let i = 0; i < pages.length; i++) {
         const pageEl = pages[i] as HTMLElement;
@@ -96,7 +98,9 @@ const TripPdfForm = ({
           quality: 0.85,
           pixelRatio: 1.25,
           skipFonts: true,
-          filter: (node) => !node.classList?.contains("map-box"),
+          fetchRequestInit: {
+            cache: "force-cache", // use cached resources instead of re-fetching
+          },
         });
 
         const imgProps = pdf.getImageProperties(dataUrl);
@@ -129,6 +133,8 @@ const TripPdfForm = ({
       }
 
       setIsDownLoading(false);
+
+      await usersService.generatePdf();
       pdf.save(`${trip?.title ?? "trip"}.pdf`);
 
       if (userSubExtend) {
@@ -141,8 +147,6 @@ const TripPdfForm = ({
           }),
         );
       }
-
-      await usersService.generatePdf();
     } catch (e) {
       if (e instanceof Error) enqueueSnackbar(e.message, { variant: "error" });
       setIsDownLoading(false);
