@@ -10,7 +10,6 @@ import Map from "@components/Map";
 // lazy load
 const MarkdownBox = React.lazy(() => import("@components/MarkdownBox"));
 
-
 type OverviewPdfPageProps = {
   trip: Trip | undefined;
   markers: Marker[] | undefined;

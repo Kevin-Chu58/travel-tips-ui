@@ -103,6 +103,7 @@ const TripPdfForm = ({
           quality: 0.85,
           pixelRatio: 1.25,
           skipFonts: true,
+          filter: (node) => !node.classList?.contains("map-box"),
         }),
       ),
     );

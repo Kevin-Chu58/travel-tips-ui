@@ -15,7 +15,7 @@ const Workshop = () => {
       <Route path="/*" element={<Main />} />
       <Route path="/trip/:tripId" element={<Trip />} />
       <Route path="/trip/:tripId/day/:dayId" element={<Trip />} />
-      <Route path="/trip/:tripId/pdf-preview" element={<Trip />} />
+      {/* <Route path="/trip/:tripId/pdf-preview" element={<Trip />} /> */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

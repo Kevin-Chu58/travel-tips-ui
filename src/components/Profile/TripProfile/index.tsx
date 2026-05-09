@@ -39,6 +39,7 @@ import Mapper from "@components/Map";
 import TripPdfForm from "@components/Forms/TripPdfForm";
 import clsx from "clsx";
 import "./index.scss";
+// import TripPdfReviewPage from "./TripPdfReviewPage";
 
 type TripProfileProps = {
   readonly?: boolean;
@@ -92,6 +93,12 @@ const TripProfile = ({ readonly = false }: TripProfileProps) => {
   const isRestricted = tripBasic?.createdBy.id === user.id || isSharedUser;
   // others
   const { tripId, dayId } = useParams(); // dayId - day index in days, not day.id
+  // const pdfMatch = useMatch(
+  //   readonly
+  //     ? "/trip/:tripId/pdf-overview"
+  //     : "/workshop/trip/:tripId/pdf-overview",
+  // );
+  // const isPdfView = !!pdfMatch;
   const inputRef = useRef<HTMLInputElement>(null);
   const descriptionScrollRef = useRef<HTMLDivElement>(null);
 
@@ -401,6 +408,23 @@ const TripProfile = ({ readonly = false }: TripProfileProps) => {
 
   // other handle funcitons
   const handleCloseTao = useCallback(() => initTao(undefined), [initTao]);
+
+  // if (isPdfView) {
+  //   if (!tripBasic || days.length === 0) {
+  //     return <Box>Loading...</Box>;
+  //   }
+
+  //   return (
+  //     <TripPdfReviewPage
+  //       trip={tripBasic}
+  //       days={days}
+  //       taosMapRef={taosMapRef}
+  //       routeResponsesMapRef={routeResponsesMapRef}
+  //       geoMarkers={geoMarkers}
+  //       fetchAllDays={fetchAllDays}
+  //     />
+  //   );
+  // }
 
   return (
     <Box className="trip-profile-box">
