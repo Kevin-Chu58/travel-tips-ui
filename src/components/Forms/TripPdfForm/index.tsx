@@ -94,24 +94,30 @@ const TripPdfForm = ({
 
     const pdf = new jsPDF("p", "mm", "a4");
     const pages = document.querySelectorAll(".pdf-page");
+    console.log("Total pages found:", pages.length);
 
-    for (let i = 0; i < pages.length; i++) {
+    // capture all pages at the same time
+    const dataUrls = await Promise.all(
+      Array.from(pages).map((pageEl) =>
+        toPng(pageEl as HTMLElement, {
+          quality: 0.85,
+          pixelRatio: 1.25,
+          skipFonts: true,
+        }),
+      ),
+    );
+
+    // then add to PDF sequentially
+    for (let i = 0; i < dataUrls.length; i++) {
+      pdf.addImage(dataUrls[i], "PNG", 0, 0, A4_WIDTH, A4_HEIGHT);
+
       const pageEl = pages[i] as HTMLElement;
-
-      const dataUrl = await toPng(pageEl, {
-        quality: 1,
-        pixelRatio: 2,
-        skipFonts: true,
-      });
-
-      const imgProps = pdf.getImageProperties(dataUrl);
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-
-      pdf.addImage(dataUrl, "PNG", 0, 0, A4_WIDTH, A4_HEIGHT);
-
       const links = pageEl.querySelectorAll("a");
       const rootRect = pageEl.getBoundingClientRect();
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight =
+        (pdf.getImageProperties(dataUrls[i]).height * pdfWidth) /
+        pdf.getImageProperties(dataUrls[i]).width;
 
       links.forEach((link) => {
         const linkRect = link.getBoundingClientRect();
@@ -122,13 +128,10 @@ const TripPdfForm = ({
         pdf.link(x, y, w, h, { url: link.href });
       });
 
-      if (i < pages.length - 1) pdf.addPage();
-
-      await new Promise((resolve) => setTimeout(resolve, 50));
-
-      enqueueSnackbar(`Processed page ${i + 1} of ${pages.length}`, {
-        variant: "info",
-      });
+      if (i < dataUrls.length - 1) pdf.addPage();
+      // enqueueSnackbar(`Processed page ${i + 1} of ${dataUrls.length}`, {
+      //   variant: "info",
+      // });
     }
 
     setIsDownLoading(false);
