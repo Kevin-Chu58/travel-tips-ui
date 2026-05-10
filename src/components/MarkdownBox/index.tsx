@@ -13,6 +13,7 @@ type MarkdownBoxProps = {
   className?: string;
   disableGap?: boolean;
   isOfficial?: boolean;
+  showDefaultText?: boolean;
 };
 
 const MarkdownBox = ({
@@ -20,6 +21,7 @@ const MarkdownBox = ({
   className,
   disableGap = false,
   isOfficial = false,
+  showDefaultText = true,
 }: MarkdownBoxProps) => {
   const schema = {
     ...defaultSchema,
@@ -51,7 +53,7 @@ const MarkdownBox = ({
           img: ({ node, ...props }) => <img {...props} loading="lazy" />,
         }}
       >
-        {text || "*Nothing to preview*"}
+        {text || (showDefaultText ? "*Nothing to preview*" : "")}
       </ReactMarkdown>
     </Box>
   );

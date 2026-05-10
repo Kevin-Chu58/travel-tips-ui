@@ -93,6 +93,7 @@ const TripProfile = ({ readonly = false }: TripProfileProps) => {
   // others
   const { tripId, dayId } = useParams(); // dayId - day index in days, not day.id
   const inputRef = useRef<HTMLInputElement>(null);
+  const descriptionScrollRef = useRef<HTMLDivElement>(null);
 
   const taoMarkers = useMemo(
     () =>
@@ -288,7 +289,17 @@ const TripProfile = ({ readonly = false }: TripProfileProps) => {
   const handleCloseForm = useCallback(() => setOpenForm(null), [setOpenForm]);
 
   const handleSetDayOverviewFocus = useCallback((id: number) => {
+    const scrollTop = descriptionScrollRef.current?.scrollTop ?? 0;
     setDayOverviewFocus(id);
+
+    // use multiple rAF frames to ensure iOS has finished any layout/scroll side effects
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        if (descriptionScrollRef.current) {
+          descriptionScrollRef.current.scrollTop = scrollTop;
+        }
+      });
+    });
   }, []);
 
   // init functions

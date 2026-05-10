@@ -36,9 +36,9 @@ import {
   youTubeFeedsService,
   type YouTubeChannel,
 } from "@services/gospel/youtubeFeeds";
+import TimeUtils from "@utils/TimeUtils";
 import clsx from "clsx";
 import "./index.scss";
-import TimeUtils from "@utils/TimeUtils";
 
 // lazy load
 const AddWritingLabelForm = React.lazy(
@@ -404,6 +404,7 @@ const GospelContent = ({ setIsHidden }: GospelContentProps) => {
                 className="writing-markdown-box"
                 text={writing?.content}
                 isOfficial
+                showDefaultText={false}
               />
             </Suspense>
           </React.Fragment>
