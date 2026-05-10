@@ -551,18 +551,16 @@ const TripProfile = ({ readonly = false }: TripProfileProps) => {
         readonly={readonly}
       />
 
-      {openForm === "pdf" && (
-        <TripPdfForm
-          open
-          onClose={handleCloseForm}
-          trip={tripBasic}
-          days={days}
-          taosMapRef={taosMapRef}
-          routeResponsesMapRef={routeResponsesMapRef}
-          geoMarkers={geoMarkers}
-          fetchAllDays={fetchAllDays}
-        />
-      )}
+      <TripPdfForm
+        open={openForm === "pdf"}
+        onClose={handleCloseForm}
+        trip={tripBasic}
+        days={days}
+        taosMapRef={taosMapRef}
+        routeResponsesMapRef={routeResponsesMapRef}
+        geoMarkers={geoMarkers}
+        fetchAllDays={fetchAllDays}
+      />
     </Box>
   );
 };
