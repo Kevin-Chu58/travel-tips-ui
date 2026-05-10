@@ -469,7 +469,7 @@ const TripProfile = ({ readonly = false }: TripProfileProps) => {
               />
             </Box>
           ) : (
-            <Box className="description-box">
+            <Box ref={descriptionScrollRef} className="description-box">
               <DescriptionComponent
                 trip={tripBasic}
                 setTrip={setTripBasic}
