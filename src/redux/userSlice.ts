@@ -59,6 +59,12 @@ const userSlice = createSlice({
     },
     setUserAgreement(state, action: PayloadAction<boolean>) {
       state.userAgreement = action.payload;
+
+      const userStr = localStorage.getItem(LS_USER_BASIC);
+
+      const user = userStr ? JSON.parse(userStr) : {};
+      const storageData = { ...user, userAgreement: action.payload };
+      localStorage.setItem(LS_USER_BASIC, JSON.stringify(storageData));
     },
     // 3. To clear, simply return the initial state (but keep isLoading false)
     clearUser: () => {

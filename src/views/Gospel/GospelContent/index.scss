@@ -63,6 +63,8 @@
   }
 
   .channel-box-link {
+    display: flex;
+    gap: 1rem;
     text-decoration: none;
     color: inherit;
   }

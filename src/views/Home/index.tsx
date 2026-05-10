@@ -79,8 +79,6 @@ const Home = () => {
   const hasParamSearch = hasParamBase || Boolean(tripFilterParams.title);
   const hasParamResult = hasParamBase || Boolean(title);
 
-  console.log(isLoading);
-
   // init searchTripParams and other states on searchParams
   useEffect(() => {
     if (searchParams.size === 0 || !isInit.current) return;

@@ -39,7 +39,6 @@ import Mapper from "@components/Map";
 import TripPdfForm from "@components/Forms/TripPdfForm";
 import clsx from "clsx";
 import "./index.scss";
-// import TripPdfReviewPage from "./TripPdfReviewPage";
 
 type TripProfileProps = {
   readonly?: boolean;
@@ -93,14 +92,7 @@ const TripProfile = ({ readonly = false }: TripProfileProps) => {
   const isRestricted = tripBasic?.createdBy.id === user.id || isSharedUser;
   // others
   const { tripId, dayId } = useParams(); // dayId - day index in days, not day.id
-  // const pdfMatch = useMatch(
-  //   readonly
-  //     ? "/trip/:tripId/pdf-overview"
-  //     : "/workshop/trip/:tripId/pdf-overview",
-  // );
-  // const isPdfView = !!pdfMatch;
   const inputRef = useRef<HTMLInputElement>(null);
-  const descriptionScrollRef = useRef<HTMLDivElement>(null);
 
   const taoMarkers = useMemo(
     () =>
@@ -197,6 +189,20 @@ const TripProfile = ({ readonly = false }: TripProfileProps) => {
           setTaos(newTaos);
           setTao(tao); // TODO - optimize?
 
+          setTaoGeos((prev) =>
+            prev.map((geo) =>
+              geo.id === tao.id
+                ? {
+                    id: tao.id,
+                    dayId: tao.dayId,
+                    title: tao.attraction.title,
+                    lat: tao.attraction.lat,
+                    lng: tao.attraction.lng,
+                  }
+                : geo,
+            ),
+          );
+
           let orderChanged = !isEqual(prevTaoOrder, currTaoOrder);
 
           if (!isAttractionSame || orderChanged) {
@@ -222,8 +228,7 @@ const TripProfile = ({ readonly = false }: TripProfileProps) => {
           initRouteResponses(true);
 
           // also delete from taoGeos
-          let _taoGeos = taoGeos.filter((t) => t.id !== tao.id);
-          setTaoGeos([..._taoGeos]);
+          setTaoGeos((prev) => prev.filter((t) => t.id !== tao.id));
         }
       }
     },
@@ -283,13 +288,7 @@ const TripProfile = ({ readonly = false }: TripProfileProps) => {
   const handleCloseForm = useCallback(() => setOpenForm(null), [setOpenForm]);
 
   const handleSetDayOverviewFocus = useCallback((id: number) => {
-    const scrollTop = descriptionScrollRef.current?.scrollTop ?? 0;
     setDayOverviewFocus(id);
-    requestAnimationFrame(() => {
-      if (descriptionScrollRef.current) {
-        descriptionScrollRef.current.scrollTop = scrollTop;
-      }
-    });
   }, []);
 
   // init functions
@@ -394,7 +393,7 @@ const TripProfile = ({ readonly = false }: TripProfileProps) => {
           routeResponsesMapRef.current.set(_dayId, routeResponses);
         }
 
-        await initRoutes(routeResponses, silentUpdate);
+        initRoutes(routeResponses, silentUpdate);
       } else {
         // setRoutes(undefined);
       }
@@ -408,23 +407,6 @@ const TripProfile = ({ readonly = false }: TripProfileProps) => {
 
   // other handle funcitons
   const handleCloseTao = useCallback(() => initTao(undefined), [initTao]);
-
-  // if (isPdfView) {
-  //   if (!tripBasic || days.length === 0) {
-  //     return <Box>Loading...</Box>;
-  //   }
-
-  //   return (
-  //     <TripPdfReviewPage
-  //       trip={tripBasic}
-  //       days={days}
-  //       taosMapRef={taosMapRef}
-  //       routeResponsesMapRef={routeResponsesMapRef}
-  //       geoMarkers={geoMarkers}
-  //       fetchAllDays={fetchAllDays}
-  //     />
-  //   );
-  // }
 
   return (
     <Box className="trip-profile-box">
@@ -440,7 +422,13 @@ const TripProfile = ({ readonly = false }: TripProfileProps) => {
           {/* header */}
           <Box className="header-box">
             {/* profile images  */}
-            {isOverview && <TripHeader trip={tripBasic} readonly={readonly} />}
+            {isOverview && (
+              <TripHeader
+                trip={tripBasic}
+                setTrip={setTripBasic}
+                readonly={readonly}
+              />
+            )}
 
             {/* name */}
             <Box className="title-box">
@@ -473,6 +461,7 @@ const TripProfile = ({ readonly = false }: TripProfileProps) => {
             <Box className="description-box">
               <DescriptionComponent
                 trip={tripBasic}
+                setTrip={setTripBasic}
                 isLoading={isLoading}
                 readonly={readonly}
               />

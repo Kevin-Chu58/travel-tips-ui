@@ -16,8 +16,6 @@ import { enqueueSnackbar } from "notistack";
 import { usersService } from "@services/users";
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "@redux/store";
-import ProgressBar from "@components/ProgressBar";
-import { setUser } from "@redux/userSlice";
 import "./index.scss";
 
 type TripPdfFormProps = {
@@ -51,10 +49,6 @@ const TripPdfForm = ({
   const [isDownloading, setIsDownLoading] = useState<boolean>(false);
   const [allDaysFetched, setAllDaysFetched] = useState(false);
 
-  // derived from userSubExtend — no need for separate state
-  const current = userSubExtend?.pdfDownloadCount ?? 0;
-  const max = userSubExtend?.maxPdfDownloadCount ?? 0;
-
   useEffect(() => {
     if (open) {
       setAllDaysFetched(false);
@@ -81,6 +75,8 @@ const TripPdfForm = ({
     setIsDownLoading(true);
 
     try {
+      await usersService.isMember();
+
       enqueueSnackbar("Generating the PDF may take a few minutes.", {
         variant: "info",
       });
@@ -88,15 +84,13 @@ const TripPdfForm = ({
       const pdf = new jsPDF("p", "mm", "a4");
       const pages = document.querySelectorAll(".pdf-page");
 
-      console.log(document.styleSheets.length);
-
       // then add to PDF sequentially
       for (let i = 0; i < pages.length; i++) {
         const pageEl = pages[i] as HTMLElement;
 
         const dataUrl = await toPng(pageEl, {
-          quality: 0.85,
-          pixelRatio: 1.25,
+          quality: 1,
+          pixelRatio: 2,
           skipFonts: true,
           fetchRequestInit: {
             cache: "force-cache", // use cached resources instead of re-fetching
@@ -132,26 +126,13 @@ const TripPdfForm = ({
         });
       }
 
-      setIsDownLoading(false);
-
-      await usersService.generatePdf();
       pdf.save(`${trip?.title ?? "trip"}.pdf`);
-
-      if (userSubExtend) {
-        dispatch(
-          setUser({
-            userSubExtend: {
-              ...userSubExtend,
-              pdfDownloadCount: userSubExtend.pdfDownloadCount + 1,
-            },
-          }),
-        );
-      }
     } catch (e) {
       if (e instanceof Error) enqueueSnackbar(e.message, { variant: "error" });
-      setIsDownLoading(false);
-      return;
     }
+
+    setIsDownLoading(false);
+    onClose();
   }, [trip, userSubExtend, dispatch]);
 
   const dayPages = useMemo(
@@ -184,10 +165,8 @@ const TripPdfForm = ({
       panel
     >
       <Box className="column">
-        <ProgressBar current={current} max={max} object="PDFs" />
         <Box className="pdf-pages-box">
           <OverviewPdfPage
-            key={geoMarkers?.length}
             trip={trip}
             markers={geoMarkers}
           />

@@ -126,8 +126,6 @@ const DayOverviewComponent = ({
   const handleClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement>, dayId: number, i: number) => {
       e.preventDefault();
-      e.currentTarget.blur();
-      e.currentTarget.focus({preventScroll: true});
 
       if (focusId !== dayId) {
         setFocusId(dayId);
@@ -175,52 +173,51 @@ const DayOverviewComponent = ({
 
   return (
     <React.Fragment>
-      {days.length > 0 ? (
-        <React.Fragment>
-          <Box className="row full">
-            <Typography className="trip-profile-day-overview-comp-header">
-              Overview
-            </Typography>
-            {/* add/delete day button */}
-            {!readonly && (
-              <Box className="row right">
-                <ToolTip title="Add new day" offsetY={-8}>
-                  <Box>
-                    <TTIconButton size="small" onClick={handlePostDay} noBorder>
-                      <AddIcon fontSize="small" />
-                    </TTIconButton>
-                  </Box>
-                </ToolTip>
-                <Divider orientation="vertical" variant="middle" flexItem />
-                <ToolTip title="Delete day" offsetY={-8}>
-                  <Box>
-                    <TTIconButton
-                      size="small"
-                      onClick={handleDeleteMode}
-                      noBorder
-                    >
-                      <RemoveIcon fontSize="small" />
-                    </TTIconButton>
-                  </Box>
-                </ToolTip>
-              </Box>
-            )}
-          </Box>
-          <Grid container columns={!isMobile ? 12 : 6} spacing={2}>
-            {days.map((day, i) => (
-              <DayOverviewItem
-                key={day.id}
-                day={day}
-                index={i}
-                focusId={focusId}
-                onClick={handleClick}
-                deleteMode={deleteMode}
-                onDeleteClick={handleDeleteDay}
-              />
-            ))}
-          </Grid>
-        </React.Fragment>
-      ) : undefined}
+      <React.Fragment>
+        <Box className="row full">
+          <Typography className="trip-profile-day-overview-comp-header">
+            Overview
+          </Typography>
+          {/* add/delete day button */}
+          {!readonly && (
+            <Box className="row right">
+              <ToolTip title="Add new day" offsetY={-8}>
+                <Box>
+                  <TTIconButton size="small" onClick={handlePostDay} noBorder>
+                    <AddIcon fontSize="small" />
+                  </TTIconButton>
+                </Box>
+              </ToolTip>
+              <Divider orientation="vertical" variant="middle" flexItem />
+              <ToolTip title="Delete day" offsetY={-8}>
+                <Box>
+                  <TTIconButton
+                    size="small"
+                    onClick={handleDeleteMode}
+                    noBorder
+                  >
+                    <RemoveIcon fontSize="small" />
+                  </TTIconButton>
+                </Box>
+              </ToolTip>
+            </Box>
+          )}
+        </Box>
+        <Grid container columns={!isMobile ? 12 : 6} spacing={2}>
+          {days.map((day, i) => (
+            <DayOverviewItem
+              key={day.id}
+              day={day}
+              index={i}
+              focusId={focusId}
+              onClick={handleClick}
+              deleteMode={deleteMode}
+              onDeleteClick={handleDeleteDay}
+            />
+          ))}
+        </Grid>
+      </React.Fragment>
+
       {openDeleteDayForm && (
         <DeleteDayForm
           open

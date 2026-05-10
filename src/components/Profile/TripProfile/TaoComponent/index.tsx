@@ -228,7 +228,7 @@ const TaoComponent = ({
           if (routeResponses && taoIndex) {
             const newRouteResponses = [...routeResponses];
             newRouteResponses[taoIndex - 1] = updatedRouteResponse;
-            routeResponsesMapRef.current.set(tao.dayId, routeResponses);
+            routeResponsesMapRef.current.set(tao.dayId, newRouteResponses);
             setRouteResponses(newRouteResponses);
           }
         } catch (e) {

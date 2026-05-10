@@ -19,10 +19,11 @@ const ImageSelector = React.lazy(() => import("@components/ImageSelector"));
 
 type TripHeaderProps = {
   trip: Trip | undefined;
+  setTrip: (value: React.SetStateAction<Trip | undefined>) => void;
   readonly: boolean;
 };
 
-const TripHeader = ({ trip, readonly }: TripHeaderProps) => {
+const TripHeader = ({ trip, setTrip, readonly }: TripHeaderProps) => {
   // window
   const isMobile = useIsMobile();
   // open image form
@@ -65,28 +66,46 @@ const TripHeader = ({ trip, readonly }: TripHeaderProps) => {
           imageId,
         );
         setImages((prev) => [...prev, image]);
+        setTrip((prev) =>
+          prev ? { ...prev, images: [...(prev.images ?? []), image] } : prev,
+        );
       }
     },
-    [trip],
+    [trip, setTrip],
   );
 
   const asyncDetachImage = useCallback(
     (imageId: number) => {
-      let _images = images.filter((i) => i.id !== imageId);
-      setImages([..._images]);
+      setImages((prev) => prev.filter((i) => i.id !== imageId));
+      setTrip((prev) =>
+        prev
+          ? {
+              ...prev,
+              images: (prev.images ?? []).filter((i) => i.id !== imageId),
+            }
+          : prev,
+      );
     },
-    [images],
+    [setTrip],
   );
 
   const asyncUpdateImage = useCallback(
     (image: Image) => {
-      var _images = [...images];
-      let imageIndex = images.findIndex((img) => img.id === image.id);
-      images[imageIndex] = image;
-
-      setImages(_images);
+      setImages((prev) =>
+        prev.map((img) => (img.id === image.id ? image : img)),
+      );
+      setTrip((prev) =>
+        prev
+          ? {
+              ...prev,
+              images: (prev.images ?? []).map((img) =>
+                img.id === image.id ? image : img,
+              ),
+            }
+          : prev,
+      );
     },
-    [images, setImages],
+    [setTrip],
   );
 
   // handle functions

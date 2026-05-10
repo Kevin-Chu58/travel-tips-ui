@@ -63,8 +63,7 @@ const NameComponent = ({
             regionId,
           );
 
-          setRegionTag(completeRegion);
-
+          setRegionTag(regionId ? completeRegion : undefined);
           enqueueSnackbar("Region tag updated.", { variant: "success" });
         }
       } catch (e) {

@@ -4,17 +4,19 @@ import { Box, Button, Skeleton, Typography } from "@mui/material";
 import { tripsService, type Trip, type TripPatch } from "@services/trips";
 import { enqueueSnackbar } from "notistack";
 import React, { Suspense, useCallback, useEffect, useState } from "react";
-import "./index.scss";
 import MarkdownBox from "@components/MarkdownBox";
+import "./index.scss";
 
 type DescriptionComponentProps = {
   trip: Trip | undefined;
+  setTrip: (value: React.SetStateAction<Trip | undefined>) => void;
   isLoading: boolean;
   readonly?: boolean;
 };
 
 const DescriptionComponent = ({
   trip,
+  setTrip,
   isLoading,
   readonly = false,
 }: DescriptionComponentProps) => {
@@ -41,7 +43,6 @@ const DescriptionComponent = ({
     const trimmedDescription = description?.trim();
     if (trip.description === trimmedDescription) {
       setIsEditingDescription(false);
-      setDescription(trip.description);
       return;
     }
 
@@ -49,6 +50,8 @@ const DescriptionComponent = ({
       let tripPatch = { description: trimmedDescription } as TripPatch;
       tripPatch = await tripsService.patchTrip(trip.id, tripPatch);
 
+      if (trip)
+        setTrip((prev) => ({ ...prev!, description: tripPatch.description }));
       setIsEditingDescription(false);
     } catch (e) {
       if (e instanceof Error) enqueueSnackbar(e.message, { variant: "error" });

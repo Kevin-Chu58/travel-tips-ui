@@ -11,7 +11,6 @@ import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 import type { Tao } from "@services/taos";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import type { UtilityItem } from "@constants/Types";
-import { usersService } from "@services/users";
 import clsx from "clsx";
 import "./index.scss";
 
@@ -19,9 +18,7 @@ type FabComponentProps = {
   trip: Trip | undefined;
   tao: Tao | undefined;
   isOverview: boolean;
-  setOpenForm: React.Dispatch<
-    React.SetStateAction<"share" | "pdf" | null>
-  >;
+  setOpenForm: React.Dispatch<React.SetStateAction<"share" | "pdf" | null>>;
   isRestricted?: boolean;
   readonly?: boolean;
 };
@@ -81,12 +78,7 @@ const FabComponent = ({
   }, [trip]);
 
   const handleTripPdfClick = useCallback(async () => {
-    try {
-      await usersService.isMember();
-      setOpenForm("pdf");
-    } catch (e) {
-      if (e instanceof Error) enqueueSnackbar(e.message, { variant: "error" });
-    }
+    setOpenForm("pdf");
   }, [setOpenForm]);
 
   const handleOpenShare = useCallback(

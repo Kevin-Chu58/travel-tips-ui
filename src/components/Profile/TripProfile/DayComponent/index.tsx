@@ -14,9 +14,9 @@ import TTIconButton from "@components/TTIconButton";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import TaoForm from "@components/Forms/TaoForm";
+import DeleteTaoForm from "@components/Forms/DeleteTaoForm";
 import clsx from "clsx";
 import "./index.scss";
-import DeleteTaoForm from "@components/Forms/DeleteTaoForm";
 
 type DayComponentProps = {
   day: Day | undefined;

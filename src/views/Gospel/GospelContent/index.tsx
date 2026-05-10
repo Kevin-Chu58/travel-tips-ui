@@ -506,13 +506,13 @@ const GospelContent = ({ setIsHidden }: GospelContentProps) => {
           <Box className="column gap">
             {youTubeFeed.map((channel) => (
               <Box key={channel.id} className="column gap">
-                <Link
-                  className="channel-box-link"
-                  to={`https://www.youtube.com/${channel?.customUrl}`}
-                  target="_blank"
-                  rel="noopener"
-                >
-                  <Box className="row channel-box">
+                <Box className="row channel-box">
+                  <Link
+                    className="channel-box-link"
+                    to={`https://www.youtube.com/${channel?.customUrl}`}
+                    target="_blank"
+                    rel="noopener"
+                  >
                     <Avatar
                       src={channel.thumbnailUrl}
                       sx={{ width: 56, height: 56 }}
@@ -521,8 +521,8 @@ const GospelContent = ({ setIsHidden }: GospelContentProps) => {
                       <Typography variant="h6">{channel.title}</Typography>
                       <Typography color="info">{channel.customUrl}</Typography>
                     </Box>
-                  </Box>
-                </Link>
+                  </Link>
+                </Box>
                 <Box className="row start gap videos-box no-scrollbar">
                   {channel.videos.map((video) => (
                     <Link
