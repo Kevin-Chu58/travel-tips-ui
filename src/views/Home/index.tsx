@@ -34,9 +34,9 @@ import BannerCard from "@components/Cards/BannerCard";
 import Slide from "@components/Profile/Slide";
 import { adsService, type Ad } from "@services/feed/ads";
 import AdCard from "@components/Cards/AdCard";
+import { getRandomDefaultAd } from "@constants/Defaults";
 import clsx from "clsx";
 import "./index.scss";
-import { getRandomDefaultAd } from "@constants/Defaults";
 
 type TripResult = Trip & {
   type: "trip";
@@ -201,7 +201,7 @@ const Home = () => {
     const fetchedAds = await Promise.all(adPromises);
 
     // Replace undefined ads with a random default ad to display
-    const validAds = fetchedAds.map((ad) => ad ?? getRandomDefaultAd());
+    const validAds = fetchedAds.map((ad) => ad || getRandomDefaultAd());
 
     // Interleave them
     const combined: Result[] = [];

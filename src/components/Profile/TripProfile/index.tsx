@@ -296,7 +296,10 @@ const TripProfile = ({ readonly = false }: TripProfileProps) => {
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         if (descriptionScrollRef.current) {
-          descriptionScrollRef.current.scrollTop = scrollTop;
+          descriptionScrollRef.current?.scrollTo({
+            top: scrollTop,
+            behavior: "instant",
+          });
         }
       });
     });

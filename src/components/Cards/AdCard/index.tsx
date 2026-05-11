@@ -20,6 +20,8 @@ const AdCard = ({
 }: AdCardProps) => {
   if (!ad && hideUndefined) return;
 
+  // console.log(ad);
+
   const imageSection = (
     <Box className="image-box">
       {ad?.picture ? (
