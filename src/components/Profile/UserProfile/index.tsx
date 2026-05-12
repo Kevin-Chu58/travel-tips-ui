@@ -1,4 +1,11 @@
-import { Box, Chip, CircularProgress, Grid, Typography } from "@mui/material";
+import {
+  Box,
+  Chip,
+  CircularProgress,
+  Grid,
+  IconButton,
+  Typography,
+} from "@mui/material";
 import { usersService, type UserProfileBasic } from "@services/users";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import { enqueueSnackbar } from "notistack";
@@ -13,15 +20,17 @@ import type { RootState } from "@redux/store";
 import { FaCrown } from "react-icons/fa";
 import ToolTip from "@components/ToolTip";
 import { setUser as setUserSlice } from "@redux/userSlice";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { tripsService, type Trip } from "@services/trips";
 import TripCard from "@components/Cards/TripCard";
 import { useNavigate } from "react-router";
 import FollowerChip from "./FollowerChip";
 import UserAvatar from "@components/UserAvatar";
 import { goToLoginPortal } from "@services/tokens";
+import EditIcon from "@mui/icons-material/Edit";
 import clsx from "clsx";
 import "./index.scss";
+import UsernameForm from "@components/Forms/UsernameForm";
 
 // lazy load
 const ImageSelector = React.lazy(() => import("@components/ImageSelector"));
@@ -40,13 +49,18 @@ const UserProfile = ({ user, setUser }: UserProfileProps) => {
   const _user = useSelector((state: RootState) => state.user);
   // top 5 bookmarked trips
   const [topTrips, setTopTrips] = useState<Trip[]>([]);
+  // open form
+  const [openUsernameForm, setOpenUsernameForm] = useState<boolean>(false);
   // behavior
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   // others
   const navigate = useNavigate();
-  const hasRole = user?.isWriter || user?.isAdmin;
-  const isMe = user?.id !== undefined && user?.id === _user.id;
+  const hasRole = useMemo(() => user?.isWriter || user?.isAdmin, [user]);
+  const isMe = useMemo(
+    () => user?.id !== undefined && user?.id === _user.id,
+    [user, _user],
+  );
 
   const _numTrips = user?.numTrips ?? 0;
   const _numBookmarks = user?.numBookmarks ?? 0;
@@ -84,6 +98,18 @@ const UserProfile = ({ user, setUser }: UserProfileProps) => {
 
     const delta = trip.isBookmarked ? 1 : -1;
     asyncUpdateUser({ numBookmarks: user!.numBookmarks + delta });
+  };
+
+  const asyncUpdateUsername = (username: string) => {
+    let _topTrips = topTrips.map((trip) => ({
+      ...trip,
+      createdBy: { ...trip.createdBy, username: username },
+    }));
+
+    setTopTrips(_topTrips);
+
+    asyncUpdateUser({ username: username });
+    dispatch(setUserSlice({ username: username }));
   };
 
   // handle functions
@@ -131,6 +157,14 @@ const UserProfile = ({ user, setUser }: UserProfileProps) => {
     }
   };
 
+  const handleOpenUsernameForm = useCallback(() => {
+    setOpenUsernameForm(true);
+  }, [setOpenUsernameForm]);
+
+  const handleCloseUsernameForm = useCallback(() => {
+    setOpenUsernameForm(false);
+  }, [setOpenUsernameForm]);
+
   const handleChangeInfo = async () => {
     await goToLoginPortal();
   };
@@ -159,12 +193,25 @@ const UserProfile = ({ user, setUser }: UserProfileProps) => {
           ) : undefined}
         </Box>
         <Box className="column">
-          <Typography
-            className={clsx("username", isMobile && "mobile")}
-            variant={isMobile ? "body1" : "h5"}
-          >
-            {user?.username}
-          </Typography>
+          <Box className={clsx("row gap username-box", isMobile && "mobile")}>
+            <Typography
+              className="username"
+              variant={isMobile ? "body1" : "h5"}
+            >
+              {user?.username}
+            </Typography>
+            {isMe && (
+              <ToolTip title="Edit Name" offsetY={-8}>
+                <IconButton
+                  className="edit-name-icon-button"
+                  size="small"
+                  onClick={handleOpenUsernameForm}
+                >
+                  <EditIcon />
+                </IconButton>
+              </ToolTip>
+            )}
+          </Box>
           {/* user role */}
           {hasRole ? (
             <Box className="row wrap">
@@ -281,6 +328,14 @@ const UserProfile = ({ user, setUser }: UserProfileProps) => {
           </Box>
         )}
       </Box>
+
+      {/* forms */}
+      <UsernameForm
+        open={openUsernameForm}
+        onClose={handleCloseUsernameForm}
+        username={user.username}
+        asyncUsername={asyncUpdateUsername}
+      />
     </Box>
   );
 };

@@ -95,6 +95,15 @@ const getUserBasicInfo = async (): Promise<UserBasic> => {
   return await http.get(http.apiBaseURLs.api, "users/me", undefined);
 };
 
+const updateUsername = async (username: string): Promise<string> => {
+  return await http.patch(
+    http.apiBaseURLs.api,
+    `users/me/username/${username}`,
+    undefined,
+    undefined,
+  );
+};
+
 const acceptUserAgreement = async (): Promise<boolean> => {
   return await http.patch(
     http.apiBaseURLs.api,
@@ -203,6 +212,7 @@ export const usersService = {
   getUserByUserId,
   getUsersByUsername,
   getUserBasicInfo,
+  updateUsername,
   acceptUserAgreement,
   // user profile
   getUserProfile,

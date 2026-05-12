@@ -15,21 +15,20 @@ import React, { useState } from "react";
 import { useLocation } from "react-router";
 import Pages from "@constants/Pages";
 import TLogo from "@assets/T.svg";
-import TBoard from "@assets/TT_Board.svg";
 import Layouts from "@constants/Layouts";
 import { useIsMobile } from "@hooks/useIsMobile";
 import { login, logout } from "@services/tokens";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
-import LocalActivityIcon from '@mui/icons-material/LocalActivity';
+import LocalActivityIcon from "@mui/icons-material/LocalActivity";
 import { useSelector } from "react-redux";
 import type { RootState } from "@redux/store";
 import UserAvatar from "@components/UserAvatar";
 import type { HeaderTab, NavTab } from "@constants/Types";
 import AccountBoxIcon from "@mui/icons-material/AccountBox";
 import ViewCarouselIcon from "@mui/icons-material/ViewCarousel";
-import HandshakeIcon from '@mui/icons-material/Handshake';
-import ReviewsIcon from '@mui/icons-material/Reviews';
+import HandshakeIcon from "@mui/icons-material/Handshake";
+import ReviewsIcon from "@mui/icons-material/Reviews";
 // import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 // import ArticleIcon from '@mui/icons-material/Article';
 // import TokenIcon from '@mui/icons-material/Token';
@@ -183,27 +182,17 @@ const HeaderBar = () => {
     <AppBar key="app-bar" className={`app-bar ${onPage}`}>
       <Container maxWidth={false} disableGutters>
         <Toolbar disableGutters sx={{ height: Layouts.Header }}>
-          {/* main page - board */}
-          {onPage === Pages.Main && !isMobile && (
-            <Box className="app-bar-board-container">
-              <img className="app-bar-board" src={TBoard} />
+          <Box className="app-bar-icon">
+            <Box className="app-bar-icon-container">
+              <Link className="app-bar-icon-link" href={"/"} underline="none">
+                <img
+                  className="app-bar-icon-svg"
+                  src={TLogo}
+                  alt="TravelTips"
+                />
+              </Link>
             </Box>
-          )}
-
-          {/* not main page - icon */}
-          {onPage !== Pages.Main && (
-            <Box className="app-bar-icon">
-              <Box className="app-bar-icon-container">
-                <Link className="app-bar-icon-link" href={"/"} underline="none">
-                  <img
-                    className="app-bar-icon-svg"
-                    src={TLogo}
-                    alt="TravelTips"
-                  />
-                </Link>
-              </Box>
-            </Box>
-          )}
+          </Box>
 
           {/* headers */}
           {!isLoading ? (
@@ -247,7 +236,10 @@ const HeaderBar = () => {
               </Box>
             ) : (
               <Box
-                className={clsx("app-bar-headers-container", onPage === Pages.Main && "main")}
+                className={clsx(
+                  "app-bar-headers-container",
+                  onPage === Pages.Main && "main",
+                )}
               >
                 {headers.map(
                   (header, i) =>

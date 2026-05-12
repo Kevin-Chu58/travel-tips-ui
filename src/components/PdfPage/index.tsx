@@ -16,7 +16,7 @@ const DefaultHeader = (
     <Link className="app-bar-icon-link" underline="none">
       <img className="icon-svg" src={TLogo} alt="TravelTips" />
     </Link>
-    <Typography variant="caption">TravelTips</Typography>
+    <Typography variant="caption">TravelTipsGo</Typography>
   </Box>
 );
 

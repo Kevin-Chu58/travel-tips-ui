@@ -110,10 +110,14 @@ body {
   margin: 0;
   display: flex;
   min-width: 320px;
+  max-width: 100vw;
+  max-height: 100dvh;
   height: 100dvh;
+}
 
-  // overflow-y: auto;
+#root {
   overflow-x: hidden;
+  overflow-y: auto;
 }
 
 // custom styled typography - TODO
@@ -174,12 +178,44 @@ span.helper {
 
 // custom box
 
+.bold {
+  font-weight: bold;
+}
+
+.font-lily {
+  font-family: lily script one;
+}
+
+.font-sora {
+  font-family: sora;
+}
+
 .primary {
   color: var(--primary-main);
 }
 
 .info {
   color: var(--info-main);
+}
+
+.success {
+  color: var(--success-main);
+}
+
+.warning {
+  color: var(--warning-main);
+}
+
+.error {
+  color: var(--error-main);
+}
+
+.region {
+  color: var(--region-main);
+}
+
+.white {
+  color: white;
 }
 
 .primary-bg {
@@ -235,6 +271,10 @@ span.helper {
     .MuiSvgIcon-root {
       fill: var(--primary-main);
     }
+  }
+
+  &.text-center {
+    text-align: center;
   }
 
   &.no-gap {

@@ -1,37 +1,57 @@
 @use "../../stylings/box_shadows" as *;
 @use "../../stylings/layout" as *;
+@use "../../stylings/color" as *;
 
 .main-page-container {
   margin: 0;
   padding: 0;
   margin-top: -4rem;
+  max-height: 100dvh;
+  overflow-x: hidden;
+  overflow-y: auto;
+
+  .main-page-section {
+    min-height: 80dvh;
+    width: 100vw;
+  }
+
+  .section-content {
+    min-height: 80dvh;
+    padding: 4rem 2rem;
+  }
 
   .main-page-content-container {
     height: 100dvh;
     width: 100vw;
     position: relative;
-    background-image: url("https://firebasestorage.googleapis.com/v0/b/traveltips-imagestore.firebasestorage.app/o/assets%2Falone.png?alt=media&token=a3196a61-62d5-4d57-a20a-7af80d901d7d");
+    background-image: url("https://firebasestorage.googleapis.com/v0/b/traveltips-imagestore.firebasestorage.app/o/assets%2Flaketown.jpg?alt=media&token=d7df9a65-7d00-43d8-9e5f-7dc0613536a9");
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
   }
 
   .main-page-slogan-container {
-    width: 100%;
     display: flex;
     flex-direction: column;
     flex-wrap: wrap;
     position: absolute;
     text-align: end;
+    text-shadow: $heavy-box-shadow;
+    background-color: color-mix(in srgb, var(--utility-900), transparent 20%);
+    backdrop-filter: blur(2px);
+    padding: 1rem 3rem;
+    border-radius: 2rem;
     right: 4rem;
-    top: 20rem;
+    top: 18rem;
 
     &.mobile {
-      right: auto;
+      left: 2rem;
+      right: 2rem;
       top: auto;
       bottom: 13rem;
       text-align: initial;
       align-items: center;
+      margin: 0 auto;
     }
   }
 
@@ -49,6 +69,133 @@
 
   .main-page-slogan-highlight.MuiTypography-root {
     margin-bottom: 1rem;
-    color: var(--primary-main);
+    color: var(--primary-500);
+  }
+
+  .slogan-button.MuiButton-root {
+    font-weight: bold;
+  }
+
+  .section-helper.MuiTypography-root {
+    max-width: 800px;
+    background: $info-gradient-right;
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .surprise-trip {
+
+    .surprise-trip-image {
+      width: 240px;
+      height: 300px;
+      object-fit: cover;
+      object-position: center;
+      border-radius: 1rem;
+      box-shadow: $heavy-box-shadow;
+    }
+
+    .surprise-trip-card:first-child {
+      transform: rotate(-5deg);
+      margin-top: 2rem;
+    }
+
+    .surprise-trip-card:nth-child(2) {
+      margin: 0 2rem;
+    }
+
+    .surprise-trip-card:last-child {
+      transform: rotate(5deg);
+      margin-top: 2rem;
+    }
+
+    .surprise-trip-cards.mobile {
+      flex-wrap: wrap;
+
+      .surprise-trip-card {
+        transform: none;
+        margin: 0;
+      }
+    }
+  }
+
+  .no-tracking-cookies {
+    background-color: var(--utility-800);
+
+    .expect-cookie-list {
+      margin: 4rem 0;
+    }
+  }
+
+  .core-feature {
+    .feature-cards {
+      max-width: 1200px;
+      margin: 4rem 0;
+      gap: 4rem;
+    }
+
+    .feature-card {
+      width: 300px;
+      // height: 320px;
+      background-color: var(--utility-50);
+      border-radius: 1rem;
+      padding: 2rem;
+      box-shadow: $mild-box-shadow;
+
+      svg {
+        width: 2rem;
+        height: 2rem;
+      }
+    }
+  }
+
+  .christian-values {
+    background-color: var(--secondary-main);
+
+    .value-cards {
+      max-width: 1200px;
+      margin: 4rem 0;
+      gap: 4rem;
+    }
+
+    .value-card {
+      max-width: 500px;
+    }
+
+    .value-header {
+      width: fit-content;
+      margin: 0 auto;
+      padding: 0 1rem;
+      margin-bottom: -1.7rem;
+      background-color: var(--secondary-main);
+      z-index: 10;
+
+      .MuiTypography-root {
+        padding: .5rem;
+        color: white;
+        background-color: var(--primary-main);
+        border-radius: 1rem;
+      }
+    }
+    
+    .value-content {
+      padding: 2rem;
+      border: .3rem black solid;
+      border-radius: 2rem;
+      min-height: 220px;
+    }
+  }
+
+  .made-for-you {
+    .for-you-cards {
+      max-width: 1200px;
+      margin: 4rem 0;
+      gap: 4rem;
+    }
+
+    .for-you-card {
+      max-width: 300px;
+    }
   }
 }

@@ -28,9 +28,9 @@
       );
     }
 
-    .app-bar-icon {
-      display: none;
-    }
+    // .app-bar-icon {
+    //   display: none;
+    // }
   }
 
   .app-bar-board-container {
@@ -89,10 +89,6 @@
     display: flex;
     flex-direction: row;
     align-items: center;
-    
-    &.main {
-      margin-left: 2rem;
-    }
 
     &.mobile {
       margin-left: 1rem;
