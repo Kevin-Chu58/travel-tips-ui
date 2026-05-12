@@ -270,7 +270,7 @@ const PrivacyPolicyProfile = ({
           your rights, contact us at:
           <br />
           <br />
-          (business not registered yet)
+          TravelTipsGo LLC (forming)
           <br />
           <b>Email:</b> kaiwen.chu58@gmail.com
         </Typography>

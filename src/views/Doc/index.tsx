@@ -74,9 +74,9 @@ const Doc = () => {
       </Box>
 
       {/* Guide */}
-      <Typography className="section-header" variant="h5">
+      {/* <Typography className="section-header" variant="h5">
         Guide
-      </Typography>
+      </Typography> */}
       {/* <Box className="content-box">
         {guideSection.map((sec) => (
           <Box

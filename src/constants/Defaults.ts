@@ -24,13 +24,13 @@ export const ads = [
     title: "Partner with us!",
     imageId: 47,
     text: "Promote your business",
-    linkLabel: "Subscribe!",
+    linkLabel: "Join Now",
     link: "https://www.google.com",
     picture:
       "https://firebasestorage.googleapis.com/v0/b/traveltips-imagestore.firebasestorage.app/o/assets%2FDefaultAds%2Fdefault_ads_2.jpeg?alt=media&token=9ec1b2a8-40a9-42d1-8415-29c8451ee85b",
     subStatus: "active",
     status: "active",
-    templateId: 1,
+    templateId: 2,
     renewSub: true,
   },
 ] as Ad[];

@@ -83,10 +83,10 @@
     -webkit-background-clip: text;
     color: transparent;
     -webkit-text-fill-color: transparent;
+    filter: brightness(1.5);
   }
 
   .surprise-trip {
-
     .surprise-trip-image {
       width: 240px;
       height: 300px;
@@ -172,16 +172,16 @@
       z-index: 10;
 
       .MuiTypography-root {
-        padding: .5rem;
+        padding: 0.5rem;
         color: white;
         background-color: var(--primary-main);
         border-radius: 1rem;
       }
     }
-    
+
     .value-content {
       padding: 2rem;
-      border: .3rem black solid;
+      border: 0.3rem black solid;
       border-radius: 2rem;
       min-height: 220px;
     }
@@ -196,6 +196,54 @@
 
     .for-you-card {
       max-width: 300px;
+    }
+  }
+
+  .ad-platform {
+    color: white;
+    background-color: color-mix(in srgb, var(--utility-900), var(--info-900));
+
+    .ad-platform-cards {
+      max-width: 1200px;
+      margin: 4rem 0;
+      gap: 4rem;
+    }
+
+    .ad-platform-card {
+      max-width: 350px;
+      background: $info-gradient-right;
+      padding: 2rem;
+      border-radius: 2rem;
+      box-shadow: $box-shadow;
+    }
+
+    .step-cards {
+      max-width: 350px;
+      align-items: start;
+      margin: 4rem 0;
+      gap: 4rem;
+    }
+
+    .step-card {
+      max-width: 300px;
+    }
+
+    .ad-examples {
+      padding: 4rem 0;
+
+      .ad-card-box {
+        width: 240px;
+        box-shadow: 0px 0px 30px 8px var(--info-main);
+      }
+
+      .ad-card-box:first-child {
+        transform: rotate(-5deg);
+      }
+      .ad-card-box:last-child {
+        transform: rotate(3deg);
+        margin-left: -1rem;
+        margin-top: -1rem;
+      }
     }
   }
 }

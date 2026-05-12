@@ -22,6 +22,8 @@ import {
 } from "react-icons/sl";
 import clsx from "clsx";
 import "./index.scss";
+import { ads } from "@constants/Defaults";
+import AdCard from "@components/Cards/AdCard";
 
 const Main = () => {
   // window
@@ -130,8 +132,8 @@ const Main = () => {
             </Box>
             <Box className="column section text-center">
               <Typography className="bold font-sora section-helper">
-                "Share your trip with trusted people. Hide destination from
-                everyone else."
+                Share your trip with trusted people. Hide destination from
+                everyone else.
               </Typography>
             </Box>
           </Box>
@@ -155,8 +157,8 @@ const Main = () => {
               </Typography>
             </Box>
             <Box className="column section text-center">
-              <Typography className="info bold font-sora">
-                "Built by someone who hates ads too.."
+              <Typography className="info bold font-sora section-helper">
+                Built by someone who hates ads too..
               </Typography>
             </Box>
           </Box>
@@ -261,7 +263,7 @@ const Main = () => {
             </Box>
             <Box className="column section text-center">
               <Typography className="bold font-sora section-helper">
-                "Simple pricing. No hidden fees. No data games."
+                Simple pricing. No hidden fees. No data games.
               </Typography>
               <TTButton
                 onClick={() => navigate("/membership")}
@@ -321,7 +323,7 @@ const Main = () => {
             </Box>
             <Box className="column section text-center">
               <Typography className="bold font-sora section-helper">
-                "Travel intentionally. Live purposefully."
+                Travel intentionally. Live purposefully.
               </Typography>
             </Box>
           </Box>
@@ -400,7 +402,7 @@ const Main = () => {
             </Box>
             <Box className="column section text-center">
               <Typography className="bold font-sora section-helper">
-                "Whoever you are — you travel your way here."
+                Whoever you are — you travel your way here.
               </Typography>
             </Box>
           </Box>
@@ -412,6 +414,107 @@ const Main = () => {
             <Typography className="bold font-sora" variant="h3">
               Promote Your Business
             </Typography>
+            <Box className="row center wrap ad-platform-cards">
+              <Box className="column gap-large ad-platform-card">
+                <Box className="column center text-center">
+                  <Typography className="bold font-sora" variant="h3">
+                    ⚖️
+                  </Typography>
+                  <Typography className="bold font-sora" variant="h5">
+                    Fair & Transparent
+                  </Typography>
+                </Box>
+                <Typography className="font-sora">
+                  Purchase ad weight on the search parameters that matter to
+                  your business. More weight means more visibility — simple,
+                  honest, no auction games.
+                </Typography>
+              </Box>
+              <Box className="column gap-large ad-platform-card">
+                <Box className="column center text-center">
+                  <Typography className="bold font-sora" variant="h3">
+                    🎯
+                  </Typography>
+                  <Typography className="bold font-sora" variant="h5">
+                    Context-Based Targeting
+                  </Typography>
+                </Box>
+                <Typography className="font-sora">
+                  Your ad appears when travelers are actively planning trips in
+                  your region and budget range. No behavioral profiling. No
+                  creepy retargeting. Just the right moment.
+                </Typography>
+              </Box>
+              <Box className="column gap-large ad-platform-card">
+                <Box className="column center text-center">
+                  <Typography className="bold font-sora" variant="h3">
+                    ✅
+                  </Typography>
+                  <Typography className="bold font-sora" variant="h5">
+                    Reviewed & Trusted
+                  </Typography>
+                </Box>
+                <Typography className="font-sora">
+                  Every business and ad is manually reviewed before going live.
+                  Your brand appears alongside content that shares your values —
+                  not just anything.
+                </Typography>
+              </Box>
+            </Box>
+            <Typography className="bold font-sora" variant="h3">
+              How it works
+            </Typography>
+            <Box className="column left center step-cards">
+              <Box className="column step-card">
+                <Typography className="info bold font-sora" variant="h4">
+                  Step 1
+                </Typography>
+                <Typography className="bold font-sora" variant="h6">
+                  Create your business profile
+                </Typography>
+              </Box>
+              <Box className="column step-card">
+                <Typography className="info bold font-sora" variant="h4">
+                  Step 2
+                </Typography>
+                <Typography className="bold font-sora" variant="h6">
+                  Purchase ad weight on your target parameters
+                  <br />
+                  e.g. region, budget, keyword, user
+                </Typography>
+              </Box>
+              <Box className="column step-card">
+                <Typography className="info bold font-sora" variant="h4">
+                  Step 3
+                </Typography>
+                <Typography className="bold font-sora" variant="h6">
+                  Appear naturally in relevant trip searches
+                </Typography>
+              </Box>
+            </Box>
+            <Typography className="bold font-sora" variant="h3">
+              Examples
+            </Typography>
+            <Box className="row center wrap ad-examples">
+              {ads.map((ad, i) => (
+                <AdCard key={i} ad={ad} />
+              ))}
+            </Box>
+            <TTButton
+              onClick={() => navigate("/partnership")}
+              color="info"
+              circular
+              disableRipple
+            >
+              Register your business →
+            </TTButton>
+            <Box className="column section text-center">
+              <Typography className="white bold font-sora section-helper">
+                Ad weights start at $10 each. Minimum 10 weights per target.
+                <br />
+                Premium pricing applies to high-demand regions.
+              </Typography>
+            </Box>
           </Box>
         </Box>
       </Box>
