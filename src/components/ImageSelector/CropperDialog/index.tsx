@@ -82,6 +82,10 @@ const CropperDialog = ({
       return;
     }
 
+    // Sync-capture the preview from the SAME canvas used for upload
+    // const dataUrl = canvas.toDataURL("image/jpeg");
+    // setPreview(dataUrl); // keep preview in sync
+
     canvas.toBlob(
       async (blob) => {
         if (!blob) return;
@@ -116,7 +120,7 @@ const CropperDialog = ({
         setIsLoading(false);
       },
       "image/jpeg",
-      0.7,
+      1,
     );
   }, [
     name,
@@ -133,7 +137,7 @@ const CropperDialog = ({
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       setName(e.target.value);
     },
-    [],
+    [setName],
   );
 
   return (
