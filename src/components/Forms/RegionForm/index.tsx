@@ -161,13 +161,13 @@ const RegionForm = ({
             color="region"
             onChange={handleCountryChange}
           >
-            <MenuItem className="region" value="">
+            <MenuItem className="region-menu-item" value="">
               <em>None</em>
             </MenuItem>
             {countries.map((country) => (
               <MenuItem
                 key={country.id}
-                className="region"
+                className="region-menu-item"
                 value={country.slug}
               >
                 {country.name}
