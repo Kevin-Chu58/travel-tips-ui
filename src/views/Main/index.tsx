@@ -30,6 +30,7 @@ import {
 import { ads } from "@constants/Defaults";
 import AdCard from "@components/Cards/AdCard";
 import XIcon from "@mui/icons-material/X";
+import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import clsx from "clsx";
 import "./index.scss";
 
@@ -87,7 +88,7 @@ const Main = () => {
             <Divider>
               <Chip label="Follow Us" color="utility" />
             </Divider>
-            <Box className="follow-us">
+            <Box className="row gap-large center follow-us">
               <Link
                 to="https://x.com/travel_tips_go"
                 target="_blank"
@@ -95,6 +96,15 @@ const Main = () => {
               >
                 <IconButton>
                   <XIcon />
+                </IconButton>
+              </Link>
+              <Link
+                to="https://www.linkedin.com/in/kaiwen-chu"
+                target="_blank"
+                rel="noopener"
+              >
+                <IconButton>
+                  <LinkedInIcon />
                 </IconButton>
               </Link>
             </Box>
