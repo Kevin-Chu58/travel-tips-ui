@@ -37,7 +37,7 @@
     position: absolute;
     text-align: end;
     text-shadow: $heavy-box-shadow;
-    background-color: color-mix(in srgb, var(--utility-900), transparent 30%);
+    background-color: color-mix(in srgb, var(--utility-900), transparent 40%);
     backdrop-filter: blur(2px);
     padding: 1rem 3rem;
     border-radius: 2rem;
@@ -88,6 +88,8 @@
   }
 
   .follow-us {
+    margin-top: .5rem;
+
     .MuiIconButton-root {
       color: white;
       background-color: var(--utility-900);
