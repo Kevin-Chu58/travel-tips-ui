@@ -37,12 +37,13 @@
     position: absolute;
     text-align: end;
     text-shadow: $heavy-box-shadow;
-    background-color: color-mix(in srgb, var(--utility-900), transparent 20%);
+    background-color: color-mix(in srgb, var(--utility-900), transparent 30%);
     backdrop-filter: blur(2px);
     padding: 1rem 3rem;
     border-radius: 2rem;
     right: 4rem;
     top: 18rem;
+    color: white;
 
     &.mobile {
       left: 2rem;
@@ -84,6 +85,14 @@
     color: transparent;
     -webkit-text-fill-color: transparent;
     filter: brightness(1.5);
+  }
+
+  .follow-us {
+    .MuiIconButton-root {
+      color: white;
+      background-color: var(--utility-900);
+      box-shadow: $heavy-box-shadow;
+    }
   }
 
   .surprise-trip {

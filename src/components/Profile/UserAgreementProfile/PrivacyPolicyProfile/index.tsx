@@ -40,7 +40,7 @@ const PrivacyPolicyProfile = ({
       <React.Fragment>
         {/* introduction */}
         <Typography>
-          <b>Last Updated:</b> 12/9/2025
+          <b>Last Updated:</b> 5/14/2026
         </Typography>
         <Typography className="content">
           TravelTips (“we”, “our” “us”) is committed to protecting your privacy.
@@ -189,7 +189,7 @@ const PrivacyPolicyProfile = ({
               Request a copy of your data in portable format (not deployed yet)
             </li>
           </ul>
-          To exercise any rights, contact us at: [email]
+          To exercise any rights, contact us at: Kaiwen.chu@traveltipsgo.com
         </Typography>
 
         {/* section 6 */}
@@ -270,9 +270,9 @@ const PrivacyPolicyProfile = ({
           your rights, contact us at:
           <br />
           <br />
-          TravelTipsGo LLC (forming)
+          TravelTipsGo LLC
           <br />
-          <b>Email:</b> kaiwen.chu58@gmail.com
+          <b>Email:</b> Kaiwen.chu@traveltipsgo.com
         </Typography>
       </React.Fragment>
     </UserAgreementBase>

@@ -93,6 +93,37 @@
     }
   }
 
+  .trip-feeds-box {
+    display: flex;
+    flex-direction: column;
+    margin: 2rem 0;
+    gap: 1rem;
+  }
+
+  .trip-feed-box {
+    max-width: 100vw;
+
+    .trip-feed-category {
+      padding: 0 1rem;
+    }
+
+    .trip-feed-trip-cards-box {
+      width: 100vw;
+      padding: 0 1rem;
+      gap: 2rem;
+      overflow-x: auto;
+    }
+
+    .trip-card-box {
+      width: 240px;
+
+      img.preload-carousel-image {
+        width: 242px !important;
+        height: 200px;
+      }
+    }
+  }
+
   .banner-box {
     max-width: 100vw;
     overflow: visible;

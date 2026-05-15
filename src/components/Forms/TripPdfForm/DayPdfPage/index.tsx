@@ -106,7 +106,7 @@ const DayPdfPage = React.memo(
                 </Typography>
                 <ArrowForwardIcon />
                 <Typography variant="body2">{tao.attraction.title}</Typography>
-                <Chip label={tao.transportMode} size="small" color="warning" />
+                <Chip label={tao.transportMode ?? "car"} size="small" color="warning" />
                 <NavButton link={googleRouteLink}>
                   <ReplyIcon className="jump-to-icon" />
                 </NavButton>

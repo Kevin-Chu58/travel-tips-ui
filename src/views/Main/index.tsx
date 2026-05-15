@@ -1,11 +1,18 @@
-import { Box, Container, Typography } from "@mui/material";
+import {
+  Box,
+  Chip,
+  Container,
+  Divider,
+  IconButton,
+  Typography,
+} from "@mui/material";
 import { useIsMobile } from "@hooks/useIsMobile";
 import TLogo from "@assets/T.svg";
 import TTButton from "@components/TTButton";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { useSelector } from "react-redux";
 import type { RootState } from "@redux/store";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { enqueueSnackbar } from "notistack";
 import {
   URL_SURPRISE_TRIP_BIRTHDAY,
@@ -20,10 +27,11 @@ import {
   SlMap,
   SlPeople,
 } from "react-icons/sl";
-import clsx from "clsx";
-import "./index.scss";
 import { ads } from "@constants/Defaults";
 import AdCard from "@components/Cards/AdCard";
+import XIcon from "@mui/icons-material/X";
+import clsx from "clsx";
+import "./index.scss";
 
 const Main = () => {
   // window
@@ -75,6 +83,20 @@ const Main = () => {
               >
                 Start planning free
               </TTButton>
+            </Box>
+            <Divider>
+              <Chip label="Follow Us" color="utility" />
+            </Divider>
+            <Box className="follow-us">
+              <Link
+                to="https://x.com/travel_tips_go"
+                target="_blank"
+                rel="noopener"
+              >
+                <IconButton>
+                  <XIcon />
+                </IconButton>
+              </Link>
             </Box>
           </Box>
         </Box>
