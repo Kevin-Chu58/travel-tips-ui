@@ -288,6 +288,17 @@ const removeBookmark = async (tripId: number): Promise<void> => {
   );
 };
 
+// trip feeds
+
+const getTripsByFeedCategory = async (category: string): Promise<Trip[]> => {
+  return await http.get(
+    http.apiBaseURLs.api,
+    `trips/feed/${category}`,
+    undefined,
+    undefined,
+  );
+};
+
 export const tripsService = {
   getTripsByParams,
   getMyTrips,
@@ -316,4 +327,6 @@ export const tripsService = {
   // bookmarks
   addBookmark,
   removeBookmark,
+  // trip feeds
+  getTripsByFeedCategory,
 };

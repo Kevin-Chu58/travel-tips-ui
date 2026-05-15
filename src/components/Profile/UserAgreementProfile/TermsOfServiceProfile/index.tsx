@@ -657,7 +657,7 @@ const TermsOfServiceProfile = ({
         <Typography variant="h6">18. Contact Us</Typography>
         <Typography className="content">
           If you have questions about these Terms, contact us at:
-          kaiwen.chu58@gmail.com
+          Kaiwen.chu@traveltipsgo.com
         </Typography>
       </React.Fragment>
     </UserAgreementBase>

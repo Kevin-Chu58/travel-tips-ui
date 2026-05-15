@@ -38,6 +38,8 @@ import { getRandomDefaultAd } from "@constants/Defaults";
 import clsx from "clsx";
 import "./index.scss";
 
+const tripFeedCategories = ["Editor's Choice"];
+
 type TripResult = Trip & {
   type: "trip";
 };
@@ -64,6 +66,8 @@ const Home = () => {
   const [completeRegion, setCompleteRegion] = useState<RegionComplete>({});
   // url
   const [searchParams, setSearchParams] = useSearchParams();
+  // trip feeds
+  const [tripFeeds, setTripFeeds] = useState<Trip[][]>([]);
   // infinite scrolling
   const containerRef = useRef<HTMLDivElement | null>(null);
   // behavior
@@ -131,6 +135,7 @@ const Home = () => {
   useEffect(() => {
     if (searchParams.size === 0 && isBannerInit.current) {
       initBanners();
+      initTripFeeds();
       isBannerInit.current = false;
     }
   }, [searchParams]);
@@ -138,6 +143,16 @@ const Home = () => {
   const initBanners = async () => {
     let banners = await bannersService.getPublicBanners();
     setBanners(banners);
+  };
+
+  const initTripFeeds = async () => {
+    const results = await Promise.all(
+      tripFeedCategories.map((category) =>
+        tripsService.getTripsByFeedCategory(category),
+      ),
+    );
+
+    setTripFeeds(results);
   };
 
   // search params on url
@@ -336,6 +351,32 @@ const Home = () => {
     },
   ];
 
+  const TripFeed = (category: string, trips: Trip[]) => {
+    return (
+      <Box
+        key={category}
+        className="column no-scrollbar gap-large trip-feed-box"
+      >
+        <Box className="trip-feed-category">
+          <Typography className="bold font-lily" color="primary" variant="h5">
+            {category}
+          </Typography>
+        </Box>
+        <Box className="row start gap-large trip-feed-trip-cards-box">
+          {trips.map((trip) => (
+            <TripCard
+              key={trip.id}
+              trip={trip}
+              onClick={() => navigate(`/trip/${trip.id}`)}
+              asyncUpdateTrip={asyncUpdateTrip}
+              readonly
+            />
+          ))}
+        </Box>
+      </Box>
+    );
+  };
+
   const Recommendation = () => {
     const bannerEles = banners.map((banner) => (
       <BannerCard key={banner.id} banner={banner} mobileView={isMobile} />
@@ -348,6 +389,9 @@ const Home = () => {
         ) : (
           <Slide elements={bannerEles} />
         )}
+        <Box className="trip-feeds-box">
+          {tripFeeds.map((feed, i) => TripFeed(tripFeedCategories[i], feed))}
+        </Box>
       </Box>
     );
   };
