@@ -108,6 +108,7 @@ const Main = () => {
                 </IconButton>
               </Link>
             </Box>
+            <Typography>*API is currently disabled due to lack of budget.</Typography>
           </Box>
         </Box>
 
