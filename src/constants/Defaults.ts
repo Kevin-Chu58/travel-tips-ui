@@ -4,8 +4,8 @@ export const ads = [
   {
     id: 0,
     businessId: 0,
-    businessName: "TravelTips",
-    title: "TravelTips Membership",
+    businessName: "TravelTipsGo",
+    title: "TravelTipsGo Membership",
     imageId: 46,
     text: "Make your destination private.",
     linkLabel: "Join now!",
@@ -20,7 +20,7 @@ export const ads = [
   {
     id: 0,
     businessId: 0,
-    businessName: "TravelTips",
+    businessName: "TravelTipsGo",
     title: "Partner with us!",
     imageId: 47,
     text: "Promote your business",
