@@ -39,7 +39,7 @@ A full-featured travel planning web application built with React, TypeScript, an
 - npm or yarn
 - An [Auth0](https://auth0.com) account (for authentication)
 - A [MapTiler](https://www.maptiler.com) API key (for maps)
-- The [Travel Tips API](https://github.com/Kevin-Chu58) running locally or deployed
+- The [Travel Tips API](https://github.com/Kevin-Chu58/travel-tips-api) running locally or deployed
 
 ---
 
