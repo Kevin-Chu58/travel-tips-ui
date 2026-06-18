@@ -33,6 +33,25 @@ A full-featured travel planning web application built with React, TypeScript, an
 
 ---
 
+## Screenshots
+
+### Itinerary View
+<img width="1918" height="965" alt="Screenshot 2026-04-22 093515" src="https://github.com/user-attachments/assets/335ce908-7cd7-42c6-992d-d752938fb68c" />
+<img width="1918" height="972" alt="Screenshot 2026-04-22 145105" src="https://github.com/user-attachments/assets/6cd64143-9bb1-4a4a-ad9c-f205677817b6" />
+<img width="1918" height="971" alt="Screenshot 2026-04-22 084331" src="https://github.com/user-attachments/assets/204baf20-7d08-4142-8f51-9e13aa05e3c8" />
+
+### Banner Editing UI
+<img width="1917" height="965" alt="Screenshot 2026-04-22 093658" src="https://github.com/user-attachments/assets/ce133d1e-4327-4287-afff-fb26d22c5ea8" />
+<img width="1919" height="966" alt="Screenshot 2026-04-22 093713" src="https://github.com/user-attachments/assets/46b31348-dc34-4773-8253-8bb5fc6472a6" />
+
+### Self-serving Ads Portal
+<img width="1916" height="971" alt="Screenshot 2026-04-22 092328" src="https://github.com/user-attachments/assets/14f9a0f9-2c91-4fbb-b42a-f60b6ea1e483" />
+<img width="1915" height="968" alt="Screenshot 2026-04-22 092822" src="https://github.com/user-attachments/assets/0820817a-b862-47a2-ae68-f16619ad81e2" />
+<img width="1914" height="970" alt="Screenshot 2026-04-22 092846" src="https://github.com/user-attachments/assets/89d86b3a-9d83-4f8b-9e8d-1578ef459bf9" />
+
+
+---
+
 ## Prerequisites
 
 - Node.js 18+
